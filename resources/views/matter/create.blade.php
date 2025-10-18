@@ -1,10 +1,27 @@
 <form id="createMatterForm" autocomplete="off">
   <input type="hidden" name="operation" value="{{ $operation ?? "new" }}">
   <div class="row mb-2">
-    <label for="category" class="col-4 col-form-label fw-bold">Category</label>
+    <label for="category_code" class="col-4 col-form-label fw-bold">{{ __('Category') }}</label>
     <div class="col-8">
-      <input type="hidden" name="category_code" value="{{ $parent_matter->category_code ?? ( $category['code'] ?? '') }}">
-      <input type="text" class="form-control" data-ac="/category/autocomplete" data-actarget="category_code" data-aclength="0" placeholder="{{ $category['name'] ?? ( $parent_matter->category->category ??  '' ) }}" autocomplete="off">
+      <input type="search"
+             class="form-control form-control-sm mb-1"
+             data-filter-input
+             data-filter-target="#categorySelect"
+             placeholder="{{ __('Filter options...') }}">
+      <select class="form-select"
+              id="categorySelect"
+              name="category_code"
+              required>
+        <option value="" disabled {{ empty(old('category_code', $parent_matter->category_code ?? ($category['code'] ?? ''))) ? 'selected' : '' }}>
+          {{ __('Select an option') }}
+        </option>
+        @foreach ($categoriesList as $item)
+          <option value="{{ $item->code }}"
+            @selected(old('category_code', $parent_matter->category_code ?? ($category['code'] ?? '')) === $item->code)>
+            {{ $item->category }}
+          </option>
+        @endforeach
+      </select>
     </div>
   </div>
   @if ( $operation == 'ops' )
@@ -32,22 +49,70 @@
   <div class="row mb-2">
     <label for="country" class="col-4 col-form-label fw-bold">{{ __('Country') }}</label>
     <div class="col-8">
-      <input type="hidden" name="country" value="{{ $parent_matter->country ?? '' }}">
-      <input type="text" class="form-control text-truncate" data-ac="/country/autocomplete" data-actarget="country" placeholder="{{ $parent_matter->countryInfo->name ?? '' }}" autocomplete="off">
+      <input type="search"
+             class="form-control form-control-sm mb-1"
+             data-filter-input
+             data-filter-target="#countrySelect"
+             placeholder="{{ __('Filter options...') }}">
+      <select class="form-select"
+              id="countrySelect"
+              name="country"
+              required>
+        <option value="" disabled {{ empty(old('country', $parent_matter->country ?? '')) ? 'selected' : '' }}>
+          {{ __('Select an option') }}
+        </option>
+        @foreach ($countries as $item)
+          <option value="{{ $item->iso }}"
+            @selected(old('country', $parent_matter->country ?? '') === $item->iso)>
+            {{ $item->name }}
+          </option>
+        @endforeach
+      </select>
     </div>
   </div>
   <div class="row mb-2">
     <label for="origin" class="col-4 col-form-label">{{ __('Origin') }}</label>
     <div class="col-8">
-      <input type="hidden" name="origin" value="{{ $parent_matter->origin ?? '' }}">
-      <input type="text" class="form-control text-truncate" data-ac="/country/autocomplete" data-actarget="origin" placeholder="{{ $parent_matter->originInfo->name ?? '' }}" autocomplete="off">
+      <input type="search"
+             class="form-control form-control-sm mb-1"
+             data-filter-input
+             data-filter-target="#originSelect"
+             placeholder="{{ __('Filter options...') }}">
+      <select class="form-select"
+              id="originSelect"
+              name="origin">
+        <option value="">{{ __('None') }}</option>
+        @foreach ($countries as $item)
+          <option value="{{ $item->iso }}"
+            @selected(old('origin', $parent_matter->origin ?? '') === $item->iso)>
+            {{ $item->name }}
+          </option>
+        @endforeach
+      </select>
     </div>
   </div>
   <div class="row mb-2">
     <label for="type_code" class="col-4 col-form-label">{{ __('Type') }}</label>
     <div class="col-8">
-      <input type="hidden" name="type_code" value="{{ $parent_matter->type_code ?? '' }}">
-      <input type="text" class="form-control" data-ac="/type/autocomplete" data-actarget="type_code" data-aclength="0" value="{{ $parent_matter->type->type ?? '' }}" autocomplete="off">
+      <input type="search"
+             class="form-control form-control-sm mb-1"
+             data-filter-input
+             data-filter-target="#typeSelect"
+             placeholder="{{ __('Filter options...') }}">
+      <select class="form-select"
+              id="typeSelect"
+              name="type_code"
+              required>
+        <option value="" disabled {{ empty(old('type_code', $parent_matter->type_code ?? '')) ? 'selected' : '' }}>
+          {{ __('Select an option') }}
+        </option>
+        @foreach ($matterTypes as $item)
+          <option value="{{ $item->code }}"
+            @selected(old('type_code', $parent_matter->type_code ?? '') === $item->code)>
+            {{ $item->type }}
+          </option>
+        @endforeach
+      </select>
     </div>
   </div>
   @endif
@@ -64,8 +129,22 @@
   <div class="row">
     <label for="responsible" class="col-4 col-form-label fw-bold">{{ __('Responsible') }}</label>
     <div class="col-8">
-      <input type="hidden" name="responsible" value="{{ $parent_matter->responsible ?? Auth::user()->login }}">
-      <input type="text" class="form-control" data-ac="/user/autocomplete" data-actarget="responsible" placeholder="{{ $parent_matter->responsible ?? Auth::user()->name }}" autocomplete="off">
+      <input type="search"
+             class="form-control form-control-sm mb-1"
+             data-filter-input
+             data-filter-target="#responsibleSelect"
+             placeholder="{{ __('Filter options...') }}">
+      <select class="form-select"
+              id="responsibleSelect"
+              name="responsible"
+              required>
+        @foreach ($responsibleUsers as $user)
+          <option value="{{ $user->login }}"
+            @selected(old('responsible', $defaultResponsible) === $user->login)>
+            {{ $user->name }} ({{ $user->login }})
+          </option>
+        @endforeach
+      </select>
     </div>
   </div>
 

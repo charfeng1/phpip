@@ -6,7 +6,11 @@ use App\Http\Requests\MatterExportRequest;
 use App\Http\Requests\MergeFileRequest;
 use App\Models\Actor;
 use App\Models\ActorPivot;
+use App\Models\Category;
+use App\Models\Country;
 use App\Models\Matter;
+use App\Models\MatterType;
+use App\Models\User;
 use App\Services\DocumentMergeService;
 use App\Services\MatterExportService;
 use App\Services\OPSService;
@@ -138,7 +142,34 @@ class MatterController extends Controller
             $category['next_caseref']++;
         }
 
-        return view('matter.create', compact('parent_matter', 'operation', 'category'));
+        $categoriesList = Category::all()
+            ->sortBy(fn ($item) => strtolower((string) $item->category), SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
+
+        $countries = Country::all()
+            ->sortBy(fn ($item) => strtolower((string) $item->name), SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
+
+        $matterTypes = MatterType::all()
+            ->sortBy(fn ($item) => strtolower((string) $item->type), SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
+
+        $responsibleUsers = User::orderBy('name')->get(['login', 'name']);
+        $defaultResponsible = $parent_matter->responsible ?? Auth::user()->login;
+
+        return view(
+            'matter.create',
+            compact(
+                'parent_matter',
+                'operation',
+                'category',
+                'categoriesList',
+                'countries',
+                'matterTypes',
+                'responsibleUsers',
+                'defaultResponsible'
+            )
+        );
     }
 
     public function store(Request $request)
