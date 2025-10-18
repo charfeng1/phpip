@@ -780,9 +780,67 @@ export function initMain() {
   };
 
   // Initialize existing autocomplete elements
+  const initFilterInput = function (input) {
+    if (input.dataset.filterReady) {
+      return;
+    }
+    const targetSelector = input.getAttribute("data-filter-target");
+    if (!targetSelector) {
+      return;
+    }
+    const scope = input.closest("form") || document;
+    const select = scope.querySelector(targetSelector);
+    if (!(select instanceof HTMLSelectElement)) {
+      return;
+    }
+
+    const options = Array.from(select.options).map((option) => ({
+      element: option,
+      originalHidden: option.hidden,
+      text: option.textContent.toLowerCase(),
+    }));
+
+    const filterOptions = (term) => {
+      const query = term.trim().toLowerCase();
+      options.forEach(({ element, originalHidden, text }) => {
+        if (originalHidden) {
+          return;
+        }
+        if (query === "") {
+          element.hidden = false;
+          return;
+        }
+        element.hidden = !text.includes(query);
+      });
+    };
+
+    input.addEventListener("input", (event) => {
+      filterOptions(event.target.value);
+    });
+
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        const firstVisible = options.find(
+          ({ element, originalHidden }) => !element.hidden && !originalHidden,
+        );
+        if (firstVisible) {
+          select.value = firstVisible.element.value;
+          select.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+      }
+    });
+
+    input.dataset.filterReady = "true";
+  };
+
   const acInputs = document.querySelectorAll("[data-ac]");
   acInputs.forEach((input) => {
     addAutocomplete(input);
+  });
+  const filterInputs = document.querySelectorAll("[data-filter-input]");
+  filterInputs.forEach((input) => {
+    initFilterInput(input);
   });
 
   // Initialize dynamically added autocomplete elements
@@ -796,6 +854,10 @@ export function initMain() {
             if (!input.hasAttribute("data-oldvalue")) {
               addAutocomplete(input);
             }
+          });
+          const filters = node.querySelectorAll("[data-filter-input]");
+          filters.forEach((input) => {
+            initFilterInput(input);
           });
         }
       });

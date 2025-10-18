@@ -320,6 +320,8 @@
     "Min 8 characters with a-z, A-Z, 0-9 and special": "Min 8 characters with a-z, A-Z, 0-9 and special",
     "Select a DB role with the desired permissions": "Select a DB role with the desired permissions",
     "Select user's company": "Select user's company",
+    "Select an option": "Select an option",
+    "Filter options...": "Filter options...",
     "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.": "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.",
     "Template member information": "Template member information",
     "Click on member to view and edit details": "Click on member to view and edit details",
