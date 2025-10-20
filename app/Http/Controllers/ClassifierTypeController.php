@@ -13,7 +13,7 @@ class ClassifierTypeController extends Controller
         $Code = $request->input('Code');
         $Type = $request->input('Type');
         $classifierType = ClassifierType::query();
-        
+
         if (! is_null($Code)) {
             $classifierType = $classifierType->whereLike('code', $Code.'%');
         }

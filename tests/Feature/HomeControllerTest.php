@@ -11,7 +11,7 @@ class HomeControllerTest extends TestCase
      *
      * @return void
      */
-    public function testHome()
+    public function test_home()
     {
         $response = $this->call('GET', '/');
 

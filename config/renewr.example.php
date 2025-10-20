@@ -14,5 +14,5 @@ return [
     // For the demo API
     'jwt_url' => 'https://auth.arkyan.com/realms/renewr-demo/protocol/openid-connect/token',
     'demo_username' => 'user',
-    'demo_password' => 'password'
+    'demo_password' => 'password',
 ];

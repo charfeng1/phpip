@@ -73,8 +73,9 @@ class ClassifierController extends Controller
 
             return response($classifierId, 200)->header('Content-Type', 'text/plain');
         } catch (\Exception $e) {
-            \Log::error('Classifier store failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            return response('Error: ' . $e->getMessage(), 500)->header('Content-Type', 'text/plain');
+            \Log::error('Classifier store failed: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
+            return response('Error: '.$e->getMessage(), 500)->header('Content-Type', 'text/plain');
         }
     }
 

@@ -8,7 +8,7 @@ class UpdateTaskDetailRenewalJson extends Migration
     public function up()
     {
         // Update procedures to wrap RYear in JSON
-        DB::statement("DROP PROCEDURE IF EXISTS insert_recurring_renewals");
+        DB::statement('DROP PROCEDURE IF EXISTS insert_recurring_renewals');
         DB::statement("
         CREATE PROCEDURE insert_recurring_renewals(
             IN P_trigger_id INT,
@@ -62,7 +62,7 @@ class UpdateTaskDetailRenewalJson extends Migration
     public function down()
     {
         // Restore original procedure
-        DB::statement("DROP PROCEDURE IF EXISTS insert_recurring_renewals");
+        DB::statement('DROP PROCEDURE IF EXISTS insert_recurring_renewals');
         DB::statement("
         CREATE PROCEDURE insert_recurring_renewals(
             IN P_trigger_id INT,

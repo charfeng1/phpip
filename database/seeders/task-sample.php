@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Export to PHP Array plugin for PHPMyAdmin
  *

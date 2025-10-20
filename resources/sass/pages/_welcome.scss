@@ -1,0 +1,66 @@
+.welcome-page {
+  min-height: 100vh;
+  background: var(--bg-hero);
+  color: var(--text-secondary);
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+
+  .welcome-shell {
+    text-align: center;
+    position: relative;
+    width: min(640px, 90vw);
+  }
+
+  .welcome-title {
+    font-size: 4rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+  }
+
+  .welcome-subtitle {
+    font-size: 1.1rem;
+    margin-bottom: var(--space-6);
+    color: var(--text-secondary);
+  }
+
+  .welcome-links {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: center;
+    flex-wrap: wrap;
+
+    a {
+      color: var(--text-secondary);
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: var(--font-size-xs);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-pill);
+      transition: background var(--transition-fast), color var(--transition-fast);
+
+      &:hover {
+        background: rgba(15, 98, 254, 0.1);
+        color: var(--color-primary);
+        text-decoration: none;
+      }
+    }
+  }
+
+  .welcome-content {
+    padding: var(--space-8) var(--space-6);
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-md);
+  }
+
+  .top-right {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+  }
+}

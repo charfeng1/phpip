@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\HasTableComments;
 use App\Traits\HasTranslationsExtended;
+use Illuminate\Database\Eloquent\Model;
 
 class Rule extends Model
 {
     use HasTableComments;
     use HasTranslationsExtended;
-    
+
     protected $table = 'task_rules';
 
     protected $hidden = ['creator', 'created_at', 'updated_at', 'updater'];

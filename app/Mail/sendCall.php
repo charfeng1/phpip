@@ -13,15 +13,16 @@ class sendCall extends Mailable
     use Queueable, SerializesModels;
 
     public $renewals;
+
     protected $language;
 
     public function __construct(public $step, $renewals, public $validity_date, public $instruction_date, public $total, public $total_ht, public $subject, public $dest)
     {
         $this->renewals = collect($renewals)->sortBy([
             ['caseref', 'asc'],
-            ['country', 'asc']
+            ['country', 'asc'],
         ])->values();
-        
+
         $this->language = $this->renewals->first()['language'] ?? app()->getLocale();
 
         // Added to ask for receipt confirmation
@@ -52,7 +53,7 @@ class sendCall extends Mailable
         return $this->view('email.renewalCall', [
             'template' => $template,
             'language' => $this->language,
-            'renewals' => $this->renewals
+            'renewals' => $this->renewals,
         ]);
     }
 

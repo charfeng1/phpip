@@ -1,0 +1,26 @@
+.hidden-action {
+  display: none;
+}
+
+.reveal-hidden:hover .hidden-action {
+  display: inline-flex;
+}
+
+.noformat {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  height: auto;
+  display: inline;
+  box-shadow: none;
+}
+
+.text-muted-soft {
+  color: var(--text-tertiary) !important;
+}
+
+.shadow-floating {
+  box-shadow: var(--shadow-lg) !important;
+}

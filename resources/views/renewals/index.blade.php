@@ -1,12 +1,6 @@
 @extends('layouts.app')
 
-@section('style')
-<style>
-  input:not(:placeholder-shown) {
-    border-color: green;
-  }
-</style>
-@endsection
+@section('body-class', 'renewals-page')
 
 @section('content')
 

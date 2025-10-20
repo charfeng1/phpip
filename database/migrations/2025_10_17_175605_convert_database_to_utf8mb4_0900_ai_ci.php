@@ -85,7 +85,7 @@ return new class extends Migration
             // Remove DEFINER clause if it causes issues
             $definition = preg_replace('/DEFINER\s*=\s*`[^`]+`@`[^`]+`/i', '', $definition);
             $definition = trim($definition);
-            if (!empty($definition)) {
+            if (! empty($definition)) {
                 DB::unprepared($definition);
                 echo "Recreated trigger: {$name}\n";
             } else {
@@ -117,7 +117,7 @@ return new class extends Migration
             // Remove DEFINER clause
             $sql = preg_replace('/DEFINER\s*=\s*`[^`]+`@`[^`]+`/i', '', $routine['sql']);
             $sql = trim($sql);
-            if (!empty($sql)) {
+            if (! empty($sql)) {
                 DB::unprepared($sql);
                 echo "Recreated {$routine['type']}: {$name}\n";
             } else {

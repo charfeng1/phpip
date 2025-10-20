@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\HasTableComments;
 use App\Traits\HasTranslationsExtended;
+use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
     use HasTableComments;
     use HasTranslationsExtended;
-    
+
     protected $table = 'actor_role';
 
     protected $primaryKey = 'code';

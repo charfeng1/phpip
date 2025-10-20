@@ -1,53 +1,21 @@
-// Import Bootstrap with theme customization
-@forward 'bootstrap/scss/bootstrap' with (
-  $primary: #0c3f70,
-  $info: #618faa,
-  
-  // Body
-  $body-bg: #f8fafc,
-  $dropdown-link-hover-bg: #e4e9f0,
-  
-  // Typography
-  $font-family-sans-serif: ('Nunito', sans-serif),
-  $font-size-base: 0.8rem,
-  $line-height-base: 1.1,
+@use "sass:math";
 
-  // Components
-  $min-contrast-ratio: 3,
-  
-  // Popovers
-  $popover-header-bg: #618faa,
-);
+// Design tokens and Bootstrap overrides
+@import "abstracts/variables";
+@import "bootstrap/scss/bootstrap";
 
-// Fonts
-//@import url('https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,300i,700');
-@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
-//@import "/fonts/fonts.css";
+// Base layers
+@import "base/typography";
+@import "layout/base";
 
-// Show/hide elements upon hovering
-.hidden-action {
-    display: none;
-}
-.reveal-hidden:hover .hidden-action {
-    display: inline-block;
-}
+// Utilities & components
+@import "utilities/helpers";
+@import "components/combobox";
+@import "components/cards";
+@import "components/modals";
 
-// Remove underlines for links (do not apply to classes which have their own behavior)
-a:not(.nav-link):not(.btn):not(.dropdown-item) {
-  text-decoration: none;
-}
-a:not(.nav-link):not(.btn):not(.dropdown-item):hover {
-  text-decoration: underline;
-}
-
-// Clear all input field formatting for in-place edition fields
-.noformat {
-    border: none;
-    border-radius: 0;
-    background: inherit;
-    color: inherit;
-    padding: 0px;
-    height: inherit;
-    display: inline;
-    box-shadow: none;
-}
+// Page specific styling
+@import "pages/home";
+@import "pages/matter-index";
+@import "pages/renewals";
+@import "pages/welcome";

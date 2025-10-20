@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Actor;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +13,7 @@ class RoleController extends Controller
         $Code = $request->input('Code');
         $Name = $request->input('Name');
         $role = Role::query();
-        
+
         if (! is_null($Code)) {
             $role = $role->whereLike('code', $Code.'%');
         }

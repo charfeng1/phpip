@@ -1,0 +1,6 @@
+.renewals-page {
+  input:not(:placeholder-shown) {
+    border-color: var(--color-success);
+    box-shadow: 0 0 0 2px rgba(15, 191, 126, 0.15);
+  }
+}

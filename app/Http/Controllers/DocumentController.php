@@ -84,7 +84,7 @@ class DocumentController extends Controller
     public function select(Matter $matter, Request $request)
     {
         $template_id = $request->input('template_id');
-        //limit to actors with email
+        // limit to actors with email
         $contacts = MatterActors::where([['matter_id', $matter->id], ['role_code', 'CNT']])->whereNotNull('email');
         if ($contacts->count() === 0) {
             $contacts = MatterActors::select('actor_id', 'name', 'display_name', 'first_name')

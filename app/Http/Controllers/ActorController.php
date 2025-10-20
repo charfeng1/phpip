@@ -14,7 +14,7 @@ class ActorController extends Controller
         Gate::authorize('readonly');
         $actor = new Actor;
         if ($request->filled('Name')) {
-            $actor = $actor->where('name', 'like', $request->Name . '%');
+            $actor = $actor->where('name', 'like', $request->Name.'%');
         }
         switch ($request->selector) {
             case 'phy_p':

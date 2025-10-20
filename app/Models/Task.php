@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use App\Traits\HasTranslationsExtended;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Builder;
-use App\Traits\HasTranslationsExtended;
 
 class Task extends Model
 {
@@ -53,7 +53,7 @@ class Task extends Model
         $userid = Auth::user()->id;
         $role = Auth::user()->default_role;
         $what_tasks = request()->input('what_tasks');
-        
+
         $query = static::with(['matter', 'matter.client'])
             ->where('done', 0)
             ->whereHas('matter', function (Builder $q) {
@@ -82,10 +82,10 @@ class Task extends Model
 
         // Select and group results
         return $query->select(
-                DB::raw('count(*) as no_of_tasks'),
-                DB::raw('MIN(due_date) as urgent_date'),
-                DB::raw('IFNULL(assigned_to, (SELECT responsible FROM matter WHERE id = (SELECT matter_id FROM event WHERE id = task.trigger_id))) as login')
-            )
+            DB::raw('count(*) as no_of_tasks'),
+            DB::raw('MIN(due_date) as urgent_date'),
+            DB::raw('IFNULL(assigned_to, (SELECT responsible FROM matter WHERE id = (SELECT matter_id FROM event WHERE id = task.trigger_id))) as login')
+        )
             ->groupBy('login')
             ->get();
     }
@@ -153,52 +153,47 @@ class Task extends Model
             'task.grace_period',
             'task.invoice_step',
             'matter.expire_date',
-            'fees.fee AS table_fee'
+            'fees.fee AS table_fee',
         ])
-        ->join('event', 'matter.id', 'event.matter_id')
-        ->join('task', 'task.trigger_id', 'event.id')
-        ->leftJoin('country as mcountry', 'mcountry.iso', 'matter.country')
+            ->join('event', 'matter.id', 'event.matter_id')
+            ->join('task', 'task.trigger_id', 'event.id')
+            ->leftJoin('country as mcountry', 'mcountry.iso', 'matter.country')
         // Events
-        ->leftJoin('event AS fil', fn($join) => 
-            $join->on('matter.id', 'fil.matter_id')
-                 ->where('fil.code', 'FIL'))
-        ->leftJoin('event AS pub', fn($join) => 
-            $join->on('matter.id', 'pub.matter_id')
-                 ->where('pub.code', 'PUB'))
-        ->leftJoin('event AS grt', fn($join) => 
-            $join->on('matter.id', 'grt.matter_id')
-                 ->where('grt.code', 'GRT'))
+            ->leftJoin('event AS fil', fn ($join) => $join->on('matter.id', 'fil.matter_id')
+                ->where('fil.code', 'FIL'))
+            ->leftJoin('event AS pub', fn ($join) => $join->on('matter.id', 'pub.matter_id')
+                ->where('pub.code', 'PUB'))
+            ->leftJoin('event AS grt', fn ($join) => $join->on('matter.id', 'grt.matter_id')
+                ->where('grt.code', 'GRT'))
         // Applicants and owners
-        ->leftJoin(DB::raw("matter_actor_lnk lappl JOIN actor appl ON appl.id = lappl.actor_id AND lappl.role = 'APP'"),
-            'matter.id', 'lappl.matter_id')
-        ->leftJoin(DB::raw("matter_actor_lnk lapplc JOIN actor applc ON applc.id = lapplc.actor_id AND lapplc.role = 'APP' AND lapplc.shared = 1"),
-            'matter.container_id', 'lapplc.matter_id')
-        ->leftJoin(DB::raw("matter_actor_lnk lown JOIN actor own ON own.id = lown.actor_id AND lown.role = 'OWN'"),
-            'matter.id', 'lown.matter_id')
-        ->leftJoin(DB::raw("matter_actor_lnk lownc JOIN actor ownc ON ownc.id = lownc.actor_id AND lownc.role = 'OWN' AND lownc.shared = 1"),
-            'matter.container_id', 'lownc.matter_id')
+            ->leftJoin(DB::raw("matter_actor_lnk lappl JOIN actor appl ON appl.id = lappl.actor_id AND lappl.role = 'APP'"),
+                'matter.id', 'lappl.matter_id')
+            ->leftJoin(DB::raw("matter_actor_lnk lapplc JOIN actor applc ON applc.id = lapplc.actor_id AND lapplc.role = 'APP' AND lapplc.shared = 1"),
+                'matter.container_id', 'lapplc.matter_id')
+            ->leftJoin(DB::raw("matter_actor_lnk lown JOIN actor own ON own.id = lown.actor_id AND lown.role = 'OWN'"),
+                'matter.id', 'lown.matter_id')
+            ->leftJoin(DB::raw("matter_actor_lnk lownc JOIN actor ownc ON ownc.id = lownc.actor_id AND lownc.role = 'OWN' AND lownc.shared = 1"),
+                'matter.container_id', 'lownc.matter_id')
         // Clients
-        ->leftJoin(DB::raw('matter_actor_lnk pmal_cli JOIN actor pa_cli ON pa_cli.id = pmal_cli.actor_id'), 
-            fn($join) => $join->on('matter.id', 'pmal_cli.matter_id')->where('pmal_cli.role', 'CLI'))
-        ->leftJoin(DB::raw('matter_actor_lnk cliclnk JOIN actor clic ON clic.id = cliclnk.actor_id'),
-            fn($join) => $join->on('matter.container_id', 'cliclnk.matter_id')
-                             ->where([['cliclnk.role', 'CLI'], ['cliclnk.shared', 1]]))
+            ->leftJoin(DB::raw('matter_actor_lnk pmal_cli JOIN actor pa_cli ON pa_cli.id = pmal_cli.actor_id'),
+                fn ($join) => $join->on('matter.id', 'pmal_cli.matter_id')->where('pmal_cli.role', 'CLI'))
+            ->leftJoin(DB::raw('matter_actor_lnk cliclnk JOIN actor clic ON clic.id = cliclnk.actor_id'),
+                fn ($join) => $join->on('matter.container_id', 'cliclnk.matter_id')
+                    ->where([['cliclnk.role', 'CLI'], ['cliclnk.shared', 1]]))
         // Titles
-        ->leftJoin('classifier AS tit', fn($join) => 
-            $join->on(DB::raw('IFNULL(matter.container_id, matter.id)'), 'tit.matter_id')
-                 ->where('tit.type_code', 'TIT'))
-        ->leftJoin('classifier AS titof', fn($join) => 
-            $join->on(DB::raw('IFNULL(matter.container_id, matter.id)'), 'titof.matter_id')
-                 ->where('titof.type_code', 'TITOF'))
+            ->leftJoin('classifier AS tit', fn ($join) => $join->on(DB::raw('IFNULL(matter.container_id, matter.id)'), 'tit.matter_id')
+                ->where('tit.type_code', 'TIT'))
+            ->leftJoin('classifier AS titof', fn ($join) => $join->on(DB::raw('IFNULL(matter.container_id, matter.id)'), 'titof.matter_id')
+                ->where('titof.type_code', 'TITOF'))
         // Fees
-        ->leftJoin('fees', function($join) {
-            $join->on('fees.for_country', 'matter.country')
-                ->on('fees.for_category', 'matter.category_code')
-                ->on(DB::raw("CAST(JSON_UNQUOTE(JSON_EXTRACT(task.detail, '$.\"en\"')) AS UNSIGNED)"), 'fees.qt');
-        })
-        ->where('task.code', 'REN')
-        ->groupBy('task.due_date')
-        ->groupBy('task.id')
-        ->groupBy('event.matter_id');
+            ->leftJoin('fees', function ($join) {
+                $join->on('fees.for_country', 'matter.country')
+                    ->on('fees.for_category', 'matter.category_code')
+                    ->on(DB::raw("CAST(JSON_UNQUOTE(JSON_EXTRACT(task.detail, '$.\"en\"')) AS UNSIGNED)"), 'fees.qt');
+            })
+            ->where('task.code', 'REN')
+            ->groupBy('task.due_date')
+            ->groupBy('task.id')
+            ->groupBy('event.matter_id');
     }
 }

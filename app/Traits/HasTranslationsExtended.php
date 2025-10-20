@@ -18,4 +18,3 @@ trait HasTranslationsExtended
         return $this->parentSetTranslation($key, $baseLocale, $value);
     }
 }
-

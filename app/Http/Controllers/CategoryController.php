@@ -13,11 +13,11 @@ class CategoryController extends Controller
         $Code = $request->input('Code');
         $Category = $request->input('Category');
         $category = Category::query();
-        
+
         if (! is_null($Code)) {
             $category = $category->whereLike('code', $Code.'%');
         }
-        
+
         if (! is_null($Category)) {
             $category = $category->whereJsonLike('category', $Category);
         }
@@ -35,6 +35,7 @@ class CategoryController extends Controller
     {
         $category = new Category;
         $tableComments = $category->getTableComments();
+
         return view('category.create', compact('tableComments'));
     }
 

@@ -15,23 +15,24 @@ use App\Services\DocumentMergeService;
 use App\Services\MatterExportService;
 use App\Services\OPSService;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MatterController extends Controller
 {
     protected DocumentMergeService $documentMergeService;
+
     protected MatterExportService $matterExportService;
+
     protected OPSService $opsService;
 
     public function __construct(
         DocumentMergeService $documentMergeService,
-        MatterExportService  $matterExportService,
+        MatterExportService $matterExportService,
         OPSService $opsService
-    )
-    {
+    ) {
         $this->documentMergeService = $documentMergeService;
         $this->matterExportService = $matterExportService;
         $this->opsService = $opsService;
@@ -41,15 +42,15 @@ class MatterController extends Controller
     {
         $filters = $request->except(
             [
-            'display_with',
-            'page',
-            'filter',
-            'value',
-            'sortkey',
-            'sortdir',
-            'tab',
-            'include_dead',
-        ]);
+                'display_with',
+                'page',
+                'filter',
+                'value',
+                'sortkey',
+                'sortdir',
+                'tab',
+                'include_dead',
+            ]);
 
         $query = Matter::filter(
             $request->input('sortkey', 'id'),
@@ -61,6 +62,7 @@ class MatterController extends Controller
 
         if ($request->wantsJson()) {
             $matters = $query->with('events.info')->get();
+
             return response()->json($matters);
         }
 
@@ -80,7 +82,7 @@ class MatterController extends Controller
         $familyIds = $family->pluck('id')->push($matter->id)->unique();
 
         // Get all external matters claiming priority to any family member (by PRI event)
-        $externalPriorityMatters = \App\Models\Matter::whereHas('events', function($q) use ($familyIds) {
+        $externalPriorityMatters = \App\Models\Matter::whereHas('events', function ($q) use ($familyIds) {
             $q->where('code', 'PRI')->whereIn('alt_matter_id', $familyIds);
         })->get();
 
@@ -97,7 +99,7 @@ class MatterController extends Controller
     /**
      * Return a JSON array with info of a matter. For use with API REST.
      *
-     * @param int $id
+     * @param  int  $id
      * @return Json
      **/
     public function info($id)
@@ -126,7 +128,7 @@ class MatterController extends Controller
                 $parent_matter->caseref = Matter::where(
                     'caseref',
                     'like',
-                    $parent_matter->category->ref_prefix . '%'
+                    $parent_matter->category->ref_prefix.'%'
                 )->max('caseref');
                 $parent_matter->caseref++;
             }
@@ -135,7 +137,7 @@ class MatterController extends Controller
             $ref_prefix = \App\Models\Category::find($category_code)['ref_prefix'];
             $category = [
                 'code' => $category_code,
-                'next_caseref' => Matter::where('caseref', 'like', $ref_prefix . '%')
+                'next_caseref' => Matter::where('caseref', 'like', $ref_prefix.'%')
                     ->max('caseref'),
                 'name' => \App\Models\Category::find($category_code)['category'],
             ];
@@ -291,7 +293,7 @@ class MatterController extends Controller
 
             // Copy shared events from original matter
             $new_matter->priority()->createMany($parent_matter->priority->toArray());
-            //$new_matter->parentFiling()->createMany($parent_matter->parentFiling->toArray());
+            // $new_matter->parentFiling()->createMany($parent_matter->parentFiling->toArray());
             $new_matter->filing()->save($parent_matter->filing->replicate());
             if ($parent_matter->publication()->exists()) {
                 $new_matter->publication()->save($parent_matter->publication->replicate());
@@ -398,7 +400,7 @@ class MatterController extends Controller
                         $new_matter->events()->create(
                             [
                                 'code' => 'PRI',
-                                'detail' => $pri['country'] . $pri['number'],
+                                'detail' => $pri['country'].$pri['number'],
                                 'event_date' => $pri['date'],
                             ]
                         );
@@ -424,7 +426,7 @@ class MatterController extends Controller
                             // Remove ending comma
                             $applicant = substr($applicant, 0, -1);
                         }
-                        if ($actor = Actor::whereRaw("name SOUNDS LIKE '$applicant'")->first()) {
+                        if ($actor = Actor::whereRaw("name SOUNDS LIKE ?", [$applicant])->first()) {
                             // Some applicants are listed twice, with and without accents, so ignore unique key error for a second attempt
                             $new_matter->actorPivot()->firstOrCreate(
                                 [
@@ -451,7 +453,7 @@ class MatterController extends Controller
                             );
                         }
                     }
-                    $new_matter->notes = 'Applicants: ' . collect($app['applicants'])->implode('; ');
+                    $new_matter->notes = 'Applicants: '.collect($app['applicants'])->implode('; ');
                 }
                 if (array_key_exists('inventors', $app)) {
                     foreach ($app['inventors'] as $inventor) {
@@ -460,7 +462,7 @@ class MatterController extends Controller
                             // Remove ending comma
                             $inventor = substr($inventor, 0, -1);
                         }
-                        if ($actor = Actor::whereRaw("name SOUNDS LIKE '$inventor'")->first()) {
+                        if ($actor = Actor::whereRaw("name SOUNDS LIKE ?", [$inventor])->first()) {
                             // Some inventors are listed twice, with and without accents, so ignore second attempt
                             $new_matter->actorPivot()->firstOrCreate(
                                 [
@@ -487,7 +489,7 @@ class MatterController extends Controller
                             );
                         }
                     }
-                    $new_matter->notes .= "\nInventors: " . collect($app['inventors'])->implode(' - ');
+                    $new_matter->notes .= "\nInventors: ".collect($app['inventors'])->implode(' - ');
                 }
             } else {
                 $new_matter->container_id = $container_id;
@@ -499,14 +501,14 @@ class MatterController extends Controller
                             $new_matter->events()->create(
                                 [
                                     'code' => 'PRI',
-                                    'alt_matter_id' => $matter_id_num[$pri['number']]
+                                    'alt_matter_id' => $matter_id_num[$pri['number']],
                                 ]
                             );
                         } else {
                             $new_matter->events()->create(
                                 [
                                     'code' => 'PRI',
-                                    'detail' => $pri['country'] . $pri['number'],
+                                    'detail' => $pri['country'].$pri['number'],
                                     'event_date' => $pri['date'],
                                 ]
                             );
@@ -519,7 +521,7 @@ class MatterController extends Controller
                 $new_matter->events()->create(
                     [
                         'code' => 'PFIL',
-                        'alt_matter_id' => $new_matter->parent_id
+                        'alt_matter_id' => $new_matter->parent_id,
                     ]
                 );
             }
@@ -529,7 +531,7 @@ class MatterController extends Controller
                     [
                         'code' => 'ENT',
                         'event_date' => $app['app']['date'],
-                        'detail' => 'Descendant filing date'
+                        'detail' => 'Descendant filing date',
                     ]
                 );
                 $parent = $apps->where('app.number', $parent_num)->first();
@@ -543,7 +545,7 @@ class MatterController extends Controller
                     [
                         'code' => 'PUB',
                         'event_date' => $app['pub']['date'],
-                        'detail' => $app['pub']['number']
+                        'detail' => $app['pub']['number'],
                     ]
                 );
             }
@@ -552,7 +554,7 @@ class MatterController extends Controller
                     [
                         'code' => 'GRT',
                         'event_date' => $app['grt']['date'],
-                        'detail' => $app['grt']['number']
+                        'detail' => $app['grt']['number'],
                     ]
                 );
             }
@@ -569,7 +571,7 @@ class MatterController extends Controller
                                         'due_date' => $exa->event_date->addMonths(4),
                                         'done_date' => $step['replied'],
                                         'done' => 1,
-                                        'detail' => 'Exam Report'
+                                        'detail' => 'Exam Report',
                                     ]
                                 );
                             }
@@ -581,7 +583,7 @@ class MatterController extends Controller
                                 [
                                     'due_date' => $new_matter->filing->event_date->addYears($step['ren_year'] - 1)->lastOfMonth(),
                                     'done_date' => $step['ren_paid'],
-                                    'done' => 1
+                                    'done' => 1,
                                 ]
                             );
                             break;
@@ -598,7 +600,7 @@ class MatterController extends Controller
                                         'due_date' => $grt->event_date->addMonths(4),
                                         'done_date' => $step['grt_paid'],
                                         'done' => 1,
-                                        'detail' => 'Grant Fee'
+                                        'detail' => 'Grant Fee',
                                     ]
                                 );
                             }
@@ -632,17 +634,17 @@ class MatterController extends Controller
             'filing'
         );
         $country_edit = $matter->tasks()->whereHas(
-                'rule',
-                function (Builder $q) {
-                    $q->whereNotNull('for_country');
-                }
-            )->count() == 0;
+            'rule',
+            function (Builder $q) {
+                $q->whereNotNull('for_country');
+            }
+        )->count() == 0;
         $cat_edit = $matter->tasks()->whereHas(
-                'rule',
-                function (Builder $q) {
-                    $q->whereNotNull('for_category');
-                }
-            )->count() == 0;
+            'rule',
+            function (Builder $q) {
+                $q->whereNotNull('for_category');
+            }
+        )->count() == 0;
 
         return view('matter.edit', compact(['matter', 'cat_edit', 'country_edit']));
     }
@@ -677,7 +679,7 @@ class MatterController extends Controller
      * This method exports a list of matters based on the provided filters and returns
      * a streamed response for downloading the file in CSV format.
      *
-     * @param MatterExportRequest $request The request object containing the filters for exporting matters.
+     * @param  MatterExportRequest  $request  The request object containing the filters for exporting matters.
      * @return \Symfony\Component\HttpFoundation\StreamedResponse The streamed response for the CSV file download.
      */
     public function export(MatterExportRequest $request)
@@ -722,7 +724,7 @@ class MatterController extends Controller
 
         return response()->streamDownload(function () use ($template) {
             $template->saveAs('php://output');
-        }, 'merged-' . $file->getClientOriginalName(), [
+        }, 'merged-'.$file->getClientOriginalName(), [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'Content-Transfer-Encoding' => 'binary',
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
@@ -733,7 +735,6 @@ class MatterController extends Controller
     /**
      * Get family members from OPS for a given document number
      *
-     * @param string $docnum
      * @return array
      */
     public function getOPSfamily(string $docnum)

@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\HasTableComments;
 use App\Traits\HasTranslationsExtended;
+use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
     use HasTableComments;
     use HasTranslationsExtended;
-    
+
     protected $table = 'matter_category';
 
     protected $primaryKey = 'code';

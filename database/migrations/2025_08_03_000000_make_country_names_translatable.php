@@ -2,11 +2,12 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * The locales to create indexes for.
      */
@@ -24,28 +25,28 @@ return new class extends Migration {
     {
         $tableName = 'country';
         $columnName = 'name';
-        
-        Log::info("Starting migration for country names to JSON format");
+
+        Log::info('Starting migration for country names to JSON format');
 
         // Step 1: Create temporary JSON column
-        Log::info("Adding temporary JSON column");
+        Log::info('Adding temporary JSON column');
         Schema::table($tableName, function (Blueprint $table) use ($columnName) {
             $table->json('name_json')->after($columnName);
         });
 
         // Step 2: Migrate data to JSON format
-        Log::info("Migrating country names to JSON format");
+        Log::info('Migrating country names to JSON format');
         $countries = DB::table($tableName)->get();
         foreach ($countries as $country) {
             $names = [
                 'en' => $country->name,
                 'fr' => $country->name_FR,
-                'de' => $country->name_DE
+                'de' => $country->name_DE,
             ];
-            
+
             // Filter out null values
-            $names = array_filter($names, fn($value) => !is_null($value));
-            
+            $names = array_filter($names, fn ($value) => ! is_null($value));
+
             DB::table('country')
                 ->where('iso', $country->iso)
                 ->update(['name_json' => json_encode($names, JSON_UNESCAPED_UNICODE)]);
@@ -67,10 +68,10 @@ return new class extends Migration {
 
             if ($isMariaDB) {
                 $virtualColumn = "{$columnName}_{$locale}";
-                
+
                 // Create virtual column
                 Schema::table($tableName, function (Blueprint $table) use ($virtualColumn, $columnName, $locale, $tableName) {
-                    if (!Schema::hasColumn($tableName, $virtualColumn)) {
+                    if (! Schema::hasColumn($tableName, $virtualColumn)) {
                         DB::statement("ALTER TABLE `{$tableName}` ADD COLUMN `{$virtualColumn}` VARCHAR(45) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(`{$columnName}`, '$.{$locale}'))) STORED");
                     }
                 });
@@ -160,7 +161,7 @@ return new class extends Migration {
             GROUP BY `task`.`id`
         ");
 
-        Log::info("Completed migration for country names");
+        Log::info('Completed migration for country names');
     }
 
     /**
@@ -170,9 +171,9 @@ return new class extends Migration {
     {
         $tableName = 'country';
         $columnName = 'name';
-        $tempColumnName = $columnName . '_en';
+        $tempColumnName = $columnName.'_en';
 
-        Log::info("Starting rollback of country names from JSON format");
+        Log::info('Starting rollback of country names from JSON format');
 
         // Step 1: Create separate language columns
         Schema::table($tableName, function (Blueprint $table) {
@@ -182,17 +183,17 @@ return new class extends Migration {
         });
 
         // Step 2: Extract data from JSON
-        Log::info("Extracting data from JSON to separate columns");
+        Log::info('Extracting data from JSON to separate columns');
         $countries = DB::table($tableName)->get();
         foreach ($countries as $country) {
             $names = json_decode($country->$columnName, true) ?? [];
-            
+
             DB::table('country')
                 ->where('iso', $country->iso)
                 ->update([
                     'name_temp' => $names['en'] ?? null,
                     'name_FR' => $names['fr'] ?? null,
-                    'name_DE' => $names['de'] ?? null
+                    'name_DE' => $names['de'] ?? null,
                 ]);
         }
 
@@ -208,11 +209,11 @@ return new class extends Migration {
             } else {
                 try {
                     $exists = DB::select("SHOW INDEX FROM `{$tableName}` WHERE Key_name = ?", [$indexName]);
-                    if (!empty($exists)) {
-                        Schema::table($tableName, fn(Blueprint $table) => $table->dropIndex($indexName));
+                    if (! empty($exists)) {
+                        Schema::table($tableName, fn (Blueprint $table) => $table->dropIndex($indexName));
                     }
                 } catch (\Exception $e) {
-                    Log::warning("Could not drop index {$indexName}: " . $e->getMessage());
+                    Log::warning("Could not drop index {$indexName}: ".$e->getMessage());
                 }
             }
         }
@@ -227,11 +228,11 @@ return new class extends Migration {
         Schema::table($tableName, function (Blueprint $table) use ($columnName, $tableName) {
             try {
                 $indexes = Schema::getConnection()->getDoctrineSchemaManager()->listTableIndexes($tableName);
-                if (!isset($indexes[$columnName])) {
+                if (! isset($indexes[$columnName])) {
                     $table->index($columnName);
                 }
             } catch (\Exception $e) {
-                Log::error("Failed to restore index for {$columnName}: " . $e->getMessage());
+                Log::error("Failed to restore index for {$columnName}: ".$e->getMessage());
             }
         });
 

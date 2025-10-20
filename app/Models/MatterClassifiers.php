@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\HasTranslationsExtended;
+use Illuminate\Database\Eloquent\Model;
 
 class MatterClassifiers extends Model
 {
     use HasTranslationsExtended;
-    
+
     public $timestamps = false;
 
     // Define which attributes are translatable

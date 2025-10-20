@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Database\Eloquent\Builder;
 
 class TaskController extends Controller
 {
@@ -23,7 +23,7 @@ class TaskController extends Controller
         }
 
         if ($request->what_tasks > 1) {
-            $tasks->whereHas('matter.client', function (Builder $q) use ($request) { 
+            $tasks->whereHas('matter.client', function (Builder $q) use ($request) {
                 $q->where('actor_id', $request->what_tasks);
             });
         }
@@ -100,10 +100,10 @@ class TaskController extends Controller
         if ($request->filled('done_date')) {
             $request->merge(['done_date' => Carbon::createFromLocaleIsoFormat('L', app()->getLocale(), $request->done_date)]);
         }
-        
+
         // Handle detail field
         if ($request->has('detail')) {
-            if (!$task->getTranslation('detail', 'en', false)) {
+            if (! $task->getTranslation('detail', 'en', false)) {
                 // If setting a non-empty value and there was no previous English translation,
                 // ensure it's set for both current locale and fallback
                 $task->setTranslation('detail', 'en', $request->detail);

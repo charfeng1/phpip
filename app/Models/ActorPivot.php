@@ -33,8 +33,6 @@ class ActorPivot extends Pivot
 
     /**
      * Get the matter that owns the pivot.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function matter(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -43,8 +41,6 @@ class ActorPivot extends Pivot
 
     /**
      * Get the actor that owns the pivot.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function actor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -53,8 +49,6 @@ class ActorPivot extends Pivot
 
     /**
      * Get the role associated with the pivot.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function role(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -63,8 +57,6 @@ class ActorPivot extends Pivot
 
     /**
      * Get the company associated with the pivot.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
