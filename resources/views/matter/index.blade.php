@@ -45,7 +45,7 @@
     <div class="card-header bg-gradient">
       <div class="filter-btn-group">
         <div class="btn-group" role="group">
-          <input type="checkbox" class="btn-check" name="Ctnr" x-model="showContainers" id="btnshowctnr">
+                    <input type="checkbox" class="btn-check" name="Ctnr" x-model="showContainers" id="btnshowctnr">
           <label class="filter-btn" :class="{ 'active': showContainers }" for="btnshowctnr">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="me-1">
               <path d="M10 4H4c-1.11 0-2 .89-2 2v3h2V6h4V4zM20 6h-4V4h4c1.11 0 2 .89 2 2v3h-2V6zM4 16h4v4H4c-1.11 0-2-.89-2-2v-3h2v3zm16 0v3c0 1.11-.89 2-2 2h-4v-2h4v-3h2z"/>

@@ -562,22 +562,38 @@ class Matter extends Model
                             $query->whereLike('status.event_date', "$value%");
                             break;
                         case 'Client':
-                            $query->whereLike(DB::raw('IFNULL(cli.name, clic.name)'), "$value%");
+                            $query->where(function ($q) use ($value) {
+                                $like = $value.'%';
+                                $q->where('cli.name', 'LIKE', $like)
+                                    ->orWhere('clic.name', 'LIKE', $like);
+                            });
                             break;
                         case 'ClRef':
-                            $query->whereLike(DB::raw('IFNULL(clilnk.actor_ref, cliclnk.actor_ref)'), "$value%");
+                            $query->where(function ($q) use ($value) {
+                                $like = $value.'%';
+                                $q->where('clilnk.actor_ref', 'LIKE', $like)
+                                    ->orWhere('cliclnk.actor_ref', 'LIKE', $like);
+                            });
                             break;
                         case 'Applicant':
                             $query->whereLike('app.name', "$value%");
                             break;
                         case 'Agent':
-                            $query->whereLike(DB::raw('IFNULL(agt.name, agtc.name)'), "$value%");
+                            $query->where(function ($q) use ($value) {
+                                $like = $value.'%';
+                                $q->where('agt.name', 'LIKE', $like)
+                                    ->orWhere('agtc.name', 'LIKE', $like);
+                            });
                             break;
                         case 'AgtRef':
-                            $query->whereLike(DB::raw('IFNULL(agtlnk.actor_ref, agtclnk.actor_ref)'), "$value%");
+                            $query->where(function ($q) use ($value) {
+                                $like = $value.'%';
+                                $q->where('agtlnk.actor_ref', 'LIKE', $like)
+                                    ->orWhere('agtclnk.actor_ref', 'LIKE', $like);
+                            });
                             break;
                         case 'Title':
-                            $query->whereLike(DB::Raw('concat_ws(" ", tit1.value, tit2.value, tit3.value)'), "%$value%");
+                            $query->whereRaw('CONCAT_WS(" ", COALESCE(tit1.value, ""), COALESCE(tit2.value, ""), COALESCE(tit3.value, "")) LIKE ?', ['%'.$value.'%']);
                             break;
                         case 'Inventor1':
                             $query->whereLike('inv.name', "$value%");
