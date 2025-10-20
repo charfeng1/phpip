@@ -1,14 +1,47 @@
 <form id="createMatterForm" autocomplete="off">
-  <input type="hidden" name="operation" value="{{ $operation ?? "new" }}">
+  @php
+    $selectedCategoryCode = old('category_code', $parent_matter->category_code ?? ($category['code'] ?? ''));
+    $categoriesCollection = collect($categoriesList);
+    $selectedCategoryName = optional($categoriesCollection->firstWhere('code', $selectedCategoryCode))->category;
+
+    $countriesCollection = collect($countries);
+    $selectedCountryCode = old('country', $parent_matter->country ?? '');
+    $selectedCountryName = optional($countriesCollection->firstWhere('iso', $selectedCountryCode))->name;
+
+    $selectedOriginCode = old('origin', $parent_matter->origin ?? '');
+    $selectedOriginName = optional($countriesCollection->firstWhere('iso', $selectedOriginCode))->name;
+
+    $typesCollection = collect($matterTypes);
+    $selectedTypeCode = old('type_code', $parent_matter->type_code ?? '');
+    $selectedTypeName = optional($typesCollection->firstWhere('code', $selectedTypeCode))->type;
+
+    $responsibleCollection = collect($responsibleUsers);
+    $selectedResponsibleLogin = old('responsible', $defaultResponsible);
+    $selectedResponsibleEntry = $responsibleCollection->firstWhere('login', $selectedResponsibleLogin);
+    $selectedResponsibleDisplay = $selectedResponsibleEntry
+        ? trim($selectedResponsibleEntry->name . ' (' . $selectedResponsibleEntry->login . ')')
+        : '';
+  @endphp
+  <input type="hidden" name="operation" value="{{ $operation ?? 'new' }}">
   <div class="row mb-2">
-    <label for="category_code" class="col-4 col-form-label fw-bold">{{ __('Category') }}</label>
+    <label for="categoryInput" class="col-4 col-form-label fw-bold">{{ __('Category') }}</label>
     <div class="col-8">
-      <input type="search"
-             class="form-control form-control-sm mb-1"
-             data-filter-input
-             data-filter-target="#categorySelect"
-             placeholder="{{ __('Filter options...') }}">
-      <select class="form-select"
+      <div class="combobox">
+        <input type="search"
+               class="form-control form-control-sm combobox-input"
+               placeholder="{{ __('Filter options...') }}"
+               list="categoryOptions"
+               data-combobox-target="#categorySelect"
+               id="categoryInput"
+               value="{{ $selectedCategoryName ?? '' }}"
+               autocomplete="off">
+        <datalist id="categoryOptions">
+          @foreach ($categoriesList as $item)
+            <option value="{{ $item->category }}" data-code="{{ $item->code }}"></option>
+          @endforeach
+        </datalist>
+      </div>
+      <select class="form-select d-none combobox-select"
               id="categorySelect"
               name="category_code"
               required>
@@ -47,23 +80,33 @@
   @else
   <input type="hidden" name="parent_id" value="{{ $parent_matter->id ?? '' }}">
   <div class="row mb-2">
-    <label for="country" class="col-4 col-form-label fw-bold">{{ __('Country') }}</label>
+    <label for="countryInput" class="col-4 col-form-label fw-bold">{{ __('Country') }}</label>
     <div class="col-8">
-      <input type="search"
-             class="form-control form-control-sm mb-1"
-             data-filter-input
-             data-filter-target="#countrySelect"
-             placeholder="{{ __('Filter options...') }}">
-      <select class="form-select"
+      <div class="combobox">
+        <input type="search"
+               class="form-control form-control-sm combobox-input"
+               placeholder="{{ __('Filter options...') }}"
+               list="countryOptions"
+               data-combobox-target="#countrySelect"
+               id="countryInput"
+               value="{{ $selectedCountryName ?? '' }}"
+               autocomplete="off">
+        <datalist id="countryOptions">
+          @foreach ($countries as $item)
+            <option value="{{ $item->name }}" data-code="{{ $item->iso }}"></option>
+          @endforeach
+        </datalist>
+      </div>
+      <select class="form-select d-none combobox-select"
               id="countrySelect"
               name="country"
               required>
-        <option value="" disabled {{ empty(old('country', $parent_matter->country ?? '')) ? 'selected' : '' }}>
+        <option value="" disabled {{ empty($selectedCountryCode) ? 'selected' : '' }}>
           {{ __('Select an option') }}
         </option>
         @foreach ($countries as $item)
           <option value="{{ $item->iso }}"
-            @selected(old('country', $parent_matter->country ?? '') === $item->iso)>
+            @selected($selectedCountryCode === $item->iso)>
             {{ $item->name }}
           </option>
         @endforeach
@@ -71,20 +114,30 @@
     </div>
   </div>
   <div class="row mb-2">
-    <label for="origin" class="col-4 col-form-label">{{ __('Origin') }}</label>
+    <label for="originInput" class="col-4 col-form-label">{{ __('Origin') }}</label>
     <div class="col-8">
-      <input type="search"
-             class="form-control form-control-sm mb-1"
-             data-filter-input
-             data-filter-target="#originSelect"
-             placeholder="{{ __('Filter options...') }}">
-      <select class="form-select"
+      <div class="combobox">
+        <input type="search"
+               class="form-control form-control-sm combobox-input"
+               placeholder="{{ __('Filter options...') }}"
+               list="originOptions"
+               data-combobox-target="#originSelect"
+               id="originInput"
+               value="{{ $selectedOriginName ?? '' }}"
+               autocomplete="off">
+        <datalist id="originOptions">
+          @foreach ($countries as $item)
+            <option value="{{ $item->name }}" data-code="{{ $item->iso }}"></option>
+          @endforeach
+        </datalist>
+      </div>
+      <select class="form-select d-none combobox-select"
               id="originSelect"
               name="origin">
         <option value="">{{ __('None') }}</option>
         @foreach ($countries as $item)
           <option value="{{ $item->iso }}"
-            @selected(old('origin', $parent_matter->origin ?? '') === $item->iso)>
+            @selected($selectedOriginCode === $item->iso)>
             {{ $item->name }}
           </option>
         @endforeach
@@ -92,23 +145,33 @@
     </div>
   </div>
   <div class="row mb-2">
-    <label for="type_code" class="col-4 col-form-label">{{ __('Type') }}</label>
+    <label for="typeInput" class="col-4 col-form-label">{{ __('Type') }}</label>
     <div class="col-8">
-      <input type="search"
-             class="form-control form-control-sm mb-1"
-             data-filter-input
-             data-filter-target="#typeSelect"
-             placeholder="{{ __('Filter options...') }}">
-      <select class="form-select"
+      <div class="combobox">
+        <input type="search"
+               class="form-control form-control-sm combobox-input"
+               placeholder="{{ __('Filter options...') }}"
+               list="typeOptions"
+               data-combobox-target="#typeSelect"
+               id="typeInput"
+               value="{{ $selectedTypeName ?? '' }}"
+               autocomplete="off">
+        <datalist id="typeOptions">
+          @foreach ($matterTypes as $item)
+            <option value="{{ $item->type }}" data-code="{{ $item->code }}"></option>
+          @endforeach
+        </datalist>
+      </div>
+      <select class="form-select d-none combobox-select"
               id="typeSelect"
               name="type_code"
               required>
-        <option value="" disabled {{ empty(old('type_code', $parent_matter->type_code ?? '')) ? 'selected' : '' }}>
+        <option value="" disabled {{ empty($selectedTypeCode) ? 'selected' : '' }}>
           {{ __('Select an option') }}
         </option>
         @foreach ($matterTypes as $item)
           <option value="{{ $item->code }}"
-            @selected(old('type_code', $parent_matter->type_code ?? '') === $item->code)>
+            @selected($selectedTypeCode === $item->code)>
             {{ $item->type }}
           </option>
         @endforeach
@@ -127,20 +190,30 @@
     </div>
   </div>
   <div class="row">
-    <label for="responsible" class="col-4 col-form-label fw-bold">{{ __('Responsible') }}</label>
+    <label for="responsibleInput" class="col-4 col-form-label fw-bold">{{ __('Responsible') }}</label>
     <div class="col-8">
-      <input type="search"
-             class="form-control form-control-sm mb-1"
-             data-filter-input
-             data-filter-target="#responsibleSelect"
-             placeholder="{{ __('Filter options...') }}">
-      <select class="form-select"
+      <div class="combobox">
+        <input type="search"
+               class="form-control form-control-sm combobox-input"
+               placeholder="{{ __('Filter options...') }}"
+               list="responsibleOptions"
+               data-combobox-target="#responsibleSelect"
+               id="responsibleInput"
+               value="{{ $selectedResponsibleDisplay }}"
+               autocomplete="off">
+        <datalist id="responsibleOptions">
+          @foreach ($responsibleUsers as $user)
+            <option value="{{ trim($user->name . ' (' . $user->login . ')') }}" data-code="{{ $user->login }}"></option>
+          @endforeach
+        </datalist>
+      </div>
+      <select class="form-select d-none combobox-select"
               id="responsibleSelect"
               name="responsible"
               required>
         @foreach ($responsibleUsers as $user)
           <option value="{{ $user->login }}"
-            @selected(old('responsible', $defaultResponsible) === $user->login)>
+            @selected($selectedResponsibleLogin === $user->login)>
             {{ $user->name }} ({{ $user->login }})
           </option>
         @endforeach

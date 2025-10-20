@@ -779,6 +779,129 @@ export function initMain() {
     });
   };
 
+  const initCombobox = function (input) {
+    if (input.dataset.comboboxReady) {
+      return;
+    }
+    const targetSelector = input.dataset.comboboxTarget;
+    if (!targetSelector) {
+      return;
+    }
+    const scope = input.closest("form") || document;
+    const select = scope.querySelector(targetSelector);
+    if (!(select instanceof HTMLSelectElement)) {
+      return;
+    }
+
+    const datalistId = input.getAttribute("list");
+    const datalist = datalistId ? document.getElementById(datalistId) : null;
+
+    const selectOptions = Array.from(select.options).map((option) => ({
+      element: option,
+      code: option.value,
+      label: option.textContent.trim(),
+    }));
+
+    const findOptionByCode = (code) =>
+      selectOptions.find((opt) => String(opt.code) === String(code)) || null;
+
+    const findOptionByLabel = (label, allowPartial = false) => {
+      const normalized = label.trim().toLowerCase();
+      if (!normalized) {
+        return null;
+      }
+
+      let option = selectOptions.find(
+        (opt) => opt.label.toLowerCase() === normalized,
+      );
+
+      if (!option && datalist) {
+        const datalistOption = Array.from(datalist.options).find(
+          (opt) => opt.value.trim().toLowerCase() === normalized,
+        );
+        if (datalistOption) {
+          const code = datalistOption.dataset.code ?? datalistOption.value;
+          option =
+            selectOptions.find((opt) => String(opt.code) === String(code)) ||
+            null;
+          if (!option) {
+            option = {
+              code,
+              label: datalistOption.value,
+            };
+          }
+        }
+      }
+
+      if (!option && allowPartial) {
+        option = selectOptions.find((opt) =>
+          opt.label.toLowerCase().startsWith(normalized),
+        );
+      }
+
+      return option || null;
+    };
+
+    const updateSelect = (option) => {
+      const nextCode = option ? option.code : "";
+      if (select.value !== nextCode) {
+        select.value = nextCode;
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+      if (option) {
+        input.value = option.label;
+      }
+    };
+
+    const revertToSelect = () => {
+      const current = findOptionByCode(select.value);
+      if (current) {
+        input.value = current.label;
+      } else if (!select.value) {
+        input.value = "";
+      }
+    };
+
+    input.addEventListener("input", (event) => {
+      const option = findOptionByLabel(event.target.value);
+      if (option) {
+        updateSelect(option);
+      } else if (!event.target.value.trim()) {
+        updateSelect(null);
+      }
+    });
+
+    input.addEventListener("change", (event) => {
+      const option = findOptionByLabel(event.target.value, true);
+      if (option) {
+        updateSelect(option);
+      } else {
+        revertToSelect();
+      }
+    });
+
+    input.addEventListener("blur", () => {
+      const option = findOptionByLabel(input.value, true);
+      if (option) {
+        updateSelect(option);
+      } else {
+        revertToSelect();
+      }
+    });
+
+    select.addEventListener("change", () => {
+      if (document.activeElement !== input) {
+        revertToSelect();
+      }
+    });
+
+    if (!input.value.trim()) {
+      revertToSelect();
+    }
+
+    input.dataset.comboboxReady = "true";
+  };
+
   // Initialize existing autocomplete elements
   const initFilterInput = function (input) {
     if (input.dataset.filterReady) {
@@ -838,6 +961,10 @@ export function initMain() {
   acInputs.forEach((input) => {
     addAutocomplete(input);
   });
+  const comboboxInputs = document.querySelectorAll("[data-combobox-target]");
+  comboboxInputs.forEach((input) => {
+    initCombobox(input);
+  });
   const filterInputs = document.querySelectorAll("[data-filter-input]");
   filterInputs.forEach((input) => {
     initFilterInput(input);
@@ -854,6 +981,10 @@ export function initMain() {
             if (!input.hasAttribute("data-oldvalue")) {
               addAutocomplete(input);
             }
+          });
+          const combos = node.querySelectorAll("[data-combobox-target]");
+          combos.forEach((input) => {
+            initCombobox(input);
           });
           const filters = node.querySelectorAll("[data-filter-input]");
           filters.forEach((input) => {
