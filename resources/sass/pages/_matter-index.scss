@@ -2,9 +2,9 @@
   .matter-table {
     border-radius: var(--radius-2xl);
     overflow: hidden;
-    box-shadow: var(--shadow-md);
     background: var(--bg-primary);
     border: 1px solid var(--border-light);
+    box-shadow: none;
 
     thead {
       background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
@@ -29,14 +29,7 @@
     }
 
     tbody tr {
-      transition: all var(--transition-fast);
       cursor: pointer;
-
-      &:hover {
-        background: var(--bg-hover);
-        transform: scale(1.005);
-        box-shadow: var(--shadow-sm);
-      }
 
       &:last-child td {
         border-bottom: none;
@@ -50,11 +43,10 @@
     font-size: var(--font-size-sm);
     border: 1px solid var(--border-medium);
     background: var(--bg-primary);
-    transition: all var(--transition-fast);
 
     &:focus {
       border-color: var(--color-primary);
-      box-shadow: 0 0 0 3px rgba(15, 98, 254, 0.15);
+      box-shadow: none;
       outline: none;
     }
 
@@ -76,26 +68,16 @@
     padding: var(--space-2) var(--space-4);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
-    transition: all var(--transition-fast);
     border: 1px solid var(--border-medium);
     background: var(--bg-primary);
     color: var(--text-secondary);
     position: relative;
     overflow: hidden;
 
-    &:hover {
-      background: var(--bg-hover);
-      color: var(--text-primary);
-      border-color: var(--border-strong);
-      transform: translateY(-1px);
-    }
-
     &.active {
       background: var(--color-primary);
       color: var(--text-inverse);
       border-color: var(--color-primary);
-      transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(15, 98, 254, 0.3);
     }
   }
 
@@ -105,33 +87,13 @@
     border-radius: var(--radius-md);
     padding: var(--space-1) var(--space-2);
     font-size: var(--font-size-xs);
-    transition: all var(--transition-fast);
     margin-left: var(--space-1);
-
-    &:hover {
-      background: var(--color-primary);
-      color: var(--text-inverse);
-      border-color: var(--color-primary);
-      transform: translateY(-1px);
-    }
-
-    &.active {
-      background: var(--color-primary);
-      color: var(--text-inverse);
-      border-color: var(--color-primary);
-    }
   }
 
   .matter-link {
     color: var(--text-link);
     text-decoration: none;
     font-weight: var(--font-weight-medium);
-    transition: color var(--transition-fast);
-
-    &:hover {
-      color: var(--color-primary-hover);
-      text-decoration: underline;
-    }
   }
 
   .status-badge {
@@ -188,12 +150,6 @@
     padding: var(--space-2) var(--space-4);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
-    transition: all var(--transition-fast);
-
-    &:hover {
-      filter: brightness(0.92);
-      transform: translateY(-1px);
-    }
   }
 
   .clear-btn {
@@ -203,12 +159,5 @@
     background: transparent;
     border: 1px solid var(--border-medium);
     color: var(--text-secondary);
-    transition: all var(--transition-fast);
-
-    &:hover {
-      background: var(--bg-hover);
-      border-color: var(--border-strong);
-      color: var(--text-primary);
-    }
   }
 }

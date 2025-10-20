@@ -8,7 +8,7 @@
   <!-- Left Sidebar -->
   <div class="col-lg-4">
     <!-- Categories Card -->
-    <div class="dashboard-card animate-fade-in">
+    <div class="dashboard-card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <div>
           <h5 class="mb-1 d-flex align-items-center">
@@ -70,7 +70,7 @@
     </div>
 
     <!-- User Tasks Card -->
-    <div class="dashboard-card mt-4 animate-fade-in" style="animation-delay: 0.1s;">
+    <div class="dashboard-card mt-4">
       <div class="card-header">
         <div>
           <h5 class="mb-1 d-flex align-items-center">
@@ -128,13 +128,13 @@
     <!-- Quick Stats -->
     <div class="row mt-4 g-3">
       <div class="col-6">
-        <div class="dashboard-card text-center p-4 animate-fade-in" style="animation-delay: 0.2s;">
+        <div class="dashboard-card text-center p-4">
           <div class="stats-number">{{ count($categories) }}</div>
           <div class="stats-label">{{ __('Categories') }}</div>
         </div>
       </div>
       <div class="col-6">
-        <div class="dashboard-card text-center p-4 animate-fade-in" style="animation-delay: 0.3s;">
+        <div class="dashboard-card text-center p-4">
           <div class="stats-number">{{ collect($taskscount)->sum('no_of_tasks') }}</div>
           <div class="stats-label">{{ __('Total Tasks') }}</div>
         </div>
@@ -145,7 +145,7 @@
   <!-- Main Content Area -->
   <div class="col-lg-8" id="filter">
     <!-- Open tasks Section -->
-    <div class="dashboard-card mb-4 animate-slide-in-up">
+    <div class="dashboard-card mb-4">
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-auto">
@@ -209,7 +209,7 @@
     </div>
 
     <!-- Open Renewals Section -->
-    <div class="dashboard-card animate-slide-in-up" style="animation-delay: 0.1s;">
+    <div class="dashboard-card">
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-auto">
@@ -249,7 +249,7 @@
 </div>
 
 @if (session('status'))
-<div class="alert alert-success alert-dismissible fade show animate-slide-in-down" role="alert">
+<div class="alert alert-success alert-dismissible fade show" role="alert">
   <div class="d-flex align-items-center">
     <svg width="20" height="20" fill="currentColor" class="me-2">
       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
@@ -263,67 +263,4 @@
 @endsection
 
 @section('script')
-<script>
-// Add some enhanced JavaScript for the dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            // Animate stats numbers on scroll
-            const animateNumbers = () => {
-                const numbers = document.querySelectorAll('.stats-number');
-                numbers.forEach(num => {
-                    const target = parseInt(num.textContent);
-      let current = 0;
-      const increment = target / 50;
-      const timer = setInterval(() => {
-        current += increment;
-        if (current >= target) {
-          current = target;
-          clearInterval(timer);
-        }
-        num.textContent = Math.floor(current);
-      }, 30);
-    });
-  };
-
-  // Trigger animation when element is in viewport
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        animateNumbers();
-        observer.disconnect();
-      }
-    });
-  });
-
-            const statsCards = document.querySelectorAll('.stats-number');
-            if (statsCards.length > 0) {
-                observer.observe(statsCards[0]);
-            }
-
-            // Enhanced filter button interactions
-            document.querySelectorAll('.btn-filter').forEach(btn => {
-                btn.addEventListener('click', function(event) {
-                    const ripple = document.createElement('span');
-                    ripple.style.position = 'absolute';
-                    ripple.style.width = '20px';
-                    ripple.style.height = '20px';
-                    ripple.style.background = 'rgba(255, 255, 255, 0.5)';
-                    ripple.style.borderRadius = '50%';
-                    ripple.style.transform = 'translate(-50%, -50%)';
-                    ripple.style.pointerEvents = 'none';
-                    ripple.style.animation = 'ripple 0.6s ease-out';
-
-                    const rect = this.getBoundingClientRect();
-                    ripple.style.left = `${event.clientX - rect.left}px`;
-                    ripple.style.top = `${event.clientY - rect.top}px`;
-
-                    this.style.position = 'relative';
-                    this.style.overflow = 'hidden';
-                    this.appendChild(ripple);
-
-                    setTimeout(() => ripple.remove(), 600);
-                });
-            });
-        });
-</script>
-
 @endsection
