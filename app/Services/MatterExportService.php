@@ -2,8 +2,6 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Collection;
-
 class MatterExportService
 {
     /**
@@ -12,7 +10,7 @@ class MatterExportService
      * This method exports the provided matters array to a CSV file and returns
      * a streamed response for downloading the file.
      *
-     * @param array $matters The array of matters to be exported.
+     * @param  array  $matters  The array of matters to be exported.
      * @return \Symfony\Component\HttpFoundation\StreamedResponse The streamed response for the CSV file download.
      */
     public function export(array $matters): \Symfony\Component\HttpFoundation\StreamedResponse
@@ -57,16 +55,25 @@ class MatterExportService
         // Write the column captions to the CSV file.
         fputcsv($export_csv, $captions, ';');
 
-        // Write each row of matters to the CSV file.
+        // Write each row of matters to the CSV file with CSV injection protection.
         foreach ($matters as $row) {
-            fputcsv($export_csv, array_map('utf8_decode', $row), ';');
+            $sanitizedRow = [];
+            foreach ($row as $cell) {
+                if (is_string($cell) && in_array(substr($cell, 0, 1), ['=', '+', '-', '@'])) {
+                    // Prepend single quote to prevent formula execution
+                    $sanitizedRow[] = "'" . $cell;
+                } else {
+                    $sanitizedRow[] = $cell;
+                }
+            }
+            fputcsv($export_csv, array_map('utf8_decode', $sanitizedRow), ';');
         }
 
         // Rewind the memory stream to the beginning.
         rewind($export_csv);
 
         // Generate the filename for the CSV file.
-        $filename = Now()->isoFormat('YMMDDHHmmss') . '_matters.csv';
+        $filename = Now()->isoFormat('YMMDDHHmmss').'_matters.csv';
 
         // Return a streamed response for downloading the CSV file.
         return response()->stream(
@@ -74,7 +81,7 @@ class MatterExportService
                 fpassthru($export_csv);
             },
             200,
-            ['Content-Type' => 'application/csv', 'Content-Disposition' => 'attachment; filename=' . $filename]
+            ['Content-Type' => 'application/csv', 'Content-Disposition' => 'attachment; filename='.$filename]
         );
     }
 }

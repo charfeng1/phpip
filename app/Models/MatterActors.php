@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\HasTranslationsExtended;
+use Illuminate\Database\Eloquent\Model;
 
 class MatterActors extends Model
 {

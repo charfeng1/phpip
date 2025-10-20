@@ -8,14 +8,14 @@ use App\Models\ClassifierType;
 use App\Models\Country;
 use App\Models\EventName;
 use App\Models\Matter;
+use App\Models\MatterType;
 use App\Models\Role;
 use App\Models\TemplateClass;
 use App\Models\TemplateMember;
-use App\Models\MatterType;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\JsonResponse;
 
 class AutocompleteController extends Controller
 {
@@ -27,7 +27,7 @@ class AutocompleteController extends Controller
             ->take(15)
             ->get()
             ->toArray();
-            
+
         return response()->json($results);
     }
 
@@ -50,9 +50,9 @@ class AutocompleteController extends Controller
             ->where('is_task', $is_task);
 
         if ($request->filled('category')) {
-            $query->where(function($q) use ($request) {
+            $query->where(function ($q) use ($request) {
                 $q->whereNull('category')
-                  ->orWhere('category', $request->category);
+                    ->orWhere('category', $request->category);
             });
         }
 
@@ -60,7 +60,7 @@ class AutocompleteController extends Controller
         $results = $eventNames->map(function ($item) {
             return [
                 'key' => $item->code,
-                'value' => $item->name
+                'value' => $item->name,
             ];
         })->toArray();
 
@@ -77,7 +77,7 @@ class AutocompleteController extends Controller
         $results = $types->map(function ($item) {
             return [
                 'key' => $item->code,
-                'value' => $item->type
+                'value' => $item->type,
             ];
         })->toArray();
 
@@ -120,7 +120,7 @@ class AutocompleteController extends Controller
             return [
                 'key' => $item->code,
                 'value' => $item->name,
-                'shareable' => $item->shareable
+                'shareable' => $item->shareable,
             ];
         })->toArray();
 
@@ -135,7 +135,7 @@ class AutocompleteController extends Controller
         $results = $query->get()->map(function ($item) {
             return [
                 'key' => $item->code,
-                'value' => $item->name
+                'value' => $item->name,
             ];
         })->toArray();
 
@@ -151,7 +151,7 @@ class AutocompleteController extends Controller
         $results = $countries->map(function ($country) {
             return [
                 'key' => $country->iso,
-                'value' => $country->name
+                'value' => $country->name,
             ];
         })->toArray();
 
@@ -168,7 +168,7 @@ class AutocompleteController extends Controller
             return [
                 'key' => $item->code,
                 'value' => $item->category,
-                'prefix' => $item->ref_prefix
+                'prefix' => $item->ref_prefix,
             ];
         })->toArray();
 
@@ -183,7 +183,7 @@ class AutocompleteController extends Controller
         $results = $types->map(function ($item) {
             return [
                 'key' => $item->code,
-                'value' => $item->type
+                'value' => $item->type,
             ];
         })->toArray();
 

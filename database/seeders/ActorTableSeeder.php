@@ -82,7 +82,7 @@ class ActorTableSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
                 'remember_token' => null,
-            ]
+            ],
         ]);
     }
 }

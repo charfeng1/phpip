@@ -1,13 +1,14 @@
 <?php
 
+use Database\Seeders\TranslatedAttributesSeeder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Database\Seeders\TranslatedAttributesSeeder;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Define the structure for tables and columns to migrate based on verified schema.
      */
@@ -51,14 +52,16 @@ return new class extends Migration {
         $defaultLocale = 'en';
         $isMariaDB = str_contains(DB::selectOne('select version() as v')->v ?? '', 'MariaDB');
 
-        Log::info("Starting migration for translatable attributes to JSON format");
+        Log::info('Starting migration for translatable attributes to JSON format');
         foreach ($activeAttributes as $tableName => [$columnName, $originalTypeMethod, $originalTypeArgs, $wasNullable]) {
-            $tempColumnName = $columnName . $this->tempSuffix;
+            $tempColumnName = $columnName.$this->tempSuffix;
             $jsonColumnName = $columnName;
 
             Log::info("Processing table: {$tableName}, column: {$columnName}");
 
-            if ($tableName === 'task_rules') $this->handleTaskRulesUid('drop');
+            if ($tableName === 'task_rules') {
+                $this->handleTaskRulesUid('drop');
+            }
 
             Schema::table($tableName, function (Blueprint $table) use ($tableName, $columnName) {
                 try {
@@ -68,19 +71,19 @@ return new class extends Migration {
                         $table->dropIndex($columnName);
                     }
                 } catch (\Exception $e) {
-                    Log::warning("Failed to drop index on {$tableName}.{$columnName}: " . $e->getMessage());
+                    Log::warning("Failed to drop index on {$tableName}.{$columnName}: ".$e->getMessage());
                 }
             });
 
             Schema::table($tableName, function (Blueprint $table) use ($tableName, $jsonColumnName, $tempColumnName) {
-                if (!Schema::hasColumn($tableName, $tempColumnName) && Schema::hasColumn($tableName, $jsonColumnName)) {
+                if (! Schema::hasColumn($tableName, $tempColumnName) && Schema::hasColumn($tableName, $jsonColumnName)) {
                     Log::info("Renaming column {$jsonColumnName} to {$tempColumnName} in {$tableName}");
                     $table->renameColumn($jsonColumnName, $tempColumnName);
                 }
             });
 
             Schema::table($tableName, function (Blueprint $table) use ($jsonColumnName, $tempColumnName, $tableName) {
-                if (!Schema::hasColumn($tableName, $jsonColumnName)) {
+                if (! Schema::hasColumn($tableName, $jsonColumnName)) {
                     Log::info("Adding JSON column {$jsonColumnName} to {$tableName}");
                     $table->json($jsonColumnName)->nullable()->after($tempColumnName);
                 } else {
@@ -99,14 +102,16 @@ return new class extends Migration {
                 if ($isMariaDB) {
                     $virtualColumn = "{$columnName}_{$locale}";
                     Schema::table($tableName, function (Blueprint $table) use ($locale, $virtualColumn, $originalTypeArgs, $tableName) {
-                        if (!Schema::hasColumn($table->getTable(), $virtualColumn)) {
+                        if (! Schema::hasColumn($table->getTable(), $virtualColumn)) {
                             Log::info("Adding virtual column {$virtualColumn} to {$tableName}");
                             DB::statement("ALTER TABLE `{$table->getTable()}` ADD COLUMN `{$virtualColumn}` VARCHAR({$originalTypeArgs[0]}) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(`{$table->getTable()}`.`{$this->translatableAttributes[$table->getTable()][0]}`, '$.{$locale}'))) STORED");
                         }
                     });
 
                     Schema::table($tableName, function (Blueprint $table) use ($virtualColumn, $indexName, $tableName) {
-                        if (!Schema::hasColumn($table->getTable(), $virtualColumn)) return;
+                        if (! Schema::hasColumn($table->getTable(), $virtualColumn)) {
+                            return;
+                        }
                         Log::info("Creating index on virtual column {$virtualColumn} in {$tableName}");
                         DB::statement("CREATE INDEX `{$indexName}` ON `{$table->getTable()}` (`{$virtualColumn}`)");
                     });
@@ -128,12 +133,14 @@ return new class extends Migration {
                 }
             });
 
-            if ($tableName === 'task_rules') $this->handleTaskRulesUid('add');
+            if ($tableName === 'task_rules') {
+                $this->handleTaskRulesUid('add');
+            }
             Log::info("Completed migration for {$tableName}.{$columnName}");
         }
 
-        Log::info("Running TranslatedAttributesSeeder");
-        (new TranslatedAttributesSeeder())->run();
+        Log::info('Running TranslatedAttributesSeeder');
+        (new TranslatedAttributesSeeder)->run();
     }
 
     /**
@@ -142,30 +149,34 @@ return new class extends Migration {
     public function down(): void
     {
         $activeAttributes = array_filter($this->translatableAttributes);
-        if (empty($activeAttributes)) return;
+        if (empty($activeAttributes)) {
+            return;
+        }
 
         $defaultLocale = 'en';
         $isMariaDB = str_contains(DB::selectOne('select version() as v')->v ?? '', 'MariaDB');
 
-        Log::info("Starting rollback of translatable attributes from JSON format");
+        Log::info('Starting rollback of translatable attributes from JSON format');
 
         foreach (array_reverse($activeAttributes) as $tableName => [$columnName, $originalTypeMethod, $originalTypeArgs, $wasNullable]) {
-            $tempColumnName = $columnName . $this->tempSuffix;
+            $tempColumnName = $columnName.$this->tempSuffix;
             $jsonColumnName = $columnName;
 
             Log::info("Processing table: {$tableName}, column: {$columnName}");
 
-            if ($tableName === 'task_rules') $this->handleTaskRulesUid('drop');
+            if ($tableName === 'task_rules') {
+                $this->handleTaskRulesUid('drop');
+            }
 
             // Recreate temp column
             Schema::table($tableName, function (Blueprint $table) use ($tempColumnName, $originalTypeMethod, $originalTypeArgs, $jsonColumnName) {
-                if (!Schema::hasColumn($table->getTable(), $tempColumnName)) {
+                if (! Schema::hasColumn($table->getTable(), $tempColumnName)) {
                     Log::info("Creating temporary column {$tempColumnName}");
                     $table->{$originalTypeMethod}($tempColumnName, ...$originalTypeArgs)->nullable()->after($jsonColumnName);
                 }
             });
 
-            // Migrate data back to temp column 
+            // Migrate data back to temp column
             Log::info("Migrating JSON data back to temporary column in {$tableName}");
             DB::update("UPDATE `{$tableName}` SET `{$tempColumnName}` = JSON_UNQUOTE(JSON_EXTRACT(`{$jsonColumnName}`, '$.{$defaultLocale}')) WHERE `{$jsonColumnName}` IS NOT NULL AND JSON_CONTAINS_PATH(`{$jsonColumnName}`, 'one', '$.{$defaultLocale}') = 1 AND `{$tempColumnName}` IS NULL");
 
@@ -181,12 +192,12 @@ return new class extends Migration {
                 } else {
                     try {
                         $exists = DB::select("SHOW INDEX FROM `{$tableName}` WHERE Key_name = ?", [$indexName]);
-                        if (!empty($exists)) {
+                        if (! empty($exists)) {
                             Log::info("Dropping index {$indexName} in {$tableName}");
-                            Schema::table($tableName, fn(Blueprint $table) => $table->dropIndex($indexName));
+                            Schema::table($tableName, fn (Blueprint $table) => $table->dropIndex($indexName));
                         }
                     } catch (\Exception $e) {
-                        Log::warning("Could not drop index {$indexName}: " . $e->getMessage());
+                        Log::warning("Could not drop index {$indexName}: ".$e->getMessage());
                     }
                 }
             }
@@ -194,25 +205,25 @@ return new class extends Migration {
             // Drop JSON column
             if (Schema::hasColumn($tableName, $jsonColumnName)) {
                 Log::info("Dropping JSON column {$jsonColumnName} from {$tableName}");
-                Schema::table($tableName, fn(Blueprint $table) => $table->dropColumn($jsonColumnName));
+                Schema::table($tableName, fn (Blueprint $table) => $table->dropColumn($jsonColumnName));
             }
 
             // Rename temp column back to original
             if (Schema::hasColumn($tableName, $tempColumnName)) {
                 Log::info("Renaming temporary column back to {$jsonColumnName} in {$tableName}");
-                Schema::table($tableName, fn(Blueprint $table) => $table->renameColumn($tempColumnName, $jsonColumnName));
+                Schema::table($tableName, fn (Blueprint $table) => $table->renameColumn($tempColumnName, $jsonColumnName));
             }
 
             // Restore index
             Schema::table($tableName, function (Blueprint $table) use ($columnName) {
                 try {
                     $indexes = Schema::getConnection()->getDoctrineSchemaManager()->listTableIndexes($table->getTable());
-                    if (!isset($indexes[$columnName])) {
+                    if (! isset($indexes[$columnName])) {
                         Log::info("Restoring index on {$columnName}");
                         $table->index($columnName);
                     }
                 } catch (\Exception $e) {
-                    Log::error("Failed to restore index for {$columnName}: " . $e->getMessage());
+                    Log::error("Failed to restore index for {$columnName}: ".$e->getMessage());
                 }
             });
 
@@ -224,10 +235,12 @@ return new class extends Migration {
                 });
             }
 
-            if ($tableName === 'task_rules') $this->handleTaskRulesUid('add');
+            if ($tableName === 'task_rules') {
+                $this->handleTaskRulesUid('add');
+            }
             Log::info("Completed rollback for {$tableName}.{$columnName}");
         }
-        Log::info("Completed rollback of all translatable attributes");
+        Log::info('Completed rollback of all translatable attributes');
     }
 
     /**
@@ -238,17 +251,17 @@ return new class extends Migration {
         try {
             if ($action === 'drop') {
                 if (Schema::hasColumn('task_rules', 'uid')) {
-                    DB::statement("ALTER TABLE `task_rules` DROP COLUMN `uid`");
+                    DB::statement('ALTER TABLE `task_rules` DROP COLUMN `uid`');
                     Log::info("Dropped 'uid' column from task_rules.");
                 }
-            } else if ($action === 'add') {
-                if (!Schema::hasColumn('task_rules', 'uid')) {
+            } elseif ($action === 'add') {
+                if (! Schema::hasColumn('task_rules', 'uid')) {
                     DB::statement("ALTER TABLE `task_rules` {$this->taskRulesUidDefinition}");
                     Log::info("Added 'uid' column to task_rules.");
                 }
             }
         } catch (\Exception $e) {
-            Log::error("Failed to {$action} 'uid' column on task_rules: " . $e->getMessage());
+            Log::error("Failed to {$action} 'uid' column on task_rules: ".$e->getMessage());
             throw $e;
         }
     }

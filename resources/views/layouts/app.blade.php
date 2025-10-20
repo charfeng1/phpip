@@ -10,6 +10,10 @@
 
   <title>{{ config('app.name', 'phpIP') }}</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <!-- Scripts -->
   <script>
     window.appConfig = {
@@ -29,18 +33,10 @@
   @vite(['resources/js/app.js'])
 
   <!-- Styles -->
-  {{-- <link href="{{ asset('css/app.css') }}" rel="stylesheet"> --}}
   @yield('style')
-  @cannot('readwrite')
-    <style>
-      input.noformat, [contenteditable] {
-        pointer-events: none;
-      }
-    </style>
-  @endcannot
 </head>
 
-<body class="modern-body" style="background: var(--bg-gradient);">
+<body class="modern-body @yield('body-class') @cannot('readwrite') role-readonly @endcannot">
   <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
     <symbol id="check-circle-fill" viewBox="0 0 16 16">
       <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
@@ -327,112 +323,6 @@
       </div>
     </nav>
 
-    <!-- Add custom styles for glass effect -->
-    <style>
-    .bg-glass {
-      background: rgba(255, 255, 255, 0.95) !important;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border-light);
-    }
-
-    .search-icon {
-      opacity: 0.7;
-    }
-
-    .user-avatar {
-      transition: all var(--transition-fast);
-    }
-
-    .user-avatar:hover {
-      transform: scale(1.1);
-      box-shadow: var(--shadow-md);
-    }
-
-    .dropdown-header {
-      background: var(--bg-secondary);
-      border-radius: var(--radius-lg);
-      margin: 4px;
-      padding: 8px 12px;
-      font-size: var(--font-size-xs);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-tertiary);
-    }
-
-    .modal .modal-dialog {
-      margin: var(--space-6) auto;
-      max-width: min(760px, calc(100% - 2.5rem));
-      width: min(760px, calc(100% - 2.5rem));
-    }
-
-    .modal .modal-dialog.modal-sm {
-      max-width: min(760px, calc(100% - 2.5rem));
-      width: min(760px, calc(100% - 2.5rem));
-    }
-
-    @media (max-width: 576px) {
-      .modal .modal-dialog,
-      .modal .modal-dialog.modal-sm {
-        margin: 1.5rem auto;
-        max-width: calc(100% - 1.5rem);
-        width: calc(100% - 1.5rem);
-      }
-    }
-
-    .combobox {
-      position: relative;
-    }
-
-    .combobox::after {
-      content: '\25BE';
-      pointer-events: none;
-      position: absolute;
-      top: 50%;
-      right: 1rem;
-      transform: translateY(-50%);
-      color: var(--text-tertiary);
-      font-size: 0.75rem;
-      transition: color var(--transition-fast);
-    }
-
-    .combobox:focus-within::after {
-      color: var(--color-primary);
-    }
-
-    .combobox-input {
-      padding-right: 2.5rem;
-    }
-
-    @media (max-width: 991px) {
-      .navbar-nav {
-        padding-top: var(--space-4);
-        border-top: 1px solid var(--border-light);
-        margin-top: var(--space-3);
-      }
-
-      .navbar-nav .nav-link {
-        padding: var(--space-3) var(--space-4) !important;
-        border-radius: var(--radius-lg);
-        margin: var(--space-1) 0;
-      }
-
-      .dropdown-menu {
-        border: none;
-        box-shadow: none;
-        background: var(--bg-secondary);
-        border-radius: 0;
-        margin: 0;
-        padding: 0;
-      }
-
-      .dropdown-item {
-        padding: var(--space-3) var(--space-4) !important;
-        margin: var(--space-1) 0;
-        border-radius: var(--radius-lg);
-      }
-    }
-    </style>
     <main class="container-fluid px-4">
       @yield('content')
       <div id="ajaxModal" class="modal fade" role="dialog">

@@ -11,9 +11,9 @@ class MatterSearchController extends Controller
     {
         if ($request->search_field === 'Ref') {
             $matters = Matter::filter('caseref', 'asc', ['Ref' => $request->matter_search], false, true)->get();
-            
+
             if ($matters->count() === 1) {
-                return redirect('matter/' . $matters->first()->id);
+                return redirect('matter/'.$matters->first()->id);
             }
         }
 

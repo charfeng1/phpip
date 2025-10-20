@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\HasTableComments;
+use Illuminate\Database\Eloquent\Model;
 
 class Actor extends Model
 {
     use HasTableComments;
-    
+
     protected $table = 'actor';
 
     // Hide these from JSON/array output
@@ -19,7 +19,7 @@ class Actor extends Model
         'updater',
         'created_at',
         'updated_at',
-        'login'
+        'login',
     ];
 
     // Prevent mass assignment of these
@@ -29,7 +29,7 @@ class Actor extends Model
         'remember_token',
         'creator',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
     /**
@@ -40,7 +40,7 @@ class Actor extends Model
     protected $casts = [
         'language' => 'string',
     ];
-    
+
     /**
      * Get the actor's preferred language.
      *

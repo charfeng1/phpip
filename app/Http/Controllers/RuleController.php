@@ -6,7 +6,6 @@ use App\Models\Rule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\DB;
 
 class RuleController extends Controller
 {
@@ -24,36 +23,36 @@ class RuleController extends Controller
         $locale = app()->getLocale();
         // Normalize to the base locale (e.g., 'en' from 'en_US')
         $baseLocale = substr($locale, 0, 2);
-        
-        if (!is_null($Task)) {
+
+        if (! is_null($Task)) {
             $rule = $rule->whereHas('taskInfo', function ($q) use ($Task) {
                 $q->whereJsonLike('name', $Task);
             });
         }
-        if (!is_null($Trigger)) {
+        if (! is_null($Trigger)) {
             $rule = $rule->whereHas('trigger', function ($q) use ($Trigger) {
                 $q->whereJsonLike('name', $Trigger);
             });
         }
-        if (!is_null($Country)) {
+        if (! is_null($Country)) {
             $rule = $rule->whereLike('for_country', $Country.'%');
         }
-        if (!is_null($Category)) {
+        if (! is_null($Category)) {
             $rule = $rule->whereHas('category', function ($q) use ($Category) {
                 $q->whereJsonLike('category', $Category);
             });
         }
-        
-        if (!is_null($Detail)) {
+
+        if (! is_null($Detail)) {
             $rule = $rule->whereJsonLike('detail', $Detail);
         }
-        
-        if (!is_null($Type)) {
+
+        if (! is_null($Type)) {
             $rule = $rule->whereHas('type', function ($q) use ($Type) {
                 $q->whereJsonLike('type', $Type);
             });
         }
-        if (!is_null($Origin)) {
+        if (! is_null($Origin)) {
             $rule = $rule->whereLike('for_origin', "{$Origin}%");
         }
 

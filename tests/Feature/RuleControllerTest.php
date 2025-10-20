@@ -12,10 +12,10 @@ class RuleControllerTest extends TestCase
      *
      * @return void
      */
-    public function testIndex()
+    public function test_index()
     {
-        //$this->resetDatabaseAndSeed();
-        $user = new User();
+        // $this->resetDatabaseAndSeed();
+        $user = new User;
 
         $user->id = 1;
 

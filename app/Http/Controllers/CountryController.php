@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Country;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 
 class CountryController extends Controller
 {
@@ -22,16 +21,16 @@ class CountryController extends Controller
         $iso = $request->input('iso');
         $name = $request->input('name');
         $query = Country::query();
-        
-        if (!is_null($iso)) {
-            $query = $query->where('iso', 'LIKE', $iso . '%');
+
+        if (! is_null($iso)) {
+            $query = $query->where('iso', 'LIKE', $iso.'%');
         }
-        
-        if (!is_null($name)) {
+
+        if (! is_null($name)) {
             $query = $query->where(function ($subQuery) use ($name) {
-                $subQuery->whereRaw("JSON_EXTRACT(name, '$.en') LIKE ?", ['%' . $name . '%'])
-                         ->orWhereRaw("JSON_EXTRACT(name, '$.fr') LIKE ?", ['%' . $name . '%'])
-                         ->orWhereRaw("JSON_EXTRACT(name, '$.de') LIKE ?", ['%' . $name . '%']);
+                $subQuery->whereRaw("JSON_EXTRACT(name, '$.en') LIKE ?", ['%'.$name.'%'])
+                    ->orWhereRaw("JSON_EXTRACT(name, '$.fr') LIKE ?", ['%'.$name.'%'])
+                    ->orWhereRaw("JSON_EXTRACT(name, '$.de') LIKE ?", ['%'.$name.'%']);
             });
         }
 
@@ -51,6 +50,7 @@ class CountryController extends Controller
     public function create()
     {
         $country = new Country;
+
         return view('countries.create', compact('country'));
     }
 
@@ -71,7 +71,7 @@ class CountryController extends Controller
             'oa' => 'boolean',
             'renewal_first' => 'nullable|integer',
             'renewal_base' => 'nullable|in:FIL,GRT,PUB',
-            'renewal_start' => 'nullable|in:FIL,GRT,PUB'
+            'renewal_start' => 'nullable|in:FIL,GRT,PUB',
         ]);
 
         // Create country with basic data first
@@ -84,24 +84,24 @@ class CountryController extends Controller
             'oa' => $validated['oa'] ?? 0,
             'renewal_first' => $validated['renewal_first'],
             'renewal_base' => $validated['renewal_base'],
-            'renewal_start' => $validated['renewal_start']
+            'renewal_start' => $validated['renewal_start'],
         ];
 
         $country = new Country($countryData);
-        
+
         // Set translations using spatie methods
         foreach ($validated['name'] as $locale => $name) {
-            if (!empty($name)) {
+            if (! empty($name)) {
                 $country->setTranslation('name', $locale, $name);
             }
         }
-        
+
         $country->save();
-        
+
         return response()->json([
             'status' => 'success',
             'message' => __('Country created successfully'),
-            'country' => $country
+            'country' => $country,
         ]);
     }
 
@@ -114,7 +114,7 @@ class CountryController extends Controller
         if ($request->has('locale')) {
             app()->setLocale($request->input('locale'));
         }
-        
+
         return view('countries.show', compact('country'));
     }
 
@@ -128,7 +128,7 @@ class CountryController extends Controller
             if ($request->has('name') || $request->has('iso')) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => __('Cannot modify name or ISO code for standard countries')
+                    'message' => __('Cannot modify name or ISO code for standard countries'),
                 ], 422);
             }
         }
@@ -141,16 +141,16 @@ class CountryController extends Controller
                     $country->setTranslation('name', $locale, $value);
                 }
                 $country->save();
-                
+
                 return response()->json([
                     'status' => 'success',
                     'message' => __('Country updated successfully'),
-                    'country' => $country
+                    'country' => $country,
                 ]);
-            } elseif (!json_decode($request->name)) {
+            } elseif (! json_decode($request->name)) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => __('Invalid JSON format for name field')
+                    'message' => __('Invalid JSON format for name field'),
                 ], 422);
             }
         }
@@ -164,7 +164,7 @@ class CountryController extends Controller
             'renewal_first' => 'nullable|integer',
             'renewal_base' => 'nullable|in:FIL,GRT,PUB',
             'renewal_start' => 'nullable|in:FIL,GRT,PUB',
-            'name' => 'sometimes|required'
+            'name' => 'sometimes|required',
         ]);
 
         $country->update($validated);
@@ -172,7 +172,7 @@ class CountryController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => __('Country updated successfully'),
-            'country' => $country
+            'country' => $country,
         ]);
     }
 
@@ -185,15 +185,15 @@ class CountryController extends Controller
         if ($country->numcode > 0) {
             return response()->json([
                 'status' => 'error',
-                'message' => __('Cannot delete standard countries')
+                'message' => __('Cannot delete standard countries'),
             ], 422);
         }
 
         $country->delete();
-        
+
         return response()->json([
             'status' => 'success',
-            'message' => __('Country deleted successfully')
+            'message' => __('Country deleted successfully'),
         ]);
     }
 }

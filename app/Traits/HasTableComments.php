@@ -14,6 +14,7 @@ trait HasTableComments
             foreach (Schema::getColumns($this->getTable()) as $column) {
                 $comments[$column['name']] = $column['comment'];
             }
+
             return $comments;
         });
     }

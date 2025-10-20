@@ -16,8 +16,7 @@ trait HasActorsFromRole
      * If no relationship exists for the given role, it returns a relationship
      * with the container actors that are shared.
      *
-     * @param string $role The role to filter the actors by.
-     * @return
+     * @param  string  $role  The role to filter the actors by.
      */
     public function getActorsFromRole(string $role): \Illuminate\Database\Eloquent\Collection
     {
@@ -36,7 +35,7 @@ trait HasActorsFromRole
      * If no relationship exists for the given role, it returns a relationship
      * with the container actors that are shared.
      *
-     * @param string $role The role to filter the relationship by.
+     * @param  string  $role  The role to filter the relationship by.
      * @return \App\Models\Actor|null The hasOneThrough relationship.
      */
     public function getActorFromRole(string $role): ?MatterActors

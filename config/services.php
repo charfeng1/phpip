@@ -41,9 +41,10 @@ return [
         'folder_path' => env('SHAREPOINT_FOLDER_PATH'),
         'event_codes' => array_reduce(
             explode(',', env('SHAREPOINT_EVENT_CODES', 'SR:SR,EXA:OA,EXAF:OA,ALL:GRT')),
-            function($carry, $item) {
-                list($key, $value) = explode(':', $item);
+            function ($carry, $item) {
+                [$key, $value] = explode(':', $item);
                 $carry[$key] = $value;
+
                 return $carry;
             },
             []

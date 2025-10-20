@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use App\Models\Country;
+use Illuminate\Database\Seeder;
 
 class CountryTableSeeder extends Seeder
 {
@@ -3702,10 +3701,10 @@ class CountryTableSeeder extends Seeder
             ],
 
         ];
-        
+
         foreach ($countries as $countryData) {
             $country = Country::firstOrNew(['iso' => $countryData['iso']]);
-            
+
             // Set translatable name
             if (isset($countryData['name']) && is_array($countryData['name'])) {
                 foreach ($countryData['name'] as $locale => $name) {
@@ -3713,7 +3712,7 @@ class CountryTableSeeder extends Seeder
                 }
                 unset($countryData['name']); // Remove from array since we handled it separately
             }
-            
+
             // Set other attributes
             $country->fill($countryData);
             $country->save();

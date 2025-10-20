@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\HasTableComments;
+use Illuminate\Database\Eloquent\Model;
 
 class DefaultActor extends Model
 {
     use HasTableComments;
-    
+
     protected $table = 'default_actor';
 
     protected $guarded = ['created_at', 'updated_at'];

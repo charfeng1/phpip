@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\HasTableComments;
+use Illuminate\Database\Eloquent\Model;
 
 class Fee extends Model
 {
     use HasTableComments;
-    
+
     protected $hidden = ['creator', 'created_at', 'updated_at', 'updater'];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
