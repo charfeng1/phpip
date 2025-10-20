@@ -354,14 +354,14 @@ class Matter extends Model
     {
         $locale = app()->getLocale();
         // Normalize to the base locale (e.g., 'en' from 'en_US')
-        $baseLocale = substr($locale, 0, 2);
+        $baseLocale = preg_replace('/[^a-zA-Z]/', '', substr($locale, 0, 2));
 
         $query = Matter::select(
             'matter.uid AS Ref',
             'matter.country AS country',
             'matter.category_code AS Cat',
             'matter.origin',
-            DB::raw("GROUP_CONCAT(DISTINCT JSON_UNQUOTE(JSON_EXTRACT(event_name.name, '$.\"$baseLocale\"')) SEPARATOR '|') AS Status"),
+            DB::raw("GROUP_CONCAT(DISTINCT JSON_UNQUOTE(JSON_EXTRACT(event_name.name, '$.\"{$baseLocale}\"')) SEPARATOR '|') AS Status"),
             DB::raw('MIN(status.event_date) AS Status_date'),
             DB::raw("GROUP_CONCAT(DISTINCT COALESCE(cli.display_name, clic.display_name, cli.name, clic.name) SEPARATOR '; ') AS Client"),
             DB::raw("GROUP_CONCAT(DISTINCT COALESCE(clilnk.actor_ref, cliclnk.actor_ref) SEPARATOR '; ') AS ClRef"),
