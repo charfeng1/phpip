@@ -2,10 +2,13 @@
     "private": true,
     "scripts": {
         "dev": "vite",
-        "build": "vite build"
+        "build": "vite build",
+        "lint:php": "php ./vendor/bin/pint",
+        "format:blade": "blade-formatter \"resources/views/**/*.blade.php\""
     },
     "devDependencies": {
         "@popperjs/core": "^2.11.8",
+        "blade-formatter": "^1.44.2",
         "bootstrap": "^5.3.6",
         "bootstrap-icons": "^1.13.1",
         "laravel-vite-plugin": "^1.2.0",
