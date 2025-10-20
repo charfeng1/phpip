@@ -245,45 +245,53 @@ class OPSService
             return [];
         }
 
-        // Disable external entity loading and other potentially dangerous features
-      libxml_disable_entity_loader(true);
+        // Disable external entity loading and capture previous state
+        $prevDisable = libxml_disable_entity_loader(true);
+        $prevErrors = libxml_use_internal_errors(true);
 
-      $xml = simplexml_load_string(
-          $response,
-          'SimpleXMLElement',
-          LIBXML_NONET | LIBXML_NOBLANKS | LIBXML_NOCDATA | LIBXML_NOXMLDECL
-      );
+        try {
+            $xml = simplexml_load_string(
+                $response->body(),
+                'SimpleXMLElement',
+                LIBXML_NONET | LIBXML_NOBLANKS | LIBXML_NOCDATA | LIBXML_NOXMLDECL
+            );
 
-      if ($xml === false) {
-          return [];
-      }
-        $steps = $xml->xpath('//reg:procedural-step');
-        $proc = [];
+            if ($xml === false) {
+                return [];
+            }
 
-        foreach ($steps as $k => $step) {
-            $proc[$k]['code'] = (string) $step->xpath('reg:procedural-step-code')[0];
+            $steps = $xml->xpath('//reg:procedural-step');
+            $proc = [];
 
-            if ($date = $step->xpath('reg:procedural-step-date[@step-date-type="DATE_OF_REQUEST"]/reg:date')) {
-                $proc[$k]['request'] = date('Y-m-d', strtotime($date[0]));
+            foreach ($steps as $k => $step) {
+                $proc[$k]['code'] = (string) $step->xpath('reg:procedural-step-code')[0];
+
+                if ($date = $step->xpath('reg:procedural-step-date[@step-date-type="DATE_OF_REQUEST"]/reg:date')) {
+                    $proc[$k]['request'] = date('Y-m-d', strtotime($date[0]));
+                }
+                if ($date = $step->xpath('reg:procedural-step-date[@step-date-type="DATE_OF_DISPATCH"]/reg:date')) {
+                    $proc[$k]['dispatched'] = date('Y-m-d', strtotime($date[0]));
+                }
+                if ($date = $step->xpath('reg:procedural-step-date[@step-date-type="DATE_OF_REPLY"]/reg:date')) {
+                    $proc[$k]['replied'] = date('Y-m-d', strtotime($date[0]));
+                }
+                if ($date = $step->xpath('reg:procedural-step-date[@step-date-type="DATE_OF_PAYMENT"]/reg:date')) {
+                    $proc[$k]['ren_paid'] = date('Y-m-d', strtotime($date[0]));
+                }
+                if ($date = $step->xpath('reg:procedural-step-date[@step-date-type="GRANT_FEE_PAID"]/reg:date')) {
+                    $proc[$k]['grt_paid'] = date('Y-m-d', strtotime($date[0]));
+                }
+                if ($year = $step->xpath('reg:procedural-step-text[@step-text-type="YEAR"]')) {
+                    $proc[$k]['ren_year'] = (int) $year[0];
+                }
             }
-            if ($date = $step->xpath('reg:procedural-step-date[@step-date-type="DATE_OF_DISPATCH"]/reg:date')) {
-                $proc[$k]['dispatched'] = date('Y-m-d', strtotime($date[0]));
-            }
-            if ($date = $step->xpath('reg:procedural-step-date[@step-date-type="DATE_OF_REPLY"]/reg:date')) {
-                $proc[$k]['replied'] = date('Y-m-d', strtotime($date[0]));
-            }
-            if ($date = $step->xpath('reg:procedural-step-date[@step-date-type="DATE_OF_PAYMENT"]/reg:date')) {
-                $proc[$k]['ren_paid'] = date('Y-m-d', strtotime($date[0]));
-            }
-            if ($date = $step->xpath('reg:procedural-step-date[@step-date-type="GRANT_FEE_PAID"]/reg:date')) {
-                $proc[$k]['grt_paid'] = date('Y-m-d', strtotime($date[0]));
-            }
-            if ($year = $step->xpath('reg:procedural-step-text[@step-text-type="YEAR"]')) {
-                $proc[$k]['ren_year'] = (int) $year[0];
-            }
+
+            return $proc;
+        } finally {
+            // Restore previous state
+            libxml_use_internal_errors($prevErrors);
+            libxml_disable_entity_loader($prevDisable);
         }
-
-        return $proc;
     }
 
     private function getLegalStatus(string $country, string $appNumber): array
@@ -297,33 +305,41 @@ class OPSService
             return [];
         }
 
-        // Disable external entity loading and other potentially dangerous features
-      libxml_disable_entity_loader(true);
+        // Disable external entity loading and capture previous state
+        $prevDisable = libxml_disable_entity_loader(true);
+        $prevErrors = libxml_use_internal_errors(true);
 
-      $xml = simplexml_load_string(
-          $response,
-          'SimpleXMLElement',
-          LIBXML_NONET | LIBXML_NOBLANKS | LIBXML_NOCDATA | LIBXML_NOXMLDECL
-      );
+        try {
+            $xml = simplexml_load_string(
+                $response->body(),
+                'SimpleXMLElement',
+                LIBXML_NONET | LIBXML_NOBLANKS | LIBXML_NOCDATA | LIBXML_NOXMLDECL
+            );
 
-      if ($xml === false) {
-          return [];
-      }
-        // Get renewals. Code RFEE for FR and MAFP for US
-        $steps = $xml->xpath('//ops:legal[@code="PLFP"] | //ops:legal[@code="MAFP"]');
-        $proc = [];
-
-        foreach ($steps as $k => $step) {
-            // Code compatible with EP procedural steps
-            $proc[$k]['code'] = 'RFEE';
-            if ($date = $step->xpath('ops:L007EP')) {
-                $proc[$k]['ren_paid'] = date('Y-m-d', strtotime($date[0]));
+            if ($xml === false) {
+                return [];
             }
-            if ($year = $step->xpath('ops:L500EP/ops:L520EP')) {
-                $proc[$k]['ren_year'] = (int) $year[0];
+
+            // Get renewals. Code RFEE for FR and MAFP for US
+            $steps = $xml->xpath('//ops:legal[@code="PLFP"] | //ops:legal[@code="MAFP"]');
+            $proc = [];
+
+            foreach ($steps as $k => $step) {
+                // Code compatible with EP procedural steps
+                $proc[$k]['code'] = 'RFEE';
+                if ($date = $step->xpath('ops:L007EP')) {
+                    $proc[$k]['ren_paid'] = date('Y-m-d', strtotime($date[0]));
+                }
+                if ($year = $step->xpath('ops:L500EP/ops:L520EP')) {
+                    $proc[$k]['ren_year'] = (int) $year[0];
+                }
             }
+
+            return $proc;
+        } finally {
+            // Restore previous state
+            libxml_use_internal_errors($prevErrors);
+            libxml_disable_entity_loader($prevDisable);
         }
-
-        return $proc;
     }
 }
