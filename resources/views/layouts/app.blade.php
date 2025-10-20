@@ -360,6 +360,50 @@
       color: var(--text-tertiary);
     }
 
+    .modal .modal-dialog {
+      margin: var(--space-6) auto;
+      max-width: min(760px, calc(100% - 2.5rem));
+      width: min(760px, calc(100% - 2.5rem));
+    }
+
+    .modal .modal-dialog.modal-sm {
+      max-width: min(760px, calc(100% - 2.5rem));
+      width: min(760px, calc(100% - 2.5rem));
+    }
+
+    @media (max-width: 576px) {
+      .modal .modal-dialog,
+      .modal .modal-dialog.modal-sm {
+        margin: 1.5rem auto;
+        max-width: calc(100% - 1.5rem);
+        width: calc(100% - 1.5rem);
+      }
+    }
+
+    .combobox {
+      position: relative;
+    }
+
+    .combobox::after {
+      content: '\25BE';
+      pointer-events: none;
+      position: absolute;
+      top: 50%;
+      right: 1rem;
+      transform: translateY(-50%);
+      color: var(--text-tertiary);
+      font-size: 0.75rem;
+      transition: color var(--transition-fast);
+    }
+
+    .combobox:focus-within::after {
+      color: var(--color-primary);
+    }
+
+    .combobox-input {
+      padding-right: 2.5rem;
+    }
+
     @media (max-width: 991px) {
       .navbar-nav {
         padding-top: var(--space-4);
