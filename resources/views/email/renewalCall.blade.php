@@ -19,7 +19,7 @@
     </style>
     <!-- Email Body -->
     <p>{{ $dest }}</p>
-    <p>{!! $template->body !!}</p>
+    <p>{!! \Mews\Purifier\Facades\Purifier::clean($template->body, 'main') !!}</p>
     <table class="inner-body" cellpadding="0" cellspacing="0">
         <!-- Body content -->
         <thead>
@@ -36,7 +36,7 @@
         <tbody>
             @foreach ($renewals as $ren)
             <tr>
-                <td style="width:40%">{!! $ren['desc'] !!}</td>
+                <td style="width:40%">{!! \Mews\Purifier\Facades\Purifier::clean($ren['desc'], 'main') !!}</td>
                 <td style="text-align: center;">{{ $ren['country'] }}</td>
                 <td style="text-align: center;">{{ $ren['annuity'] }}</td>
                 <td style="text-align: center;">{{ $ren['due_date'] }}</td>

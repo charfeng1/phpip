@@ -58,7 +58,11 @@ class RenewalController extends Controller
                             $renewals->where('due_date', '<=', "$value");
                             break;
                         case 'Name':
-                            $renewals->where(DB::raw('IFNULL(pa_cli.name, clic.name)'), 'LIKE', "$value%");
+                            $renewals->where(function ($q) use ($value) {
+                                $like = $value.'%';
+                                $q->where('pa_cli.name', 'LIKE', $like)
+                                    ->orWhere('clic.name', 'LIKE', $like);
+                            });
                             break;
                         case 'Country':
                             $renewals->whereLike('matter.country', "$value%");

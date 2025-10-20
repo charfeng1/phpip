@@ -15,16 +15,20 @@ class MatterPolicy
      *
      * @return mixed
      */
-    public function view(User $user, Matter $matter)
+    public function view(User $user, Matter $matter): bool
     {
-        if ($user->default_role === 'CLI' || empty($user->default_role)) {
-            if ($matter->client->count()) {
-                return $user->id === $matter->client->actor_id;
-            } else {
-                return false;
-            }
-        } else {
+        // Admin and internal users (DBA/DBRW/DBRO) can view all matters
+        if (in_array($user->default_role, ['DBA', 'DBRW', 'DBRO'], true)) {
             return true;
         }
+
+        // Client users only see matters where they are the linked client
+        if ($user->default_role === 'CLI' || empty($user->default_role)) {
+            $clientActor = optional($matter->clientFromLnk())->actor_id;
+
+            return (int) $clientActor === (int) $user->id;
+        }
+
+        return false;
     }
 }
