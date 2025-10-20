@@ -245,10 +245,18 @@ class OPSService
             return [];
         }
 
-        $xml = simplexml_load_string($response, 'SimpleXMLElement', LIBXML_NOENT);
-        if ($xml === false) {
-            return [];
-        }
+        // Disable external entity loading and other potentially dangerous features
+      libxml_disable_entity_loader(true);
+
+      $xml = simplexml_load_string(
+          $response,
+          'SimpleXMLElement',
+          LIBXML_NONET | LIBXML_NOBLANKS | LIBXML_NOCDATA | LIBXML_NOXMLDECL
+      );
+
+      if ($xml === false) {
+          return [];
+      }
         $steps = $xml->xpath('//reg:procedural-step');
         $proc = [];
 
@@ -289,10 +297,18 @@ class OPSService
             return [];
         }
 
-        $xml = simplexml_load_string($response, 'SimpleXMLElement', LIBXML_NOENT);
-        if ($xml === false) {
-            return [];
-        }
+        // Disable external entity loading and other potentially dangerous features
+      libxml_disable_entity_loader(true);
+
+      $xml = simplexml_load_string(
+          $response,
+          'SimpleXMLElement',
+          LIBXML_NONET | LIBXML_NOBLANKS | LIBXML_NOCDATA | LIBXML_NOXMLDECL
+      );
+
+      if ($xml === false) {
+          return [];
+      }
         // Get renewals. Code RFEE for FR and MAFP for US
         $steps = $xml->xpath('//ops:legal[@code="PLFP"] | //ops:legal[@code="MAFP"]');
         $proc = [];
