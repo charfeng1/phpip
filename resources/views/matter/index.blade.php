@@ -11,7 +11,7 @@
 
 @section('content')
 
-<div class="animate-fade-in">
+<div>
   <!-- Header Section -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
