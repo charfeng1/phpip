@@ -20,3 +20,7 @@
    - Implement missing policies for critical models (User, Actor, Task, Renewal) and enforce them in controllers/routes.
    - Standardize authorization calls (`$this->authorize`) across all CRUD operations.
    - Document required abilities (view, update, delete) for each role.
+
+### Remaining Follow-up
+- Convert inline attribute rendering in `resources/views/matter/index.blade.php` to use Blade helpers (`@class`, `@checked`, etc.) to eliminate leftover XSS vectors.
+- Review remaining `DB::raw` join expressions in `Matter::filter()` aggregations and replace with parameterized expressions or query builder constructs where feasible.
