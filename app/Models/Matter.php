@@ -361,13 +361,13 @@ class Matter extends Model
             'matter.country AS country',
             'matter.category_code AS Cat',
             'matter.origin',
-            DB::raw("GROUP_CONCAT(DISTINCT JSON_UNQUOTE(JSON_EXTRACT(event_name.name, '$.\"{$baseLocale}\"')) SEPARATOR '|') AS Status"),
+            DB::raw("STRING_AGG(DISTINCT event_name.name->>'$baseLocale', '|') AS Status"),
             DB::raw('MIN(status.event_date) AS Status_date'),
-            DB::raw("GROUP_CONCAT(DISTINCT COALESCE(cli.display_name, clic.display_name, cli.name, clic.name) SEPARATOR '; ') AS Client"),
-            DB::raw("GROUP_CONCAT(DISTINCT COALESCE(clilnk.actor_ref, cliclnk.actor_ref) SEPARATOR '; ') AS ClRef"),
-            DB::raw("GROUP_CONCAT(DISTINCT COALESCE(app.display_name, app.name) SEPARATOR '; ') AS Applicant"),
-            DB::raw("GROUP_CONCAT(DISTINCT COALESCE(agt.display_name, agtc.display_name, agt.name, agtc.name) SEPARATOR '; ') AS Agent"),
-            DB::raw("GROUP_CONCAT(DISTINCT COALESCE(agtlnk.actor_ref, agtclnk.actor_ref) SEPARATOR '; ') AS AgtRef"),
+            DB::raw("STRING_AGG(DISTINCT COALESCE(cli.display_name, clic.display_name, cli.name, clic.name), '; ') AS Client"),
+            DB::raw("STRING_AGG(DISTINCT COALESCE(clilnk.actor_ref, cliclnk.actor_ref), '; ') AS ClRef"),
+            DB::raw("STRING_AGG(DISTINCT COALESCE(app.display_name, app.name), '; ') AS Applicant"),
+            DB::raw("STRING_AGG(DISTINCT COALESCE(agt.display_name, agtc.display_name, agt.name, agtc.name), '; ') AS Agent"),
+            DB::raw("STRING_AGG(DISTINCT COALESCE(agtlnk.actor_ref, agtclnk.actor_ref), '; ') AS AgtRef"),
             'tit1.value AS Title',
             DB::raw('COALESCE(tit2.value, tit1.value) AS Title2'),
             'tit3.value AS Title3',
@@ -385,7 +385,7 @@ class Matter extends Model
             'matter.responsible',
             'del.login AS delegate',
             'matter.dead',
-            DB::raw('isnull(matter.container_id) AS Ctnr'),
+            DB::raw('(matter.container_id IS NULL) AS Ctnr'),
             'matter.alt_ref AS Alt_Ref'
         )->join(
             'matter_category',
@@ -429,12 +429,12 @@ class Matter extends Model
         )->leftJoin(
             DB::raw('matter_actor_lnk applnk JOIN actor app ON app.id = applnk.actor_id'),
             function ($join) {
-                $join->on(DB::raw('ifnull(matter.container_id, matter.id)'), 'applnk.matter_id')->where('applnk.role', 'APP');
+                $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'applnk.matter_id')->where('applnk.role', 'APP');
             }
         )->leftJoin(
             DB::raw('matter_actor_lnk dellnk JOIN actor del ON del.id = dellnk.actor_id'),
             function ($join) {
-                $join->on(DB::raw('ifnull(matter.container_id, matter.id)'), 'dellnk.matter_id')->where('dellnk.role', 'DEL');
+                $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'dellnk.matter_id')->where('dellnk.role', 'DEL');
             }
         )->leftJoin(
             'event AS fil',
@@ -467,45 +467,45 @@ class Matter extends Model
             }
         )->leftJoin(
             DB::raw(
-                'classifier tit1 JOIN classifier_type ct1 
-                ON tit1.type_code = ct1.code 
-                AND ct1.main_display = 1 
+                'classifier tit1 JOIN classifier_type ct1
+                ON tit1.type_code = ct1.code
+                AND ct1.main_display = 1
                 AND ct1.display_order = 1'
             ),
-            DB::raw('IFNULL(matter.container_id, matter.id)'),
+            DB::raw('COALESCE(matter.container_id, matter.id)'),
             'tit1.matter_id'
         )->leftJoin(
             DB::raw(
-                'classifier tit2 JOIN classifier_type ct2 
-                ON tit2.type_code = ct2.code 
-                AND ct2.main_display = 1 
+                'classifier tit2 JOIN classifier_type ct2
+                ON tit2.type_code = ct2.code
+                AND ct2.main_display = 1
                 AND ct2.display_order = 2'
             ),
-            DB::raw('IFNULL(matter.container_id, matter.id)'),
+            DB::raw('COALESCE(matter.container_id, matter.id)'),
             'tit2.matter_id'
         )->leftJoin(
             DB::raw(
-                'classifier tit3 JOIN classifier_type ct3 
-                ON tit3.type_code = ct3.code 
-                AND ct3.main_display = 1 
+                'classifier tit3 JOIN classifier_type ct3
+                ON tit3.type_code = ct3.code
+                AND ct3.main_display = 1
                 AND ct3.display_order = 3'
             ),
-            DB::raw('IFNULL(matter.container_id, matter.id)'),
+            DB::raw('COALESCE(matter.container_id, matter.id)'),
             'tit3.matter_id'
-        )->where('e2.matter_id', null);
+        )->whereNull('e2.matter_id');
 
         if (array_key_exists('Inventor1', $multi_filter)) {
             $query->leftJoin(
                 DB::raw('matter_actor_lnk invlnk JOIN actor inv ON inv.id = invlnk.actor_id'),
                 function ($join) {
-                    $join->on(DB::raw('ifnull(matter.container_id, matter.id)'), 'invlnk.matter_id')->where('invlnk.role', 'INV');
+                    $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'invlnk.matter_id')->where('invlnk.role', 'INV');
                 }
             );
         } else {
             $query->leftJoin(
                 DB::raw('matter_actor_lnk invlnk JOIN actor inv ON inv.id = invlnk.actor_id'),
                 function ($join) {
-                    $join->on(DB::raw('ifnull(matter.container_id, matter.id)'), 'invlnk.matter_id')->where(
+                    $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'invlnk.matter_id')->where(
                         [
                             ['invlnk.role', 'INV'],
                             ['invlnk.display_order', 1],

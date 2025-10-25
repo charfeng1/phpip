@@ -225,7 +225,7 @@ class RenewrSync extends Command
             $task = $matter->tasks()
                 ->where('task.code', 'REN')
                 ->whereRaw(
-                    "CAST(JSON_UNQUOTE(JSON_EXTRACT(task.detail, '$.\"en\"')) AS UNSIGNED) = ?",
+                    "CAST(task.detail->>'en' AS INTEGER) = ?",
                     [$renewal->renewalYearNumber]
                 )
                 ->first();
