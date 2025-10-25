@@ -4,7 +4,16 @@ This guide provides instructions for migrating the phpIP application from MySQL 
 
 ## Overview
 
-The application has been updated to use PostgreSQL instead of MySQL. All MySQL-specific SQL syntax has been converted to PostgreSQL syntax.
+The application has been updated to use PostgreSQL instead of MySQL. All MySQL-specific SQL syntax in the application code has been converted to PostgreSQL syntax.
+
+**IMPORTANT**: This migration involves significant database schema work including:
+- 21 tables to create
+- 6 database views to convert
+- 15 database triggers to convert
+- 2 stored procedures to convert
+- 1 stored function to convert
+
+For complete details on all database objects, see [DATABASE_OBJECTS.md](DATABASE_OBJECTS.md).
 
 ## Prerequisites
 
@@ -148,9 +157,38 @@ The application uses several database views. These need to be created in Postgre
 
 Refer to `database/schema/postgres-schema.sql` for view definitions (may need manual fixes).
 
-## Step 7: Database Triggers and Functions
+## Step 7: Database Triggers, Functions, and Stored Procedures **CRITICAL**
 
-The application uses triggers (e.g., `classifier_before_insert`). These need to be converted to PostgreSQL syntax:
+**⚠️ WARNING**: The application relies HEAVILY on database triggers and stored procedures for core functionality. The application **WILL NOT WORK** without these being properly converted and tested.
+
+### Critical Triggers
+
+The application uses 15 triggers that handle:
+- Automatic task generation when events are created
+- Task recalculation when events change
+- Default actor assignment
+- Title case formatting
+- Renewal task management
+
+**Most Critical**:
+- `event_after_insert` - Generates all tasks based on rules (very complex)
+- `event_after_update` - Recalculates tasks when events change
+- `task_before_insert` - Sets default assignments
+
+### Stored Procedures (2)
+
+1. `insert_recurring_renewals()` - Creates renewal tasks
+2. `recalculate_tasks()` - Recalculates task due dates
+
+### Stored Function (1)
+
+1. `tcase()` - Title case conversion
+
+### Conversion Guide
+
+See [DATABASE_OBJECTS.md](DATABASE_OBJECTS.md) for complete conversion guide for each trigger, procedure, and function.
+
+These need to be converted to PostgreSQL syntax:
 
 ### MySQL Trigger Example:
 ```sql
@@ -279,9 +317,11 @@ If migrations fail:
 - Use the PostgreSQL schema directly instead of running migrations
 - Or create new migrations specifically for PostgreSQL
 
-## Changed Files Summary
+## What Was Changed - Application Code
 
-The following files have been updated for PostgreSQL compatibility:
+The following files have been updated for PostgreSQL compatibility in the **application code**:
+
+**NOTE**: Database schema objects (triggers, procedures, views) are NOT in the application code and must be created manually in Supabase.
 
 ### Configuration
 - `config/database.php` - Changed default connection to `pgsql`
@@ -294,6 +334,7 @@ The following files have been updated for PostgreSQL compatibility:
 ### Controllers
 - `app/Http/Controllers/RuleController.php` - Updated JSON queries
 - `app/Http/Controllers/CountryController.php` - Updated JSON queries
+- `app/Http/Controllers/MatterController.php` - Replaced MySQL `SOUNDS LIKE` with `ILIKE` pattern matching (lines 430, 467)
 
 ### Providers
 - `app/Providers/AppServiceProvider.php` - Updated `whereJsonLike` macro

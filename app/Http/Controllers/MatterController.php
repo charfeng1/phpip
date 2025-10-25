@@ -426,7 +426,8 @@ class MatterController extends Controller
                             // Remove ending comma
                             $applicant = substr($applicant, 0, -1);
                         }
-                        if ($actor = Actor::whereRaw("name SOUNDS LIKE ?", [$applicant])->first()) {
+                        // PostgreSQL: Using ILIKE for case-insensitive matching (pg_trgm extension provides better similarity)
+                        if ($actor = Actor::where('name', 'ILIKE', $applicant)->orWhere('name', 'ILIKE', "%{$applicant}%")->first()) {
                             // Some applicants are listed twice, with and without accents, so ignore unique key error for a second attempt
                             $new_matter->actorPivot()->firstOrCreate(
                                 [
@@ -462,7 +463,8 @@ class MatterController extends Controller
                             // Remove ending comma
                             $inventor = substr($inventor, 0, -1);
                         }
-                        if ($actor = Actor::whereRaw("name SOUNDS LIKE ?", [$inventor])->first()) {
+                        // PostgreSQL: Using ILIKE for case-insensitive matching (pg_trgm extension provides better similarity)
+                        if ($actor = Actor::where('name', 'ILIKE', $inventor)->orWhere('name', 'ILIKE', "%{$inventor}%")->first()) {
                             // Some inventors are listed twice, with and without accents, so ignore second attempt
                             $new_matter->actorPivot()->firstOrCreate(
                                 [
