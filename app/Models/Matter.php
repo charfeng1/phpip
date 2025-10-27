@@ -642,16 +642,57 @@ class Matter extends Model
             $query->whereRaw('(select count(1) from matter m where m.caseref = matter.caseref and m.dead = 0) > 0');
         }
 
-        // Sorting by caseref is special - set additional conditions here
-        if ($sortkey == 'caseref') {
-            $query->groupBy('matter.caseref', 'matter.container_id', 'matter.suffix', 'fil.event_date');
-            if ($sortdir == 'desc') {
-                $query->orderByDesc('matter.caseref');
-            }
-        } else {
-            $query->groupBy($sortkey, 'matter.caseref', 'matter.container_id', 'matter.suffix', 'fil.event_date')
-                ->orderBy($sortkey, $sortdir);
+        $groupColumns = [
+            'matter.uid',
+            'matter.country',
+            'matter.category_code',
+            'matter.origin',
+            'tit1.value',
+            'tit2.value',
+            'tit3.value',
+            'inv.name',
+            'inv.first_name',
+            'fil.event_date',
+            'fil.detail',
+            'pub.event_date',
+            'pub.detail',
+            'grt.event_date',
+            'grt.detail',
+            'reg.event_date',
+            'reg.detail',
+            'matter.id',
+            'matter.container_id',
+            'matter.parent_id',
+            'matter.type_code',
+            'matter.responsible',
+            'del.login',
+            'matter.dead',
+            'matter.alt_ref',
+            'matter.caseref',
+            'matter.suffix',
+        ];
+
+        call_user_func_array([$query, 'groupBy'], $groupColumns);
+
+        $sortKeyMap = [
+            'id' => 'matter.id',
+            'caseref' => 'matter.caseref',
+            'event_name.name' => 'Status',
+            'cli.name' => 'Client',
+            'app.name' => 'Applicant',
+            'status.event_date' => 'Status_date',
+        ];
+
+        $normalizedSortKey = $sortKeyMap[$sortkey] ?? $sortkey;
+        $allowedOrderColumns = array_merge($groupColumns, ['Status', 'Client', 'Applicant', 'Status_date']);
+
+        if (! in_array($normalizedSortKey, $allowedOrderColumns, true)) {
+            $normalizedSortKey = 'matter.caseref';
         }
+
+        $sortdir = strtolower($sortdir) === 'desc' ? 'desc' : 'asc';
+
+        $query->orderBy($normalizedSortKey, $sortdir);
 
         return $query;
     }

@@ -20,6 +20,7 @@ For complete details on all database objects, see [DATABASE_OBJECTS.md](DATABASE
 1. A Supabase account (sign up at https://supabase.com)
 2. A new Supabase project created
 3. PHP 8.2+ with PostgreSQL PDO extension (`pdo_pgsql`)
+4. Supabase project with the `fuzzystrmatch` extension enabled (needed for phonetic actor matching)
 
 ## Step 1: Install PostgreSQL PHP Extension
 
@@ -48,6 +49,14 @@ php -m | grep pdo_pgsql
    - **Database name**: `postgres`
    - **User**: `postgres`
    - **Password**: Your database password
+
+## Step 2a: Enable Required PostgreSQL Extensions
+
+In the Supabase SQL editor run the following to enable phonetic matching used by the application:
+
+```sql
+create extension if not exists fuzzystrmatch;
+```
 
 ## Step 3: Configure Environment Variables
 
