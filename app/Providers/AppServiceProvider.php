@@ -40,9 +40,10 @@ class AppServiceProvider extends ServiceProvider
                 $locale = substr($locale, 0, 2);
             }
 
+            // PostgreSQL JSON operator ->> extracts text value from JSON
             return $this->whereRaw(
-                "JSON_UNQUOTE(JSON_EXTRACT($column, '$.$locale')) COLLATE utf8mb4_0900_ai_ci LIKE ?",
-                ["$value%"]
+                "$column->>? ILIKE ?",
+                [$locale, "$value%"]
             );
         });
     }

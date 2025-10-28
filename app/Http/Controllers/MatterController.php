@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Database\QueryException;
 
 class MatterController extends Controller
 {
@@ -426,7 +427,8 @@ class MatterController extends Controller
                             // Remove ending comma
                             $applicant = substr($applicant, 0, -1);
                         }
-                        if ($actor = Actor::whereRaw("name SOUNDS LIKE ?", [$applicant])->first()) {
+                        $actor = $this->findActorByPhonetic($applicant);
+                        if ($actor) {
                             // Some applicants are listed twice, with and without accents, so ignore unique key error for a second attempt
                             $new_matter->actorPivot()->firstOrCreate(
                                 [
@@ -462,7 +464,8 @@ class MatterController extends Controller
                             // Remove ending comma
                             $inventor = substr($inventor, 0, -1);
                         }
-                        if ($actor = Actor::whereRaw("name SOUNDS LIKE ?", [$inventor])->first()) {
+                        $actor = $this->findActorByPhonetic($inventor);
+                        if ($actor) {
                             // Some inventors are listed twice, with and without accents, so ignore second attempt
                             $new_matter->actorPivot()->firstOrCreate(
                                 [
@@ -792,5 +795,27 @@ class MatterController extends Controller
         $description = $matter->getDescription($lang);
 
         return view('matter.summary', compact('description'));
+    }
+
+    private function findActorByPhonetic(string $name): ?Actor
+    {
+        $soundex = soundex($name);
+
+        try {
+            return Actor::where(function (Builder $query) use ($name, $soundex) {
+                $query->whereRaw('SOUNDEX(name) = ?', [$soundex])
+                    ->orWhere('name', 'ILIKE', $name)
+                    ->orWhere('name', 'ILIKE', "%{$name}%");
+            })->first();
+        } catch (QueryException $e) {
+            if (str_contains(strtolower($e->getMessage()), 'soundex')) {
+                return Actor::where(function (Builder $query) use ($name) {
+                    $query->where('name', 'ILIKE', $name)
+                        ->orWhere('name', 'ILIKE', "%{$name}%");
+                })->first();
+            }
+
+            throw $e;
+        }
     }
 }
