@@ -144,9 +144,9 @@ trait DatabaseJsonHelper
             ];
         }
 
-        // MySQL
+        // MySQL - use JSON_UNQUOTE and LOWER for case-insensitive matching
         return [
-            "JSON_EXTRACT({$column}, '$.{$key}') LIKE ?",
+            "LOWER(JSON_UNQUOTE(JSON_EXTRACT({$column}, '$.{$key}'))) LIKE LOWER(?)",
             ["%{$value}%"],
         ];
     }

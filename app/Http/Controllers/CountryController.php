@@ -39,9 +39,9 @@ class CountryController extends Controller
                 });
             } else {
                 $query = $query->where(function ($subQuery) use ($name) {
-                    $subQuery->whereRaw("JSON_EXTRACT(name, '$.en') LIKE ?", ['%'.$name.'%'])
-                        ->orWhereRaw("JSON_EXTRACT(name, '$.fr') LIKE ?", ['%'.$name.'%'])
-                        ->orWhereRaw("JSON_EXTRACT(name, '$.de') LIKE ?", ['%'.$name.'%']);
+                    $subQuery->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.en'))) LIKE LOWER(?)", ['%'.$name.'%'])
+                        ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.fr'))) LIKE LOWER(?)", ['%'.$name.'%'])
+                        ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.de'))) LIKE LOWER(?)", ['%'.$name.'%']);
                 });
             }
         }
