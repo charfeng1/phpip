@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
 
 /**
@@ -30,6 +31,8 @@ class RenewalController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Task::class);
+
         // Filters
         $MyRenewals = $request->input('my_renewals');
         $filters = $request->except([
@@ -151,6 +154,8 @@ class RenewalController extends Controller
      */
     public function firstcall(Request $request, int $send)
     {
+        $this->authorize('create', Task::class);
+
         $notify_type[0] = 'first';
         $rep = count($request->task_ids);
         if ($send == 1) {
@@ -174,6 +179,8 @@ class RenewalController extends Controller
      */
     public function remindercall(Request $request)
     {
+        $this->authorize('create', Task::class);
+
         $notify_type[0] = 'first';
         $notify_type[1] = 'warn';
         $rep = $this->_call($request->task_ids, $notify_type, true);
@@ -192,6 +199,8 @@ class RenewalController extends Controller
      */
     public function lastcall(Request $request)
     {
+        $this->authorize('create', Task::class);
+
         $notify_type[0] = 'last';
         $rep = $this->_call($request->task_ids, $notify_type, true);
         if (is_numeric($rep)) {
@@ -537,6 +546,8 @@ class RenewalController extends Controller
      */
     public function topay(Request $request)
     {
+        $this->authorize('create', Task::class);
+
         if (isset($request->task_ids)) {
             Task::whereIn('id', $request->task_ids)->update(['step' => 4, 'invoice_step' => 1]);
             // For logs
@@ -577,6 +588,8 @@ class RenewalController extends Controller
      */
     public function invoice(Request $request, int $toinvoice)
     {
+        $this->authorize('create', Task::class);
+
         if (isset($request->task_ids)) {
             $query = Task::renewals()->whereIn('task.id', $request->task_ids);
         } else {
@@ -709,6 +722,8 @@ class RenewalController extends Controller
      */
     public function paid(Request $request)
     {
+        $this->authorize('create', Task::class);
+
         if (! isset($request->task_ids)) {
             return response()->json(['error' => 'No renewal selected.']);
         }
@@ -726,6 +741,8 @@ class RenewalController extends Controller
      */
     public function export(Request $request)
     {
+        $this->authorize('viewAny', Task::class);
+
         $export = Task::renewals()->where('invoice_step', 1)
             ->orderBy('pmal_cli.actor_id')->get();
         $export = $export->map(function ($ren) {
@@ -822,6 +839,8 @@ class RenewalController extends Controller
      */
     public function done(Request $request)
     {
+        $this->authorize('create', Task::class);
+
         if (isset($request->task_ids)) {
             $query = Task::renewals()->whereIn('task.id', $request->task_ids);
         } else {
@@ -868,6 +887,8 @@ class RenewalController extends Controller
      */
     public function receipt(Request $request)
     {
+        $this->authorize('create', Task::class);
+
         if (isset($request->task_ids)) {
             $query = Task::renewals()->whereIn('task.id', $request->task_ids);
         } else {
@@ -913,6 +934,8 @@ class RenewalController extends Controller
      */
     public function closing(Request $request)
     {
+        $this->authorize('create', Task::class);
+
         if (isset($request->task_ids)) {
             $query = Task::renewals()->whereIn('task.id', $request->task_ids);
         } else {
@@ -963,6 +986,8 @@ class RenewalController extends Controller
      */
     public function abandon(Request $request)
     {
+        $this->authorize('create', Task::class);
+
         if (isset($request->task_ids)) {
             $query = Task::renewals()->whereIn('task.id', $request->task_ids);
         } else {
@@ -1011,6 +1036,8 @@ class RenewalController extends Controller
      */
     public function lapsing(Request $request)
     {
+        $this->authorize('create', Task::class);
+
         if (isset($request->task_ids)) {
             $query = Task::renewals()->whereIn('task.id', $request->task_ids);
         } else {
@@ -1060,6 +1087,8 @@ class RenewalController extends Controller
      */
     public function renewalOrder(Request $request)
     {
+        $this->authorize('create', Task::class);
+
         $tids = $request->task_ids;
         $procedure = '';
         $prev_procedure = '';
@@ -1209,6 +1238,8 @@ class RenewalController extends Controller
      */
     public function update(Request $request, Task $renewal)
     {
+        $this->authorize('update', $renewal);
+
         $this->validate($request, [
             'cost' => 'nullable|numeric',
             'fee' => 'nullable|numeric',
@@ -1227,6 +1258,8 @@ class RenewalController extends Controller
      */
     public function logs(Request $request)
     {
+        $this->authorize('viewAny', RenewalsLog::class);
+
         // Get list of logs
         $logs = new RenewalsLog;
         if (! empty($filters)) {

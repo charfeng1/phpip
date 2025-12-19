@@ -6,7 +6,6 @@ use App\Models\Rule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * Manages task generation rules for matter workflows.
@@ -25,7 +24,8 @@ class RuleController extends Controller
      */
     public function index(Request $request)
     {
-        Gate::authorize('readonly');
+        $this->authorize('viewAny', Rule::class);
+
         $Task = $request->input('Task');
         $Trigger = $request->input('Trigger');
         $Country = $request->input('Country');
@@ -100,7 +100,8 @@ class RuleController extends Controller
      */
     public function show(Rule $rule)
     {
-        Gate::authorize('readonly');
+        $this->authorize('view', $rule);
+
         $ruleInfo = $rule->load([
             'trigger:code,name',
             'country:iso,name',
@@ -125,7 +126,8 @@ class RuleController extends Controller
      */
     public function create()
     {
-        Gate::authorize('admin');
+        $this->authorize('create', Rule::class);
+
         $rule = new Rule;
         $ruleComments = $rule->getTableComments();
 
@@ -141,7 +143,8 @@ class RuleController extends Controller
      */
     public function update(Request $request, Rule $rule)
     {
-        Gate::authorize('admin');
+        $this->authorize('update', $rule);
+
         $this->validate($request, [
             'task' => 'sometimes|required',
             'trigger_event' => 'sometimes|required',
@@ -168,7 +171,8 @@ class RuleController extends Controller
      */
     public function store(Request $request)
     {
-        Gate::authorize('admin');
+        $this->authorize('create', Rule::class);
+
         $this->validate($request, [
             'task' => 'required',
             'trigger_event' => 'required',
@@ -195,7 +199,8 @@ class RuleController extends Controller
      */
     public function destroy(Rule $rule)
     {
-        Gate::authorize('admin');
+        $this->authorize('delete', $rule);
+
         $rule->delete();
 
         return $rule;

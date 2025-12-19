@@ -23,6 +23,8 @@ class EventNameController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', EventName::class);
+
         $Code = $request->input('Code');
         $Name = $request->input('Name');
         $ename = EventName::query();
@@ -51,6 +53,8 @@ class EventNameController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', EventName::class);
+
         $table = new EventName;
         $tableComments = $table->getTableComments();
 
@@ -65,6 +69,8 @@ class EventNameController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', EventName::class);
+
         $request->validate([
             'code' => 'required|unique:event_name|max:5',
             'name' => 'required|max:45',
@@ -84,6 +90,8 @@ class EventNameController extends Controller
      */
     public function show(EventName $eventname)
     {
+        $this->authorize('view', $eventname);
+
         $tableComments = $eventname->getTableComments();
         $eventname->load(['countryInfo:iso,name', 'categoryInfo:code,category', 'default_responsibleInfo:id,name']);
         $links = EventClassLnk::where('event_name_code', '=', $eventname->code)->get();
@@ -100,6 +108,8 @@ class EventNameController extends Controller
      */
     public function update(Request $request, EventName $eventname)
     {
+        $this->authorize('update', $eventname);
+
         $request->merge(['updater' => Auth::user()->login]);
         $eventname->update($request->except(['_token', '_method']));
 
@@ -114,6 +124,8 @@ class EventNameController extends Controller
      */
     public function destroy(EventName $eventname)
     {
+        $this->authorize('delete', $eventname);
+
         $eventname->delete();
 
         return $eventname;

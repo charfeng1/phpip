@@ -21,7 +21,7 @@ class ClassifierController extends Controller
      */
     public function index()
     {
-        //
+        $this->authorize('viewAny', Classifier::class);
     }
 
     /**
@@ -35,6 +35,8 @@ class ClassifierController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Classifier::class);
+
         \Log::info('ClassifierController store called');
         try {
             $this->validate($request, [
@@ -107,7 +109,7 @@ class ClassifierController extends Controller
      */
     public function show(Classifier $classifier)
     {
-        //
+        $this->authorize('view', $classifier);
     }
 
     /**
@@ -121,6 +123,8 @@ class ClassifierController extends Controller
      */
     public function update(Request $request, Classifier $classifier)
     {
+        $this->authorize('update', $classifier);
+
         if ($classifier->type->main_display && ! $request->filled('value')) {
             $classifier->delete();
         } else {
@@ -139,6 +143,8 @@ class ClassifierController extends Controller
      */
     public function destroy(Classifier $classifier)
     {
+        $this->authorize('delete', $classifier);
+
         $id = $classifier->id;
         $classifier->delete();
 
@@ -153,6 +159,8 @@ class ClassifierController extends Controller
      */
     public function showImage(Classifier $classifier)
     {
+        $this->authorize('view', $classifier);
+
         return response($classifier->img)
             ->header('Content-Type', $classifier->value);
     }

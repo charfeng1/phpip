@@ -23,6 +23,8 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Event::class);
+
         $this->validate($request, [
             'code' => 'required',
             'eventName' => 'required',
@@ -45,7 +47,7 @@ class EventController extends Controller
      */
     public function show(Event $event)
     {
-        //
+        $this->authorize('view', $event);
     }
 
     /**
@@ -57,6 +59,8 @@ class EventController extends Controller
      */
     public function update(Request $request, Event $event)
     {
+        $this->authorize('update', $event);
+
         $this->validate($request, [
             'alt_matter_id' => 'nullable|numeric',
             'event_date' => 'sometimes|required_without:alt_matter_id',
@@ -78,6 +82,8 @@ class EventController extends Controller
      */
     public function destroy(Event $event)
     {
+        $this->authorize('delete', $event);
+
         $event->delete();
 
         return $event;
