@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\DatabaseJsonHelper;
 use App\Traits\HasActorsFromRole;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -36,6 +37,7 @@ class Matter extends Model
 {
     use DatabaseJsonHelper;
     use HasActorsFromRole;
+    use HasFactory;
 
     /**
      * The database table associated with the model.
