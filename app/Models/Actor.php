@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use App\Traits\HasTableComments;
 use Illuminate\Database\Eloquent\Model;
 
@@ -31,7 +32,15 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Actor extends Model
 {
+    use Auditable;
     use HasTableComments;
+
+    /**
+     * Attributes to exclude from audit logging.
+     *
+     * @var array<string>
+     */
+    protected $auditExclude = ['created_at', 'updated_at', 'password', 'remember_token'];
 
     /**
      * The database table associated with the model.

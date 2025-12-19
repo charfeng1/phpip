@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services\TeamService;
+use App\Traits\Auditable;
 use App\Traits\DatabaseJsonHelper;
 use App\Traits\HasActorsFromRole;
 use Illuminate\Database\Eloquent\Builder;
@@ -36,8 +37,16 @@ use Illuminate\Support\Facades\DB;
  */
 class Matter extends Model
 {
+    use Auditable;
     use DatabaseJsonHelper;
     use HasActorsFromRole;
+
+    /**
+     * Attributes to exclude from audit logging.
+     *
+     * @var array<string>
+     */
+    protected $auditExclude = ['created_at', 'updated_at'];
 
     /**
      * The database table associated with the model.
