@@ -7,6 +7,7 @@ use App\Traits\Auditable;
 use App\Traits\DatabaseJsonHelper;
 use App\Traits\HasTranslationsExtended;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -37,6 +38,7 @@ class Task extends Model
 {
     use Auditable;
     use DatabaseJsonHelper;
+    use HasFactory;
     use HasTranslationsExtended;
 
     /**
