@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\DatabaseJsonHelper;
 use App\Traits\HasActorsFromRole;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -33,6 +34,7 @@ use Illuminate\Support\Facades\DB;
  */
 class Matter extends Model
 {
+    use DatabaseJsonHelper;
     use HasActorsFromRole;
 
     /**
@@ -640,18 +642,39 @@ class Matter extends Model
         // Normalize to the base locale (e.g., 'en' from 'en_US')
         $baseLocale = preg_replace('/[^a-zA-Z]/', '', substr($locale, 0, 2));
 
+        // Database-agnostic expressions
+        $driver = DB::connection()->getDriverName();
+        $isPostgres = $driver === 'pgsql';
+
+        // Status expression using JSON extraction
+        if ($isPostgres) {
+            $statusExpr = "STRING_AGG(DISTINCT event_name.name ->> '{$baseLocale}', '|') AS Status";
+            $clientExpr = "STRING_AGG(DISTINCT COALESCE(cli.display_name, clic.display_name, cli.name, clic.name), '; ') AS Client";
+            $clRefExpr = "STRING_AGG(DISTINCT COALESCE(clilnk.actor_ref, cliclnk.actor_ref), '; ') AS ClRef";
+            $applicantExpr = "STRING_AGG(DISTINCT COALESCE(app.display_name, app.name), '; ') AS Applicant";
+            $agentExpr = "STRING_AGG(DISTINCT COALESCE(agt.display_name, agtc.display_name, agt.name, agtc.name), '; ') AS Agent";
+            $agtRefExpr = "STRING_AGG(DISTINCT COALESCE(agtlnk.actor_ref, agtclnk.actor_ref), '; ') AS AgtRef";
+        } else {
+            $statusExpr = "GROUP_CONCAT(DISTINCT JSON_UNQUOTE(JSON_EXTRACT(event_name.name, '$.\"$baseLocale\"')) SEPARATOR '|') AS Status";
+            $clientExpr = "GROUP_CONCAT(DISTINCT COALESCE(cli.display_name, clic.display_name, cli.name, clic.name) SEPARATOR '; ') AS Client";
+            $clRefExpr = "GROUP_CONCAT(DISTINCT COALESCE(clilnk.actor_ref, cliclnk.actor_ref) SEPARATOR '; ') AS ClRef";
+            $applicantExpr = "GROUP_CONCAT(DISTINCT COALESCE(app.display_name, app.name) SEPARATOR '; ') AS Applicant";
+            $agentExpr = "GROUP_CONCAT(DISTINCT COALESCE(agt.display_name, agtc.display_name, agt.name, agtc.name) SEPARATOR '; ') AS Agent";
+            $agtRefExpr = "GROUP_CONCAT(DISTINCT COALESCE(agtlnk.actor_ref, agtclnk.actor_ref) SEPARATOR '; ') AS AgtRef";
+        }
+
         $query = Matter::select(
             'matter.uid AS Ref',
             'matter.country AS country',
             'matter.category_code AS Cat',
             'matter.origin',
-            DB::raw("GROUP_CONCAT(DISTINCT JSON_UNQUOTE(JSON_EXTRACT(event_name.name, '$.\"{$baseLocale}\"')) SEPARATOR '|') AS Status"),
+            DB::raw($statusExpr),
             DB::raw('MIN(status.event_date) AS Status_date'),
-            DB::raw("GROUP_CONCAT(DISTINCT COALESCE(cli.display_name, clic.display_name, cli.name, clic.name) SEPARATOR '; ') AS Client"),
-            DB::raw("GROUP_CONCAT(DISTINCT COALESCE(clilnk.actor_ref, cliclnk.actor_ref) SEPARATOR '; ') AS ClRef"),
-            DB::raw("GROUP_CONCAT(DISTINCT COALESCE(app.display_name, app.name) SEPARATOR '; ') AS Applicant"),
-            DB::raw("GROUP_CONCAT(DISTINCT COALESCE(agt.display_name, agtc.display_name, agt.name, agtc.name) SEPARATOR '; ') AS Agent"),
-            DB::raw("GROUP_CONCAT(DISTINCT COALESCE(agtlnk.actor_ref, agtclnk.actor_ref) SEPARATOR '; ') AS AgtRef"),
+            DB::raw($clientExpr),
+            DB::raw($clRefExpr),
+            DB::raw($applicantExpr),
+            DB::raw($agentExpr),
+            DB::raw($agtRefExpr),
             'tit1.value AS Title',
             DB::raw('COALESCE(tit2.value, tit1.value) AS Title2'),
             'tit3.value AS Title3',
@@ -669,7 +692,7 @@ class Matter extends Model
             'matter.responsible',
             'del.login AS delegate',
             'matter.dead',
-            DB::raw('isnull(matter.container_id) AS Ctnr'),
+            DB::raw('CASE WHEN matter.container_id IS NULL THEN 1 ELSE 0 END AS Ctnr'),
             'matter.alt_ref AS Alt_Ref'
         )->join(
             'matter_category',
@@ -713,12 +736,12 @@ class Matter extends Model
         )->leftJoin(
             DB::raw('matter_actor_lnk applnk JOIN actor app ON app.id = applnk.actor_id'),
             function ($join) {
-                $join->on(DB::raw('ifnull(matter.container_id, matter.id)'), 'applnk.matter_id')->where('applnk.role', 'APP');
+                $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'applnk.matter_id')->where('applnk.role', 'APP');
             }
         )->leftJoin(
             DB::raw('matter_actor_lnk dellnk JOIN actor del ON del.id = dellnk.actor_id'),
             function ($join) {
-                $join->on(DB::raw('ifnull(matter.container_id, matter.id)'), 'dellnk.matter_id')->where('dellnk.role', 'DEL');
+                $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'dellnk.matter_id')->where('dellnk.role', 'DEL');
             }
         )->leftJoin(
             'event AS fil',
@@ -756,7 +779,7 @@ class Matter extends Model
                 AND ct1.main_display = 1 
                 AND ct1.display_order = 1'
             ),
-            DB::raw('IFNULL(matter.container_id, matter.id)'),
+            DB::raw('COALESCE(matter.container_id, matter.id)'),
             'tit1.matter_id'
         )->leftJoin(
             DB::raw(
@@ -765,7 +788,7 @@ class Matter extends Model
                 AND ct2.main_display = 1 
                 AND ct2.display_order = 2'
             ),
-            DB::raw('IFNULL(matter.container_id, matter.id)'),
+            DB::raw('COALESCE(matter.container_id, matter.id)'),
             'tit2.matter_id'
         )->leftJoin(
             DB::raw(
@@ -774,7 +797,7 @@ class Matter extends Model
                 AND ct3.main_display = 1 
                 AND ct3.display_order = 3'
             ),
-            DB::raw('IFNULL(matter.container_id, matter.id)'),
+            DB::raw('COALESCE(matter.container_id, matter.id)'),
             'tit3.matter_id'
         )->where('e2.matter_id', null);
 
@@ -782,14 +805,14 @@ class Matter extends Model
             $query->leftJoin(
                 DB::raw('matter_actor_lnk invlnk JOIN actor inv ON inv.id = invlnk.actor_id'),
                 function ($join) {
-                    $join->on(DB::raw('ifnull(matter.container_id, matter.id)'), 'invlnk.matter_id')->where('invlnk.role', 'INV');
+                    $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'invlnk.matter_id')->where('invlnk.role', 'INV');
                 }
             );
         } else {
             $query->leftJoin(
                 DB::raw('matter_actor_lnk invlnk JOIN actor inv ON inv.id = invlnk.actor_id'),
                 function ($join) {
-                    $join->on(DB::raw('ifnull(matter.container_id, matter.id)'), 'invlnk.matter_id')->where(
+                    $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'invlnk.matter_id')->where(
                         [
                             ['invlnk.role', 'INV'],
                             ['invlnk.display_order', 1],

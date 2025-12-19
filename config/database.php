@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_CONNECTION', 'pgsql'),
 
     /*
     |--------------------------------------------------------------------------
@@ -75,7 +75,43 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'prefer'),
+        ],
+
+        'supabase' => [
+            'driver' => 'pgsql',
+            'url' => env('SUPABASE_DATABASE_URL'),
+            'host' => env('SUPABASE_DB_HOST', 'db.xxxx.supabase.co'),
+            'port' => env('SUPABASE_DB_PORT', '5432'),
+            'database' => env('SUPABASE_DB_DATABASE', 'postgres'),
+            'username' => env('SUPABASE_DB_USERNAME', 'postgres'),
+            'password' => env('SUPABASE_DB_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => env('SUPABASE_DB_SSLMODE', 'require'),
+            'options' => extension_loaded('pdo_pgsql') ? [
+                PDO::ATTR_PERSISTENT => false,
+            ] : [],
+        ],
+
+        'supabase_pooler' => [
+            'driver' => 'pgsql',
+            'url' => env('SUPABASE_POOLER_URL'),
+            'host' => env('SUPABASE_POOLER_HOST'),
+            'port' => env('SUPABASE_POOLER_PORT', '6543'),
+            'database' => env('SUPABASE_DB_DATABASE', 'postgres'),
+            'username' => env('SUPABASE_POOLER_USERNAME'),
+            'password' => env('SUPABASE_DB_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => env('SUPABASE_DB_SSLMODE', 'require'),
+            'options' => extension_loaded('pdo_pgsql') ? [
+                PDO::ATTR_PERSISTENT => false,
+            ] : [],
         ],
 
         'sqlsrv' => [

@@ -222,12 +222,17 @@ class RenewrSync extends Command
         foreach ($renewrPatent->renewalEvents as $renewal) {
             $this->stats['annsprocessed']++;
 
+            // Database-agnostic JSON extraction for renewal year comparison
+            $driver = DB::connection()->getDriverName();
+            $isPostgres = $driver === 'pgsql';
+
+            $jsonExtractExpr = $isPostgres
+                ? "(task.detail ->> 'en')::INTEGER = ?"
+                : "CAST(JSON_UNQUOTE(JSON_EXTRACT(task.detail, '$.\"en\"')) AS UNSIGNED) = ?";
+
             $task = $matter->tasks()
                 ->where('task.code', 'REN')
-                ->whereRaw(
-                    "CAST(JSON_UNQUOTE(JSON_EXTRACT(task.detail, '$.\"en\"')) AS UNSIGNED) = ?",
-                    [$renewal->renewalYearNumber]
-                )
+                ->whereRaw($jsonExtractExpr, [$renewal->renewalYearNumber])
                 ->first();
 
             if ($task) {
