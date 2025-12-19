@@ -2,26 +2,74 @@
 
 namespace App\Models;
 
+use App\Traits\DatabaseJsonHelper;
 use App\Traits\HasActorsFromRole;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Matter Model
+ *
+ * Represents an intellectual property matter (patent, trademark, design, etc.) in the phpIP system.
+ * This is the core model of the application, representing cases and tracking their lifecycle from
+ * filing through prosecution to grant/registration and maintenance.
+ *
+ * Database table: matter
+ *
+ * Key relationships:
+ * - Belongs to a container (parent matter for family grouping)
+ * - Has many family members (related matters with same caseref)
+ * - Has many events (filing, publication, grant, etc.)
+ * - Has many actors in various roles (client, agent, applicant, inventor, etc.)
+ * - Has many tasks (reminders and deadlines)
+ * - Has many classifiers (titles, classes, keywords)
+ *
+ * Business logic:
+ * - Matters can be containers (families) or individual cases within a family
+ * - Actor relationships can be inherited from container to family members
+ * - Status is derived from the most recent status event
+ * - Complex filtering system for matter lists with role-based access control
+ */
 class Matter extends Model
 {
+    use DatabaseJsonHelper;
     use HasActorsFromRole;
 
+    /**
+     * The database table associated with the model.
+     *
+     * @var string
+     */
     protected $table = 'matter';
 
+    /**
+     * Attributes that should be hidden from serialization.
+     *
+     * @var array<string>
+     */
     protected $hidden = ['creator', 'created_at', 'updated_at', 'updater'];
 
+    /**
+     * Attributes that are not mass assignable.
+     *
+     * @var array<string>
+     */
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
     /*protected $casts = [
         'expire_date' => 'date:Y-m-d'
     ];*/
 
+    /**
+     * Get all family members of this matter.
+     *
+     * Family members are matters that share the same caseref (family identifier).
+     * Results are ordered by origin, country, type, and index.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function family()
     {
         // Gets family members
@@ -32,16 +80,40 @@ class Matter extends Model
             ->orderBy('idx');
     }
 
+    /**
+     * Get the container (parent family) of this matter.
+     *
+     * A container is a matter that groups related cases together.
+     * Returns a default empty model if no container exists.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function container()
     {
         return $this->belongsTo(Matter::class, 'container_id')->withDefault();
     }
 
+    /**
+     * Get the parent matter from which this matter was derived.
+     *
+     * Used for tracking priority relationships (e.g., PCT -> National phase).
+     * Returns a default empty model if no parent exists.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function parent()
     {
         return $this->belongsTo(Matter::class, 'parent_id')->withDefault();
     }
 
+    /**
+     * Get all descendants of this matter.
+     *
+     * Descendants are matters that were derived from this matter (e.g., national phases from PCT).
+     * Results are ordered by origin, country, type, and index.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function descendants()
     {
         return $this->hasMany(Matter::class, 'parent_id')
@@ -51,6 +123,14 @@ class Matter extends Model
             ->orderBy('idx');
     }
 
+    /**
+     * Get external matters claiming priority from this matter.
+     *
+     * Returns matters outside this family that have priority events linking to this matter.
+     * Note: The where clause is ignored during eager loading.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function priorityTo()
     {
         // Gets external matters claiming priority on this one (where clause is ignored by eager loading)
@@ -63,6 +143,14 @@ class Matter extends Model
             ->orderBy('idx');
     }
 
+    /**
+     * Get all actors associated with this matter.
+     *
+     * Uses the MatterActors view which includes actors inherited from the container.
+     * This relationship is read-only and should only be used for displaying data.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function actors(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         // MatterActors refers to a view that also includes the actors inherited from the container. Can only be used to display data
@@ -79,6 +167,15 @@ class Matter extends Model
         return $this->hasMany(ActorPivot::class);
     }
 
+    /**
+     * Get the client actor for this matter.
+     *
+     * Returns the client actor using the MatterActors view.
+     * IMPORTANT: Used in MatterPolicy - do not modify without checking authorization logic.
+     * Returns a default empty model if no client exists.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function client()
     {
         // Used in Policies - do not change without checking MatterPolicy
@@ -107,16 +204,37 @@ class Matter extends Model
         return $this->getActorFromRole('PAY');
     }
 
+    /**
+     * Get the delegate actor(s) for this matter.
+     *
+     * Delegates are actors authorized to represent the client.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function delegate()
     {
         return $this->actors()->whereRoleCode('DEL');
     }
 
+    /**
+     * Get the contact actor(s) for this matter.
+     *
+     * Contacts are designated communication points for the matter.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function contact()
     {
         return $this->actors()->whereRoleCode('CNT');
     }
 
+    /**
+     * Get the applicant actor(s) for this matter.
+     *
+     * Applicants are the entities applying for the IP right.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function applicants()
     {
         return $this->actors()->whereRoleCode('APP');
@@ -168,6 +286,13 @@ class Matter extends Model
         return implode('; ', $names);
     }
 
+    /**
+     * Get the inventor actor(s) for this matter.
+     *
+     * Inventors are the individuals who created the invention.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function inventors()
     {
         return $this->hasMany(MatterActors::class)
@@ -227,67 +352,150 @@ class Matter extends Model
         return $this->hasOne(Actor::class, 'login', 'responsible');
     }
 
+    /**
+     * Get all events for this matter.
+     *
+     * Events represent important dates and milestones in the matter's lifecycle.
+     * Results are ordered chronologically by event date.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function events()
     {
         return $this->hasMany(Event::class)
             ->orderBy('event_date');
     }
 
+    /**
+     * Get the filing event for this matter.
+     *
+     * The filing event represents when the application was filed.
+     * Returns a default empty model if no filing event exists.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function filing()
     {
         return $this->hasOne(Event::class)
             ->whereCode('FIL')->withDefault();
     }
 
+    /**
+     * Get the parent filing event(s) for this matter.
+     *
+     * Parent filing events represent the filing dates of priority applications.
+     * Returns a default empty model if no parent filing events exist.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function parentFiling()
     {
         return $this->hasMany(Event::class)
             ->whereCode('PFIL')->withDefault();
     }
 
+    /**
+     * Get the publication event for this matter.
+     *
+     * The publication event represents when the application was published.
+     * Returns a default empty model if no publication event exists.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function publication()
     {
         return $this->hasOne(Event::class)
             ->whereCode('PUB')->withDefault();
     }
 
+    /**
+     * Get the grant or registration event for this matter.
+     *
+     * Returns either a grant (for patents) or registration (for trademarks/designs) event.
+     * Returns a default empty model if neither event exists.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function grant()
     {
         return $this->hasOne(Event::class)
             ->whereIn('code', ['GRT', 'REG'])->withDefault();
     }
 
+    /**
+     * Get the registration event for this matter.
+     *
+     * The registration event represents when a trademark or design was registered.
+     * Returns a default empty model if no registration event exists.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function registration()
     {
         return $this->hasOne(Event::class)
             ->whereCode('REG')->withDefault();
     }
 
+    /**
+     * Get the national phase entry event for this matter.
+     *
+     * The entry event represents when a PCT application entered the national phase.
+     * Returns a default empty model if no entry event exists.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function entered()
     {
         return $this->hasOne(Event::class)
             ->whereCode('ENT')->withDefault();
     }
 
+    /**
+     * Get all priority events for this matter.
+     *
+     * Priority events link this matter to its priority applications.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function priority()
     {
         return $this->hasMany(Event::class)
             ->whereCode('PRI');
     }
 
+    /**
+     * Get priority events using the event link view.
+     *
+     * Uses the EventLnkList view which provides a flattened representation of event links.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function prioritiesFromView()
     {
         return $this->hasMany(EventLnkList::class, 'matter_id', 'id')
             ->where('code', 'PRI');
     }
 
-    // All tasks, including renewals and done
+    /**
+     * Get all tasks for this matter, including renewals and completed tasks.
+     *
+     * Tasks are reminders and deadlines generated from events.
+     * Uses a has-many-through relationship via the event table.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
     public function tasks()
     {
         return $this->hasManyThrough(Task::class, Event::class, 'matter_id', 'trigger_id', 'id');
     }
 
-    // Pending excluding renewals
+    /**
+     * Get pending tasks excluding renewals.
+     *
+     * Returns uncompleted tasks ordered by due date, excluding renewal tasks.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
     public function tasksPending()
     {
         return $this->tasks()
@@ -296,7 +504,13 @@ class Matter extends Model
             ->orderBy('due_date');
     }
 
-    // Pending renewals
+    /**
+     * Get pending renewal tasks.
+     *
+     * Returns uncompleted renewal tasks ordered by due date.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
     public function renewalsPending()
     {
         return $this->tasks()
@@ -305,69 +519,162 @@ class Matter extends Model
             ->orderBy('due_date');
     }
 
-    // Returns all classifiers outside the "main display", including those inherited from the container (MatterClassifiers is a model referring to db view matter_classifiers)
+    /**
+     * Get all classifiers not shown in the main display.
+     *
+     * Uses the MatterClassifiers view which includes classifiers inherited from the container.
+     * Excludes main display classifiers (titles).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function classifiers()
     {
         return $this->hasMany(MatterClassifiers::class)
             ->whereMainDisplay(0);
     }
 
-    // Returns the classifiers native to the matter (only applies to a container, normally)
+    /**
+     * Get classifiers directly attached to this matter.
+     *
+     * Returns only native classifiers, not inherited ones.
+     * Typically used for container matters.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function classifiersNative()
     {
         return $this->hasMany(Classifier::class);
     }
 
-    // Returns all classifiers of the "main display", including those inherited from the container (MatterClassifiers is a model referring to db view matter_classifiers)
+    /**
+     * Get all title classifiers for this matter.
+     *
+     * Uses the MatterClassifiers view which includes titles inherited from the container.
+     * Includes only main display classifiers.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function titles()
     {
         return $this->hasMany(MatterClassifiers::class)
             ->whereMainDisplay(1);
     }
 
+    /**
+     * Get matters that link to this matter via classifiers.
+     *
+     * Returns matters that reference this matter through the classifier table.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function linkedBy()
     {
         return $this->belongsToMany(Matter::class, 'classifier', 'lnk_matter_id');
     }
 
+    /**
+     * Get the country information for this matter.
+     *
+     * Returns the Country model for the matter's jurisdiction.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function countryInfo()
     {
         return $this->belongsTo(Country::class, 'country');
     }
 
+    /**
+     * Get the origin country information for this matter.
+     *
+     * Returns the Country model for the matter's origin.
+     * Returns a default empty model if no origin is set.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function originInfo()
     {
         return $this->belongsTo(Country::class, 'origin')->withDefault();
     }
 
+    /**
+     * Get the category for this matter.
+     *
+     * Category represents the IP type (Patent, Trademark, Design, etc.).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function category()
     {
         return $this->belongsTo(Category::class);
     }
 
+    /**
+     * Get the matter type.
+     *
+     * Matter type provides additional classification within a category.
+     * Returns a default empty model if no type is set.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function type()
     {
         return $this->belongsTo(MatterType::class)->withDefault();
     }
 
+    /**
+     * Build a filtered query for matters with complex joins and filtering.
+     *
+     * Constructs a comprehensive query that joins matters with their actors, events, and classifiers
+     * to provide a flattened view suitable for display in matter lists. Implements role-based
+     * access control to restrict clients to their own matters.
+     *
+     * @param string $sortkey The column to sort by (default: 'id')
+     * @param string $sortdir The sort direction 'asc' or 'desc' (default: 'desc')
+     * @param array $multi_filter Associative array of filter criteria keyed by column name
+     * @param string|bool $display_with Filter by category display_with value (optional)
+     * @param bool $include_dead Whether to include dead families (default: false)
+     * @return \Illuminate\Database\Eloquent\Builder The filtered query builder instance
+     */
     public static function filter($sortkey = 'id', $sortdir = 'desc', $multi_filter = [], $display_with = false, $include_dead = false)
     {
         $locale = app()->getLocale();
         // Normalize to the base locale (e.g., 'en' from 'en_US')
         $baseLocale = preg_replace('/[^a-zA-Z]/', '', substr($locale, 0, 2));
 
+        // Database-agnostic expressions
+        $driver = DB::connection()->getDriverName();
+        $isPostgres = $driver === 'pgsql';
+
+        // Status expression using JSON extraction
+        if ($isPostgres) {
+            $statusExpr = "STRING_AGG(DISTINCT event_name.name ->> '{$baseLocale}', '|') AS Status";
+            $clientExpr = "STRING_AGG(DISTINCT COALESCE(cli.display_name, clic.display_name, cli.name, clic.name), '; ') AS Client";
+            $clRefExpr = "STRING_AGG(DISTINCT COALESCE(clilnk.actor_ref, cliclnk.actor_ref), '; ') AS ClRef";
+            $applicantExpr = "STRING_AGG(DISTINCT COALESCE(app.display_name, app.name), '; ') AS Applicant";
+            $agentExpr = "STRING_AGG(DISTINCT COALESCE(agt.display_name, agtc.display_name, agt.name, agtc.name), '; ') AS Agent";
+            $agtRefExpr = "STRING_AGG(DISTINCT COALESCE(agtlnk.actor_ref, agtclnk.actor_ref), '; ') AS AgtRef";
+        } else {
+            $statusExpr = "GROUP_CONCAT(DISTINCT JSON_UNQUOTE(JSON_EXTRACT(event_name.name, '$.\"$baseLocale\"')) SEPARATOR '|') AS Status";
+            $clientExpr = "GROUP_CONCAT(DISTINCT COALESCE(cli.display_name, clic.display_name, cli.name, clic.name) SEPARATOR '; ') AS Client";
+            $clRefExpr = "GROUP_CONCAT(DISTINCT COALESCE(clilnk.actor_ref, cliclnk.actor_ref) SEPARATOR '; ') AS ClRef";
+            $applicantExpr = "GROUP_CONCAT(DISTINCT COALESCE(app.display_name, app.name) SEPARATOR '; ') AS Applicant";
+            $agentExpr = "GROUP_CONCAT(DISTINCT COALESCE(agt.display_name, agtc.display_name, agt.name, agtc.name) SEPARATOR '; ') AS Agent";
+            $agtRefExpr = "GROUP_CONCAT(DISTINCT COALESCE(agtlnk.actor_ref, agtclnk.actor_ref) SEPARATOR '; ') AS AgtRef";
+        }
+
         $query = Matter::select(
             'matter.uid AS Ref',
             'matter.country AS country',
             'matter.category_code AS Cat',
             'matter.origin',
-            DB::raw("GROUP_CONCAT(DISTINCT JSON_UNQUOTE(JSON_EXTRACT(event_name.name, '$.\"{$baseLocale}\"')) SEPARATOR '|') AS Status"),
+            DB::raw($statusExpr),
             DB::raw('MIN(status.event_date) AS Status_date'),
-            DB::raw("GROUP_CONCAT(DISTINCT COALESCE(cli.display_name, clic.display_name, cli.name, clic.name) SEPARATOR '; ') AS Client"),
-            DB::raw("GROUP_CONCAT(DISTINCT COALESCE(clilnk.actor_ref, cliclnk.actor_ref) SEPARATOR '; ') AS ClRef"),
-            DB::raw("GROUP_CONCAT(DISTINCT COALESCE(app.display_name, app.name) SEPARATOR '; ') AS Applicant"),
-            DB::raw("GROUP_CONCAT(DISTINCT COALESCE(agt.display_name, agtc.display_name, agt.name, agtc.name) SEPARATOR '; ') AS Agent"),
-            DB::raw("GROUP_CONCAT(DISTINCT COALESCE(agtlnk.actor_ref, agtclnk.actor_ref) SEPARATOR '; ') AS AgtRef"),
+            DB::raw($clientExpr),
+            DB::raw($clRefExpr),
+            DB::raw($applicantExpr),
+            DB::raw($agentExpr),
+            DB::raw($agtRefExpr),
             'tit1.value AS Title',
             DB::raw('COALESCE(tit2.value, tit1.value) AS Title2'),
             'tit3.value AS Title3',
@@ -385,7 +692,7 @@ class Matter extends Model
             'matter.responsible',
             'del.login AS delegate',
             'matter.dead',
-            DB::raw('isnull(matter.container_id) AS Ctnr'),
+            DB::raw('CASE WHEN matter.container_id IS NULL THEN 1 ELSE 0 END AS Ctnr'),
             'matter.alt_ref AS Alt_Ref'
         )->join(
             'matter_category',
@@ -429,12 +736,12 @@ class Matter extends Model
         )->leftJoin(
             DB::raw('matter_actor_lnk applnk JOIN actor app ON app.id = applnk.actor_id'),
             function ($join) {
-                $join->on(DB::raw('ifnull(matter.container_id, matter.id)'), 'applnk.matter_id')->where('applnk.role', 'APP');
+                $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'applnk.matter_id')->where('applnk.role', 'APP');
             }
         )->leftJoin(
             DB::raw('matter_actor_lnk dellnk JOIN actor del ON del.id = dellnk.actor_id'),
             function ($join) {
-                $join->on(DB::raw('ifnull(matter.container_id, matter.id)'), 'dellnk.matter_id')->where('dellnk.role', 'DEL');
+                $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'dellnk.matter_id')->where('dellnk.role', 'DEL');
             }
         )->leftJoin(
             'event AS fil',
@@ -472,7 +779,7 @@ class Matter extends Model
                 AND ct1.main_display = 1 
                 AND ct1.display_order = 1'
             ),
-            DB::raw('IFNULL(matter.container_id, matter.id)'),
+            DB::raw('COALESCE(matter.container_id, matter.id)'),
             'tit1.matter_id'
         )->leftJoin(
             DB::raw(
@@ -481,7 +788,7 @@ class Matter extends Model
                 AND ct2.main_display = 1 
                 AND ct2.display_order = 2'
             ),
-            DB::raw('IFNULL(matter.container_id, matter.id)'),
+            DB::raw('COALESCE(matter.container_id, matter.id)'),
             'tit2.matter_id'
         )->leftJoin(
             DB::raw(
@@ -490,7 +797,7 @@ class Matter extends Model
                 AND ct3.main_display = 1 
                 AND ct3.display_order = 3'
             ),
-            DB::raw('IFNULL(matter.container_id, matter.id)'),
+            DB::raw('COALESCE(matter.container_id, matter.id)'),
             'tit3.matter_id'
         )->where('e2.matter_id', null);
 
@@ -498,14 +805,14 @@ class Matter extends Model
             $query->leftJoin(
                 DB::raw('matter_actor_lnk invlnk JOIN actor inv ON inv.id = invlnk.actor_id'),
                 function ($join) {
-                    $join->on(DB::raw('ifnull(matter.container_id, matter.id)'), 'invlnk.matter_id')->where('invlnk.role', 'INV');
+                    $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'invlnk.matter_id')->where('invlnk.role', 'INV');
                 }
             );
         } else {
             $query->leftJoin(
                 DB::raw('matter_actor_lnk invlnk JOIN actor inv ON inv.id = invlnk.actor_id'),
                 function ($join) {
-                    $join->on(DB::raw('ifnull(matter.container_id, matter.id)'), 'invlnk.matter_id')->where(
+                    $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'invlnk.matter_id')->where(
                         [
                             ['invlnk.role', 'INV'],
                             ['invlnk.display_order', 1],
@@ -656,6 +963,16 @@ class Matter extends Model
         return $query;
     }
 
+    /**
+     * Get categories with their matter counts filtered by user and request parameters.
+     *
+     * Returns all categories with a count of matters based on:
+     * - User's role (clients see only their own matters)
+     * - 'what_tasks' request parameter (filter by responsible user or client)
+     * Used for dashboard and navigation displays.
+     *
+     * @return \Illuminate\Support\Collection Collection of Category models with 'total' count
+     */
     public static function getCategoryMatterCount()
     {
         return Category::withCount(['matters as total' => function ($query) {
@@ -684,6 +1001,16 @@ class Matter extends Model
             ->get();
     }
 
+    /**
+     * Generate a formatted description of the matter for documents or correspondence.
+     *
+     * Creates a human-readable description including reference numbers, filing/grant dates,
+     * publication details, titles, and applicant names. Supports French and English languages
+     * with appropriate formatting for patents and trademarks.
+     *
+     * @param string $lang Language code ('en' or 'fr', default: 'en')
+     * @return array Array of description lines
+     */
     public function getDescription($lang = 'en')
     {
         $description = [];

@@ -5,10 +5,24 @@ namespace App\Http\Controllers;
 use App\Models\Rule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * Manages task generation rules for matter workflows.
+ *
+ * Rules define automatic task creation based on trigger events, calculating
+ * due dates using configurable offsets and conditions based on matter properties
+ * like country, category, and type.
+ */
 class RuleController extends Controller
 {
+    /**
+     * Display a paginated list of rules with filtering.
+     *
+     * @param Request $request Filter parameters for rules
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     */
     public function index(Request $request)
     {
         Gate::authorize('readonly');
@@ -56,10 +70,17 @@ class RuleController extends Controller
             $rule = $rule->whereLike('for_origin', "{$Origin}%");
         }
 
+        // Database-agnostic JSON ordering
+        $driver = DB::connection()->getDriverName();
+        $isPostgres = $driver === 'pgsql';
+        $orderExpr = $isPostgres
+            ? "t.name ->> '{$baseLocale}'"
+            : "JSON_UNQUOTE(JSON_EXTRACT(t.name, '$.\"$baseLocale\"'))";
+
         $query = $rule->with(['country:iso,name', 'trigger:code,name', 'category:code,category', 'origin:iso,name', 'type:code,type', 'taskInfo:code,name'])
             ->select('task_rules.*')
             ->join('event_name AS t', 't.code', '=', 'task_rules.task')
-            ->orderByRaw("JSON_UNQUOTE(JSON_EXTRACT(t.name, '$.\"{$baseLocale}\"'))");
+            ->orderByRaw($orderExpr);
 
         if ($request->wantsJson()) {
             return response()->json($query->get());
@@ -71,6 +92,12 @@ class RuleController extends Controller
         return view('rule.index', compact('ruleslist'));
     }
 
+    /**
+     * Display the specified rule.
+     *
+     * @param Rule $rule The rule to display
+     * @return \Illuminate\Http\Response
+     */
     public function show(Rule $rule)
     {
         Gate::authorize('readonly');
@@ -91,6 +118,11 @@ class RuleController extends Controller
         return view('rule.show', compact('ruleInfo', 'ruleComments'));
     }
 
+    /**
+     * Show the form for creating a new rule.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function create()
     {
         Gate::authorize('admin');
@@ -100,6 +132,13 @@ class RuleController extends Controller
         return view('rule.create', compact('ruleComments'));
     }
 
+    /**
+     * Update the specified rule.
+     *
+     * @param Request $request Updated rule data
+     * @param Rule $rule The rule to update
+     * @return Rule The updated rule
+     */
     public function update(Request $request, Rule $rule)
     {
         Gate::authorize('admin');
@@ -121,6 +160,12 @@ class RuleController extends Controller
         return $rule;
     }
 
+    /**
+     * Store a newly created rule.
+     *
+     * @param Request $request Rule data including task, trigger, category, and timing
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(Request $request)
     {
         Gate::authorize('admin');
@@ -142,6 +187,12 @@ class RuleController extends Controller
         return response()->json(['redirect' => route('rule.index')]);
     }
 
+    /**
+     * Remove the specified rule from storage.
+     *
+     * @param Rule $rule The rule to delete
+     * @return Rule The deleted rule
+     */
     public function destroy(Rule $rule)
     {
         Gate::authorize('admin');

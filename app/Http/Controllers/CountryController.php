@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Country;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CountryController extends Controller
 {
@@ -27,11 +28,22 @@ class CountryController extends Controller
         }
 
         if (! is_null($name)) {
-            $query = $query->where(function ($subQuery) use ($name) {
-                $subQuery->whereRaw("JSON_EXTRACT(name, '$.en') LIKE ?", ['%'.$name.'%'])
-                    ->orWhereRaw("JSON_EXTRACT(name, '$.fr') LIKE ?", ['%'.$name.'%'])
-                    ->orWhereRaw("JSON_EXTRACT(name, '$.de') LIKE ?", ['%'.$name.'%']);
-            });
+            $driver = DB::connection()->getDriverName();
+            $isPostgres = $driver === 'pgsql';
+
+            if ($isPostgres) {
+                $query = $query->where(function ($subQuery) use ($name) {
+                    $subQuery->whereRaw("name ->> 'en' ILIKE ?", ['%'.$name.'%'])
+                        ->orWhereRaw("name ->> 'fr' ILIKE ?", ['%'.$name.'%'])
+                        ->orWhereRaw("name ->> 'de' ILIKE ?", ['%'.$name.'%']);
+                });
+            } else {
+                $query = $query->where(function ($subQuery) use ($name) {
+                    $subQuery->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.en'))) LIKE LOWER(?)", ['%'.$name.'%'])
+                        ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.fr'))) LIKE LOWER(?)", ['%'.$name.'%'])
+                        ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.de'))) LIKE LOWER(?)", ['%'.$name.'%']);
+                });
+            }
         }
 
         if ($request->wantsJson()) {

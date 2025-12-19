@@ -33,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('readonly', fn ($user) => in_array($user->default_role, ['DBA', 'DBRW', 'DBRO']));
 
         // Add query macro for case-insensitive JSON column queries
+        // Supports both MySQL and PostgreSQL syntax
         \Illuminate\Database\Query\Builder::macro('whereJsonLike', function ($column, $value, $locale = null) {
             if (! $locale) {
                 $locale = app()->getLocale();
@@ -40,6 +41,17 @@ class AppServiceProvider extends ServiceProvider
                 $locale = substr($locale, 0, 2);
             }
 
+            $driver = $this->getConnection()->getDriverName();
+
+            if ($driver === 'pgsql') {
+                // PostgreSQL: use ->> operator for JSON text extraction and ILIKE for case-insensitive
+                return $this->whereRaw(
+                    "$column ->> ? ILIKE ?",
+                    [$locale, "$value%"]
+                );
+            }
+
+            // MySQL: use JSON_UNQUOTE(JSON_EXTRACT()) with COLLATE for case-insensitive
             return $this->whereRaw(
                 "JSON_UNQUOTE(JSON_EXTRACT($column, '$.$locale')) COLLATE utf8mb4_0900_ai_ci LIKE ?",
                 ["$value%"]

@@ -9,3 +9,4 @@ Homestead.yaml
 /nbproject/private/
 /config/renewal.php
 .DS_Store
+.phpunit.result.cache

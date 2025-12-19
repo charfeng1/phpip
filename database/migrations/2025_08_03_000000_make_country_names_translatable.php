@@ -34,23 +34,24 @@ return new class extends Migration
             $table->json('name_json')->after($columnName);
         });
 
-        // Step 2: Migrate data to JSON format
+        // Step 2: Migrate data to JSON format using chunking to reduce memory usage
         Log::info('Migrating country names to JSON format');
-        $countries = DB::table($tableName)->get();
-        foreach ($countries as $country) {
-            $names = [
-                'en' => $country->name,
-                'fr' => $country->name_FR,
-                'de' => $country->name_DE,
-            ];
+        DB::table($tableName)->orderBy('iso')->chunk(100, function ($countries) {
+            foreach ($countries as $country) {
+                $names = [
+                    'en' => $country->name,
+                    'fr' => $country->name_FR,
+                    'de' => $country->name_DE,
+                ];
 
-            // Filter out null values
-            $names = array_filter($names, fn ($value) => ! is_null($value));
+                // Filter out null values
+                $names = array_filter($names, fn ($value) => ! is_null($value));
 
-            DB::table('country')
-                ->where('iso', $country->iso)
-                ->update(['name_json' => json_encode($names, JSON_UNESCAPED_UNICODE)]);
-        }
+                DB::table('country')
+                    ->where('iso', $country->iso)
+                    ->update(['name_json' => json_encode($names, JSON_UNESCAPED_UNICODE)]);
+            }
+        });
 
         // Step 3: Drop old columns and rename JSON column
         Schema::table($tableName, function (Blueprint $table) {
@@ -171,7 +172,6 @@ return new class extends Migration
     {
         $tableName = 'country';
         $columnName = 'name';
-        $tempColumnName = $columnName.'_en';
 
         Log::info('Starting rollback of country names from JSON format');
 
@@ -182,20 +182,21 @@ return new class extends Migration
             $table->string('name_DE', 45)->nullable()->after('name_FR');
         });
 
-        // Step 2: Extract data from JSON
+        // Step 2: Extract data from JSON using chunking to reduce memory usage
         Log::info('Extracting data from JSON to separate columns');
-        $countries = DB::table($tableName)->get();
-        foreach ($countries as $country) {
-            $names = json_decode($country->$columnName, true) ?? [];
+        DB::table($tableName)->orderBy('iso')->chunk(100, function ($countries) use ($columnName) {
+            foreach ($countries as $country) {
+                $names = json_decode($country->$columnName, true) ?? [];
 
-            DB::table('country')
-                ->where('iso', $country->iso)
-                ->update([
-                    'name_temp' => $names['en'] ?? null,
-                    'name_FR' => $names['fr'] ?? null,
-                    'name_DE' => $names['de'] ?? null,
-                ]);
-        }
+                DB::table('country')
+                    ->where('iso', $country->iso)
+                    ->update([
+                        'name_temp' => $names['en'] ?? null,
+                        'name_FR' => $names['fr'] ?? null,
+                        'name_DE' => $names['de'] ?? null,
+                    ]);
+            }
+        });
 
         // Step 3: Drop indexes and virtual columns
         $isMariaDB = str_contains(DB::selectOne('select version() as v')->v ?? '', 'MariaDB');

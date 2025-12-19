@@ -5,6 +5,12 @@ namespace App\Services;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
+/**
+ * Service for interacting with Microsoft SharePoint.
+ *
+ * This service handles authentication and folder operations with SharePoint,
+ * including access token management and folder URL lookups for case files.
+ */
 class SharePointService
 {
     protected $accessToken;
@@ -15,6 +21,11 @@ class SharePointService
 
     protected $enabled;
 
+    /**
+     * Initialize the SharePoint service with configuration values.
+     *
+     * Loads SharePoint API URL, folder path, and enabled status from configuration.
+     */
     public function __construct()
     {
         $this->baseUrl = config('services.sharepoint.api_url');
@@ -22,6 +33,14 @@ class SharePointService
         $this->enabled = config('services.sharepoint.enabled', false);
     }
 
+    /**
+     * Retrieve and cache an access token for SharePoint API authentication.
+     *
+     * Uses OAuth2 client credentials flow to obtain an access token. The token
+     * is cached for its lifetime minus 30 seconds to prevent expiration issues.
+     *
+     * @return string The access token for SharePoint API requests.
+     */
     protected function getAccessToken()
     {
         $token = Cache::get('sharepoint_access_token');
@@ -48,6 +67,16 @@ class SharePointService
         return $tokenData['access_token'];
     }
 
+    /**
+     * Find the SharePoint web URL for a case folder.
+     *
+     * Searches for a folder matching the case reference in the configured SharePoint
+     * folder path. Results are cached for one year, with optional cache refresh.
+     *
+     * @param string $caseref The case reference to search for.
+     * @param bool $forceRefresh Whether to bypass and refresh the cache. Defaults to false.
+     * @return string|null The web URL of the folder, or null if not found.
+     */
     protected function findBaseFolderUrl($caseref, $forceRefresh = false)
     {
         $cacheKey = "sharepoint_base_url_{$caseref}";
@@ -75,6 +104,17 @@ class SharePointService
         });
     }
 
+    /**
+     * Generate a SharePoint folder link for a specific case event.
+     *
+     * Constructs a full SharePoint URL by combining the base folder URL with
+     * a suffix and event code. Returns null if SharePoint is disabled or folder not found.
+     *
+     * @param string $caseref The case reference to search for.
+     * @param string $suffix The folder suffix to append to the base URL.
+     * @param string $eventCode The event code to append as the final path segment.
+     * @return string|null The complete SharePoint folder URL, or null if disabled or not found.
+     */
     public function findFolderLink($caseref, $suffix, $eventCode)
     {
         if (! $this->enabled) {
@@ -89,6 +129,11 @@ class SharePointService
         return $baseFolderUrl.'/'.str_replace('/', '', $suffix).'/'.$eventCode;
     }
 
+    /**
+     * Check if SharePoint integration is enabled.
+     *
+     * @return bool True if SharePoint integration is enabled, false otherwise.
+     */
     public function isEnabled()
     {
         return $this->enabled;
