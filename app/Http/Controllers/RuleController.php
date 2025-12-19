@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Rule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 /**
@@ -69,10 +70,17 @@ class RuleController extends Controller
             $rule = $rule->whereLike('for_origin', "{$Origin}%");
         }
 
+        // Database-agnostic JSON ordering
+        $driver = DB::connection()->getDriverName();
+        $isPostgres = $driver === 'pgsql';
+        $orderExpr = $isPostgres
+            ? "t.name ->> '{$baseLocale}'"
+            : "JSON_UNQUOTE(JSON_EXTRACT(t.name, '$.\"$baseLocale\"'))";
+
         $query = $rule->with(['country:iso,name', 'trigger:code,name', 'category:code,category', 'origin:iso,name', 'type:code,type', 'taskInfo:code,name'])
             ->select('task_rules.*')
             ->join('event_name AS t', 't.code', '=', 'task_rules.task')
-            ->orderByRaw("JSON_UNQUOTE(JSON_EXTRACT(t.name, '$.\"{$baseLocale}\"'))");
+            ->orderByRaw($orderExpr);
 
         if ($request->wantsJson()) {
             return response()->json($query->get());

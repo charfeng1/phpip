@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\DatabaseJsonHelper;
 use App\Traits\HasTranslationsExtended;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -32,6 +33,7 @@ use Illuminate\Support\Facades\DB;
  */
 class Task extends Model
 {
+    use DatabaseJsonHelper;
     use HasTranslationsExtended;
 
     /**
@@ -178,7 +180,7 @@ class Task extends Model
         return $query->select(
             DB::raw('count(*) as no_of_tasks'),
             DB::raw('MIN(due_date) as urgent_date'),
-            DB::raw('IFNULL(assigned_to, (SELECT responsible FROM matter WHERE id = (SELECT matter_id FROM event WHERE id = task.trigger_id))) as login')
+            DB::raw('COALESCE(assigned_to, (SELECT responsible FROM matter WHERE id = (SELECT matter_id FROM event WHERE id = task.trigger_id))) as login')
         )
             ->groupBy('login')
             ->get();
@@ -220,15 +222,51 @@ class Task extends Model
     public static function renewals()
     {
         // The query is complex but optimized for performance by using joins and raw SQL for some calculations and conditions.
+        // Database-agnostic implementation supporting both MySQL and PostgreSQL
+        $driver = DB::connection()->getDriverName();
+        $isPostgres = $driver === 'pgsql';
+
+        // JSON extraction for task detail
+        $detailExpr = $isPostgres
+            ? "task.detail ->> 'en' AS detail"
+            : "JSON_UNQUOTE(JSON_EXTRACT(task.detail, '$.\"en\"')) AS detail";
+
+        // JSON extraction for country names
+        $countryFR = $isPostgres ? "mcountry.name ->> 'fr'" : 'JSON_UNQUOTE(JSON_EXTRACT(mcountry.name, "$.fr"))';
+        $countryEN = $isPostgres ? "mcountry.name ->> 'en'" : 'JSON_UNQUOTE(JSON_EXTRACT(mcountry.name, "$.en"))';
+        $countryDE = $isPostgres ? "mcountry.name ->> 'de'" : 'JSON_UNQUOTE(JSON_EXTRACT(mcountry.name, "$.de"))';
+
+        // GROUP_CONCAT / STRING_AGG for applicant names
+        if ($isPostgres) {
+            $applicantNameExpr = "CASE
+                WHEN STRING_AGG(DISTINCT ownc.name, '; ') IS NOT NULL OR STRING_AGG(DISTINCT own.name, '; ') IS NOT NULL
+                THEN CONCAT_WS('; ', STRING_AGG(DISTINCT ownc.name, '; '), STRING_AGG(DISTINCT own.name, '; '))
+                ELSE CONCAT_WS('; ', STRING_AGG(DISTINCT applc.name, '; '), STRING_AGG(DISTINCT appl.name, '; '))
+            END AS applicant_name";
+        } else {
+            $applicantNameExpr = "IF(GROUP_CONCAT(DISTINCT ownc.name) IS NOT NULL OR GROUP_CONCAT(DISTINCT own.name) IS NOT NULL,
+                CONCAT_WS('; ', GROUP_CONCAT(DISTINCT ownc.name SEPARATOR '; '), GROUP_CONCAT(DISTINCT own.name SEPARATOR '; ')),
+                CONCAT_WS('; ', GROUP_CONCAT(DISTINCT applc.name SEPARATOR '; '), GROUP_CONCAT(DISTINCT appl.name SEPARATOR '; '))
+            ) AS applicant_name";
+        }
+
+        // IFNULL / COALESCE for container_id (COALESCE works in both)
+        $containerOrMatter = 'COALESCE(matter.container_id, matter.id)';
+
+        // Fee join condition with JSON extraction
+        $feeDetailExpr = $isPostgres
+            ? "(task.detail ->> 'en')::INTEGER"
+            : "CAST(JSON_UNQUOTE(JSON_EXTRACT(task.detail, '$.\"en\"')) AS UNSIGNED)";
+
         return Matter::select([
             'task.id',
-            DB::raw("JSON_UNQUOTE(JSON_EXTRACT(task.detail, '$.\"en\"')) AS detail"),
+            DB::raw($detailExpr),
             'task.due_date',
             'task.done',
             'task.done_date',
             'event.matter_id',
-            DB::raw('IFNULL(fees.cost, task.cost) AS cost'),
-            DB::raw('IFNULL(fees.fee, task.fee) AS fee'),
+            DB::raw('COALESCE(fees.cost, task.cost) AS cost'),
+            DB::raw('COALESCE(fees.fee, task.fee) AS fee'),
             DB::raw('COALESCE(fees.cost_reduced, fees.cost, task.cost) AS cost_reduced'),
             DB::raw('COALESCE(fees.fee_reduced, fees.fee, task.fee) AS fee_reduced'),
             DB::raw('COALESCE(fees.cost_sup, fees.cost, task.cost) AS cost_sup'),
@@ -240,9 +278,9 @@ class Task extends Model
             'matter.caseref',
             'matter.uid',
             'matter.country',
-            DB::raw('JSON_UNQUOTE(JSON_EXTRACT(mcountry.name, "$.fr")) AS country_FR'),
-            DB::raw('JSON_UNQUOTE(JSON_EXTRACT(mcountry.name, "$.en")) AS country_EN'),
-            DB::raw('JSON_UNQUOTE(JSON_EXTRACT(mcountry.name, "$.de")) AS country_DE'),
+            DB::raw("{$countryFR} AS country_FR"),
+            DB::raw("{$countryEN} AS country_EN"),
+            DB::raw("{$countryDE} AS country_DE"),
             'matter.origin',
             DB::raw('COALESCE(MIN(own.small_entity), MIN(ownc.small_entity), MIN(appl.small_entity), MIN(applc.small_entity)) AS small_entity'),
             'fil.event_date AS fil_date',
@@ -251,10 +289,7 @@ class Task extends Model
             'event.code AS event_name',
             'event.event_date',
             'event.detail AS number',
-            DB::raw("IF(GROUP_CONCAT(DISTINCT ownc.name) IS NOT NULL OR GROUP_CONCAT(DISTINCT own.name) IS NOT NULL,
-                CONCAT_WS('; ', GROUP_CONCAT(DISTINCT ownc.name SEPARATOR '; '), GROUP_CONCAT(DISTINCT own.name SEPARATOR '; ')),
-                CONCAT_WS('; ', GROUP_CONCAT(DISTINCT applc.name SEPARATOR '; '), GROUP_CONCAT(DISTINCT appl.name SEPARATOR '; '))
-            ) AS applicant_name"),
+            DB::raw($applicantNameExpr),
             DB::raw('COALESCE(pa_cli.name, clic.name) AS client_name'),
             DB::raw('COALESCE(pa_cli.address, clic.address) AS client_address'),
             DB::raw('COALESCE(pa_cli.country, clic.country) AS client_country'),
@@ -299,15 +334,15 @@ class Task extends Model
                 fn ($join) => $join->on('matter.container_id', 'cliclnk.matter_id')
                     ->where([['cliclnk.role', 'CLI'], ['cliclnk.shared', 1]]))
         // Titles
-            ->leftJoin('classifier AS tit', fn ($join) => $join->on(DB::raw('IFNULL(matter.container_id, matter.id)'), 'tit.matter_id')
+            ->leftJoin('classifier AS tit', fn ($join) => $join->on(DB::raw($containerOrMatter), 'tit.matter_id')
                 ->where('tit.type_code', 'TIT'))
-            ->leftJoin('classifier AS titof', fn ($join) => $join->on(DB::raw('IFNULL(matter.container_id, matter.id)'), 'titof.matter_id')
+            ->leftJoin('classifier AS titof', fn ($join) => $join->on(DB::raw($containerOrMatter), 'titof.matter_id')
                 ->where('titof.type_code', 'TITOF'))
         // Fees
-            ->leftJoin('fees', function ($join) {
+            ->leftJoin('fees', function ($join) use ($feeDetailExpr) {
                 $join->on('fees.for_country', 'matter.country')
                     ->on('fees.for_category', 'matter.category_code')
-                    ->on(DB::raw("CAST(JSON_UNQUOTE(JSON_EXTRACT(task.detail, '$.\"en\"')) AS UNSIGNED)"), 'fees.qt');
+                    ->on(DB::raw($feeDetailExpr), 'fees.qt');
             })
             ->where('task.code', 'REN')
             ->groupBy('task.due_date')
