@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\TeamService;
 use App\Traits\DatabaseJsonHelper;
 use App\Traits\HasTranslationsExtended;
 use Illuminate\Database\Eloquent\Builder;
@@ -139,7 +140,7 @@ class Task extends Model
      *
      * Respects user role restrictions:
      * - Clients see only their own matters' tasks
-     * - Can filter by assigned user (what_tasks=1) or client (what_tasks>1)
+     * - Can filter by assigned user (what_tasks=1), team (what_tasks=2), or client (what_tasks>2)
      * - Excludes tasks from dead matters
      *
      * @return \Illuminate\Support\Collection Collection of task counts by user
@@ -160,7 +161,17 @@ class Task extends Model
         if ($what_tasks == 1) {
             // My tasks - filter by assigned_to
             $query->where('assigned_to', Auth::user()->login);
-        } elseif ($what_tasks > 1) {
+        } elseif ($what_tasks == 2) {
+            // Team tasks - filter by user and their subordinates
+            $teamService = app(TeamService::class);
+            $teamLogins = $teamService->getSubordinateLogins($userid, true);
+            $query->where(function (Builder $q) use ($teamLogins) {
+                $q->whereIn('assigned_to', $teamLogins)
+                    ->orWhereHas('matter', function (Builder $mq) use ($teamLogins) {
+                        $mq->whereIn('responsible', $teamLogins);
+                    });
+            });
+        } elseif ($what_tasks > 2) {
             // Client tasks - filter by client ID
             $query->whereHas('matter.client', function ($q) use ($what_tasks) {
                 $q->where('actor_id', $what_tasks);
@@ -348,5 +359,52 @@ class Task extends Model
             ->groupBy('task.due_date')
             ->groupBy('task.id')
             ->groupBy('event.matter_id');
+    }
+
+    /**
+     * Scope to filter tasks by team membership.
+     *
+     * Filters tasks to show only those where:
+     * - The task is assigned to the user or their subordinates, OR
+     * - The matter is assigned to the user or their subordinates
+     *
+     * @param  Builder  $query
+     * @param  int|null  $userId  Optional user ID (defaults to authenticated user)
+     * @return Builder
+     */
+    public function scopeForTeam(Builder $query, ?int $userId = null): Builder
+    {
+        $userId = $userId ?? Auth::id();
+
+        if (! $userId) {
+            return $query;
+        }
+
+        $teamService = app(TeamService::class);
+        $teamLogins = $teamService->getSubordinateLogins($userId, true);
+
+        return $query->where(function ($q) use ($teamLogins) {
+            $q->whereIn('assigned_to', $teamLogins)
+                ->orWhereHas('matter', function ($mq) use ($teamLogins) {
+                    $mq->whereIn('responsible', $teamLogins);
+                });
+        });
+    }
+
+    /**
+     * Scope to filter tasks by a specific user.
+     *
+     * @param  Builder  $query
+     * @param  string  $login  The user login to filter by
+     * @return Builder
+     */
+    public function scopeForUser(Builder $query, string $login): Builder
+    {
+        return $query->where(function ($q) use ($login) {
+            $q->where('assigned_to', $login)
+                ->orWhereHas('matter', function ($mq) use ($login) {
+                    $mq->where('responsible', $login);
+                });
+        });
     }
 }

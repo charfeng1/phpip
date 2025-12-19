@@ -89,7 +89,27 @@ class User extends Authenticatable
      */
     public function parent()
     {
-        return $this->belongsTo(Actor::class, 'parent_id');
+        return $this->belongsTo(User::class, 'parent_id');
+    }
+
+    /**
+     * Get direct reports (subordinates) for this user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function directReports()
+    {
+        return $this->hasMany(User::class, 'parent_id');
+    }
+
+    /**
+     * Check if this user is a supervisor (has any direct reports).
+     *
+     * @return bool
+     */
+    public function isSupervisor(): bool
+    {
+        return $this->directReports()->exists();
     }
 
     /**

@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Services\TeamService;
 use App\Traits\DatabaseJsonHelper;
 use App\Traits\HasActorsFromRole;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -931,6 +933,14 @@ class Matter extends Model
                                     ->orWhere('del.login', $value);
                             });
                             break;
+                        case 'team':
+                            // Filter by team membership (user and their subordinates)
+                            if ($value) {
+                                $teamService = app(TeamService::class);
+                                $teamLogins = $teamService->getSubordinateLogins($authUserId, true);
+                                $query->whereIn('matter.responsible', $teamLogins);
+                            }
+                            break;
                         case 'Ctnr':
                             if ($value) {
                                 $query->whereNull('container_id');
@@ -1135,5 +1145,41 @@ class Matter extends Model
         }
 
         return $this->applicantsFromLnk()->pluck('name')->unique()->implode("\n");
+    }
+
+    /**
+     * Scope to filter matters by team membership.
+     *
+     * Filters matters to show only those where the responsible user is
+     * the authenticated user or one of their direct/indirect reports.
+     *
+     * @param  Builder  $query
+     * @param  int|null  $userId  Optional user ID (defaults to authenticated user)
+     * @return Builder
+     */
+    public function scopeForTeam(Builder $query, ?int $userId = null): Builder
+    {
+        $userId = $userId ?? Auth::id();
+
+        if (! $userId) {
+            return $query;
+        }
+
+        $teamService = app(TeamService::class);
+        $teamLogins = $teamService->getSubordinateLogins($userId, true);
+
+        return $query->whereIn('responsible', $teamLogins);
+    }
+
+    /**
+     * Scope to filter matters by a specific user (responsible).
+     *
+     * @param  Builder  $query
+     * @param  string  $login  The user login to filter by
+     * @return Builder
+     */
+    public function scopeForUser(Builder $query, string $login): Builder
+    {
+        return $query->where('responsible', $login);
     }
 }

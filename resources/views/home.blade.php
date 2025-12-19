@@ -169,9 +169,13 @@
                   <input type="radio" class="btn-check" name="what_tasks" id="usertasks" value="1">
                   <label class="btn-filter" for="usertasks">{{ __('My Tasks') }}</label>
                 </div>
+                <div>
+                  <input type="radio" class="btn-check" name="what_tasks" id="teamtasks" value="2">
+                  <label class="btn-filter" for="teamtasks">{{ __('My Team') }}</label>
+                </div>
               @endif
               <div>
-                <input type="radio" class="btn-check" name="what_tasks" id="clientTasks" value="2">
+                <input type="radio" class="btn-check" name="what_tasks" id="clientTasks" value="3">
                 <label class="btn-filter" for="clientTasks">{{ __('Client') }}</label>
               </div>
               <div style="position: relative; flex: 1; min-width: 200px;">

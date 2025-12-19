@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Services\TeamService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -30,12 +31,24 @@ class TaskController extends Controller
         $isrenewals = $request->isrenewals;
         $tasks = $task->openTasks();
 
-        // $what_tasks, by default 0, is changed to 1 to see the "assigned_to" tasks or to the id of the client to see client specific tasks
+        // $what_tasks filter options:
+        // 0 = all tasks (default)
+        // 1 = my tasks (assigned_to current user)
+        // 2 = my team's tasks (current user + subordinates)
+        // >2 = client-specific tasks (what_tasks is the client actor_id)
         if ($request->what_tasks == 1) {
             $tasks->where('assigned_to', Auth::user()->login);
-        }
-
-        if ($request->what_tasks > 1) {
+        } elseif ($request->what_tasks == 2) {
+            // Team filter - show tasks for user and their subordinates
+            $teamService = app(TeamService::class);
+            $teamLogins = $teamService->getSubordinateLogins(Auth::id(), true);
+            $tasks->where(function (Builder $q) use ($teamLogins) {
+                $q->whereIn('assigned_to', $teamLogins)
+                    ->orWhereHas('matter', function (Builder $mq) use ($teamLogins) {
+                        $mq->whereIn('responsible', $teamLogins);
+                    });
+            });
+        } elseif ($request->what_tasks > 2) {
             $tasks->whereHas('matter.client', function (Builder $q) use ($request) {
                 $q->where('actor_id', $request->what_tasks);
             });
@@ -55,7 +68,7 @@ class TaskController extends Controller
 
         if ($request->user_dashboard) {
             $tasks
-                // Where needs encapsulation to avaid interference with others where conditions (caused by orWhere)
+                // Where needs encapsulation to avoid interference with others where conditions (caused by orWhere)
                 ->where(function (Builder $query) use ($request) {
                     $query
                         ->where('assigned_to', $request->user_dashboard)
