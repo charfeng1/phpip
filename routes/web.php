@@ -28,6 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/countries/{country}', [CountryController::class, 'update'])->name('countries.update');
     Route::delete('/countries/{country}', [CountryController::class, 'destroy'])->name('countries.destroy');
 });
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AutocompleteController;
 use App\Http\Controllers\ClassifierController;
 use App\Http\Controllers\DocumentController;
@@ -114,6 +115,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [App\Http\Controllers\UserController::class, 'profile'])->name('user.profile');
     Route::put('/profile/update', [App\Http\Controllers\UserController::class, 'updateProfile'])->name('user.updateProfile');
     Route::apiResource('task', App\Http\Controllers\TaskController::class);
+
+    // Audit trail routes (admin only)
+    Route::middleware('can:admin')->prefix('audit')->name('audit.')->group(function () {
+        Route::get('/', [AuditLogController::class, 'index'])->name('index');
+        Route::get('/export', [AuditLogController::class, 'export'])->name('export');
+        Route::get('/{type}/{id}', [AuditLogController::class, 'show'])->name('history');
+        Route::get('/detail/{auditLog}', [AuditLogController::class, 'detail'])->name('detail');
+    });
 
     // The following resources are not accessible to clients
     Route::middleware('can:except_client')->group(function () {

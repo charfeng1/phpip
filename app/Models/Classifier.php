@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -28,6 +29,15 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Classifier extends Model
 {
+    use Auditable;
+
+    /**
+     * Attributes to exclude from audit logging.
+     *
+     * @var array<string>
+     */
+    protected $auditExclude = ['created_at', 'updated_at'];
+
     /**
      * The database table associated with the model.
      *
