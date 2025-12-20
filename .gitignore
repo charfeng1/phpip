@@ -10,3 +10,4 @@ Homestead.yaml
 /config/renewal.php
 .DS_Store
 .phpunit.result.cache
+.mcp.json
