@@ -67,6 +67,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('event-name/autocomplete/{is_task}', [AutocompleteController::class, 'eventName']);
         Route::get('classifier-type/autocomplete/{main_display}', [AutocompleteController::class, 'classifierType']);
         Route::get('user/autocomplete', [AutocompleteController::class, 'user']);
+        Route::get('user/autocomplete-by-id', [AutocompleteController::class, 'userById']);
         Route::get('actor/autocomplete/{create_option?}', [AutocompleteController::class, 'actor']);
         Route::get('role/autocomplete', [AutocompleteController::class, 'role']);
         Route::get('dbrole/autocomplete', [AutocompleteController::class, 'dbrole']);

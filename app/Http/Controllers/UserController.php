@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Actor;
 use App\Models\User;
+use App\Services\TeamService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -88,7 +89,7 @@ class UserController extends Controller
     public function show(User $user)
     {
         Gate::authorize('readonly');
-        $userInfo = $user->load(['company:id,name', 'roleInfo']);
+        $userInfo = $user->load(['company:id,name', 'roleInfo', 'parent:id,name', 'directReports:id,name,parent_id']);
         $table = new Actor;
         $userComments = $table->getTableComments();
 
@@ -131,7 +132,8 @@ class UserController extends Controller
      * Update the specified user (admin only).
      *
      * Updates user credentials, settings, and language preference. Updates session locale
-     * if current user is editing their own profile.
+     * if current user is editing their own profile. Clears team hierarchy cache when
+     * parent_id (supervisor) changes.
      *
      * @param Request $request Updated user data
      * @param User $user The user to update
@@ -146,12 +148,53 @@ class UserController extends Controller
             'email' => 'sometimes|required|email',
             'default_role' => 'sometimes|required',
             'language' => 'sometimes|required|string|max:5',
+            'parent_id' => 'nullable|exists:users,id',
         ]);
+
+        // Prevent self-reference
+        if ($request->filled('parent_id') && (int) $request->input('parent_id') === (int) $user->id) {
+            return back()->withErrors(['parent_id' => 'A user cannot be their own supervisor.'])->withInput();
+        }
+
+        // Prevent circular hierarchy (A → B → A)
+        if ($request->filled('parent_id')) {
+            $teamService = app(TeamService::class);
+            $proposedParentId = (int) $request->input('parent_id');
+
+            // Check if the proposed parent has this user in their supervisor chain
+            $parentSupervisors = $teamService->getSupervisorIds($proposedParentId);
+            if (in_array($user->id, $parentSupervisors, true)) {
+                return back()->withErrors([
+                    'parent_id' => 'This would create a circular hierarchy. The selected supervisor is already below this user in the hierarchy.'
+                ])->withInput();
+            }
+        }
+
         $request->merge(['updater' => Auth::user()->login]);
         if ($request->filled('password')) {
             $request->merge(['password' => Hash::make($request->password)]);
         }
+
+        // Track if parent_id is being changed for cache clearing
+        $oldParentId = $user->parent_id;
+        $newParentId = $request->input('parent_id');
+        $parentChanged = $request->has('parent_id') && $oldParentId !== $newParentId;
+
         $user->update($request->except(['_token', '_method']));
+
+        // Clear team hierarchy cache if parent_id changed
+        if ($parentChanged) {
+            $teamService = app(TeamService::class);
+            $teamService->clearCache($user->id);
+            // Also clear old parent's cache if they existed
+            if ($oldParentId) {
+                $teamService->clearCache($oldParentId);
+            }
+            // Clear new parent's cache
+            if ($newParentId) {
+                $teamService->clearCache($newParentId);
+            }
+        }
 
         // Update locale for the current session if current user is updating their own profile
         if (Auth::id() === $user->id && $request->filled('language')) {

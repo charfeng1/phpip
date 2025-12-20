@@ -135,6 +135,37 @@ class AutocompleteController extends Controller
     }
 
     /**
+     * Autocomplete users by name or login, returning ID as key.
+     *
+     * Used for selecting users by ID (e.g., for parent_id/supervisor selection).
+     *
+     * @param Request $request Contains 'term' parameter
+     * @return JsonResponse Array of {key: id, value: name} objects
+     */
+    public function userById(Request $request): JsonResponse
+    {
+        // Validate input
+        $validated = $request->validate([
+            'term' => 'nullable|string|max:255',
+        ]);
+
+        // Escape LIKE wildcards to prevent SQL wildcard injection
+        $term = isset($validated['term'])
+            ? str_replace(['%', '_'], ['\\%', '\\_'], $validated['term'])
+            : '';
+
+        $results = User::select('name as value', 'id as key')
+            ->where(function ($query) use ($term) {
+                $query->whereLike('name', "{$term}%")
+                      ->orWhereLike('login', "{$term}%");
+            })
+            ->take(10)
+            ->get();
+
+        return $this->formatResponse($results);
+    }
+
+    /**
      * Autocomplete actors with optional create suggestion.
      *
      * @param Request $request Contains 'term' parameter

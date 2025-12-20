@@ -23,6 +23,22 @@
             <td><input type="text" class="noformat form-control" name="company_id" data-ac="/actor/autocomplete" value="{{ empty($userInfo->company) ? '' : $userInfo->company->name }}" autocomplete="off"></td>
           </tr>
           <tr>
+            <th title="{{ __('Supervisor/Manager for team hierarchy') }}">{{ __('Supervisor') }}</th>
+            <td><input type="text" class="noformat form-control" name="parent_id" data-ac="/user/autocomplete-by-id" value="{{ empty($userInfo->parent) ? '' : $userInfo->parent->name }}" autocomplete="off"></td>
+          </tr>
+          @if($userInfo->directReports->count() > 0)
+          <tr>
+            <th title="{{ __('Users reporting to this user') }}">{{ __('Direct Reports') }}</th>
+            <td>
+              <ul class="list-unstyled mb-0">
+                @foreach($userInfo->directReports as $report)
+                  <li><a href="/user/{{ $report->id }}">{{ $report->name }}</a></li>
+                @endforeach
+              </ul>
+            </td>
+          </tr>
+          @endif
+          <tr>
             <th>{{ __('Phone') }}</th>
             <td><input type='text' class="noformat form-control" name="phone" value="{{ $userInfo->phone }}"></td>
           </tr>
