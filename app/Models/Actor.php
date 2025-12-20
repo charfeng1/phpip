@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\Auditable;
 use App\Traits\HasTableComments;
+use App\Traits\TrimsCharColumns;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -36,6 +37,25 @@ class Actor extends Model
     use Auditable;
     use HasFactory;
     use HasTableComments;
+    use TrimsCharColumns;
+
+    /**
+     * CHAR columns that should be automatically trimmed.
+     *
+     * PostgreSQL CHAR columns are fixed-length and pad with spaces.
+     * These columns will be automatically trimmed when accessed.
+     *
+     * @var array<string>
+     */
+    protected $charColumns = [
+        'default_role',
+        'login',
+        'language',
+        'country',
+        'nationality',
+        'country_mailing',
+        'country_billing',
+    ];
 
     /**
      * Attributes to exclude from audit logging.
@@ -92,76 +112,6 @@ class Actor extends Model
     protected $casts = [
         'language' => 'string',
     ];
-
-    /**
-     * Get the default_role attribute, trimmed.
-     *
-     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
-     */
-    public function getDefaultRoleAttribute($value): ?string
-    {
-        return $value ? trim($value) : null;
-    }
-
-    /**
-     * Get the login attribute, trimmed.
-     *
-     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
-     */
-    public function getLoginAttribute($value): ?string
-    {
-        return $value ? trim($value) : null;
-    }
-
-    /**
-     * Get the language attribute, trimmed.
-     *
-     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
-     */
-    public function getLanguageAttribute($value): ?string
-    {
-        return $value ? trim($value) : null;
-    }
-
-    /**
-     * Get the country attribute, trimmed.
-     *
-     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
-     */
-    public function getCountryAttribute($value): ?string
-    {
-        return $value ? trim($value) : null;
-    }
-
-    /**
-     * Get the nationality attribute, trimmed.
-     *
-     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
-     */
-    public function getNationalityAttribute($value): ?string
-    {
-        return $value ? trim($value) : null;
-    }
-
-    /**
-     * Get the country_mailing attribute, trimmed.
-     *
-     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
-     */
-    public function getCountryMailingAttribute($value): ?string
-    {
-        return $value ? trim($value) : null;
-    }
-
-    /**
-     * Get the country_billing attribute, trimmed.
-     *
-     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
-     */
-    public function getCountryBillingAttribute($value): ?string
-    {
-        return $value ? trim($value) : null;
-    }
 
     /**
      * Get the actor's preferred language.

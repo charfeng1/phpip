@@ -6,6 +6,7 @@ use App\Services\TeamService;
 use App\Traits\Auditable;
 use App\Traits\DatabaseJsonHelper;
 use App\Traits\HasActorsFromRole;
+use App\Traits\TrimsCharColumns;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -42,6 +43,22 @@ class Matter extends Model
     use DatabaseJsonHelper;
     use HasActorsFromRole;
     use HasFactory;
+    use TrimsCharColumns;
+
+    /**
+     * CHAR columns that should be automatically trimmed.
+     *
+     * PostgreSQL CHAR columns are fixed-length and pad with spaces.
+     * These columns will be automatically trimmed when accessed.
+     *
+     * @var array<string>
+     */
+    protected $charColumns = [
+        'category_code',
+        'country',
+        'origin',
+        'type_code',
+    ];
 
     /**
      * Attributes to exclude from audit logging.
@@ -74,46 +91,6 @@ class Matter extends Model
     /*protected $casts = [
         'expire_date' => 'date:Y-m-d'
     ];*/
-
-    /**
-     * Get the category_code attribute, trimmed.
-     *
-     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
-     */
-    public function getCategoryCodeAttribute($value): ?string
-    {
-        return $value ? trim($value) : null;
-    }
-
-    /**
-     * Get the country attribute, trimmed.
-     *
-     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
-     */
-    public function getCountryAttribute($value): ?string
-    {
-        return $value ? trim($value) : null;
-    }
-
-    /**
-     * Get the origin attribute, trimmed.
-     *
-     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
-     */
-    public function getOriginAttribute($value): ?string
-    {
-        return $value ? trim($value) : null;
-    }
-
-    /**
-     * Get the type_code attribute, trimmed.
-     *
-     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
-     */
-    public function getTypeCodeAttribute($value): ?string
-    {
-        return $value ? trim($value) : null;
-    }
 
     /**
      * Get all family members of this matter.
