@@ -324,10 +324,13 @@ routes/web.php
 - [x] **Fix PR #5 circular hierarchy** ✅ Committed to `pr5-fixes` branch
 - [x] **Fix PR #5 N+1 queries** ✅ Committed to `pr5-fixes` branch
 - [x] **Fix PR #7 N+1 queries** ✅ Committed to `pr7-fixes` branch
+- [x] **Fix PR #6 critical bugs** ✅ Committed to `pr6-fixes` branch
+- [x] Update PRs with fixes (push branches)
+- [x] **PR #5 MERGED** ✅ Merged to master on 2025-12-20
+- [x] Rebase PR #6, #7, #8 onto new master (after PR #5 merge)
 - [ ] Test fixes locally
 - [ ] Add test coverage for all PRs
-- [ ] Update PRs with fixes (push branches)
-- [ ] Merge in recommended order
+- [ ] Merge remaining PRs in recommended order
 
 ## Completed Fixes Summary
 
@@ -375,13 +378,23 @@ routes/web.php
 
 **Impact:** Expected 80-90% reduction in test suite time (from 10-15 minutes to 1-2 minutes).
 
-### PR #6 Verification
+### PR #6 Fixes (Branch: `pr6-fixes`)
+
+**Commits:**
+1. `4c49380` - "feat: Complete authorization policies for all models" (rebased onto master)
+2. `1e35ccc` - "fix: Fix critical security bugs in RenewalPolicy"
+
+✅ Fixed Issues:
+- **RenewalPolicy matter relationship bug** (line 42-43) - Fixed to use `optional($renewalsLog->task)->matter` instead of broken `$renewalsLog->matter()->first()`
+- **Client access security hole** (lines 29-34) - Removed clients from `viewAny()` to prevent security hole where any client could see all renewal logs
 
 ✅ Verified:
-- **RenewalPolicy is complete** (was a display truncation issue)
+- **RenewalPolicy is complete** (was a display truncation issue in diff view)
 - **Task::class vs RenewalsLog::class usage** is intentional and correct
+
+**Impact:** Prevents critical authorization bypass and fixes broken client access checks.
 
 ---
 
-**Last Updated:** 2025-12-20 (Post-fixes)
+**Last Updated:** 2025-12-20 (Post-rebase)
 **Created By:** Claude Code Review
