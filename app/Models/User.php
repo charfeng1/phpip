@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\TrimsCharColumns;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -33,6 +34,21 @@ class User extends Authenticatable
 {
     use HasFactory;
     use Notifiable;
+    use TrimsCharColumns;
+
+    /**
+     * CHAR columns that should be automatically trimmed.
+     *
+     * PostgreSQL CHAR columns are fixed-length and pad with spaces.
+     * These columns will be automatically trimmed when accessed.
+     *
+     * @var array<string>
+     */
+    protected $charColumns = [
+        'default_role',
+        'login',
+        'language',
+    ];
 
     /**
      * Attributes that are not mass assignable.
@@ -61,45 +77,6 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-
-    /**
-     * Get the default_role attribute, trimmed.
-     *
-     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
-     *
-     * @param  string|null  $value
-     * @return string|null
-     */
-    public function getDefaultRoleAttribute($value): ?string
-    {
-        return $value ? trim($value) : null;
-    }
-
-    /**
-     * Get the login attribute, trimmed.
-     *
-     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
-     *
-     * @param  string|null  $value
-     * @return string|null
-     */
-    public function getLoginAttribute($value): ?string
-    {
-        return $value ? trim($value) : null;
-    }
-
-    /**
-     * Get the language attribute, trimmed.
-     *
-     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
-     *
-     * @param  string|null  $value
-     * @return string|null
-     */
-    public function getLanguageAttribute($value): ?string
-    {
-        return $value ? trim($value) : null;
-    }
 
     /**
      * Get the role information for this user.
