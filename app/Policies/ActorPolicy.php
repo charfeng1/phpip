@@ -2,21 +2,13 @@
 
 namespace App\Policies;
 
-use App\Enums\UserRole;
 use App\Models\Actor;
 use App\Models\User;
+use App\Traits\HasPolicyAuthorization;
 
 class ActorPolicy
 {
-    protected function canRead(User $user): bool
-    {
-        return in_array($user->default_role, UserRole::readableRoleValues(), true);
-    }
-
-    protected function canWrite(User $user): bool
-    {
-        return in_array($user->default_role, UserRole::writableRoleValues(), true);
-    }
+    use HasPolicyAuthorization;
 
     public function viewAny(User $user): bool
     {

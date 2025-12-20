@@ -2,9 +2,9 @@
 
 namespace App\Policies;
 
-use App\Enums\UserRole;
 use App\Models\EventName;
 use App\Models\User;
+use App\Traits\HasPolicyAuthorization;
 
 /**
  * Authorization policy for EventName model.
@@ -17,15 +17,7 @@ use App\Models\User;
  */
 class EventNamePolicy
 {
-    protected function isAdmin(User $user): bool
-    {
-        return $user->default_role === UserRole::ADMIN->value;
-    }
-
-    protected function canRead(User $user): bool
-    {
-        return in_array($user->default_role, UserRole::readableRoleValues(), true);
-    }
+    use HasPolicyAuthorization;
 
     public function viewAny(User $user): bool
     {

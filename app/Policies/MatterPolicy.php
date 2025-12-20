@@ -2,15 +2,16 @@
 
 namespace App\Policies;
 
-use App\Enums\UserRole;
 use App\Models\Matter;
 use App\Models\User;
 use App\Services\TeamService;
+use App\Traits\HasPolicyAuthorization;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class MatterPolicy
 {
     use HandlesAuthorization;
+    use HasPolicyAuthorization;
 
     protected TeamService $teamService;
 
@@ -33,12 +34,12 @@ class MatterPolicy
     public function view(User $user, Matter $matter): bool
     {
         // Admin and internal users (DBA/DBRW/DBRO) can view all matters
-        if (in_array($user->default_role, UserRole::readableRoleValues(), true)) {
+        if ($this->canRead($user)) {
             return true;
         }
 
         // Client users only see matters where they are the linked client
-        if ($user->default_role === UserRole::CLIENT->value || empty($user->default_role)) {
+        if ($this->isClient($user)) {
             $clientActor = optional($matter->clientFromLnk())->actor_id;
 
             return (int) $clientActor === (int) $user->id;

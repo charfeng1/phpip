@@ -88,7 +88,7 @@ This report identifies areas for improvement across 6 key dimensions:
 - Direct database inserts (lines 166, 208, 313, 552)
 
 **Recommendation:** Extract to services:
-```
+```text
 app/Services/
 ├── RenewalWorkflowService.php     # State transitions
 ├── RenewalFeeCalculationService.php # Fee logic

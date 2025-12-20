@@ -41,10 +41,9 @@ trait Filterable
     protected function applyFilters(Builder $query, Request $request): Builder
     {
         foreach ($this->filterRules as $key => $callback) {
-            $value = $request->input($key);
-
-            if ($value !== null && $value !== '') {
-                $query = $callback($query, $value);
+            // Use filled() to properly handle zero values (0, "0")
+            if ($request->filled($key)) {
+                $query = $callback($query, $request->input($key));
             }
         }
 
@@ -102,9 +101,9 @@ trait Filterable
         $oldFilters = [];
 
         foreach (array_keys($this->filterRules) as $key) {
-            $value = $request->input($key);
-            if ($value !== null && $value !== '') {
-                $oldFilters[$key] = $value;
+            // Use filled() to properly handle zero values (0, "0")
+            if ($request->filled($key)) {
+                $oldFilters[$key] = $request->input($key);
             }
         }
 

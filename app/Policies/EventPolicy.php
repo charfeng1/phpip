@@ -2,10 +2,10 @@
 
 namespace App\Policies;
 
-use App\Enums\UserRole;
 use App\Models\Event;
 use App\Models\Matter;
 use App\Models\User;
+use App\Traits\HasPolicyAuthorization;
 
 /**
  * Authorization policy for Event model.
@@ -17,19 +17,11 @@ use App\Models\User;
  */
 class EventPolicy
 {
-    protected function canRead(User $user): bool
-    {
-        return in_array($user->default_role, UserRole::readableRoleValues(), true);
-    }
-
-    protected function canWrite(User $user): bool
-    {
-        return in_array($user->default_role, UserRole::writableRoleValues(), true);
-    }
+    use HasPolicyAuthorization;
 
     public function viewAny(User $user): bool
     {
-        return $this->canRead($user) || $user->default_role === UserRole::CLIENT->value || empty($user->default_role);
+        return $this->canRead($user) || $this->isClient($user);
     }
 
     public function view(User $user, Event $event): bool
@@ -39,7 +31,7 @@ class EventPolicy
         }
 
         // Client users can view events for their own matters
-        if ($user->default_role === UserRole::CLIENT->value || empty($user->default_role)) {
+        if ($this->isClient($user)) {
             $matter = $event->matter()->first();
             if ($matter instanceof Matter) {
                 $clientActor = optional($matter->clientFromLnk())->actor_id;
