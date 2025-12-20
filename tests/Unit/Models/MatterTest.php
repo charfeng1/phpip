@@ -20,8 +20,8 @@ class MatterTest extends TestCase
     {
         parent::setUp();
 
-        // Seed the database with necessary reference data
-        $this->artisan('db:seed');
+        // Seed only essential reference data for better performance
+        $this->seedTestData();
     }
 
     /** @test */

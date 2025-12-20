@@ -10,14 +10,28 @@ abstract class TestCase extends BaseTestCase
 
     protected $dropViews = true;
 
+    /**
+     * Seed only essential reference data for tests.
+     * Use this instead of full db:seed for better performance.
+     */
+    protected function seedTestData(): void
+    {
+        $this->artisan('db:seed --class=TestSeeder');
+    }
+
+    /**
+     * @deprecated Use seedTestData() instead for better performance
+     */
     public function resetDatabase()
     {
-
         $this->artisan('migrate:rollback');
         $this->artisan('migrate');
         $this->artisan('db:seed');
     }
 
+    /**
+     * @deprecated Use seedTestData() instead for better performance
+     */
     public function resetDatabaseAndSeed()
     {
         $this->resetDatabase();
