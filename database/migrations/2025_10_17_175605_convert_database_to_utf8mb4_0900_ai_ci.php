@@ -10,6 +10,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Skip for PostgreSQL - this is a MySQL-specific collation migration
+        if (DB::getDriverName() === 'pgsql') {
+            echo "Skipping MySQL collation migration for PostgreSQL\n";
+
+            return;
+        }
+
         $database = DB::getDatabaseName();
 
         // Step 0: Check MySQL version - utf8mb4_0900_ai_ci requires MySQL 8.0+
@@ -177,6 +184,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Skip for PostgreSQL
+        if (DB::getDriverName() === 'pgsql') {
+            return;
+        }
+
         $database = DB::getDatabaseName();
 
         echo "WARNING: Rolling back collation changes. Triggers and stored procedures will NOT be restored to original collations.\n";

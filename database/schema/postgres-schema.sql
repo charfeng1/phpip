@@ -191,12 +191,7 @@ CREATE TABLE matter (
     notes TEXT,
     expire_date DATE,
     term_adjust SMALLINT NOT NULL DEFAULT 0,
-    uid VARCHAR(45) GENERATED ALWAYS AS (
-        CONCAT(caseref, country,
-            CASE WHEN origin IS NOT NULL THEN '-' || origin ELSE '' END,
-            CASE WHEN type_code IS NOT NULL THEN '-' || type_code ELSE '' END,
-            CASE WHEN idx IS NOT NULL THEN '.' || idx::TEXT ELSE '' END)
-    ) STORED,
+    uid VARCHAR(45),
     creator CHAR(16),
     updater CHAR(16),
     created_at TIMESTAMP,
@@ -413,7 +408,7 @@ CREATE TABLE matter_actor_lnk (
     updater CHAR(16),
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
-    CONSTRAINT uqactor_link UNIQUE(matter_id, actor_id, role, COALESCE(company_id, 0))
+    UNIQUE(matter_id, actor_id, role, company_id)
 );
 
 COMMENT ON COLUMN matter_actor_lnk.shared IS 'Indicates whether this actor link is shared across the family';
@@ -466,7 +461,7 @@ CREATE TABLE fees (
     updater VARCHAR(20),
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
-    CONSTRAINT uqfees UNIQUE(for_country, for_category, qt, COALESCE(use_before, '9999-12-31'::DATE))
+    UNIQUE(for_country, for_category, qt, use_before)
 );
 
 COMMENT ON COLUMN fees.qt IS 'Quantity (typically renewal year)';
@@ -696,9 +691,40 @@ CREATE TRIGGER event_before_update
     BEFORE UPDATE ON event
     FOR EACH ROW EXECUTE FUNCTION event_before_update_func();
 
+-- Function to compute matter uid
+CREATE OR REPLACE FUNCTION compute_matter_uid(
+    p_caseref VARCHAR,
+    p_country VARCHAR,
+    p_origin VARCHAR,
+    p_type_code VARCHAR,
+    p_idx SMALLINT
+) RETURNS VARCHAR AS $$
+BEGIN
+    RETURN p_caseref || p_country ||
+        CASE WHEN p_origin IS NOT NULL THEN '-' || p_origin ELSE '' END ||
+        CASE WHEN p_type_code IS NOT NULL THEN '-' || p_type_code ELSE '' END ||
+        CASE WHEN p_idx IS NOT NULL THEN '.' || p_idx::TEXT ELSE '' END;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+-- Matter before insert trigger function
+CREATE OR REPLACE FUNCTION matter_before_insert_func() RETURNS TRIGGER AS $$
+BEGIN
+    NEW.uid := compute_matter_uid(NEW.caseref, NEW.country, NEW.origin, NEW.type_code, NEW.idx);
+    NEW.created_at := CURRENT_TIMESTAMP;
+    NEW.updated_at := CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER matter_before_insert
+    BEFORE INSERT ON matter
+    FOR EACH ROW EXECUTE FUNCTION matter_before_insert_func();
+
 -- Matter before update trigger function
 CREATE OR REPLACE FUNCTION matter_before_update_func() RETURNS TRIGGER AS $$
 BEGIN
+    NEW.uid := compute_matter_uid(NEW.caseref, NEW.country, NEW.origin, NEW.type_code, NEW.idx);
     NEW.updater := current_user;
     NEW.updated_at := CURRENT_TIMESTAMP;
     RETURN NEW;

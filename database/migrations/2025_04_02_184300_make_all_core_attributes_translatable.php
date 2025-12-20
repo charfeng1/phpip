@@ -48,6 +48,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Skip for PostgreSQL - the schema already has JSONB columns
+        if (DB::getDriverName() === 'pgsql') {
+            Log::info('Skipping translatable attributes migration for PostgreSQL - schema already has JSONB columns');
+
+            return;
+        }
+
         $activeAttributes = array_filter($this->translatableAttributes);
         $defaultLocale = 'en';
         $isMariaDB = str_contains(DB::selectOne('select version() as v')->v ?? '', 'MariaDB');
@@ -148,6 +155,13 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Skip for PostgreSQL - nothing to reverse
+        if (DB::getDriverName() === 'pgsql') {
+            Log::info('Skipping translatable attributes rollback for PostgreSQL');
+
+            return;
+        }
+
         $activeAttributes = array_filter($this->translatableAttributes);
         if (empty($activeAttributes)) {
             return;

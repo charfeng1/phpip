@@ -343,18 +343,18 @@ class Task extends Model
         // Applicants and owners
             ->leftJoin(DB::raw("matter_actor_lnk lappl JOIN actor appl ON appl.id = lappl.actor_id AND lappl.role = 'APP'"),
                 'matter.id', 'lappl.matter_id')
-            ->leftJoin(DB::raw("matter_actor_lnk lapplc JOIN actor applc ON applc.id = lapplc.actor_id AND lapplc.role = 'APP' AND lapplc.shared = 1"),
+            ->leftJoin(DB::raw("matter_actor_lnk lapplc JOIN actor applc ON applc.id = lapplc.actor_id AND lapplc.role = 'APP' AND lapplc.shared = true"),
                 'matter.container_id', 'lapplc.matter_id')
             ->leftJoin(DB::raw("matter_actor_lnk lown JOIN actor own ON own.id = lown.actor_id AND lown.role = 'OWN'"),
                 'matter.id', 'lown.matter_id')
-            ->leftJoin(DB::raw("matter_actor_lnk lownc JOIN actor ownc ON ownc.id = lownc.actor_id AND lownc.role = 'OWN' AND lownc.shared = 1"),
+            ->leftJoin(DB::raw("matter_actor_lnk lownc JOIN actor ownc ON ownc.id = lownc.actor_id AND lownc.role = 'OWN' AND lownc.shared = true"),
                 'matter.container_id', 'lownc.matter_id')
         // Clients
             ->leftJoin(DB::raw('matter_actor_lnk pmal_cli JOIN actor pa_cli ON pa_cli.id = pmal_cli.actor_id'),
                 fn ($join) => $join->on('matter.id', 'pmal_cli.matter_id')->where('pmal_cli.role', 'CLI'))
             ->leftJoin(DB::raw('matter_actor_lnk cliclnk JOIN actor clic ON clic.id = cliclnk.actor_id'),
                 fn ($join) => $join->on('matter.container_id', 'cliclnk.matter_id')
-                    ->where([['cliclnk.role', 'CLI'], ['cliclnk.shared', 1]]))
+                    ->where([['cliclnk.role', 'CLI'], ['cliclnk.shared', true]]))
         // Titles
             ->leftJoin('classifier AS tit', fn ($join) => $join->on(DB::raw($containerOrMatter), 'tit.matter_id')
                 ->where('tit.type_code', 'TIT'))

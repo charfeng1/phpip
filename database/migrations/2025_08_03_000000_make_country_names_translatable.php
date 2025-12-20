@@ -23,6 +23,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Skip for PostgreSQL - the schema already has JSONB name column
+        if (DB::getDriverName() === 'pgsql') {
+            Log::info('Skipping country names migration for PostgreSQL - schema already has JSONB column');
+
+            return;
+        }
+
         $tableName = 'country';
         $columnName = 'name';
 
@@ -170,6 +177,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Skip for PostgreSQL
+        if (DB::getDriverName() === 'pgsql') {
+            return;
+        }
+
         $tableName = 'country';
         $columnName = 'name';
 

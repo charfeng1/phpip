@@ -63,6 +63,32 @@ class User extends Authenticatable
     ];
 
     /**
+     * Get the default_role attribute, trimmed.
+     *
+     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
+     *
+     * @param  string|null  $value
+     * @return string|null
+     */
+    public function getDefaultRoleAttribute($value): ?string
+    {
+        return $value ? trim($value) : null;
+    }
+
+    /**
+     * Get the login attribute, trimmed.
+     *
+     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
+     *
+     * @param  string|null  $value
+     * @return string|null
+     */
+    public function getLoginAttribute($value): ?string
+    {
+        return $value ? trim($value) : null;
+    }
+
+    /**
      * Get the role information for this user.
      *
      * The role determines permissions and UI behavior.

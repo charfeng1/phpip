@@ -265,7 +265,7 @@
               <span class="text-truncate d-block">{{ $matter->Applicant }}</span>
             </td>
             <td class="tab0" :class="{ 'd-none': tab == 1 }">
-              <small class="text-tertiary">{{ $matter->Agent }}</small>
+              <small class="text-tertiary">{{ $matter->AgentName }}</small>
             </td>
             <td class="tab0" :class="{ 'd-none': tab == 1 }">
               <div class="text-truncate" title="{{ $matter->container_id && $matter->Title2 ? $matter->Title2 : $matter->Title }}">

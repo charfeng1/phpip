@@ -72,7 +72,7 @@ class MatterController extends Controller
             ]);
 
         $query = Matter::filter(
-            $request->input('sortkey', 'id'),
+            $request->input('sortkey', 'matter.id'),
             $request->input('sortdir', 'desc'),
             $filters,
             $request->display_with,
