@@ -76,6 +76,46 @@ class Matter extends Model
     ];*/
 
     /**
+     * Get the category_code attribute, trimmed.
+     *
+     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
+     */
+    public function getCategoryCodeAttribute($value): ?string
+    {
+        return $value ? trim($value) : null;
+    }
+
+    /**
+     * Get the country attribute, trimmed.
+     *
+     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
+     */
+    public function getCountryAttribute($value): ?string
+    {
+        return $value ? trim($value) : null;
+    }
+
+    /**
+     * Get the origin attribute, trimmed.
+     *
+     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
+     */
+    public function getOriginAttribute($value): ?string
+    {
+        return $value ? trim($value) : null;
+    }
+
+    /**
+     * Get the type_code attribute, trimmed.
+     *
+     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
+     */
+    public function getTypeCodeAttribute($value): ?string
+    {
+        return $value ? trim($value) : null;
+    }
+
+    /**
      * Get all family members of this matter.
      *
      * Family members are matters that share the same caseref (family identifier).
@@ -915,7 +955,7 @@ class Matter extends Model
                             });
                             break;
                         case 'Title':
-                            $query->whereRaw('CONCAT_WS(" ", COALESCE(tit1.value, ""), COALESCE(tit2.value, ""), COALESCE(tit3.value, "")) LIKE ?', ['%'.$value.'%']);
+                            $query->whereRaw("CONCAT_WS(' ', COALESCE(tit1.value, ''), COALESCE(tit2.value, ''), COALESCE(tit3.value, '')) LIKE ?", ['%'.$value.'%']);
                             break;
                         case 'Inventor1':
                             $query->whereLike('inv.name', "$value%");

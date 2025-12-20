@@ -89,6 +89,19 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the language attribute, trimmed.
+     *
+     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
+     *
+     * @param  string|null  $value
+     * @return string|null
+     */
+    public function getLanguageAttribute($value): ?string
+    {
+        return $value ? trim($value) : null;
+    }
+
+    /**
      * Get the role information for this user.
      *
      * The role determines permissions and UI behavior.
