@@ -11,9 +11,15 @@
   |
  */
 
+use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\AutocompleteController;
+use App\Http\Controllers\ClassifierController;
 use App\Http\Controllers\CountryController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MatterController;
+use App\Http\Controllers\MatterSearchController;
+use App\Http\Controllers\RenewalController;
 use App\Models\Matter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -28,12 +34,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/countries/{country}', [CountryController::class, 'update'])->name('countries.update');
     Route::delete('/countries/{country}', [CountryController::class, 'destroy'])->name('countries.destroy');
 });
-use App\Http\Controllers\AuditLogController;
-use App\Http\Controllers\AutocompleteController;
-use App\Http\Controllers\ClassifierController;
-use App\Http\Controllers\DocumentController;
-use App\Http\Controllers\MatterSearchController;
-use App\Http\Controllers\RenewalController;
 
 Route::get('/', function () {
     return view('welcome');
