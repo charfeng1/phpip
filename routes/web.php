@@ -119,7 +119,7 @@ Route::middleware(['auth'])->group(function () {
     // Audit trail routes (admin only)
     Route::middleware('can:admin')->prefix('audit')->name('audit.')->group(function () {
         Route::get('/', [AuditLogController::class, 'index'])->name('index');
-        Route::get('/export', [AuditLogController::class, 'export'])->name('export');
+        Route::get('/export', [AuditLogController::class, 'export'])->middleware('throttle:10,1')->name('export');
         Route::get('/{type}/{id}', [AuditLogController::class, 'show'])->name('history');
         Route::get('/detail/{auditLog}', [AuditLogController::class, 'detail'])->name('detail');
     });
