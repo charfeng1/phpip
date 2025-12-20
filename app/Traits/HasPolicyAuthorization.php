@@ -10,6 +10,16 @@ use App\Models\User;
  *
  * Reduces boilerplate in policy classes by providing standard
  * authorization check methods for user roles.
+ *
+ * Role Hierarchy:
+ * - ADMIN (DBA): Full access to all features
+ * - READ_WRITE (DBRW): Can view and modify data
+ * - READ_ONLY (DBRO): Can only view data
+ * - CLIENT (CLI): External client with limited access to their own matters
+ *
+ * Important: Users with null or empty default_role are treated as clients.
+ * This is a security-conscious default - unassigned users get minimal permissions
+ * rather than elevated access.
  */
 trait HasPolicyAuthorization
 {
@@ -39,6 +49,10 @@ trait HasPolicyAuthorization
 
     /**
      * Check if the user is a client (CLI role or no role).
+     *
+     * Note: Users with null or empty default_role are treated as clients.
+     * This ensures unassigned users have minimal permissions by default,
+     * following the principle of least privilege.
      */
     protected function isClient(User $user): bool
     {
