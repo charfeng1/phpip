@@ -28,7 +28,9 @@ class RenewalPolicy
 
     public function viewAny(User $user): bool
     {
-        return $this->canRead($user) || $user->default_role === 'CLI' || empty($user->default_role);
+        // Only internal users can view lists of renewal logs
+        // Clients must access individual renewal logs through view() which scopes by matter ownership
+        return $this->canRead($user);
     }
 
     public function view(User $user, RenewalsLog $renewalsLog): bool
@@ -39,7 +41,8 @@ class RenewalPolicy
 
         // Client users can view renewal logs for their own matters
         if ($user->default_role === 'CLI' || empty($user->default_role)) {
-            $matter = $renewalsLog->matter()->first();
+            // Get matter through task relationship (renewals_logs has task_id, not matter_id)
+            $matter = optional($renewalsLog->task)->matter;
             if ($matter instanceof Matter) {
                 $clientActor = optional($matter->clientFromLnk())->actor_id;
 
