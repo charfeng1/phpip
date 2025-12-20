@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\Auditable;
 use App\Traits\HasTableComments;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -33,6 +34,7 @@ use Illuminate\Database\Eloquent\Model;
 class Actor extends Model
 {
     use Auditable;
+    use HasFactory;
     use HasTableComments;
 
     /**
