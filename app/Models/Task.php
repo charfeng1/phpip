@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\ActorRole;
+use App\Enums\ClassifierType;
+use App\Enums\EventCode;
+use App\Enums\UserRole;
 use App\Services\TeamService;
 use App\Traits\Auditable;
 use App\Traits\DatabaseJsonHelper;
@@ -190,7 +194,7 @@ class Task extends Model
         }
 
         // Apply client role restrictions if needed
-        if ($role == 'CLI' || empty($role)) {
+        if ($role == UserRole::CLIENT->value || empty($role)) {
             $query->whereHas('matter', function ($q) use ($userid) {
                 $q->whereHas('client', function ($q2) use ($userid) {
                     $q2->where('actor_id', $userid);
@@ -335,38 +339,38 @@ class Task extends Model
             ->leftJoin('country as mcountry', 'mcountry.iso', 'matter.country')
         // Events
             ->leftJoin('event AS fil', fn ($join) => $join->on('matter.id', 'fil.matter_id')
-                ->where('fil.code', 'FIL'))
+                ->where('fil.code', EventCode::FILING->value))
             ->leftJoin('event AS pub', fn ($join) => $join->on('matter.id', 'pub.matter_id')
-                ->where('pub.code', 'PUB'))
+                ->where('pub.code', EventCode::PUBLICATION->value))
             ->leftJoin('event AS grt', fn ($join) => $join->on('matter.id', 'grt.matter_id')
-                ->where('grt.code', 'GRT'))
+                ->where('grt.code', EventCode::GRANT->value))
         // Applicants and owners
-            ->leftJoin(DB::raw("matter_actor_lnk lappl JOIN actor appl ON appl.id = lappl.actor_id AND lappl.role = 'APP'"),
+            ->leftJoin(DB::raw("matter_actor_lnk lappl JOIN actor appl ON appl.id = lappl.actor_id AND lappl.role = '".ActorRole::APPLICANT->value."'"),
                 'matter.id', 'lappl.matter_id')
-            ->leftJoin(DB::raw("matter_actor_lnk lapplc JOIN actor applc ON applc.id = lapplc.actor_id AND lapplc.role = 'APP' AND lapplc.shared = true"),
+            ->leftJoin(DB::raw("matter_actor_lnk lapplc JOIN actor applc ON applc.id = lapplc.actor_id AND lapplc.role = '".ActorRole::APPLICANT->value."' AND lapplc.shared = true"),
                 'matter.container_id', 'lapplc.matter_id')
-            ->leftJoin(DB::raw("matter_actor_lnk lown JOIN actor own ON own.id = lown.actor_id AND lown.role = 'OWN'"),
+            ->leftJoin(DB::raw("matter_actor_lnk lown JOIN actor own ON own.id = lown.actor_id AND lown.role = '".ActorRole::OWNER->value."'"),
                 'matter.id', 'lown.matter_id')
-            ->leftJoin(DB::raw("matter_actor_lnk lownc JOIN actor ownc ON ownc.id = lownc.actor_id AND lownc.role = 'OWN' AND lownc.shared = true"),
+            ->leftJoin(DB::raw("matter_actor_lnk lownc JOIN actor ownc ON ownc.id = lownc.actor_id AND lownc.role = '".ActorRole::OWNER->value."' AND lownc.shared = true"),
                 'matter.container_id', 'lownc.matter_id')
         // Clients
             ->leftJoin(DB::raw('matter_actor_lnk pmal_cli JOIN actor pa_cli ON pa_cli.id = pmal_cli.actor_id'),
-                fn ($join) => $join->on('matter.id', 'pmal_cli.matter_id')->where('pmal_cli.role', 'CLI'))
+                fn ($join) => $join->on('matter.id', 'pmal_cli.matter_id')->where('pmal_cli.role', ActorRole::CLIENT->value))
             ->leftJoin(DB::raw('matter_actor_lnk cliclnk JOIN actor clic ON clic.id = cliclnk.actor_id'),
                 fn ($join) => $join->on('matter.container_id', 'cliclnk.matter_id')
-                    ->where([['cliclnk.role', 'CLI'], ['cliclnk.shared', true]]))
+                    ->where([['cliclnk.role', ActorRole::CLIENT->value], ['cliclnk.shared', true]]))
         // Titles
             ->leftJoin('classifier AS tit', fn ($join) => $join->on(DB::raw($containerOrMatter), 'tit.matter_id')
-                ->where('tit.type_code', 'TIT'))
+                ->where('tit.type_code', ClassifierType::TITLE->value))
             ->leftJoin('classifier AS titof', fn ($join) => $join->on(DB::raw($containerOrMatter), 'titof.matter_id')
-                ->where('titof.type_code', 'TITOF'))
+                ->where('titof.type_code', ClassifierType::TITLE_OFFICIAL->value))
         // Fees
             ->leftJoin('fees', function ($join) use ($feeDetailExpr) {
                 $join->on('fees.for_country', 'matter.country')
                     ->on('fees.for_category', 'matter.category_code')
                     ->on(DB::raw($feeDetailExpr), 'fees.qt');
             })
-            ->where('task.code', 'REN')
+            ->where('task.code', EventCode::RENEWAL->value)
             ->groupBy('task.due_date')
             ->groupBy('task.id')
             ->groupBy('event.matter_id');

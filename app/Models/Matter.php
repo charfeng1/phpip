@@ -2,6 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\ActorRole;
+use App\Enums\CategoryCode;
+use App\Enums\ClassifierType;
+use App\Enums\EventCode;
+use App\Enums\UserRole;
 use App\Services\TeamService;
 use App\Traits\Auditable;
 use App\Traits\DatabaseJsonHelper;
@@ -209,7 +214,7 @@ class Matter extends Model
     public function client()
     {
         // Used in Policies - do not change without checking MatterPolicy
-        return $this->hasOne(MatterActors::class)->whereRoleCode('CLI')->withDefault();
+        return $this->hasOne(MatterActors::class)->whereRoleCode(ActorRole::CLIENT->value)->withDefault();
     }
 
     /**
@@ -220,7 +225,7 @@ class Matter extends Model
      */
     public function clientFromLnk(): ?MatterActors
     {
-        return $this->getActorFromRole('CLI');
+        return $this->getActorFromRole(ActorRole::CLIENT->value);
     }
 
     /**
@@ -231,7 +236,7 @@ class Matter extends Model
      */
     public function payor(): ?MatterActors
     {
-        return $this->getActorFromRole('PAY');
+        return $this->getActorFromRole(ActorRole::PAYOR->value);
     }
 
     /**
@@ -243,7 +248,7 @@ class Matter extends Model
      */
     public function delegate()
     {
-        return $this->actors()->whereRoleCode('DEL');
+        return $this->actors()->whereRoleCode(ActorRole::DELEGATE->value);
     }
 
     /**
@@ -255,7 +260,7 @@ class Matter extends Model
      */
     public function contact()
     {
-        return $this->actors()->whereRoleCode('CNT');
+        return $this->actors()->whereRoleCode(ActorRole::CONTACT->value);
     }
 
     /**
@@ -267,7 +272,7 @@ class Matter extends Model
      */
     public function applicants()
     {
-        return $this->actors()->whereRoleCode('APP');
+        return $this->actors()->whereRoleCode(ActorRole::APPLICANT->value);
     }
 
     /**
@@ -290,7 +295,7 @@ class Matter extends Model
      */
     public function applicantsFromLnk(): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->getActorsFromRole('APP');
+        return $this->getActorsFromRole(ActorRole::APPLICANT->value);
     }
 
     /**
@@ -301,7 +306,7 @@ class Matter extends Model
      */
     public function owners(): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->getActorsFromRole('OWN');
+        return $this->getActorsFromRole(ActorRole::OWNER->value);
     }
 
     /**
@@ -326,7 +331,7 @@ class Matter extends Model
     public function inventors()
     {
         return $this->hasMany(MatterActors::class)
-            ->whereRoleCode('INV');
+            ->whereRoleCode(ActorRole::INVENTOR->value);
     }
 
     /**
@@ -337,7 +342,7 @@ class Matter extends Model
      */
     public function agent(): ?MatterActors
     {
-        return $this->getActorFromRole('AGT');
+        return $this->getActorFromRole(ActorRole::AGENT->value);
     }
 
     /**
@@ -348,7 +353,7 @@ class Matter extends Model
      */
     public function secondaryAgent(): ?MatterActors
     {
-        return $this->getActorFromRole('AGT2');
+        return $this->getActorFromRole(ActorRole::SECONDARY_AGENT->value);
     }
 
     /**
@@ -359,7 +364,7 @@ class Matter extends Model
      */
     public function writer(): ?MatterActors
     {
-        return $this->getActorFromRole('WRT');
+        return $this->getActorFromRole(ActorRole::WRITER->value);
     }
 
     /**
@@ -370,7 +375,7 @@ class Matter extends Model
      */
     public function annuityAgent(): ?MatterActors
     {
-        return $this->getActorFromRole('ANN');
+        return $this->getActorFromRole(ActorRole::ANNUITY_AGENT->value);
     }
 
     /**
@@ -407,7 +412,7 @@ class Matter extends Model
     public function filing()
     {
         return $this->hasOne(Event::class)
-            ->whereCode('FIL')->withDefault();
+            ->whereCode(EventCode::FILING->value)->withDefault();
     }
 
     /**
@@ -421,7 +426,7 @@ class Matter extends Model
     public function parentFiling()
     {
         return $this->hasMany(Event::class)
-            ->whereCode('PFIL')->withDefault();
+            ->whereCode(EventCode::PCT_FILING->value)->withDefault();
     }
 
     /**
@@ -435,7 +440,7 @@ class Matter extends Model
     public function publication()
     {
         return $this->hasOne(Event::class)
-            ->whereCode('PUB')->withDefault();
+            ->whereCode(EventCode::PUBLICATION->value)->withDefault();
     }
 
     /**
@@ -449,7 +454,7 @@ class Matter extends Model
     public function grant()
     {
         return $this->hasOne(Event::class)
-            ->whereIn('code', ['GRT', 'REG'])->withDefault();
+            ->whereIn('code', [EventCode::GRANT->value, EventCode::REGISTRATION->value])->withDefault();
     }
 
     /**
@@ -463,7 +468,7 @@ class Matter extends Model
     public function registration()
     {
         return $this->hasOne(Event::class)
-            ->whereCode('REG')->withDefault();
+            ->whereCode(EventCode::REGISTRATION->value)->withDefault();
     }
 
     /**
@@ -477,7 +482,7 @@ class Matter extends Model
     public function entered()
     {
         return $this->hasOne(Event::class)
-            ->whereCode('ENT')->withDefault();
+            ->whereCode(EventCode::ENTRY->value)->withDefault();
     }
 
     /**
@@ -490,7 +495,7 @@ class Matter extends Model
     public function priority()
     {
         return $this->hasMany(Event::class)
-            ->whereCode('PRI');
+            ->whereCode(EventCode::PRIORITY->value);
     }
 
     /**
@@ -503,7 +508,7 @@ class Matter extends Model
     public function prioritiesFromView()
     {
         return $this->hasMany(EventLnkList::class, 'matter_id', 'id')
-            ->where('code', 'PRI');
+            ->where('code', EventCode::PRIORITY->value);
     }
 
     /**
@@ -529,7 +534,7 @@ class Matter extends Model
     public function tasksPending()
     {
         return $this->tasks()
-            ->where('task.code', '!=', 'REN')
+            ->where('task.code', '!=', EventCode::RENEWAL->value)
             ->whereDone(0)
             ->orderBy('due_date');
     }
@@ -544,7 +549,7 @@ class Matter extends Model
     public function renewalsPending()
     {
         return $this->tasks()
-            ->where('task.code', 'REN')
+            ->where('task.code', EventCode::RENEWAL->value)
             ->whereDone(0)
             ->orderBy('due_date');
     }
@@ -732,14 +737,14 @@ class Matter extends Model
         )->leftJoin(
             DB::raw('matter_actor_lnk clilnk JOIN actor cli ON cli.id = clilnk.actor_id'),
             function ($join) {
-                $join->on('matter.id', 'clilnk.matter_id')->where('clilnk.role', 'CLI');
+                $join->on('matter.id', 'clilnk.matter_id')->where('clilnk.role', ActorRole::CLIENT->value);
             }
         )->leftJoin(
             DB::raw('matter_actor_lnk cliclnk JOIN actor clic ON clic.id = cliclnk.actor_id'),
             function ($join) {
                 $join->on('matter.container_id', 'cliclnk.matter_id')->where(
                     [
-                        ['cliclnk.role', 'CLI'],
+                        ['cliclnk.role', ActorRole::CLIENT->value],
                         ['cliclnk.shared', true],
                     ]
                 );
@@ -749,7 +754,7 @@ class Matter extends Model
             function ($join) {
                 $join->on('matter.id', 'agtlnk.matter_id')->where(
                     [
-                        ['agtlnk.role', 'AGT'],
+                        ['agtlnk.role', ActorRole::AGENT->value],
                         ['agtlnk.display_order', 1],
                     ]
                 );
@@ -759,7 +764,7 @@ class Matter extends Model
             function ($join) {
                 $join->on('matter.container_id', 'agtclnk.matter_id')->where(
                     [
-                        ['agtclnk.role', 'AGT'],
+                        ['agtclnk.role', ActorRole::AGENT->value],
                         ['agtclnk.shared', 1],
                     ]
                 );
@@ -767,32 +772,32 @@ class Matter extends Model
         )->leftJoin(
             DB::raw('matter_actor_lnk applnk JOIN actor app ON app.id = applnk.actor_id'),
             function ($join) {
-                $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'applnk.matter_id')->where('applnk.role', 'APP');
+                $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'applnk.matter_id')->where('applnk.role', ActorRole::APPLICANT->value);
             }
         )->leftJoin(
             DB::raw('matter_actor_lnk dellnk JOIN actor del ON del.id = dellnk.actor_id'),
             function ($join) {
-                $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'dellnk.matter_id')->where('dellnk.role', 'DEL');
+                $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'dellnk.matter_id')->where('dellnk.role', ActorRole::DELEGATE->value);
             }
         )->leftJoin(
             'event AS fil',
             function ($join) {
-                $join->on('matter.id', 'fil.matter_id')->where('fil.code', 'FIL');
+                $join->on('matter.id', 'fil.matter_id')->where('fil.code', EventCode::FILING->value);
             }
         )->leftJoin(
             'event AS pub',
             function ($join) {
-                $join->on('matter.id', 'pub.matter_id')->where('pub.code', 'PUB');
+                $join->on('matter.id', 'pub.matter_id')->where('pub.code', EventCode::PUBLICATION->value);
             }
         )->leftJoin(
             'event AS grt',
             function ($join) {
-                $join->on('matter.id', 'grt.matter_id')->where('grt.code', 'GRT');
+                $join->on('matter.id', 'grt.matter_id')->where('grt.code', EventCode::GRANT->value);
             }
         )->leftJoin(
             'event AS reg',
             function ($join) {
-                $join->on('matter.id', 'reg.matter_id')->where('reg.code', 'REG');
+                $join->on('matter.id', 'reg.matter_id')->where('reg.code', EventCode::REGISTRATION->value);
             }
         )->leftJoin(
             DB::raw('event status JOIN event_name ON event_name.code = status.code AND event_name.status_event = true'),
@@ -836,7 +841,7 @@ class Matter extends Model
             $query->leftJoin(
                 DB::raw('matter_actor_lnk invlnk JOIN actor inv ON inv.id = invlnk.actor_id'),
                 function ($join) {
-                    $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'invlnk.matter_id')->where('invlnk.role', 'INV');
+                    $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'invlnk.matter_id')->where('invlnk.role', ActorRole::INVENTOR->value);
                 }
             );
         } else {
@@ -845,7 +850,7 @@ class Matter extends Model
                 function ($join) {
                     $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'invlnk.matter_id')->where(
                         [
-                            ['invlnk.role', 'INV'],
+                            ['invlnk.role', ActorRole::INVENTOR->value],
                             ['invlnk.display_order', 1],
                         ]
                     );
@@ -861,7 +866,7 @@ class Matter extends Model
         }
 
         // When the user is a client or no role is defined, limit the matters to client's own matters
-        if ($authUserRole == 'CLI' || empty($authUserRole)) {
+        if ($authUserRole == UserRole::CLIENT->value || empty($authUserRole)) {
             $query->where(
                 function ($q) use ($authUserId) {
                     $q->where('cli.id', $authUserId)
@@ -1050,13 +1055,13 @@ class Matter extends Model
                     $aq->where('actor_id', request()->input('what_tasks'));
                 });
             }
-            if (Auth::user()->default_role == 'CLI' || empty(Auth::user()->default_role)) {
+            if (Auth::user()->default_role == UserRole::CLIENT->value || empty(Auth::user()->default_role)) {
                 $query->whereHas('client', function ($aq) {
                     $aq->where('actor_id', Auth::id());
                 });
             }
         }])
-            ->when(Auth::user()->default_role == 'CLI' || empty(Auth::user()->default_role),
+            ->when(Auth::user()->default_role == UserRole::CLIENT->value || empty(Auth::user()->default_role),
                 function ($query) {
                     $query->whereHas('matters', function ($q) {
                         $q->whereHas('client', function ($aq) {
@@ -1085,10 +1090,10 @@ class Matter extends Model
         // "grant" includes registration (for trademarks)
         $granted_date = Carbon::parse($this->grant->event_date);
         $published_date = Carbon::parse($this->publication->event_date);
-        $title = $this->titles->where('type_code', 'TITOF')->first()->value
+        $title = $this->titles->where('type_code', ClassifierType::TITLE_OFFICIAL->value)->first()->value
             ?? $this->titles->first()->value
             ?? '';
-        $title_EN = $this->titles->where('type_code', 'TITEN')->first()->value
+        $title_EN = $this->titles->where('type_code', ClassifierType::TITLE_EN->value)->first()->value
             ?? $this->titles->first()->value
             ?? '';
         if ($lang == 'fr') {
@@ -1096,7 +1101,7 @@ class Matter extends Model
             if ($this->client->actor_ref) {
                 $description[] = "V/réf : {$this->client->actor_ref}";
             }
-            if ($this->category_code == 'PAT') {
+            if ($this->category_code == CategoryCode::PATENT->value) {
                 if ($granted_date) {
                     $description[] = "Brevet {$this->grant->detail} déposé en {$this->countryInfo->name_FR} le {$filed_date->locale('fr_FR')->isoFormat('LL')} et délivré le {$granted_date->locale('fr_FR')->isoFormat('LL')}";
                 } else {
@@ -1109,7 +1114,7 @@ class Matter extends Model
                 $description[] = "Pour : $title";
                 $description[] = "Au nom de : {$this->applicants->pluck('name')->join(', ')}";
             }
-            if ($this->category_code == 'TM') {
+            if ($this->category_code == CategoryCode::TRADEMARK->value) {
                 $line = "Marque {$this->filing->detail} déposée en {$this->countryInfo->name_FR} le {$filed_date->locale('fr_FR')->isoFormat('LL')}";
                 if ($published_date) {
                     $line .= ", publiée le {$published_date->locale('fr_FR')->isoFormat('LL')} sous le n°{$this->publication->detail}";
@@ -1127,7 +1132,7 @@ class Matter extends Model
             if ($this->client->actor_ref) {
                 $description[] = "Your ref: {$this->client->actor_ref}";
             }
-            if ($this->category_code == 'PAT') {
+            if ($this->category_code == CategoryCode::PATENT->value) {
                 if ($granted_date) {
                     $description[] = "Patent {$this->grant->detail} filed in {$this->countryInfo->name} on {$filed_date->locale('en_US')->isoFormat('LL')} and granted on {$granted_date->locale('en_US')->isoFormat('LL')}";
                 } else {
@@ -1139,7 +1144,7 @@ class Matter extends Model
                 $description[] = "For: $title_EN";
                 $description[] = "In name of: {$this->applicants->pluck('name')->join(', ')}";
             }
-            if ($this->category_code == 'TM') {
+            if ($this->category_code == CategoryCode::TRADEMARK->value) {
                 $line = "Trademark {$this->filing->detail} filed in {$this->countryInfo->name_FR} on {$filed_date->locale('en_US')->isoFormat('LL')}";
                 if ($published_date) {
                     $line .= ", published on {$published_date->locale('en_US')->isoFormat('LL')} as {$this->publication->detail}";

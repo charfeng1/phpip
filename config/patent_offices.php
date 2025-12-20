@@ -24,24 +24,25 @@ return [
     'registries' => [
         // European Patent Office
         'EP' => [
-            'application' => 'https://register.epo.org/espacenet/application?number=EP{number}',
+            'filing' => 'https://register.epo.org/espacenet/application?number=EP{number}',
             'ipfwretrieve' => 'https://register.epo.org/ipfwretrieve?apn=EP{number}.{kind}',
         ],
 
         // France (INPI)
         'FR' => [
-            'patent' => 'https://data.inpi.fr/brevets/{country}{number}',
-            'trademark' => 'https://data.inpi.fr/marques/{country}{number}',
+            'patent' => 'https://data.inpi.fr/brevets/{cc}{number}',
+            'trademark' => 'https://data.inpi.fr/marques/{cc}{number}',
         ],
 
         // United States (USPTO)
         'US' => [
-            'application' => 'https://patft.uspto.gov/netacgi/nph-Parser?Sect1=PTO1&Sect2=HITOFF&d=PALL&p=1&u=%2Fnetahtml%2FPTO%2Fsrchnum.htm&r=1&f=G&l=50&s1={number}.PN.',
+            'filing' => 'https://register.epo.org/ipfwretrieve?apn=US.{number}.A',
+            'patent' => 'https://patft.uspto.gov/netacgi/nph-Parser?Sect1=PTO1&Sect2=HITOFF&d=PALL&p=1&u=%2Fnetahtml%2FPTO%2Fsrchnum.htm&r=1&f=G&l=50&s1={number}.PN.',
         ],
 
         // United Kingdom (UKIPO)
         'GB' => [
-            'application' => 'http://www.ipo.gov.uk/p-ipsum/Case/ApplicationNumber/{country}{number}',
+            'filing' => 'http://www.ipo.gov.uk/p-ipsum/Case/ApplicationNumber/{cc}{number}',
         ],
 
         // European Union (EUIPO - Trademarks)
@@ -64,6 +65,7 @@ return [
     |
     */
     'espacenet' => [
+        'publication' => 'http://worldwide.espacenet.com/publicationDetails/biblio',
         'biblio' => 'http://worldwide.espacenet.com/publicationDetails/biblio?CC={country}&NR={number}&KC={kind}',
     ],
 

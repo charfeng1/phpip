@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\EventCode;
+use App\Enums\UserRole;
 use App\Models\Task;
 use App\Services\TeamService;
 use Illuminate\Database\Eloquent\Builder;
@@ -55,12 +57,12 @@ class TaskController extends Controller
         }
 
         if ($isrenewals) {
-            $tasks->where('code', 'REN');
+            $tasks->where('code', EventCode::RENEWAL->value);
         } else {
-            $tasks->where('code', '!=', 'REN');
+            $tasks->where('code', '!=', EventCode::RENEWAL->value);
         }
 
-        if (Auth::user()->default_role == 'CLI' || empty(Auth::user()->default_role)) {
+        if (Auth::user()->default_role == UserRole::CLIENT->value || empty(Auth::user()->default_role)) {
             $tasks->whereHas('matter.client', function (Builder $q) {
                 $q->where('actor_id', Auth::user()->id);
             });
@@ -84,7 +86,7 @@ class TaskController extends Controller
             return response()->json($query->get());
         }
 
-        $tasks = $query->simplePaginate(18)
+        $tasks = $query->simplePaginate(config('pagination.tasks'))
             ->appends($request->input());
 
         return view('task.index', compact('tasks', 'isrenewals'));
@@ -163,7 +165,7 @@ class TaskController extends Controller
             $request->merge(['rule_used' => null]);
         }
         // Remove renewal from renewal management pipeline
-        if (($request->filled('done_date') || $request->done) && $task->code == 'REN') {
+        if (($request->filled('done_date') || $request->done) && $task->code == EventCode::RENEWAL->value) {
             $request->merge(['step' => -1]);
         }
         $task->update($request->except(['_token', '_method']));

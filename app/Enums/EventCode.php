@@ -17,10 +17,15 @@ enum EventCode: string
     case REGISTRATION = 'REG';
     case PRIORITY = 'PRI';
     case ENTRY = 'ENT';
+    case RECEIVED = 'REC';
+    case ALLOWANCE = 'ALL';
 
     // Task-related events
     case RENEWAL = 'REN';
     case PRIORITY_CLAIM = 'PR';
+    case EXAMINATION = 'EXA';
+    case REPLY = 'REP';
+    case PAYMENT = 'PAY';
 
     // Procedure step events (from OPS integration)
     case EXAM_REPORT = 'EXRE';
@@ -41,8 +46,13 @@ enum EventCode: string
             self::REGISTRATION => 'Registration',
             self::PRIORITY => 'Priority',
             self::ENTRY => 'National/Regional Entry',
+            self::RECEIVED => 'Received',
+            self::ALLOWANCE => 'Allowance',
             self::RENEWAL => 'Renewal',
             self::PRIORITY_CLAIM => 'Priority Claim',
+            self::EXAMINATION => 'Examination',
+            self::REPLY => 'Reply',
+            self::PAYMENT => 'Payment',
             self::EXAM_REPORT => 'Examination Report',
             self::RENEWAL_FEE => 'Renewal Fee',
             self::INTENTION_TO_GRANT => 'Intention to Grant',
