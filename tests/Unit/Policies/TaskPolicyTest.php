@@ -19,7 +19,6 @@ class TaskPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->artisan('db:seed');
         $this->policy = new TaskPolicy();
     }
 

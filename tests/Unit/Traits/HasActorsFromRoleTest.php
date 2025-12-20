@@ -16,7 +16,6 @@ class HasActorsFromRoleTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->artisan('db:seed');
     }
 
     /** @test */
