@@ -23,6 +23,8 @@ class FeeController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Fee::class);
+
         $fees = new Fee;
         $filters = $request->except(['page']);
         if (! empty($filters)) {
@@ -57,6 +59,8 @@ class FeeController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', Fee::class);
+
         $table = new Fee;
         $tableComments = $table->getTableComments();
 
@@ -73,6 +77,8 @@ class FeeController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Fee::class);
+
         $request->validate([
             'for_category' => 'required',
             'from_qt' => 'required|integer',
@@ -102,6 +108,8 @@ class FeeController extends Controller
      */
     public function show(Fee $fee)
     {
+        $this->authorize('view', $fee);
+
         return $fee;
     }
 
@@ -114,6 +122,8 @@ class FeeController extends Controller
      */
     public function update(Request $request, Fee $fee)
     {
+        $this->authorize('update', $fee);
+
         $this->validate($request, [
             'use_after' => 'nullable|date',
             'use_before' => 'nullable|date',
@@ -141,6 +151,8 @@ class FeeController extends Controller
      */
     public function destroy(Fee $fee)
     {
+        $this->authorize('delete', $fee);
+
         $fee->delete();
 
         return response()->json(['success' => 'Fee deleted']);

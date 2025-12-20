@@ -32,6 +32,8 @@ class TemplateMemberController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', TemplateMember::class);
+
         $Summary = $request->summary;
         $Style = $request->style;
         $Language = $request->language;
@@ -79,6 +81,8 @@ class TemplateMemberController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', TemplateMember::class);
+
         $table = new TemplateMember;
         $tableComments = $table->getTableComments();
         $languages = $this->languages;
@@ -94,6 +98,8 @@ class TemplateMemberController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', TemplateMember::class);
+
         $request->validate([
             'class_id' => 'required',
             'language' => 'required',
@@ -112,6 +118,8 @@ class TemplateMemberController extends Controller
      */
     public function show(TemplateMember $templateMember)
     {
+        $this->authorize('view', $templateMember);
+
         $tableComments = $templateMember->getTableComments();
         $templateMember->with(['class', 'style', 'language']);
         $languages = $this->languages;
@@ -127,7 +135,7 @@ class TemplateMemberController extends Controller
      */
     public function edit(TemplateMember $templateMember)
     {
-        //
+        $this->authorize('update', $templateMember);
     }
 
     /**
@@ -139,6 +147,8 @@ class TemplateMemberController extends Controller
      */
     public function update(Request $request, TemplateMember $templateMember)
     {
+        $this->authorize('update', $templateMember);
+
         $request->merge(['updater' => Auth::user()->login]);
         $templateMember->update($request->except(['_token', '_method']));
 
@@ -153,6 +163,8 @@ class TemplateMemberController extends Controller
      */
     public function destroy(TemplateMember $templateMember)
     {
+        $this->authorize('delete', $templateMember);
+
         $templateMember->delete();
 
         return response()->json(['success' => 'Template deleted']);

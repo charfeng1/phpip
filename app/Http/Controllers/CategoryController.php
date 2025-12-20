@@ -22,6 +22,8 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Category::class);
+
         $Code = $request->input('Code');
         $Category = $request->input('Category');
         $category = Category::query();
@@ -50,6 +52,8 @@ class CategoryController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', Category::class);
+
         $category = new Category;
         $tableComments = $category->getTableComments();
 
@@ -64,6 +68,8 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Category::class);
+
         $request->validate([
             'code' => 'required|unique:matter_category|max:5',
             'category' => 'required|max:45',
@@ -82,6 +88,8 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
+        $this->authorize('view', $category);
+
         $tableComments = $category->getTableComments();
         $category->load(['displayWithInfo:code,category']);
 
@@ -97,6 +105,8 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
+        $this->authorize('update', $category);
+
         $request->merge(['updater' => Auth::user()->login]);
         $category->update($request->except(['_token', '_method']));
 
@@ -111,6 +121,8 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
+        $this->authorize('delete', $category);
+
         $category->delete();
 
         return $category;
