@@ -29,6 +29,13 @@ use Illuminate\Support\Facades\Request;
 trait Auditable
 {
     /**
+     * Flag to temporarily disable auditing for this model instance.
+     *
+     * @var bool
+     */
+    protected bool $auditingDisabled = false;
+
+    /**
      * Boot the auditable trait.
      * Registers model event listeners for created, updated, and deleted events.
      */
@@ -118,6 +125,11 @@ trait Auditable
      */
     protected function shouldAudit(): bool
     {
+        // Don't audit if explicitly disabled
+        if ($this->auditingDisabled) {
+            return false;
+        }
+
         return true;
     }
 
