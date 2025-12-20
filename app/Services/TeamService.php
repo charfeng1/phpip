@@ -67,7 +67,7 @@ class TeamService
     /**
      * Get all supervisor IDs for a given user (direct and indirect managers).
      *
-     * Traverses up the hierarchy from the user to the root.
+     * Traverses up the hierarchy from the user to the root using a recursive CTE.
      *
      * @param  int  $userId  The user's ID
      * @param  bool  $includeSelf  Whether to include the user themselves in results
@@ -78,16 +78,30 @@ class TeamService
         $cacheKey = "team_supervisors_{$userId}_{$includeSelf}";
 
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($userId, $includeSelf) {
-            $supervisors = collect();
-            $currentUser = User::find($userId);
+            // Use recursive CTE for efficient single-query hierarchy traversal
+            $sql = "
+                WITH RECURSIVE supervisor_chain AS (
+                    -- Base case: Start with the user's direct supervisor
+                    SELECT parent_id AS id
+                    FROM users
+                    WHERE id = ?
+                    AND parent_id IS NOT NULL
 
-            if ($includeSelf && $currentUser) {
-                $supervisors->push($userId);
-            }
+                    UNION ALL
 
-            while ($currentUser && $currentUser->parent_id) {
-                $supervisors->push($currentUser->parent_id);
-                $currentUser = User::find($currentUser->parent_id);
+                    -- Recursive case: Get each supervisor's supervisor
+                    SELECT u.parent_id
+                    FROM users u
+                    INNER JOIN supervisor_chain sc ON u.id = sc.id
+                    WHERE u.parent_id IS NOT NULL
+                )
+                SELECT DISTINCT id FROM supervisor_chain
+            ";
+
+            $supervisors = collect(DB::select($sql, [$userId]))->pluck('id');
+
+            if ($includeSelf) {
+                $supervisors->prepend($userId);
             }
 
             return $supervisors->unique()->values();
@@ -221,22 +235,34 @@ class TeamService
     }
 
     /**
-     * Recursively get all subordinate user IDs.
+     * Get all subordinate user IDs using a recursive CTE.
+     *
+     * Uses a single database query instead of N+1 recursive queries.
      *
      * @param  int  $userId  The supervisor's user ID
      * @return Collection Collection of subordinate user IDs
      */
     protected function getSubordinatesRecursive(int $userId): Collection
     {
-        $subordinates = collect();
-        $directReports = User::where('parent_id', $userId)->pluck('id');
+        // Use recursive CTE for efficient single-query hierarchy traversal
+        $sql = "
+            WITH RECURSIVE subordinate_tree AS (
+                -- Base case: Direct reports of the user
+                SELECT id
+                FROM users
+                WHERE parent_id = ?
 
-        foreach ($directReports as $reportId) {
-            $subordinates->push($reportId);
-            $subordinates = $subordinates->merge($this->getSubordinatesRecursive($reportId));
-        }
+                UNION ALL
 
-        return $subordinates;
+                -- Recursive case: Get each subordinate's direct reports
+                SELECT u.id
+                FROM users u
+                INNER JOIN subordinate_tree st ON u.parent_id = st.id
+            )
+            SELECT DISTINCT id FROM subordinate_tree
+        ";
+
+        return collect(DB::select($sql, [$userId]))->pluck('id');
     }
 
     /**
