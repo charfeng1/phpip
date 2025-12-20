@@ -148,8 +148,28 @@ class UserController extends Controller
             'email' => 'sometimes|required|email',
             'default_role' => 'sometimes|required',
             'language' => 'sometimes|required|string|max:5',
-            'parent_id' => 'nullable|exists:actor,id',
+            'parent_id' => 'nullable|exists:users,id',
         ]);
+
+        // Prevent self-reference
+        if ($request->filled('parent_id') && (int) $request->input('parent_id') === (int) $user->id) {
+            return back()->withErrors(['parent_id' => 'A user cannot be their own supervisor.'])->withInput();
+        }
+
+        // Prevent circular hierarchy (A → B → A)
+        if ($request->filled('parent_id')) {
+            $teamService = app(TeamService::class);
+            $proposedParentId = (int) $request->input('parent_id');
+
+            // Check if the proposed parent has this user in their supervisor chain
+            $parentSupervisors = $teamService->getSupervisorIds($proposedParentId);
+            if (in_array($user->id, $parentSupervisors, true)) {
+                return back()->withErrors([
+                    'parent_id' => 'This would create a circular hierarchy. The selected supervisor is already below this user in the hierarchy.'
+                ])->withInput();
+            }
+        }
+
         $request->merge(['updater' => Auth::user()->login]);
         if ($request->filled('password')) {
             $request->merge(['password' => Hash::make($request->password)]);
