@@ -2,6 +2,7 @@
 
 namespace App\Models\Scopes;
 
+use App\Enums\UserRole;
 use App\Services\TeamService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -52,7 +53,7 @@ class TeamScope implements Scope
         }
 
         // Admin users (DBA/DBRW/DBRO) see all records
-        if (in_array($user->default_role, ['DBA', 'DBRW', 'DBRO'], true)) {
+        if (in_array($user->default_role, UserRole::readableRoleValues(), true)) {
             return;
         }
 

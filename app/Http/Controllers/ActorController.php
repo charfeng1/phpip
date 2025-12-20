@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreActorRequest;
+use App\Http\Requests\UpdateActorRequest;
 use App\Models\Actor;
+use App\Traits\Filterable;
+use App\Traits\HandlesAuditFields;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 /**
@@ -15,38 +18,47 @@ use Illuminate\Support\Facades\Gate;
  */
 class ActorController extends Controller
 {
+    use Filterable;
+    use HandlesAuditFields;
+
+    /**
+     * Selector filter mappings.
+     */
+    private const SELECTOR_FILTERS = [
+        'phy_p' => ['phy_person', 1],
+        'leg_p' => ['phy_person', 0],
+        'warn' => ['warn', 1],
+    ];
+
     /**
      * Display a paginated list of actors with optional filtering.
      *
-     * @param Request $request The HTTP request containing filter parameters.
+     * @param  Request  $request  The HTTP request containing filter parameters.
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse The view or JSON response with filtered actors.
      */
     public function index(Request $request)
     {
         Gate::authorize('readonly');
-        $actor = new Actor;
+
+        $query = Actor::query();
+
         if ($request->filled('Name')) {
-            $actor = $actor->where('name', 'like', $request->Name.'%');
-        }
-        switch ($request->selector) {
-            case 'phy_p':
-                $actor = $actor->where('phy_person', 1);
-                break;
-            case 'leg_p':
-                $actor = $actor->where('phy_person', 0);
-                break;
-            case 'warn':
-                $actor = $actor->where('warn', 1);
-                break;
+            $query->where('name', 'like', $request->Name.'%');
         }
 
-        $query = $actor->with('company')->orderby('name');
+        // Apply selector filter using lookup map instead of switch
+        if ($request->filled('selector') && isset(self::SELECTOR_FILTERS[$request->selector])) {
+            [$column, $value] = self::SELECTOR_FILTERS[$request->selector];
+            $query->where($column, $value);
+        }
+
+        $query->with('company')->orderby('name');
 
         if ($request->wantsJson()) {
             return response()->json($query->get());
         }
 
-        $actorslist = $query->paginate(21);
+        $actorslist = $query->paginate(config('pagination.actors', 21));
         $actorslist->appends($request->input())->links();
 
         return view('actor.index', compact('actorslist'));
@@ -60,6 +72,7 @@ class ActorController extends Controller
     public function create()
     {
         Gate::authorize('readwrite');
+
         $actor = new Actor;
         $actorComments = $actor->getTableComments();
 
@@ -69,31 +82,36 @@ class ActorController extends Controller
     /**
      * Store a new actor in the database.
      *
-     * @param Request $request The HTTP request containing actor data.
+     * @param  StoreActorRequest  $request  The validated HTTP request containing actor data.
      * @return Actor The newly created actor model.
      */
-    public function store(Request $request)
+    public function store(StoreActorRequest $request)
     {
-        Gate::authorize('readwrite');
-        $request->validate([
-            'name' => 'required|max:100',
-            'email' => 'email|nullable',
-        ]);
-        $request->merge(['creator' => Auth::user()->login]);
+        $this->mergeCreator($request);
 
-        return Actor::create($request->except(['_token', '_method']));
+        return Actor::create($this->getFilteredData($request));
     }
 
     /**
      * Display detailed information for a specific actor.
      *
-     * @param Actor $actor The actor to display.
+     * @param  Actor  $actor  The actor to display.
      * @return \Illuminate\Http\Response The view with actor details.
      */
     public function show(Actor $actor)
     {
         Gate::authorize('readonly');
-        $actorInfo = $actor->load(['company:id,name', 'parent:id,name', 'site:id,name', 'droleInfo', 'countryInfo:iso,name', 'country_mailingInfo:iso,name', 'country_billingInfo:iso,name', 'nationalityInfo:iso,name']);
+
+        $actorInfo = $actor->load([
+            'company:id,name',
+            'parent:id,name',
+            'site:id,name',
+            'droleInfo',
+            'countryInfo:iso,name',
+            'country_mailingInfo:iso,name',
+            'country_billingInfo:iso,name',
+            'nationalityInfo:iso,name',
+        ]);
         $actorComments = $actor->getTableComments();
 
         return view('actor.show', compact('actorInfo', 'actorComments'));
@@ -102,7 +120,7 @@ class ActorController extends Controller
     /**
      * Show the form for editing an actor.
      *
-     * @param Actor $actor The actor to edit.
+     * @param  Actor  $actor  The actor to edit.
      * @return void Not implemented.
      */
     public function edit(Actor $actor)
@@ -113,19 +131,14 @@ class ActorController extends Controller
     /**
      * Update an actor in the database.
      *
-     * @param Request $request The HTTP request containing updated actor data.
-     * @param Actor $actor The actor to update.
+     * @param  UpdateActorRequest  $request  The validated HTTP request containing updated actor data.
+     * @param  Actor  $actor  The actor to update.
      * @return Actor The updated actor model.
      */
-    public function update(Request $request, Actor $actor)
+    public function update(UpdateActorRequest $request, Actor $actor)
     {
-        Gate::authorize('readwrite');
-        $request->validate([
-            'email' => 'email|nullable',
-            'ren_discount' => 'numeric',
-        ]);
-        $request->merge(['updater' => Auth::user()->login]);
-        $actor->update($request->except(['_token', '_method']));
+        $this->mergeUpdater($request);
+        $actor->update($this->getFilteredData($request));
 
         return $actor;
     }
@@ -133,12 +146,13 @@ class ActorController extends Controller
     /**
      * Remove an actor from the database.
      *
-     * @param Actor $actor The actor to delete.
+     * @param  Actor  $actor  The actor to delete.
      * @return Actor The deleted actor model.
      */
     public function destroy(Actor $actor)
     {
         Gate::authorize('readwrite');
+
         $actor->delete();
 
         return $actor;

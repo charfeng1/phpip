@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\Matter;
 use App\Models\RenewalsLog;
 use App\Models\User;
@@ -18,12 +19,12 @@ class RenewalPolicy
 {
     protected function canRead(User $user): bool
     {
-        return in_array($user->default_role, ['DBA', 'DBRW', 'DBRO'], true);
+        return in_array($user->default_role, UserRole::readableRoleValues(), true);
     }
 
     protected function canWrite(User $user): bool
     {
-        return in_array($user->default_role, ['DBA', 'DBRW'], true);
+        return in_array($user->default_role, UserRole::writableRoleValues(), true);
     }
 
     public function viewAny(User $user): bool
@@ -40,7 +41,7 @@ class RenewalPolicy
         }
 
         // Client users can view renewal logs for their own matters
-        if ($user->default_role === 'CLI' || empty($user->default_role)) {
+        if ($user->default_role === UserRole::CLIENT->value || empty($user->default_role)) {
             // Get matter through task relationship (renewals_logs has task_id, not matter_id)
             $matter = optional($renewalsLog->task)->matter;
             if ($matter instanceof Matter) {

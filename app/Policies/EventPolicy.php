@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\Event;
 use App\Models\Matter;
 use App\Models\User;
@@ -18,17 +19,17 @@ class EventPolicy
 {
     protected function canRead(User $user): bool
     {
-        return in_array($user->default_role, ['DBA', 'DBRW', 'DBRO'], true);
+        return in_array($user->default_role, UserRole::readableRoleValues(), true);
     }
 
     protected function canWrite(User $user): bool
     {
-        return in_array($user->default_role, ['DBA', 'DBRW'], true);
+        return in_array($user->default_role, UserRole::writableRoleValues(), true);
     }
 
     public function viewAny(User $user): bool
     {
-        return $this->canRead($user) || $user->default_role === 'CLI' || empty($user->default_role);
+        return $this->canRead($user) || $user->default_role === UserRole::CLIENT->value || empty($user->default_role);
     }
 
     public function view(User $user, Event $event): bool
@@ -38,7 +39,7 @@ class EventPolicy
         }
 
         // Client users can view events for their own matters
-        if ($user->default_role === 'CLI' || empty($user->default_role)) {
+        if ($user->default_role === UserRole::CLIENT->value || empty($user->default_role)) {
             $matter = $event->matter()->first();
             if ($matter instanceof Matter) {
                 $clientActor = optional($matter->clientFromLnk())->actor_id;

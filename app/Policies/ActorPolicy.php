@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\Actor;
 use App\Models\User;
 
@@ -9,12 +10,12 @@ class ActorPolicy
 {
     protected function canRead(User $user): bool
     {
-        return in_array($user->default_role, ['DBA', 'DBRW', 'DBRO'], true);
+        return in_array($user->default_role, UserRole::readableRoleValues(), true);
     }
 
     protected function canWrite(User $user): bool
     {
-        return in_array($user->default_role, ['DBA', 'DBRW'], true);
+        return in_array($user->default_role, UserRole::writableRoleValues(), true);
     }
 
     public function viewAny(User $user): bool

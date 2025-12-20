@@ -2,13 +2,14 @@
 
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\User;
 
 class UserPolicy
 {
     protected function isAdmin(User $user): bool
     {
-        return $user->default_role === 'DBA';
+        return $user->default_role === UserRole::ADMIN->value;
     }
 
     public function viewAny(User $user): bool

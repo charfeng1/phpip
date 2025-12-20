@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCategoryRequest;
+use App\Http\Requests\UpdateCategoryRequest;
 use App\Models\Category;
+use App\Traits\Filterable;
+use App\Traits\HandlesAuditFields;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Manages matter categories.
@@ -14,29 +17,35 @@ use Illuminate\Support\Facades\Auth;
  */
 class CategoryController extends Controller
 {
+    use Filterable;
+    use HandlesAuditFields;
+
+    /**
+     * Filter rules for index method.
+     */
+    protected array $filterRules = [];
+
+    public function __construct()
+    {
+        $this->filterRules = [
+            'Code' => fn ($q, $v) => $q->whereLike('code', "$v%"),
+            'Category' => fn ($q, $v) => $q->whereJsonLike('category', $v),
+        ];
+    }
+
     /**
      * Display a list of categories with filtering.
      *
-     * @param Request $request Filter parameters
+     * @param  Request  $request  Filter parameters
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
     {
         $this->authorize('viewAny', Category::class);
 
-        $Code = $request->input('Code');
-        $Category = $request->input('Category');
-        $category = Category::query();
-
-        if (! is_null($Code)) {
-            $category = $category->whereLike('code', $Code.'%');
-        }
-
-        if (! is_null($Category)) {
-            $category = $category->whereJsonLike('category', $Category);
-        }
-
-        $categories = $category->get();
+        $query = Category::query();
+        $this->applyFilters($query, $request);
+        $categories = $query->get();
 
         if ($request->wantsJson()) {
             return response()->json($categories);
@@ -63,27 +72,20 @@ class CategoryController extends Controller
     /**
      * Store a newly created category.
      *
-     * @param Request $request Category data including code, category name, and display_with
+     * @param  StoreCategoryRequest  $request  Validated category data
      * @return Category The created category
      */
-    public function store(Request $request)
+    public function store(StoreCategoryRequest $request)
     {
-        $this->authorize('create', Category::class);
+        $this->mergeCreator($request);
 
-        $request->validate([
-            'code' => 'required|unique:matter_category|max:5',
-            'category' => 'required|max:45',
-            'display_with' => 'required',
-        ]);
-        $request->merge(['creator' => Auth::user()->login]);
-
-        return Category::create($request->except(['_token', '_method']));
+        return Category::create($this->getFilteredData($request));
     }
 
     /**
      * Display the specified category.
      *
-     * @param Category $category The category to display
+     * @param  Category  $category  The category to display
      * @return \Illuminate\Http\Response
      */
     public function show(Category $category)
@@ -99,16 +101,14 @@ class CategoryController extends Controller
     /**
      * Update the specified category.
      *
-     * @param Request $request Updated category data
-     * @param Category $category The category to update
+     * @param  UpdateCategoryRequest  $request  Validated category data
+     * @param  Category  $category  The category to update
      * @return Category The updated category
      */
-    public function update(Request $request, Category $category)
+    public function update(UpdateCategoryRequest $request, Category $category)
     {
-        $this->authorize('update', $category);
-
-        $request->merge(['updater' => Auth::user()->login]);
-        $category->update($request->except(['_token', '_method']));
+        $this->mergeUpdater($request);
+        $category->update($this->getFilteredData($request));
 
         return $category;
     }
@@ -116,7 +116,7 @@ class CategoryController extends Controller
     /**
      * Remove the specified category from storage.
      *
-     * @param Category $category The category to delete
+     * @param  Category  $category  The category to delete
      * @return Category The deleted category
      */
     public function destroy(Category $category)
