@@ -41,7 +41,9 @@ class AuditLogController extends Controller
             'record_id' => 'nullable|integer|min:1',
         ]);
 
-        $query = AuditLog::query()->orderByDesc('created_at');
+        $query = AuditLog::query()
+            ->with(['auditable', 'user'])
+            ->orderByDesc('created_at');
 
         // Apply filters
         if (!empty($validated['model'])) {
@@ -110,6 +112,7 @@ class AuditLogController extends Controller
 
         $auditLogs = AuditLog::where('auditable_type', $modelClass)
             ->where('auditable_id', $id)
+            ->with(['auditable', 'user'])
             ->orderByDesc('created_at')
             ->paginate(50);
 
@@ -171,7 +174,9 @@ class AuditLogController extends Controller
             'record_id' => 'nullable|integer|min:1',
         ]);
 
-        $query = AuditLog::query()->orderByDesc('created_at');
+        $query = AuditLog::query()
+            ->with(['auditable', 'user'])
+            ->orderByDesc('created_at');
 
         // Apply same filters as index
         if (!empty($validated['model'])) {
