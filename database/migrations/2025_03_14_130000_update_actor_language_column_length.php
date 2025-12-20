@@ -8,6 +8,26 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
+     * The SQL statement to create/recreate the users view for PostgreSQL.
+     */
+    private string $usersViewSql = "
+        CREATE OR REPLACE VIEW users AS
+        SELECT
+            id,
+            login AS name,
+            login,
+            email,
+            password,
+            default_role,
+            language,
+            remember_token,
+            created_at,
+            updated_at
+        FROM actor
+        WHERE login IS NOT NULL
+    ";
+
+    /**
      * Run the migrations.
      */
     public function up(): void
@@ -24,22 +44,7 @@ return new class extends Migration
 
         // PostgreSQL: Recreate the users view
         if (DB::getDriverName() === 'pgsql') {
-            DB::statement("
-                CREATE OR REPLACE VIEW users AS
-                SELECT
-                    id,
-                    login AS name,
-                    login,
-                    email,
-                    password,
-                    default_role,
-                    language,
-                    remember_token,
-                    created_at,
-                    updated_at
-                FROM actor
-                WHERE login IS NOT NULL
-            ");
+            DB::statement($this->usersViewSql);
         }
     }
 
@@ -60,22 +65,7 @@ return new class extends Migration
 
         // PostgreSQL: Recreate the users view
         if (DB::getDriverName() === 'pgsql') {
-            DB::statement("
-                CREATE OR REPLACE VIEW users AS
-                SELECT
-                    id,
-                    login AS name,
-                    login,
-                    email,
-                    password,
-                    default_role,
-                    language,
-                    remember_token,
-                    created_at,
-                    updated_at
-                FROM actor
-                WHERE login IS NOT NULL
-            ");
+            DB::statement($this->usersViewSql);
         }
     }
 };

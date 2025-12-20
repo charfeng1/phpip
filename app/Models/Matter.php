@@ -973,21 +973,11 @@ class Matter extends Model
         }
 
         // Sorting by caseref is special - set additional conditions here
-        // PostgreSQL requires all non-aggregated columns in GROUP BY
+        // PostgreSQL: matter.id is the primary key, so other matter.* columns are
+        // functionally dependent and don't need to be in GROUP BY.
+        // Only columns from joined tables need to be explicitly listed.
         $baseGroupBy = [
             'matter.id',
-            'matter.uid',
-            'matter.country',
-            'matter.category_code',
-            'matter.origin',
-            'matter.container_id',
-            'matter.parent_id',
-            'matter.type_code',
-            'matter.responsible',
-            'matter.dead',
-            'matter.alt_ref',
-            'matter.caseref',
-            'matter.suffix',
             'tit1.value',
             'tit2.value',
             'tit3.value',

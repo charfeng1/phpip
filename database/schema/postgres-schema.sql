@@ -407,14 +407,14 @@ CREATE TABLE matter_actor_lnk (
     creator CHAR(16),
     updater CHAR(16),
     created_at TIMESTAMP,
-    updated_at TIMESTAMP,
-    UNIQUE(matter_id, actor_id, role, company_id)
+    updated_at TIMESTAMP
 );
 
 COMMENT ON COLUMN matter_actor_lnk.shared IS 'Indicates whether this actor link is shared across the family';
 COMMENT ON COLUMN matter_actor_lnk.actor_ref IS 'The actors reference for this matter';
 COMMENT ON COLUMN matter_actor_lnk.company_id IS 'The company the actor is working for in this role';
 
+CREATE UNIQUE INDEX uqactor_link ON matter_actor_lnk (matter_id, actor_id, role, COALESCE(company_id, 0));
 CREATE INDEX idx_mal_matter ON matter_actor_lnk(matter_id);
 CREATE INDEX idx_mal_actor ON matter_actor_lnk(actor_id);
 CREATE INDEX idx_mal_role ON matter_actor_lnk(role);
@@ -460,9 +460,10 @@ CREATE TABLE fees (
     creator VARCHAR(20),
     updater VARCHAR(20),
     created_at TIMESTAMP,
-    updated_at TIMESTAMP,
-    UNIQUE(for_country, for_category, qt, use_before)
+    updated_at TIMESTAMP
 );
+
+CREATE UNIQUE INDEX uqfees ON fees (for_country, for_category, qt, COALESCE(use_before, '9999-12-31'::DATE));
 
 COMMENT ON COLUMN fees.qt IS 'Quantity (typically renewal year)';
 COMMENT ON COLUMN fees.cost_reduced IS 'Reduced cost for small entities';
