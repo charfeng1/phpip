@@ -76,6 +76,46 @@ class Matter extends Model
     ];*/
 
     /**
+     * Get the category_code attribute, trimmed.
+     *
+     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
+     */
+    public function getCategoryCodeAttribute($value): ?string
+    {
+        return $value ? trim($value) : null;
+    }
+
+    /**
+     * Get the country attribute, trimmed.
+     *
+     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
+     */
+    public function getCountryAttribute($value): ?string
+    {
+        return $value ? trim($value) : null;
+    }
+
+    /**
+     * Get the origin attribute, trimmed.
+     *
+     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
+     */
+    public function getOriginAttribute($value): ?string
+    {
+        return $value ? trim($value) : null;
+    }
+
+    /**
+     * Get the type_code attribute, trimmed.
+     *
+     * PostgreSQL CHAR columns pad with spaces; this accessor trims them.
+     */
+    public function getTypeCodeAttribute($value): ?string
+    {
+        return $value ? trim($value) : null;
+    }
+
+    /**
      * Get all family members of this matter.
      *
      * Family members are matters that share the same caseref (family identifier).
@@ -660,19 +700,20 @@ class Matter extends Model
         $isPostgres = $driver === 'pgsql';
 
         // Status expression using JSON extraction
+        // Note: AgentName is used instead of Agent to avoid collision with the agent() method
         if ($isPostgres) {
             $statusExpr = "STRING_AGG(DISTINCT event_name.name ->> '{$baseLocale}', '|') AS Status";
             $clientExpr = "STRING_AGG(DISTINCT COALESCE(cli.display_name, clic.display_name, cli.name, clic.name), '; ') AS Client";
             $clRefExpr = "STRING_AGG(DISTINCT COALESCE(clilnk.actor_ref, cliclnk.actor_ref), '; ') AS ClRef";
             $applicantExpr = "STRING_AGG(DISTINCT COALESCE(app.display_name, app.name), '; ') AS Applicant";
-            $agentExpr = "STRING_AGG(DISTINCT COALESCE(agt.display_name, agtc.display_name, agt.name, agtc.name), '; ') AS Agent";
+            $agentExpr = "STRING_AGG(DISTINCT COALESCE(agt.display_name, agtc.display_name, agt.name, agtc.name), '; ') AS AgentName";
             $agtRefExpr = "STRING_AGG(DISTINCT COALESCE(agtlnk.actor_ref, agtclnk.actor_ref), '; ') AS AgtRef";
         } else {
             $statusExpr = "GROUP_CONCAT(DISTINCT JSON_UNQUOTE(JSON_EXTRACT(event_name.name, '$.\"$baseLocale\"')) SEPARATOR '|') AS Status";
             $clientExpr = "GROUP_CONCAT(DISTINCT COALESCE(cli.display_name, clic.display_name, cli.name, clic.name) SEPARATOR '; ') AS Client";
             $clRefExpr = "GROUP_CONCAT(DISTINCT COALESCE(clilnk.actor_ref, cliclnk.actor_ref) SEPARATOR '; ') AS ClRef";
             $applicantExpr = "GROUP_CONCAT(DISTINCT COALESCE(app.display_name, app.name) SEPARATOR '; ') AS Applicant";
-            $agentExpr = "GROUP_CONCAT(DISTINCT COALESCE(agt.display_name, agtc.display_name, agt.name, agtc.name) SEPARATOR '; ') AS Agent";
+            $agentExpr = "GROUP_CONCAT(DISTINCT COALESCE(agt.display_name, agtc.display_name, agt.name, agtc.name) SEPARATOR '; ') AS AgentName";
             $agtRefExpr = "GROUP_CONCAT(DISTINCT COALESCE(agtlnk.actor_ref, agtclnk.actor_ref) SEPARATOR '; ') AS AgtRef";
         }
 
@@ -722,7 +763,7 @@ class Matter extends Model
                 $join->on('matter.container_id', 'cliclnk.matter_id')->where(
                     [
                         ['cliclnk.role', 'CLI'],
-                        ['cliclnk.shared', 1],
+                        ['cliclnk.shared', true],
                     ]
                 );
             }
@@ -777,37 +818,37 @@ class Matter extends Model
                 $join->on('matter.id', 'reg.matter_id')->where('reg.code', 'REG');
             }
         )->leftJoin(
-            DB::raw('event status JOIN event_name ON event_name.code = status.code AND event_name.status_event = 1'),
+            DB::raw('event status JOIN event_name ON event_name.code = status.code AND event_name.status_event = true'),
             'matter.id',
             'status.matter_id'
         )->leftJoin(
-            DB::raw('event e2 JOIN event_name en2 ON e2.code = en2.code AND en2.status_event = 1'),
+            DB::raw('event e2 JOIN event_name en2 ON e2.code = en2.code AND en2.status_event = true'),
             function ($join) {
                 $join->on('status.matter_id', 'e2.matter_id')->whereColumn('status.event_date', '<', 'e2.event_date');
             }
         )->leftJoin(
             DB::raw(
-                'classifier tit1 JOIN classifier_type ct1 
-                ON tit1.type_code = ct1.code 
-                AND ct1.main_display = 1 
+                'classifier tit1 JOIN classifier_type ct1
+                ON tit1.type_code = ct1.code
+                AND ct1.main_display = true
                 AND ct1.display_order = 1'
             ),
             DB::raw('COALESCE(matter.container_id, matter.id)'),
             'tit1.matter_id'
         )->leftJoin(
             DB::raw(
-                'classifier tit2 JOIN classifier_type ct2 
-                ON tit2.type_code = ct2.code 
-                AND ct2.main_display = 1 
+                'classifier tit2 JOIN classifier_type ct2
+                ON tit2.type_code = ct2.code
+                AND ct2.main_display = true
                 AND ct2.display_order = 2'
             ),
             DB::raw('COALESCE(matter.container_id, matter.id)'),
             'tit2.matter_id'
         )->leftJoin(
             DB::raw(
-                'classifier tit3 JOIN classifier_type ct3 
-                ON tit3.type_code = ct3.code 
-                AND ct3.main_display = 1 
+                'classifier tit3 JOIN classifier_type ct3
+                ON tit3.type_code = ct3.code
+                AND ct3.main_display = true
                 AND ct3.display_order = 3'
             ),
             DB::raw('COALESCE(matter.container_id, matter.id)'),
@@ -899,6 +940,7 @@ class Matter extends Model
                             $query->whereLike('app.name', "$value%");
                             break;
                         case 'Agent':
+                        case 'AgentName':
                             $query->where(function ($q) use ($value) {
                                 $like = $value.'%';
                                 $q->where('agt.name', 'LIKE', $like)
@@ -913,7 +955,7 @@ class Matter extends Model
                             });
                             break;
                         case 'Title':
-                            $query->whereRaw('CONCAT_WS(" ", COALESCE(tit1.value, ""), COALESCE(tit2.value, ""), COALESCE(tit3.value, "")) LIKE ?', ['%'.$value.'%']);
+                            $query->whereRaw("CONCAT_WS(' ', COALESCE(tit1.value, ''), COALESCE(tit2.value, ''), COALESCE(tit3.value, '')) LIKE ?", ['%'.$value.'%']);
                             break;
                         case 'Inventor1':
                             $query->whereLike('inv.name', "$value%");
@@ -967,17 +1009,43 @@ class Matter extends Model
 
         // Do not display dead families unless desired
         if (! $include_dead) {
-            $query->whereRaw('(select count(1) from matter m where m.caseref = matter.caseref and m.dead = 0) > 0');
+            $query->whereRaw('(select count(1) from matter m where m.caseref = matter.caseref and m.dead = false) > 0');
         }
 
         // Sorting by caseref is special - set additional conditions here
+        // PostgreSQL: matter.id is the primary key, so other matter.* columns are
+        // functionally dependent and don't need to be in GROUP BY.
+        // Only columns from joined tables need to be explicitly listed.
+        $baseGroupBy = [
+            'matter.id',
+            'tit1.value',
+            'tit2.value',
+            'tit3.value',
+            'inv.name',
+            'inv.first_name',
+            'fil.event_date',
+            'fil.detail',
+            'pub.event_date',
+            'pub.detail',
+            'grt.event_date',
+            'grt.detail',
+            'reg.event_date',
+            'reg.detail',
+            'del.login',
+        ];
+
         if ($sortkey == 'caseref') {
-            $query->groupBy('matter.caseref', 'matter.container_id', 'matter.suffix', 'fil.event_date');
+            $query->groupBy($baseGroupBy);
             if ($sortdir == 'desc') {
                 $query->orderByDesc('matter.caseref');
             }
         } else {
-            $query->groupBy($sortkey, 'matter.caseref', 'matter.container_id', 'matter.suffix', 'fil.event_date')
+            // Add sortkey to group by if not already present
+            $groupBy = $baseGroupBy;
+            if (! in_array($sortkey, $groupBy)) {
+                $groupBy[] = $sortkey;
+            }
+            $query->groupBy($groupBy)
                 ->orderBy($sortkey, $sortdir);
         }
 

@@ -2,11 +2,19 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UpdateTaskDetailRenewalJson extends Migration
 {
     public function up()
     {
+        // Skip for PostgreSQL - the schema already has the function with JSONB
+        if (DB::getDriverName() === 'pgsql') {
+            Log::info('Skipping insert_recurring_renewals procedure update for PostgreSQL - schema already handles this');
+
+            return;
+        }
+
         // Update procedures to wrap RYear in JSON
         DB::statement('DROP PROCEDURE IF EXISTS insert_recurring_renewals');
         DB::statement("
@@ -61,6 +69,11 @@ class UpdateTaskDetailRenewalJson extends Migration
 
     public function down()
     {
+        // Skip for PostgreSQL
+        if (DB::getDriverName() === 'pgsql') {
+            return;
+        }
+
         // Restore original procedure
         DB::statement('DROP PROCEDURE IF EXISTS insert_recurring_renewals');
         DB::statement("
