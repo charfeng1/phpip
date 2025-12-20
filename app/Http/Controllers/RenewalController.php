@@ -1262,6 +1262,7 @@ class RenewalController extends Controller
 
         // Get list of logs
         $logs = new RenewalsLog;
+        $filters = $request->except(['_token']);
         if (! empty($filters)) {
             foreach ($filters as $key => $value) {
                 if ($value != '') {
