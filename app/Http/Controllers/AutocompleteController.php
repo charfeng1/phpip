@@ -144,9 +144,21 @@ class AutocompleteController extends Controller
      */
     public function userById(Request $request): JsonResponse
     {
+        // Validate input
+        $validated = $request->validate([
+            'term' => 'nullable|string|max:255',
+        ]);
+
+        // Escape LIKE wildcards to prevent SQL wildcard injection
+        $term = isset($validated['term'])
+            ? str_replace(['%', '_'], ['\\%', '\\_'], $validated['term'])
+            : '';
+
         $results = User::select('name as value', 'id as key')
-            ->whereLike('name', "{$request->term}%")
-            ->orWhereLike('login', "{$request->term}%")
+            ->where(function ($query) use ($term) {
+                $query->whereLike('name', "{$term}%")
+                      ->orWhereLike('login', "{$term}%");
+            })
             ->take(10)
             ->get();
 
