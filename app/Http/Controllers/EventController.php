@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Traits\HandlesAuditFields;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Controller for managing events in matters.
@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
  */
 class EventController extends Controller
 {
+    use HandlesAuditFields;
     /**
      * Store a new event in the database.
      *
@@ -34,9 +35,9 @@ class EventController extends Controller
         if ($request->filled('event_date')) {
             $request->merge(['event_date' => Carbon::createFromLocaleIsoFormat('L', app()->getLocale(), $request->event_date)]);
         }
-        $request->merge(['creator' => Auth::user()->login]);
+        $this->mergeCreator($request);
 
-        return Event::create($request->except(['_token', '_method', 'eventName']));
+        return Event::create($this->getFilteredData($request, ['eventName']));
     }
 
     /**
@@ -68,8 +69,8 @@ class EventController extends Controller
         if ($request->filled('event_date')) {
             $request->merge(['event_date' => Carbon::createFromLocaleIsoFormat('L', app()->getLocale(), $request->event_date)]);
         }
-        $request->merge(['updater' => Auth::user()->login]);
-        $event->update($request->except(['_token', '_method']));
+        $this->mergeUpdater($request);
+        $event->update($this->getFilteredData($request));
 
         return $event;
     }

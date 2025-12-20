@@ -57,10 +57,13 @@ trait HandlesAuditFields
      * Get filtered request data suitable for model creation/update.
      *
      * @param  Request  $request
+     * @param  array<string>  $additionalExcludes  Additional fields to exclude
      * @return array
      */
-    protected function getFilteredData(Request $request): array
+    protected function getFilteredData(Request $request, array $additionalExcludes = []): array
     {
-        return $request->except($this->getExcludedFields());
+        $excludes = array_merge($this->getExcludedFields(), $additionalExcludes);
+
+        return $request->except($excludes);
     }
 }

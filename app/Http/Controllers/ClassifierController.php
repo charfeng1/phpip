@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ClassifierType;
 use App\Models\Classifier;
+use App\Traits\HandlesAuditFields;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,6 +16,8 @@ use Illuminate\Support\Facades\Auth;
  */
 class ClassifierController extends Controller
 {
+    use HandlesAuditFields;
+
     /**
      * Display a listing of classifiers.
      *
@@ -59,7 +63,7 @@ class ClassifierController extends Controller
 
                 // Check if image classifier already exists for this matter
                 $existing = Classifier::where('matter_id', $data['matter_id'])
-                    ->where('type_code', 'IMG')
+                    ->where('type_code', ClassifierType::IMAGE->value)
                     ->first();
 
                 if ($existing) {
@@ -128,8 +132,8 @@ class ClassifierController extends Controller
         if ($classifier->type->main_display && ! $request->filled('value')) {
             $classifier->delete();
         } else {
-            $request->merge(['updater' => Auth::user()->login]);
-            $classifier->update($request->except(['_token', '_method']));
+            $this->mergeUpdater($request);
+            $classifier->update($this->getFilteredData($request));
         }
 
         return $classifier;
