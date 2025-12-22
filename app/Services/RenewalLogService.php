@@ -29,7 +29,7 @@ class RenewalLogService
     /**
      * Get the current user login.
      */
-    protected function getUserLogin(): string
+    public function getUserLogin(): string
     {
         if ($this->userLogin !== null) {
             return $this->userLogin;

@@ -19,11 +19,11 @@ Extracting business logic from fat controllers into dedicated service classes:
 
 | # | Service | Status | Lines Extracted | Tests |
 |---|---------|--------|-----------------|-------|
-| 1 | RenewalFeeCalculatorService | [x] Done | ~60 | 13 |
+| 1 | RenewalFeeCalculatorService | [x] Done | ~60 | 16 |
 | 2 | RenewalLogService | [x] Done | ~20 | 8 |
 | 3 | DolibarrInvoiceService | [x] Done | ~50 | 8 |
-| 4 | RenewalNotificationService | [ ] Pending | 0/240 | [ ] |
-| 5 | RenewalWorkflowService | [ ] Pending | 0/200 | [ ] |
+| 4 | RenewalNotificationService | [x] Done | ~280 | 14 |
+| 5 | RenewalWorkflowService | [x] Done | ~340 | 12 |
 
 ### Phase 3B: MatterController Services
 
@@ -37,7 +37,7 @@ Extracting business logic from fat controllers into dedicated service classes:
 
 | Controller | Original Lines | Current Lines | Target | Status |
 |------------|---------------|---------------|--------|--------|
-| RenewalController | 1,309 | 1,309 | ~400 | [ ] Pending |
+| RenewalController | 1,309 | 635 | ~400 | [x] Done (51% reduction) |
 | MatterController (storeFamily) | 305 | 305 | ~25 | [ ] Pending |
 
 ---
@@ -48,16 +48,16 @@ Extracting business logic from fat controllers into dedicated service classes:
 - [x] `app/Services/RenewalFeeCalculatorService.php`
 - [x] `app/Services/RenewalLogService.php`
 - [x] `app/Services/DolibarrInvoiceService.php`
-- [ ] `app/Services/RenewalNotificationService.php`
-- [ ] `app/Services/RenewalWorkflowService.php`
+- [x] `app/Services/RenewalNotificationService.php`
+- [x] `app/Services/RenewalWorkflowService.php`
 - [ ] `app/Services/PatentFamilyCreationService.php`
 
 ### Tests
 - [x] `tests/Unit/Services/RenewalFeeCalculatorServiceTest.php`
 - [x] `tests/Unit/Services/RenewalLogServiceTest.php`
 - [x] `tests/Unit/Services/DolibarrInvoiceServiceTest.php`
-- [ ] `tests/Unit/Services/RenewalNotificationServiceTest.php`
-- [ ] `tests/Unit/Services/RenewalWorkflowServiceTest.php`
+- [x] `tests/Unit/Services/RenewalNotificationServiceTest.php`
+- [x] `tests/Unit/Services/RenewalWorkflowServiceTest.php`
 - [ ] `tests/Unit/Services/PatentFamilyCreationServiceTest.php`
 
 ---
@@ -76,7 +76,27 @@ Extracting business logic from fat controllers into dedicated service classes:
 
 **Known Issue**: Renewal page has pre-existing database error (`MIN(boolean)` not supported in PostgreSQL). This is a schema issue unrelated to Phase 3 services.
 
-- [ ] Next: RenewalNotificationService...
+### Session 2 - December 22, 2025
+- [x] RenewalNotificationService created with 14 unit tests
+  - Email notification handling for renewal calls
+  - Support for first/warn/last notification types
+  - Testable without Laravel via constructor config injection
+- [x] RenewalWorkflowService created with 12 unit tests
+  - State machine for renewal workflow transitions
+  - All step and invoice step constants
+  - Methods: markToPay, markDone, markReceipt, markClosed, markAbandoned, markLapsed, etc.
+- [x] RenewalLogService modified (getUserLogin now public)
+- [x] All 50 Phase 3 unit tests pass
+
+- [x] RenewalController refactored to use all 5 services
+  - Reduced from 1,309 lines to 635 lines (51% reduction)
+  - All workflow methods now use RenewalWorkflowService
+  - All notification methods now use RenewalNotificationService
+  - All fee calculations now use RenewalFeeCalculatorService
+  - All Dolibarr integration now uses DolibarrInvoiceService
+  - Removed duplicate private methods
+
+- [ ] Next: PatentFamilyCreationService for MatterController
 
 ---
 
