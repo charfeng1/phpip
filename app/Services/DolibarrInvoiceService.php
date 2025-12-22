@@ -14,6 +14,21 @@ use Illuminate\Support\Collection;
  */
 class DolibarrInvoiceService
 {
+    /**
+     * Default timeout for API requests in seconds.
+     */
+    private const CURL_TIMEOUT = 30;
+
+    /**
+     * Payment condition ID for Dolibarr invoices.
+     */
+    private const PAYMENT_CONDITION_ID = 1;
+
+    /**
+     * Payment mode ID for Dolibarr invoices.
+     */
+    private const PAYMENT_MODE_ID = 2;
+
     protected ?string $apiKey;
 
     protected ?string $baseUrl;
@@ -58,16 +73,31 @@ class DolibarrInvoiceService
      */
     public function findClient(string $clientName): ?array
     {
+        // Sanitize client name to prevent SQL injection
+        // Remove characters that could break out of the Dolibarr SQL filter syntax
+        $sanitizedName = $this->sanitizeForDolibarrFilter($clientName);
+
         $curl = curl_init();
         $httpheader = ['DOLAPIKEY: '.$this->apiKey];
-        $data = ['sqlfilters' => '(t.nom:like:"'.$clientName.'%")'];
+        $data = ['sqlfilters' => '(t.nom:like:"'.$sanitizedName.'%")'];
         $url = $this->baseUrl.'/thirdparties?'.http_build_query($data);
 
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $httpheader);
+        curl_setopt($curl, CURLOPT_TIMEOUT, self::CURL_TIMEOUT);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
+
         $result = curl_exec($curl);
+        $error = curl_error($curl);
         curl_close($curl);
+
+        if ($result === false) {
+            \Log::error('Dolibarr API request failed: '.$error);
+
+            return null;
+        }
 
         $response = json_decode($result, true);
 
@@ -76,6 +106,21 @@ class DolibarrInvoiceService
         }
 
         return $response[0] ?? null;
+    }
+
+    /**
+     * Sanitize a string for use in Dolibarr SQL filter syntax.
+     *
+     * Removes characters that could break out of the filter or enable injection.
+     *
+     * @param string $value The value to sanitize
+     * @return string The sanitized value
+     */
+    protected function sanitizeForDolibarrFilter(string $value): string
+    {
+        // Remove double quotes, parentheses, colons, and backslashes
+        // which could break out of the Dolibarr filter syntax: (t.nom:like:"value%")
+        return preg_replace('/["\(\):;\\\\]/', '', $value);
     }
 
     /**
@@ -99,10 +144,24 @@ class DolibarrInvoiceService
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $httpheader);
+        curl_setopt($curl, CURLOPT_TIMEOUT, self::CURL_TIMEOUT);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
 
         $result = curl_exec($curl);
+        $error = curl_error($curl);
         $status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
         curl_close($curl);
+
+        if ($result === false) {
+            \Log::error('Dolibarr invoice creation failed: '.$error);
+
+            return [
+                'success' => false,
+                'data' => null,
+                'error' => 'API request failed: '.$error,
+            ];
+        }
 
         $response = json_decode($result, true);
 
@@ -165,11 +224,11 @@ class DolibarrInvoiceService
         $desc .= Carbon::parse($renewal->event_date)->isoFormat('LL');
         $desc .= ' en '.$renewal->country_FR;
 
-        if ($renewal->title != '') {
+        if ($renewal->title !== '') {
             $desc .= "\nSujet : $renewal->title";
         }
 
-        if ($renewal->client_ref != '') {
+        if ($renewal->client_ref !== '') {
             $desc .= " ($renewal->client_ref)";
         }
 
@@ -196,7 +255,7 @@ class DolibarrInvoiceService
 
             $desc = $this->buildLineDescription($renewal);
 
-            if ($cost != 0) {
+            if ($cost !== 0.0) {
                 $desc .= "\nHonoraires pour la surveillance et le paiement";
             } else {
                 $desc .= "\nHonoraires et taxe";
@@ -215,7 +274,7 @@ class DolibarrInvoiceService
             ];
 
             // Cost line (no VAT) - separate line for official fees
-            if ($cost != 0) {
+            if ($cost !== 0.0) {
                 $lines[] = [
                     'product_type' => 1,
                     'desc' => 'Taxe',
@@ -244,8 +303,8 @@ class DolibarrInvoiceService
         return [
             'socid' => $socId,
             'date' => time(),
-            'cond_reglement_id' => 1,
-            'mode_reglement_id' => 2,
+            'cond_reglement_id' => self::PAYMENT_CONDITION_ID,
+            'mode_reglement_id' => self::PAYMENT_MODE_ID,
             'lines' => $lines,
             'fk_account' => $this->fkAccount,
         ];

@@ -185,4 +185,53 @@ class DolibarrInvoiceServiceTest extends TestCase
         $this->assertEquals(0, $result['count']);
         $this->assertEquals('No renewal selected.', $result['error']);
     }
+
+    public function test_sanitize_for_dolibarr_filter_removes_dangerous_characters(): void
+    {
+        // Use reflection to test protected method
+        $reflection = new \ReflectionClass($this->service);
+        $method = $reflection->getMethod('sanitizeForDolibarrFilter');
+        $method->setAccessible(true);
+
+        // Test removing double quotes that could break out of filter
+        $this->assertEquals('Test Client', $method->invoke($this->service, 'Test "Client"'));
+
+        // Test removing parentheses
+        $this->assertEquals('Test Client', $method->invoke($this->service, 'Test (Client)'));
+
+        // Test removing colons - note: characters are removed without leaving space
+        $this->assertEquals('TestClient', $method->invoke($this->service, 'Test:Client'));
+
+        // Test removing semicolons
+        $this->assertEquals('TestClient', $method->invoke($this->service, 'Test;Client'));
+
+        // Test removing backslashes
+        $this->assertEquals('TestClient', $method->invoke($this->service, 'Test\\Client'));
+    }
+
+    public function test_sanitize_for_dolibarr_filter_preserves_safe_characters(): void
+    {
+        $reflection = new \ReflectionClass($this->service);
+        $method = $reflection->getMethod('sanitizeForDolibarrFilter');
+        $method->setAccessible(true);
+
+        // Normal business names should pass through
+        $this->assertEquals('Acme Corp', $method->invoke($this->service, 'Acme Corp'));
+        $this->assertEquals("O'Brien & Associates", $method->invoke($this->service, "O'Brien & Associates"));
+        $this->assertEquals('Müller GmbH', $method->invoke($this->service, 'Müller GmbH'));
+        $this->assertEquals('Test-Client_123', $method->invoke($this->service, 'Test-Client_123'));
+    }
+
+    public function test_sanitize_for_dolibarr_filter_prevents_sql_injection(): void
+    {
+        $reflection = new \ReflectionClass($this->service);
+        $method = $reflection->getMethod('sanitizeForDolibarrFilter');
+        $method->setAccessible(true);
+
+        // SQL injection attempts should be neutralized (dangerous chars removed)
+        // Input: 'Test%"); DROP TABLE thirdparties;--' - removes ", ), ;
+        $this->assertEquals('Test% DROP TABLE thirdparties--', $method->invoke($this->service, 'Test%"); DROP TABLE thirdparties;--'));
+        // Input with backslash - removes backslash
+        $this->assertEquals("Test%' OR '1'='1", $method->invoke($this->service, "Test%\\' OR \\'1\\'=\\'1"));
+    }
 }
