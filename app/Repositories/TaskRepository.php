@@ -220,6 +220,15 @@ class TaskRepository
     }
 
     /**
+     * Whitelist of allowed renewal filter keys to prevent SQL injection.
+     * Only these keys can be used in filter queries.
+     */
+    protected const ALLOWED_RENEWAL_FILTER_KEYS = [
+        'Title', 'Case', 'Qt', 'Fromdate', 'Untildate', 'Name', 'Country',
+        'grace', 'step', 'invoice_step', 'my_renewals', 'dead',
+    ];
+
+    /**
      * Apply filters to a renewal query.
      *
      * Extracted from RenewalController::index() for reusability and testability.
@@ -232,6 +241,11 @@ class TaskRepository
     {
         foreach ($filters as $key => $value) {
             if ($value === '' || $value === null) {
+                continue;
+            }
+
+            // Skip unknown filter keys to prevent SQL injection
+            if (! in_array($key, self::ALLOWED_RENEWAL_FILTER_KEYS, true)) {
                 continue;
             }
 
@@ -252,7 +266,7 @@ class TaskRepository
                 'invoice_step' => $query->where('invoice_step', $value),
                 'my_renewals' => $value ? $query->where('task.assigned_to', Auth::user()->login) : $query,
                 'dead' => $value == 0 ? $query->where('matter.dead', 0) : $query,
-                default => $query->whereLike($key, "{$value}%"),
+                default => $query, // Unreachable due to whitelist check, but required for match exhaustiveness
             };
         }
 

@@ -357,6 +357,17 @@ class MatterRepository
     }
 
     /**
+     * Whitelist of allowed filter keys to prevent SQL injection.
+     * Only these keys can be used in filter queries.
+     */
+    protected const ALLOWED_FILTER_KEYS = [
+        'Ref', 'Cat', 'country', 'Status', 'Status_date', 'Client', 'ClRef',
+        'Applicant', 'Agent', 'AgentName', 'AgtRef', 'Title', 'Inventor1',
+        'Filed', 'FilNo', 'Published', 'PubNo', 'Granted', 'GrtNo',
+        'responsible', 'team', 'Ctnr', 'origin', 'type_code', 'dead',
+    ];
+
+    /**
      * Apply filters to the query.
      *
      * @param Builder $query
@@ -375,6 +386,11 @@ class MatterRepository
 
         foreach ($filters as $key => $value) {
             if ($value === '' || $value === null) {
+                continue;
+            }
+
+            // Skip unknown filter keys to prevent SQL injection
+            if (! in_array($key, self::ALLOWED_FILTER_KEYS, true)) {
                 continue;
             }
 
@@ -400,7 +416,10 @@ class MatterRepository
                 'responsible' => $query->where(fn ($q) => $q->where('matter.responsible', $value)->orWhere('del.login', $value)),
                 'team' => $this->applyTeamFilter($query, $value),
                 'Ctnr' => $value ? $query->whereNull('container_id') : $query,
-                default => $query->whereLike($key, "$value%"),
+                'origin' => $query->whereLike('matter.origin', "$value%"),
+                'type_code' => $query->whereLike('matter.type_code', "$value%"),
+                'dead' => $query->where('matter.dead', (bool) $value),
+                default => $query, // Unreachable due to whitelist check, but required for match exhaustiveness
             };
         }
 
