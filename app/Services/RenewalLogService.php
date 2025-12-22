@@ -35,7 +35,7 @@ class RenewalLogService
             return $this->userLogin;
         }
 
-        return Auth::user()->login ?? 'system';
+        return Auth::user()?->login ?? 'system';
     }
 
     /**
@@ -87,10 +87,9 @@ class RenewalLogService
     /**
      * Log multiple renewal transitions in a batch.
      *
-     * @param  array  $transitions  Array of transition data
-     * @param  int  $jobId  The job ID for grouping
+     * @param  array  $transitions  Array of transition data (must include job_id in each entry)
      */
-    public function logBatch(array $transitions, int $jobId): void
+    public function logBatch(array $transitions): void
     {
         if (empty($transitions)) {
             return;

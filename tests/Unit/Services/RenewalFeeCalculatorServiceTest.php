@@ -219,4 +219,51 @@ class RenewalFeeCalculatorServiceTest extends TestCase
 
         $this->assertEquals(145.0, $defaultFee);
     }
+
+    public function test_grace_period_factor_applies_when_paid_after_due_date(): void
+    {
+        // Create service with 1.5 grace period factor
+        $service = new RenewalFeeCalculatorService(145.0, 1.5);
+
+        $renewal = (object) [
+            'grace_period' => true,
+            'done_date' => '2025-01-15', // After due date
+            'due_date' => '2025-01-01',
+        ];
+
+        $factor = $service->getGracePeriodFactor($renewal);
+
+        $this->assertEquals(1.5, $factor);
+    }
+
+    public function test_grace_period_factor_not_applied_when_paid_before_due_date(): void
+    {
+        // Create service with 1.5 grace period factor
+        $service = new RenewalFeeCalculatorService(145.0, 1.5);
+
+        $renewal = (object) [
+            'grace_period' => true,
+            'done_date' => '2024-12-20', // Before due date
+            'due_date' => '2025-01-01',
+        ];
+
+        $factor = $service->getGracePeriodFactor($renewal);
+
+        $this->assertEquals(1.0, $factor); // No factor applied
+    }
+
+    public function test_grace_period_factor_not_applied_when_not_in_grace_period(): void
+    {
+        $service = new RenewalFeeCalculatorService(145.0, 1.5);
+
+        $renewal = (object) [
+            'grace_period' => false,
+            'done_date' => '2025-01-15', // After due date but not in grace
+            'due_date' => '2025-01-01',
+        ];
+
+        $factor = $service->getGracePeriodFactor($renewal);
+
+        $this->assertEquals(1.0, $factor);
+    }
 }

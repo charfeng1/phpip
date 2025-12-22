@@ -308,7 +308,7 @@ class DolibarrInvoiceService
 
         return [
             'success' => true,
-            'count' => $renewals->count(),
+            'count' => $invoiceCount,
             'error' => null,
         ];
     }

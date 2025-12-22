@@ -130,7 +130,7 @@ class RenewalFeeCalculatorService
     public function getGracePeriodFactor(object $renewal): float
     {
         if ($renewal->grace_period && $renewal->done_date !== null
-            && strtotime($renewal->done_date) < strtotime($renewal->due_date)) {
+            && strtotime($renewal->done_date) > strtotime($renewal->due_date)) {
             return $this->gracePeriodFactor;
         }
 
