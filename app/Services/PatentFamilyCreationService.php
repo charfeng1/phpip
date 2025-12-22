@@ -244,13 +244,15 @@ class PatentFamilyCreationService
     protected function processContainerMember(Matter $matter, array $app, int $clientId): void
     {
         // Create priority filings for non-self priorities
-        foreach ($app['pri'] as $pri) {
-            if ($pri['number'] !== $app['app']['number']) {
-                $matter->events()->create([
-                    'code' => EventCode::PRIORITY->value,
-                    'detail' => $pri['country'].$pri['number'],
-                    'event_date' => $pri['date'],
-                ]);
+        if (array_key_exists('pri', $app)) {
+            foreach ($app['pri'] as $pri) {
+                if ($pri['number'] !== $app['app']['number']) {
+                    $matter->events()->create([
+                        'code' => EventCode::PRIORITY->value,
+                        'detail' => $pri['country'].$pri['number'],
+                        'event_date' => $pri['date'],
+                    ]);
+                }
             }
         }
 
@@ -372,24 +374,26 @@ class PatentFamilyCreationService
      */
     protected function processNonContainerMember(Matter $matter, array $app, array $matterIdMap): void
     {
-        foreach ($app['pri'] as $pri) {
-            // Skip self-priority
-            if ($pri['number'] === $app['app']['number']) {
-                continue;
-            }
+        if (array_key_exists('pri', $app)) {
+            foreach ($app['pri'] as $pri) {
+                // Skip self-priority
+                if ($pri['number'] === $app['app']['number']) {
+                    continue;
+                }
 
-            if (array_key_exists($pri['number'], $matterIdMap)) {
-                // Priority application is in the family
-                $matter->events()->create([
-                    'code' => EventCode::PRIORITY->value,
-                    'alt_matter_id' => $matterIdMap[$pri['number']],
-                ]);
-            } else {
-                $matter->events()->create([
-                    'code' => EventCode::PRIORITY->value,
-                    'detail' => $pri['country'].$pri['number'],
-                    'event_date' => $pri['date'],
-                ]);
+                if (array_key_exists($pri['number'], $matterIdMap)) {
+                    // Priority application is in the family
+                    $matter->events()->create([
+                        'code' => EventCode::PRIORITY->value,
+                        'alt_matter_id' => $matterIdMap[$pri['number']],
+                    ]);
+                } else {
+                    $matter->events()->create([
+                        'code' => EventCode::PRIORITY->value,
+                        'detail' => $pri['country'].$pri['number'],
+                        'event_date' => $pri['date'],
+                    ]);
+                }
             }
         }
     }
