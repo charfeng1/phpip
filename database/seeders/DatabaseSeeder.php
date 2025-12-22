@@ -11,12 +11,13 @@ class DatabaseSeeder extends Seeder
         $this->call(CountryTableSeeder::class);
 
         // Translatable table seeders (insert multi-language JSON directly)
-        $this->call(EventNameTableSeeder::class);
-        $this->call(MatterCategoryTableSeeder::class);
-        $this->call(ClassifierTypeTableSeeder::class);
+        // Order matters due to foreign key constraints
+        $this->call(MatterCategoryTableSeeder::class);  // Must be before EventName (FK)
         $this->call(MatterTypeTableSeeder::class);
         $this->call(ActorRoleTableSeeder::class);
-        $this->call(TaskRulesTableSeeder::class);
+        $this->call(ClassifierTypeTableSeeder::class);
+        $this->call(EventNameTableSeeder::class);       // Depends on MatterCategory
+        $this->call(TaskRulesTableSeeder::class);       // Depends on EventName
 
         $this->call(ActorTableSeeder::class);
         $this->call(FeesTableSeeder::class);
