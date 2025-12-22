@@ -14,6 +14,7 @@ use App\Models\Country;
 use App\Models\Matter;
 use App\Models\MatterType;
 use App\Models\User;
+use App\Repositories\MatterRepository;
 use App\Services\DocumentMergeService;
 use App\Services\MatterExportService;
 use App\Services\OPSService;
@@ -36,6 +37,8 @@ class MatterController extends Controller
 
     protected MatterExportService $matterExportService;
 
+    protected MatterRepository $matterRepository;
+
     protected OPSService $opsService;
 
     protected PatentFamilyCreationService $patentFamilyService;
@@ -45,17 +48,20 @@ class MatterController extends Controller
      *
      * @param DocumentMergeService $documentMergeService Service for merging matter data into documents.
      * @param MatterExportService $matterExportService Service for exporting matters to CSV.
+     * @param MatterRepository $matterRepository Repository for matter queries.
      * @param OPSService $opsService Service for interacting with EPO OPS API.
      * @param PatentFamilyCreationService $patentFamilyService Service for creating patent families from OPS.
      */
     public function __construct(
         DocumentMergeService $documentMergeService,
         MatterExportService $matterExportService,
+        MatterRepository $matterRepository,
         OPSService $opsService,
         PatentFamilyCreationService $patentFamilyService
     ) {
         $this->documentMergeService = $documentMergeService;
         $this->matterExportService = $matterExportService;
+        $this->matterRepository = $matterRepository;
         $this->opsService = $opsService;
         $this->patentFamilyService = $patentFamilyService;
     }
@@ -80,7 +86,7 @@ class MatterController extends Controller
                 'include_dead',
             ]);
 
-        $query = Matter::filter(
+        $query = $this->matterRepository->filter(
             $request->input('sortkey', 'matter.id'),
             $request->input('sortdir', 'desc'),
             $filters,
@@ -119,15 +125,13 @@ class MatterController extends Controller
         $familyIds = $family->pluck('id')->push($matter->id)->unique();
 
         // Get all external matters claiming priority to any family member (by PRI event)
-        $externalPriorityMatters = \App\Models\Matter::whereHas('events', function ($q) use ($familyIds) {
-            $q->where('code', EventCode::PRIORITY->value)->whereIn('alt_matter_id', $familyIds);
-        })->get();
+        $externalPriorityMatters = $this->matterRepository->getExternalPriorityMatters($familyIds);
 
         // For retrolink: if this matter is an external matter claiming priority to a local matter, find the local matter
         $retrolink = null;
         $priEvent = $matter->events->where('code', EventCode::PRIORITY->value)->first();
         if ($priEvent && $priEvent->alt_matter_id) {
-            $retrolink = \App\Models\Matter::find($priEvent->alt_matter_id);
+            $retrolink = $this->matterRepository->find($priEvent->alt_matter_id);
         }
 
         return view('matter.show', compact('matter', 'family', 'externalPriorityMatters', 'retrolink'));
@@ -514,9 +518,8 @@ class MatterController extends Controller
             ]
         );
 
-        // @TODO rewrite the filter method to use the new query builder
         // Retrieve the filtered matters and convert them to an array.
-        $export = Matter::filter(
+        $export = $this->matterRepository->filter(
             $request->input('sortkey', 'caseref'),
             $request->input('sortdir', 'asc'),
             $filters,

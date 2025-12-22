@@ -307,7 +307,7 @@ app/Services/
 
 **Total: 6 services, 73 unit tests, 42% controller LOC reduction**
 
-### Phase 4: Repository Pattern [~] IN PROGRESS (Started December 22, 2025)
+### Phase 4: Repository Pattern [x] COMPLETED (December 22, 2025)
 
 #### Phase 4A: TaskRepository [x] COMPLETED
 1. [x] Create `TaskRepository` with `renewals()` method (extracted 130 lines from Task.php)
@@ -321,14 +321,26 @@ app/Services/
 - `app/Repositories/TaskRepository.php` (280 lines)
 - `tests/Unit/Repositories/TaskRepositoryTest.php` (12 tests)
 
-#### Phase 4B: MatterRepository [ ] PENDING
-1. [ ] Create `MatterRepository` with filter logic (362 lines to extract)
-2. [ ] Move `Matter::filter()` to repository
-3. [ ] Update MatterController to use repository
+#### Phase 4B: MatterRepository [x] COMPLETED
+1. [x] Create `MatterRepository` with filter logic (470 lines extracted from Matter.php)
+2. [x] Move `Matter::filter()` to repository with delegation
+3. [x] Update MatterController to inject and use repository
+4. [x] Add 12 unit tests for MatterRepository
 
-#### Phase 4C: ActorRepository [ ] PENDING (Low Priority)
-1. [ ] Create `ActorRepository` for actor lookups
-2. [ ] Extract phonetic matching logic
+**Files Created:**
+- `app/Repositories/MatterRepository.php` (470 lines)
+- `tests/Unit/Repositories/MatterRepositoryTest.php` (12 tests)
+
+#### Phase 4C: ActorRepository [x] COMPLETED
+1. [x] Create `ActorRepository` for actor lookups (207 lines)
+2. [x] Extract phonetic matching logic and common queries
+3. [x] Add 17 unit tests for ActorRepository
+
+**Files Created:**
+- `app/Repositories/ActorRepository.php` (207 lines)
+- `tests/Unit/Repositories/ActorRepositoryTest.php` (17 tests)
+
+**Total: 3 repositories, 41 unit tests**
 
 ### Phase 5: View Components [ ] PENDING
 1. [ ] Create `ListWithPanel` Blade component
@@ -347,7 +359,7 @@ app/Services/
 | Magic pagination numbers | Low | Low | Low | **P4** | [x] DONE |
 | Fat controllers (>900 lines) | Critical | High | High | **P1** | [x] DONE |
 | Missing Form Requests | High | Medium | High | **P1** | [~] 8 of 44 |
-| God model (Matter.php) | Critical | High | High | **P2** | [ ] PENDING |
+| God model (Matter.php) | Critical | High | High | **P2** | [x] Repository extracted |
 | Repeated CRUD patterns | High | Medium | Medium | **P2** | [~] 4 of 15 |
 | Switch statement complexity | Medium | Medium | Medium | **P2** | [~] 1 of 7 |
 | Inconsistent JSON responses | Medium | Low | Medium | **P3** | [~] Trait created |
@@ -363,15 +375,15 @@ app/Services/
 | Hardcoded magic strings | 150+ | ~50 remaining | [~] |
 | Large switch statements (>10 cases) | 7 | 6 remaining | [~] |
 | Lines in largest controller | 1,308 | 650 (MatterController) | [x] |
-| Lines in largest model | 1,241 | 1,241 | [ ] |
+| Lines in largest model | 1,241 | ~850 (filter logic extracted) | [x] |
 | Form Request classes | 2 | 10 | [~] |
 | Controllers with traits | 0 | 4 | [~] |
 | Enums created | 0 | 5 | [x] |
 | Config files for magic values | 0 | 2 | [x] |
 | Services extracted (Phase 3) | 0 | 6 | [x] |
 | Unit tests added (Phase 3) | 0 | 73 | [x] |
-| Repositories created (Phase 4) | 0 | 1 | [~] |
-| Unit tests added (Phase 4) | 0 | 12 | [~] |
+| Repositories created (Phase 4) | 0 | 3 | [x] |
+| Unit tests added (Phase 4) | 0 | 41 | [x] |
 
 ---
 

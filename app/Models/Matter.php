@@ -660,10 +660,10 @@ class Matter extends Model
     /**
      * Build a filtered query for matters with complex joins and filtering.
      *
-     * Constructs a comprehensive query that joins matters with their actors, events, and classifiers
-     * to provide a flattened view suitable for display in matter lists. Implements role-based
-     * access control to restrict clients to their own matters.
+     * This method delegates to MatterRepository for the actual query building.
+     * Kept for backwards compatibility with existing code.
      *
+     * @deprecated Use MatterRepository::filter() instead for new code
      * @param string $sortkey The column to sort by (default: 'id')
      * @param string $sortdir The sort direction 'asc' or 'desc' (default: 'desc')
      * @param array $multi_filter Associative array of filter criteria keyed by column name
@@ -673,404 +673,35 @@ class Matter extends Model
      */
     public static function filter($sortkey = 'id', $sortdir = 'desc', $multi_filter = [], $display_with = false, $include_dead = false)
     {
-        $locale = app()->getLocale();
-        // Normalize to the base locale (e.g., 'en' from 'en_US')
-        $baseLocale = preg_replace('/[^a-zA-Z]/', '', substr($locale, 0, 2));
-
-        // Database-agnostic expressions
-        $driver = DB::connection()->getDriverName();
-        $isPostgres = $driver === 'pgsql';
-
-        // Status expression using JSON extraction
-        // Note: AgentName is used instead of Agent to avoid collision with the agent() method
-        if ($isPostgres) {
-            $statusExpr = "STRING_AGG(DISTINCT event_name.name ->> '{$baseLocale}', '|') AS Status";
-            $clientExpr = "STRING_AGG(DISTINCT COALESCE(cli.display_name, clic.display_name, cli.name, clic.name), '; ') AS Client";
-            $clRefExpr = "STRING_AGG(DISTINCT COALESCE(clilnk.actor_ref, cliclnk.actor_ref), '; ') AS ClRef";
-            $applicantExpr = "STRING_AGG(DISTINCT COALESCE(app.display_name, app.name), '; ') AS Applicant";
-            $agentExpr = "STRING_AGG(DISTINCT COALESCE(agt.display_name, agtc.display_name, agt.name, agtc.name), '; ') AS AgentName";
-            $agtRefExpr = "STRING_AGG(DISTINCT COALESCE(agtlnk.actor_ref, agtclnk.actor_ref), '; ') AS AgtRef";
-        } else {
-            $statusExpr = "GROUP_CONCAT(DISTINCT JSON_UNQUOTE(JSON_EXTRACT(event_name.name, '$.\"$baseLocale\"')) SEPARATOR '|') AS Status";
-            $clientExpr = "GROUP_CONCAT(DISTINCT COALESCE(cli.display_name, clic.display_name, cli.name, clic.name) SEPARATOR '; ') AS Client";
-            $clRefExpr = "GROUP_CONCAT(DISTINCT COALESCE(clilnk.actor_ref, cliclnk.actor_ref) SEPARATOR '; ') AS ClRef";
-            $applicantExpr = "GROUP_CONCAT(DISTINCT COALESCE(app.display_name, app.name) SEPARATOR '; ') AS Applicant";
-            $agentExpr = "GROUP_CONCAT(DISTINCT COALESCE(agt.display_name, agtc.display_name, agt.name, agtc.name) SEPARATOR '; ') AS AgentName";
-            $agtRefExpr = "GROUP_CONCAT(DISTINCT COALESCE(agtlnk.actor_ref, agtclnk.actor_ref) SEPARATOR '; ') AS AgtRef";
-        }
-
-        $query = Matter::select(
-            'matter.uid AS Ref',
-            'matter.country AS country',
-            'matter.category_code AS Cat',
-            'matter.origin',
-            DB::raw($statusExpr),
-            DB::raw('MIN(status.event_date) AS Status_date'),
-            DB::raw($clientExpr),
-            DB::raw($clRefExpr),
-            DB::raw($applicantExpr),
-            DB::raw($agentExpr),
-            DB::raw($agtRefExpr),
-            'tit1.value AS Title',
-            DB::raw('COALESCE(tit2.value, tit1.value) AS Title2'),
-            'tit3.value AS Title3',
-            DB::raw("CONCAT_WS(' ', inv.name, inv.first_name) as Inventor1"),
-            'fil.event_date AS Filed',
-            'fil.detail AS FilNo',
-            'pub.event_date AS Published',
-            'pub.detail AS PubNo',
-            DB::raw('COALESCE(grt.event_date, reg.event_date) AS Granted'),
-            DB::raw('COALESCE(grt.detail, reg.detail) AS GrtNo'),
-            'matter.id',
-            'matter.container_id',
-            'matter.parent_id',
-            'matter.type_code',
-            'matter.responsible',
-            'del.login AS delegate',
-            'matter.dead',
-            DB::raw('CASE WHEN matter.container_id IS NULL THEN 1 ELSE 0 END AS Ctnr'),
-            'matter.alt_ref AS Alt_Ref'
-        )->join(
-            'matter_category',
-            'matter.category_code',
-            'matter_category.code'
-        )->leftJoin(
-            DB::raw('matter_actor_lnk clilnk JOIN actor cli ON cli.id = clilnk.actor_id'),
-            function ($join) {
-                $join->on('matter.id', 'clilnk.matter_id')->where('clilnk.role', ActorRole::CLIENT->value);
-            }
-        )->leftJoin(
-            DB::raw('matter_actor_lnk cliclnk JOIN actor clic ON clic.id = cliclnk.actor_id'),
-            function ($join) {
-                $join->on('matter.container_id', 'cliclnk.matter_id')->where(
-                    [
-                        ['cliclnk.role', ActorRole::CLIENT->value],
-                        ['cliclnk.shared', true],
-                    ]
-                );
-            }
-        )->leftJoin(
-            DB::raw('matter_actor_lnk agtlnk JOIN actor agt ON agt.id = agtlnk.actor_id'),
-            function ($join) {
-                $join->on('matter.id', 'agtlnk.matter_id')->where(
-                    [
-                        ['agtlnk.role', ActorRole::AGENT->value],
-                        ['agtlnk.display_order', 1],
-                    ]
-                );
-            }
-        )->leftJoin(
-            DB::raw('matter_actor_lnk agtclnk JOIN actor agtc ON agtc.id = agtclnk.actor_id'),
-            function ($join) {
-                $join->on('matter.container_id', 'agtclnk.matter_id')->where(
-                    [
-                        ['agtclnk.role', ActorRole::AGENT->value],
-                        ['agtclnk.shared', 1],
-                    ]
-                );
-            }
-        )->leftJoin(
-            DB::raw('matter_actor_lnk applnk JOIN actor app ON app.id = applnk.actor_id'),
-            function ($join) {
-                $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'applnk.matter_id')->where('applnk.role', ActorRole::APPLICANT->value);
-            }
-        )->leftJoin(
-            DB::raw('matter_actor_lnk dellnk JOIN actor del ON del.id = dellnk.actor_id'),
-            function ($join) {
-                $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'dellnk.matter_id')->where('dellnk.role', ActorRole::DELEGATE->value);
-            }
-        )->leftJoin(
-            'event AS fil',
-            function ($join) {
-                $join->on('matter.id', 'fil.matter_id')->where('fil.code', EventCode::FILING->value);
-            }
-        )->leftJoin(
-            'event AS pub',
-            function ($join) {
-                $join->on('matter.id', 'pub.matter_id')->where('pub.code', EventCode::PUBLICATION->value);
-            }
-        )->leftJoin(
-            'event AS grt',
-            function ($join) {
-                $join->on('matter.id', 'grt.matter_id')->where('grt.code', EventCode::GRANT->value);
-            }
-        )->leftJoin(
-            'event AS reg',
-            function ($join) {
-                $join->on('matter.id', 'reg.matter_id')->where('reg.code', EventCode::REGISTRATION->value);
-            }
-        )->leftJoin(
-            DB::raw('event status JOIN event_name ON event_name.code = status.code AND event_name.status_event = true'),
-            'matter.id',
-            'status.matter_id'
-        )->leftJoin(
-            DB::raw('event e2 JOIN event_name en2 ON e2.code = en2.code AND en2.status_event = true'),
-            function ($join) {
-                $join->on('status.matter_id', 'e2.matter_id')->whereColumn('status.event_date', '<', 'e2.event_date');
-            }
-        )->leftJoin(
-            DB::raw(
-                'classifier tit1 JOIN classifier_type ct1
-                ON tit1.type_code = ct1.code
-                AND ct1.main_display = true
-                AND ct1.display_order = 1'
-            ),
-            DB::raw('COALESCE(matter.container_id, matter.id)'),
-            'tit1.matter_id'
-        )->leftJoin(
-            DB::raw(
-                'classifier tit2 JOIN classifier_type ct2
-                ON tit2.type_code = ct2.code
-                AND ct2.main_display = true
-                AND ct2.display_order = 2'
-            ),
-            DB::raw('COALESCE(matter.container_id, matter.id)'),
-            'tit2.matter_id'
-        )->leftJoin(
-            DB::raw(
-                'classifier tit3 JOIN classifier_type ct3
-                ON tit3.type_code = ct3.code
-                AND ct3.main_display = true
-                AND ct3.display_order = 3'
-            ),
-            DB::raw('COALESCE(matter.container_id, matter.id)'),
-            'tit3.matter_id'
-        )->where('e2.matter_id', null);
-
-        if (array_key_exists('Inventor1', $multi_filter)) {
-            $query->leftJoin(
-                DB::raw('matter_actor_lnk invlnk JOIN actor inv ON inv.id = invlnk.actor_id'),
-                function ($join) {
-                    $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'invlnk.matter_id')->where('invlnk.role', ActorRole::INVENTOR->value);
-                }
-            );
-        } else {
-            $query->leftJoin(
-                DB::raw('matter_actor_lnk invlnk JOIN actor inv ON inv.id = invlnk.actor_id'),
-                function ($join) {
-                    $join->on(DB::raw('COALESCE(matter.container_id, matter.id)'), 'invlnk.matter_id')->where(
-                        [
-                            ['invlnk.role', ActorRole::INVENTOR->value],
-                            ['invlnk.display_order', 1],
-                        ]
-                    );
-                }
-            );
-        }
-
-        $authUserRole = Auth::user()->default_role;
-        $authUserId = Auth::user()->id;
-
-        if ($display_with) {
-            $query->where('matter_category.display_with', $display_with);
-        }
-
-        // When the user is a client or no role is defined, limit the matters to client's own matters
-        if ($authUserRole == UserRole::CLIENT->value || empty($authUserRole)) {
-            $query->where(
-                function ($q) use ($authUserId) {
-                    $q->where('cli.id', $authUserId)
-                        ->orWhere('clic.id', $authUserId);
-                }
-            );
-        }
-
-        if (! empty($multi_filter)) {
-            // When no filters are set, sorting is done by descending matter id's to see the most recent matters first.
-            // As soon as a filter is set, sorting is done by default by caseref instead of by id, ascending.
-            if ($sortkey == 'id') {
-                $sortkey = 'caseref';
-                $sortdir = 'asc';
-            }
-
-            foreach ($multi_filter as $key => $value) {
-                if ($value != '') {
-                    switch ($key) {
-                        case 'Ref':
-                            $query->where(function ($q) use ($value) {
-                                $q->whereLike('uid', "$value%")
-                                    ->orWhereLike('alt_ref', "$value%");
-                            });
-                            break;
-                        case 'Cat':
-                            $query->whereLike('category_code', "$value%");
-                            break;
-                        case 'country':
-                            $query->whereLike('matter.country', "$value%");
-                            break;
-                        case 'Status':
-                            $query->whereJsonLike('event_name.name', $value);
-                            break;
-                        case 'Status_date':
-                            $query->whereLike('status.event_date', "$value%");
-                            break;
-                        case 'Client':
-                            $query->where(function ($q) use ($value) {
-                                $like = $value.'%';
-                                $q->where('cli.name', 'LIKE', $like)
-                                    ->orWhere('clic.name', 'LIKE', $like);
-                            });
-                            break;
-                        case 'ClRef':
-                            $query->where(function ($q) use ($value) {
-                                $like = $value.'%';
-                                $q->where('clilnk.actor_ref', 'LIKE', $like)
-                                    ->orWhere('cliclnk.actor_ref', 'LIKE', $like);
-                            });
-                            break;
-                        case 'Applicant':
-                            $query->whereLike('app.name', "$value%");
-                            break;
-                        case 'Agent':
-                        case 'AgentName':
-                            $query->where(function ($q) use ($value) {
-                                $like = $value.'%';
-                                $q->where('agt.name', 'LIKE', $like)
-                                    ->orWhere('agtc.name', 'LIKE', $like);
-                            });
-                            break;
-                        case 'AgtRef':
-                            $query->where(function ($q) use ($value) {
-                                $like = $value.'%';
-                                $q->where('agtlnk.actor_ref', 'LIKE', $like)
-                                    ->orWhere('agtclnk.actor_ref', 'LIKE', $like);
-                            });
-                            break;
-                        case 'Title':
-                            $query->whereRaw("CONCAT_WS(' ', COALESCE(tit1.value, ''), COALESCE(tit2.value, ''), COALESCE(tit3.value, '')) LIKE ?", ['%'.$value.'%']);
-                            break;
-                        case 'Inventor1':
-                            $query->whereLike('inv.name', "$value%");
-                            break;
-                        case 'Filed':
-                            $query->whereLike('fil.event_date', "$value%");
-                            break;
-                        case 'FilNo':
-                            $query->whereLike('fil.detail', "$value%");
-                            break;
-                        case 'Published':
-                            $query->whereLike('pub.event_date', "$value%");
-                            break;
-                        case 'PubNo':
-                            $query->whereLike('pub.detail', "$value%");
-                            break;
-                        case 'Granted':
-                            $query->whereLike('grt.event_date', "$value%")
-                                ->orWhereLike('reg.event_date', "$value%");
-                            break;
-                        case 'GrtNo':
-                            $query->whereLike('grt.detail', "$value%")
-                                ->orWhereLike('reg.detail', "$value%");
-                            break;
-                        case 'responsible':
-                            $query->where(function ($q) use ($value) {
-                                $q->where('matter.responsible', $value)
-                                    ->orWhere('del.login', $value);
-                            });
-                            break;
-                        case 'team':
-                            // Filter by team membership (user and their subordinates)
-                            if ($value) {
-                                $teamService = app(TeamService::class);
-                                $teamLogins = $teamService->getSubordinateLogins($authUserId, true);
-                                $query->whereIn('matter.responsible', $teamLogins);
-                            }
-                            break;
-                        case 'Ctnr':
-                            if ($value) {
-                                $query->whereNull('container_id');
-                            }
-                            break;
-                        default:
-                            $query->whereLike($key, "$value%");
-                            break;
-                    }
-                }
-            }
-        }
-
-        // Do not display dead families unless desired
-        if (! $include_dead) {
-            $query->whereRaw('(select count(1) from matter m where m.caseref = matter.caseref and m.dead = false) > 0');
-        }
-
-        // Sorting by caseref is special - set additional conditions here
-        // PostgreSQL: matter.id is the primary key, so other matter.* columns are
-        // functionally dependent and don't need to be in GROUP BY.
-        // Only columns from joined tables need to be explicitly listed.
-        $baseGroupBy = [
-            'matter.id',
-            'tit1.value',
-            'tit2.value',
-            'tit3.value',
-            'inv.name',
-            'inv.first_name',
-            'fil.event_date',
-            'fil.detail',
-            'pub.event_date',
-            'pub.detail',
-            'grt.event_date',
-            'grt.detail',
-            'reg.event_date',
-            'reg.detail',
-            'del.login',
-        ];
-
-        if ($sortkey == 'caseref') {
-            $query->groupBy($baseGroupBy);
-            if ($sortdir == 'desc') {
-                $query->orderByDesc('matter.caseref');
-            }
-        } else {
-            // Add sortkey to group by if not already present
-            $groupBy = $baseGroupBy;
-            if (! in_array($sortkey, $groupBy)) {
-                $groupBy[] = $sortkey;
-            }
-            $query->groupBy($groupBy)
-                ->orderBy($sortkey, $sortdir);
-        }
-
-        return $query;
+        return app(\App\Repositories\MatterRepository::class)->filter(
+            $sortkey,
+            $sortdir,
+            $multi_filter,
+            $display_with,
+            $include_dead
+        );
     }
 
     /**
      * Get categories with their matter counts filtered by user and request parameters.
      *
-     * Returns all categories with a count of matters based on:
-     * - User's role (clients see only their own matters)
-     * - 'what_tasks' request parameter (filter by responsible user or client)
-     * Used for dashboard and navigation displays.
+     * This method delegates to MatterRepository for the actual query building.
+     * Kept for backwards compatibility with existing code.
      *
+     * @deprecated Use MatterRepository::getCategoryMatterCount() instead for new code
      * @return \Illuminate\Support\Collection Collection of Category models with 'total' count
      */
     public static function getCategoryMatterCount()
     {
-        return Category::withCount(['matters as total' => function ($query) {
-            if (request()->input('what_tasks') == 1) {
-                $query->where('responsible', Auth::user()->login);
-            }
-            if (request()->input('what_tasks') > 1) {
-                $query->whereHas('client', function ($aq) {
-                    $aq->where('actor_id', request()->input('what_tasks'));
-                });
-            }
-            if (Auth::user()->default_role == UserRole::CLIENT->value || empty(Auth::user()->default_role)) {
-                $query->whereHas('client', function ($aq) {
-                    $aq->where('actor_id', Auth::id());
-                });
-            }
-        }])
-            ->when(Auth::user()->default_role == UserRole::CLIENT->value || empty(Auth::user()->default_role),
-                function ($query) {
-                    $query->whereHas('matters', function ($q) {
-                        $q->whereHas('client', function ($aq) {
-                            $aq->where('actor_id', Auth::id());
-                        });
-                    });
-                })
-            ->get();
+        $whatTasks = request()->input('what_tasks');
+
+        return app(\App\Repositories\MatterRepository::class)->getCategoryMatterCount($whatTasks);
     }
+
+    // ========================================================================
+    // The following methods were extracted to MatterRepository in Phase 4.
+    // The original implementations have been removed to reduce model size.
+    // ========================================================================
 
     /**
      * Generate a formatted description of the matter for documents or correspondence.
