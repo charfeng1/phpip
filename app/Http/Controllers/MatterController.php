@@ -8,7 +8,6 @@ use App\Enums\ClassifierType;
 use App\Enums\EventCode;
 use App\Http\Requests\MatterExportRequest;
 use App\Http\Requests\MergeFileRequest;
-use App\Models\Actor;
 use App\Models\ActorPivot;
 use App\Models\Category;
 use App\Models\Country;
@@ -18,6 +17,7 @@ use App\Models\User;
 use App\Services\DocumentMergeService;
 use App\Services\MatterExportService;
 use App\Services\OPSService;
+use App\Services\PatentFamilyCreationService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
@@ -38,21 +38,26 @@ class MatterController extends Controller
 
     protected OPSService $opsService;
 
+    protected PatentFamilyCreationService $patentFamilyService;
+
     /**
      * Initialize the controller with required services.
      *
      * @param DocumentMergeService $documentMergeService Service for merging matter data into documents.
      * @param MatterExportService $matterExportService Service for exporting matters to CSV.
      * @param OPSService $opsService Service for interacting with EPO OPS API.
+     * @param PatentFamilyCreationService $patentFamilyService Service for creating patent families from OPS.
      */
     public function __construct(
         DocumentMergeService $documentMergeService,
         MatterExportService $matterExportService,
-        OPSService $opsService
+        OPSService $opsService,
+        PatentFamilyCreationService $patentFamilyService
     ) {
         $this->documentMergeService = $documentMergeService;
         $this->matterExportService = $matterExportService;
         $this->opsService = $opsService;
+        $this->patentFamilyService = $patentFamilyService;
     }
 
     /**
@@ -375,18 +380,19 @@ class MatterController extends Controller
     }
 
     /**
-     * Create an entire patent family from EPO OPS API data.
+     * Create a patent family from OPS (Open Patent Services) data.
      *
-     * Retrieves family members from OPS using a document number and creates
-     * matter records for each family member with events, actors, and relationships.
-     * Handles priorities, divisionals, continuations, and PCT national phases.
+     * Fetches family members from the EPO OPS API and creates matter records
+     * with all associated events, actors, and relationships. Handles priorities,
+     * divisionals, continuations, and PCT national phases.
      *
-     * @param Request $request The HTTP request containing document number and case reference.
-     * @return \Illuminate\Http\JsonResponse JSON response with redirect URL or error information.
+     * @param Request $request Request containing docnum, caseref, category_code, and client_id.
+     * @return \Illuminate\Http\JsonResponse JSON response with redirect URL or errors.
      */
     public function storeFamily(Request $request)
     {
         Gate::authorize('readwrite');
+
         $this->validate($request, [
             'docnum' => 'required',
             'caseref' => 'required',
@@ -394,300 +400,19 @@ class MatterController extends Controller
             'client_id' => 'required',
         ]);
 
-        $apps = collect($this->opsService->getFamilyMembers($request->docnum));
-        if ($apps->has('errors') || $apps->has('exception')) {
-            return response()->json($apps);
+        $result = $this->patentFamilyService->createFromOPS(
+            $request->docnum,
+            $request->caseref,
+            $request->category_code,
+            $request->client_id
+        );
+
+        // Handle OPS API errors
+        if (isset($result['errors']) || isset($result['exception'])) {
+            return response()->json($result);
         }
 
-        $container = [];
-        $container_id = null;
-        $matter_id_num = [];
-        $existing_fam = Matter::where('caseref', $request->caseref)->get();
-        if ($existing_fam->count()) {
-            $container = $existing_fam->where('container_id', null)->first();
-            $container_id = $container->id;
-            foreach ($existing_fam as $existing_app) {
-                $matter_id_num[$existing_app->filing->cleanNumber()] = $existing_app->id;
-            }
-        }
-        foreach ($apps as $key => $app) {
-            if (array_key_exists($app['app']['number'], $matter_id_num)) {
-                // Member exists, do not create
-                continue;
-            }
-            $request->merge(
-                [
-                    'country' => $app['app']['country'],
-                    'creator' => Auth::user()->login,
-                ]
-            );
-            // Remove if set from a previous iteration
-            $request->request->remove('type_code');
-            $request->request->remove('origin');
-            $request->request->remove('idx');
-            if ($app['app']['kind'] == 'P') {
-                $request->merge(['type_code' => 'PRO']);
-            }
-            if ($app['pct'] != null) {
-                $request->merge(['origin' => 'WO']);
-            }
-            $parent_num = '';
-            if ($app['div'] != null) {
-                $request->merge(['type_code' => 'DIV']);
-                $parent_num = $app['div'];
-            }
-            if ($app['cnt'] != null) {
-                $request->merge(['type_code' => 'CNT']);
-                $parent_num = $app['cnt'];
-            }
-
-            // Unique UID handling
-            $matters = Matter::where(
-                [
-                    ['caseref', $request->caseref],
-                    ['country', $request->country],
-                    ['category_code', $request->category_code],
-                    ['origin', $request->origin],
-                    ['type_code', $request->type_code],
-                ]
-            );
-
-            $idx = $matters->count();
-
-            if ($idx > 0) {
-                $request->merge(['idx' => $idx + 1]);
-            }
-
-            $new_matter = Matter::create($request->except(['_token', '_method', 'docnum', 'client_id']));
-            $matter_id_num[$app['app']['number']] = $new_matter->id;
-
-            if ($key == 0) {
-                $container_id = $new_matter->id;
-                foreach ($app['pri'] as $pri) {
-                    // Create priority filings that refer to applications not returned by OPS (US provisionals)
-                    if ($pri['number'] != $app['app']['number']) {
-                        $new_matter->events()->create(
-                            [
-                                'code' => EventCode::PRIORITY->value,
-                                'detail' => $pri['country'].$pri['number'],
-                                'event_date' => $pri['date'],
-                            ]
-                        );
-                    }
-                }
-                if (array_key_exists('title', $app)) {
-                    $new_matter->classifiersNative()->create(['type_code' => ClassifierType::TITLE->value, 'value' => $app['title']]);
-                }
-                $new_matter->actorPivot()->create(['actor_id' => $request->client_id, 'role' => ActorRole::CLIENT->value, 'shared' => 1]);
-                if (array_key_exists('applicants', $app)) {
-                    if (strtolower($app['applicants'][0]) == strtolower(Actor::find($request->client_id)->name)) {
-                        $new_matter->actorPivot()->create(
-                            [
-                                'actor_id' => $request->client_id,
-                                'role' => ActorRole::APPLICANT->value,
-                                'shared' => 1,
-                            ]
-                        );
-                    }
-                    foreach ($app['applicants'] as $applicant) {
-                        // Search for phonetically equivalent in the actor table, and take first
-                        if (substr($applicant, -1) == ',') {
-                            // Remove ending comma
-                            $applicant = substr($applicant, 0, -1);
-                        }
-                        if ($actor = Actor::whereRaw("name SOUNDS LIKE ?", [$applicant])->first()) {
-                            // Some applicants are listed twice, with and without accents, so ignore unique key error for a second attempt
-                            $new_matter->actorPivot()->firstOrCreate(
-                                [
-                                    'actor_id' => $actor->id,
-                                    'role' => ActorRole::APPLICANT->value,
-                                    'shared' => 1,
-                                ]
-                            );
-                        } else {
-                            $new_actor = Actor::create(
-                                [
-                                    'name' => $applicant,
-                                    'default_role' => ActorRole::APPLICANT->value,
-                                    'phy_person' => 0,
-                                    'notes' => "Inserted by OPS family create tool for matter ID $new_matter->id",
-                                ]
-                            );
-                            $new_matter->actorPivot()->firstOrCreate(
-                                [
-                                    'actor_id' => $new_actor->id,
-                                    'role' => ActorRole::APPLICANT->value,
-                                    'shared' => 1,
-                                ]
-                            );
-                        }
-                    }
-                    $new_matter->notes = 'Applicants: '.collect($app['applicants'])->implode('; ');
-                }
-                if (array_key_exists('inventors', $app)) {
-                    foreach ($app['inventors'] as $inventor) {
-                        // Search for phonetically equivalent in the actor table, and take first
-                        if (substr($inventor, -1) == ',') {
-                            // Remove ending comma
-                            $inventor = substr($inventor, 0, -1);
-                        }
-                        if ($actor = Actor::whereRaw("name SOUNDS LIKE ?", [$inventor])->first()) {
-                            // Some inventors are listed twice, with and without accents, so ignore second attempt
-                            $new_matter->actorPivot()->firstOrCreate(
-                                [
-                                    'actor_id' => $actor->id,
-                                    'role' => ActorRole::INVENTOR->value,
-                                    'shared' => 1,
-                                ]
-                            );
-                        } else {
-                            $new_actor = Actor::create(
-                                [
-                                    'name' => $inventor,
-                                    'default_role' => ActorRole::INVENTOR->value,
-                                    'phy_person' => 1,
-                                    'notes' => "Inserted by OPS family create tool for matter ID $new_matter->id",
-                                ]
-                            );
-                            $new_matter->actorPivot()->firstOrCreate(
-                                [
-                                    'actor_id' => $new_actor->id,
-                                    'role' => ActorRole::INVENTOR->value,
-                                    'shared' => 1,
-                                ]
-                            );
-                        }
-                    }
-                    $new_matter->notes .= "\nInventors: ".collect($app['inventors'])->implode(' - ');
-                }
-            } else {
-                $new_matter->container_id = $container_id;
-                foreach ($app['pri'] as $pri) {
-                    // Create priority filings, excluding "auto" priority claim
-                    if ($pri['number'] != $app['app']['number']) {
-                        if (array_key_exists($pri['number'], $matter_id_num)) {
-                            // The priority application is in the family
-                            $new_matter->events()->create(
-                                [
-                                    'code' => EventCode::PRIORITY->value,
-                                    'alt_matter_id' => $matter_id_num[$pri['number']],
-                                ]
-                            );
-                        } else {
-                            $new_matter->events()->create(
-                                [
-                                    'code' => EventCode::PRIORITY->value,
-                                    'detail' => $pri['country'].$pri['number'],
-                                    'event_date' => $pri['date'],
-                                ]
-                            );
-                        }
-                    }
-                }
-            }
-            if ($app['pct'] != null) {
-                $new_matter->parent_id = $matter_id_num[$app['pct']];
-                $new_matter->events()->create(
-                    [
-                        'code' => EventCode::PCT_FILING->value,
-                        'alt_matter_id' => $new_matter->parent_id,
-                    ]
-                );
-            }
-            if ($parent_num) {
-                // This app is a divisional or a continuation
-                $new_matter->events()->create(
-                    [
-                        'code' => EventCode::ENTRY->value,
-                        'event_date' => $app['app']['date'],
-                        'detail' => 'Descendant filing date',
-                    ]
-                );
-                $parent = $apps->where('app.number', $parent_num)->first();
-                // Change this app's filing date to the parent's filing date for potential children of this app
-                $app['app']['date'] = $parent['app']['date'];
-                $new_matter->parent_id = $matter_id_num["$parent_num"];
-            }
-            $new_matter->events()->create(['code' => EventCode::FILING->value, 'event_date' => $app['app']['date'], 'detail' => $app['app']['number']]);
-            if (array_key_exists('pub', $app)) {
-                $new_matter->events()->create(
-                    [
-                        'code' => EventCode::PUBLICATION->value,
-                        'event_date' => $app['pub']['date'],
-                        'detail' => $app['pub']['number'],
-                    ]
-                );
-            }
-            if (array_key_exists('grt', $app)) {
-                $new_matter->events()->create(
-                    [
-                        'code' => EventCode::GRANT->value,
-                        'event_date' => $app['grt']['date'],
-                        'detail' => $app['grt']['number'],
-                    ]
-                );
-            }
-            if (array_key_exists('procedure', $app)) {
-                foreach ($app['procedure'] as $step) {
-                    switch ($step['code']) {
-                        case 'EXRE':
-                            // Exam report
-                            $exa = $new_matter->events()->create(['code' => EventCode::EXAMINATION->value, 'event_date' => $step['dispatched']]);
-                            if (array_key_exists('replied', $step) && $exa->event_date < now()->subMonths(4)) {
-                                $exa->tasks()->create(
-                                    [
-                                        'code' => EventCode::REPLY->value,
-                                        'due_date' => $exa->event_date->addMonths(4),
-                                        'done_date' => $step['replied'],
-                                        'done' => 1,
-                                        'detail' => 'Exam Report',
-                                    ]
-                                );
-                            }
-                            break;
-                        case 'RFEE':
-                            // Renewals
-                            $new_matter->filing->tasks()->updateOrCreate(
-                                ['code' => EventCode::RENEWAL->value, 'detail' => $step['ren_year']],
-                                [
-                                    'due_date' => $new_matter->filing->event_date->addYears($step['ren_year'] - 1)->lastOfMonth(),
-                                    'done_date' => $step['ren_paid'],
-                                    'done' => 1,
-                                ]
-                            );
-                            break;
-                        case 'IGRA':
-                            // Intention to grant
-                            if (array_key_exists('dispatched', $step)) {
-                                // Sometimes the dispatch and the payment are in different steps
-                                $grt = $new_matter->events()->create(['code' => EventCode::ALLOWANCE->value, 'event_date' => $step['dispatched']]);
-                            }
-                            if (array_key_exists('grt_paid', $step) && $grt->event_date < now()->subMonths(4)) {
-                                $grt->tasks()->create(
-                                    [
-                                        'code' => EventCode::PAYMENT->value,
-                                        'due_date' => $grt->event_date->addMonths(4),
-                                        'done_date' => $step['grt_paid'],
-                                        'done' => 1,
-                                        'detail' => 'Grant Fee',
-                                    ]
-                                );
-                            }
-                            break;
-                        case 'EXAM52':
-                            // Filing request (useful for divisional actual filing date)
-                            if ($new_matter->type_code == 'DIV') {
-                                $new_matter->events->where('code', 'ENT')->first()->event_date = $step['request'];
-                            }
-                            break;
-                    }
-                }
-            }
-            // The push() method saves the model with all its relationships
-            $new_matter->push();
-        }
-
-        return response()->json(['redirect' => "/matter?Ref=$request->caseref&tab=1"]);
+        return response()->json(['redirect' => $result['redirect']]);
     }
 
     /**
