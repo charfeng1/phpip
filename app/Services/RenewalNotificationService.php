@@ -7,6 +7,7 @@ use App\Mail\sendCall;
 use App\Models\Actor;
 use App\Models\MatterActors;
 use App\Models\Task;
+use App\Repositories\TaskRepository;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -32,6 +33,8 @@ class RenewalNotificationService
 
     protected RenewalLogService $logService;
 
+    protected TaskRepository $taskRepository;
+
     protected float $vatRate;
 
     protected array $validityConfig;
@@ -41,12 +44,14 @@ class RenewalNotificationService
     public function __construct(
         ?RenewalFeeCalculatorService $feeCalculator = null,
         ?RenewalLogService $logService = null,
+        ?TaskRepository $taskRepository = null,
         ?float $vatRate = null,
         ?array $validityConfig = null,
         ?string $mailRecipient = null
     ) {
         $this->feeCalculator = $feeCalculator ?? new RenewalFeeCalculatorService;
         $this->logService = $logService ?? new RenewalLogService;
+        $this->taskRepository = $taskRepository ?? app(TaskRepository::class);
         $this->vatRate = $vatRate ?? (float) config('renewal.invoice.vat_rate', self::DEFAULT_VAT_RATE);
         $this->validityConfig = $validityConfig ?? [
             'before' => config('renewal.validity.before', 60),
@@ -114,8 +119,7 @@ class RenewalNotificationService
      */
     public function processRenewals(array $taskIds, int $gracePeriod, string $notifyType): array
     {
-        $renewals = Task::renewals()
-            ->whereIn('task.id', $taskIds)
+        $renewals = $this->taskRepository->renewalsByIds($taskIds)
             ->where('grace_period', $gracePeriod)
             ->orderBy('pa_cli.name')
             ->get();

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\RenewalsLog;
 use App\Models\Task;
+use App\Repositories\TaskRepository;
 use App\Services\DolibarrInvoiceService;
 use App\Services\RenewalFeeCalculatorService;
 use App\Services\RenewalNotificationService;
@@ -26,6 +27,7 @@ class RenewalController extends Controller
         protected RenewalNotificationService $notificationService,
         protected RenewalWorkflowService $workflowService,
         protected DolibarrInvoiceService $dolibarrService,
+        protected TaskRepository $taskRepository,
     ) {}
     /**
      * Display a paginated list of renewals with filtering.
@@ -37,86 +39,26 @@ class RenewalController extends Controller
     {
         $this->authorize('viewAny', Task::class);
 
-        // Filters
-        $MyRenewals = $request->input('my_renewals');
-        $filters = $request->except([
-            'my_renewals',
-            'page',
-        ]);
+        // Build filters array for repository
         $step = $request->step;
         $invoice_step = $request->invoice_step;
 
-        // Get list of active renewals
-        $renewals = Task::renewals();
-
+        $filters = $request->except(['page']);
         if ($step == 0) {
-            $renewals->where('matter.dead', 0);
-        }
-        if ($MyRenewals) {
-            $renewals->where('task.assigned_to', Auth::user()->login);
+            $filters['dead'] = 0;
         }
 
-        $with_step = false;
-        $with_invoice = false;
-        if (! empty($filters)) {
-            foreach ($filters as $key => $value) {
-                if ($value != '') {
-                    switch ($key) {
-                        case 'Title':
-                            $renewals->whereLike('tit.value', "%$value%");
-                            break;
-                        case 'Case':
-                            $renewals->whereLike('caseref', "$value%");
-                            break;
-                        case 'Qt':
-                            $renewals->where('task.detail->en', $value);
-                            break;
-                        case 'Fromdate':
-                            $renewals->where('due_date', '>=', "$value");
-                            break;
-                        case 'Untildate':
-                            $renewals->where('due_date', '<=', "$value");
-                            break;
-                        case 'Name':
-                            $renewals->where(function ($q) use ($value) {
-                                $like = $value.'%';
-                                $q->where('pa_cli.name', 'LIKE', $like)
-                                    ->orWhere('clic.name', 'LIKE', $like);
-                            });
-                            break;
-                        case 'Country':
-                            $renewals->whereLike('matter.country', "$value%");
-                            break;
-                        case 'grace':
-                            $renewals->where('grace_period', "$value");
-                            break;
-                        case 'step':
-                            $renewals->where('step', "$value");
-                            if ($value != 0) {
-                                $with_step = true;
-                            }
-                            break;
-                        case 'invoice_step':
-                            $renewals->where('invoice_step', "$value");
-                            if ($value != 0) {
-                                $with_invoice = true;
-                            }
-                            break;
-                        default:
-                            $renewals->whereLike($key, "$value%");
-                            break;
-                    }
-                }
-            }
-        }
+        // Get list of active renewals using repository
+        $renewals = $this->taskRepository->renewals($filters);
 
         // Only display pending renewals at the beginning of the pipeline
-        if (! ($with_step || $with_invoice)) {
+        if ($this->taskRepository->shouldShowOnlyPending($filters)) {
             $renewals->where('done', 0);
         }
 
         // Order by most recent renewals first in the "Closed" and "Invoice paid" steps
-        if ($step == 10 || $invoice_step == 3) {
+        $sortDirection = $this->taskRepository->getSortDirection($step, $invoice_step);
+        if ($sortDirection) {
             $renewals->orderByDesc('due_date');
         }
 
@@ -252,8 +194,7 @@ class RenewalController extends Controller
 
         $num = 0;
         if ($this->dolibarrService->isEnabled() && $toinvoice) {
-            $renewals = Task::renewals()
-                ->whereIn('task.id', $request->task_ids)
+            $renewals = $this->taskRepository->renewalsByIds($request->task_ids)
                 ->orderBy('client_name')
                 ->get();
 
@@ -300,8 +241,7 @@ class RenewalController extends Controller
     {
         $this->authorize('viewAny', Task::class);
 
-        $export = Task::renewals()->where('invoice_step', 1)
-            ->orderBy('pmal_cli.actor_id')->get();
+        $export = $this->taskRepository->renewalsForExport()->get();
         $export = $export->map(function ($ren) {
             $fees = $this->feeCalculator->calculate($ren);
             $ren->cost = $fees['cost'];
@@ -457,7 +397,7 @@ class RenewalController extends Controller
         $xml->header->{'payment-reference-id'} = 'ANNUITY '.now()->format('Ymd');
         $total = 0;
         $first = true;
-        $renewals = Task::renewals()->whereIn('task.id', $tids)->get();
+        $renewals = $this->taskRepository->renewalsByIds($tids)->get();
         foreach ($renewals as $renewal) {
             $procedure = $renewal->country;
             if ($first) {

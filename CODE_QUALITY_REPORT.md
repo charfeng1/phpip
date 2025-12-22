@@ -307,11 +307,28 @@ app/Services/
 
 **Total: 6 services, 73 unit tests, 42% controller LOC reduction**
 
-### Phase 4: Repository Pattern [ ] PENDING
-1. [ ] Create `MatterRepository` with filter logic
-2. [ ] Create `TaskRepository` for renewal queries
-3. [ ] Create `ActorRepository` for actor lookups
-4. [ ] Move complex queries from models to repositories
+### Phase 4: Repository Pattern [~] IN PROGRESS (Started December 22, 2025)
+
+#### Phase 4A: TaskRepository [x] COMPLETED
+1. [x] Create `TaskRepository` with `renewals()` method (extracted 130 lines from Task.php)
+2. [x] Extract `applyRenewalFilters()` from RenewalController (10+ filter types)
+3. [x] Update RenewalController to inject TaskRepository
+4. [x] Update RenewalWorkflowService to use TaskRepository
+5. [x] Update RenewalNotificationService to use TaskRepository
+6. [x] Add 12 unit tests for TaskRepository
+
+**Files Created:**
+- `app/Repositories/TaskRepository.php` (280 lines)
+- `tests/Unit/Repositories/TaskRepositoryTest.php` (12 tests)
+
+#### Phase 4B: MatterRepository [ ] PENDING
+1. [ ] Create `MatterRepository` with filter logic (362 lines to extract)
+2. [ ] Move `Matter::filter()` to repository
+3. [ ] Update MatterController to use repository
+
+#### Phase 4C: ActorRepository [ ] PENDING (Low Priority)
+1. [ ] Create `ActorRepository` for actor lookups
+2. [ ] Extract phonetic matching logic
 
 ### Phase 5: View Components [ ] PENDING
 1. [ ] Create `ListWithPanel` Blade component
@@ -353,6 +370,8 @@ app/Services/
 | Config files for magic values | 0 | 2 | [x] |
 | Services extracted (Phase 3) | 0 | 6 | [x] |
 | Unit tests added (Phase 3) | 0 | 73 | [x] |
+| Repositories created (Phase 4) | 0 | 1 | [~] |
+| Unit tests added (Phase 4) | 0 | 12 | [~] |
 
 ---
 

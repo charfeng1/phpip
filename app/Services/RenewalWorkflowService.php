@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Task;
+use App\Repositories\TaskRepository;
 use Illuminate\Support\Collection;
 
 /**
@@ -48,9 +49,12 @@ class RenewalWorkflowService
 
     protected RenewalLogService $logService;
 
-    public function __construct(?RenewalLogService $logService = null)
+    protected TaskRepository $taskRepository;
+
+    public function __construct(?RenewalLogService $logService = null, ?TaskRepository $taskRepository = null)
     {
         $this->logService = $logService ?? new RenewalLogService;
+        $this->taskRepository = $taskRepository ?? app(TaskRepository::class);
     }
 
     /**
@@ -413,9 +417,7 @@ class RenewalWorkflowService
      */
     protected function getRenewals(array $taskIds): Collection
     {
-        return Task::renewals()
-            ->whereIn('task.id', $taskIds)
-            ->get();
+        return $this->taskRepository->renewalsByIds($taskIds)->get();
     }
 
     /**
