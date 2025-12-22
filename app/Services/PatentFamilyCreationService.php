@@ -331,7 +331,8 @@ class PatentFamilyCreationService
             ]);
         }
 
-        $matter->notes .= "\nInventors: ".collect($inventors)->implode(' - ');
+        $inventorNote = 'Inventors: '.collect($inventors)->implode(' - ');
+        $matter->notes = $matter->notes ? $matter->notes."\n".$inventorNote : $inventorNote;
     }
 
     /**
