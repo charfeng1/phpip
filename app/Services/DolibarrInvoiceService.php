@@ -159,17 +159,19 @@ class DolibarrInvoiceService
             return [
                 'success' => false,
                 'data' => null,
-                'error' => 'API request failed: '.$error,
+                'error' => 'Invoice API request failed',
             ];
         }
 
         $response = json_decode($result, true);
 
         if (isset($response['error'])) {
+            \Log::error('Dolibarr invoice creation error', ['error' => $response['error']]);
+
             return [
                 'success' => false,
                 'data' => null,
-                'error' => $response['error'],
+                'error' => 'Invoice creation failed',
             ];
         }
 
