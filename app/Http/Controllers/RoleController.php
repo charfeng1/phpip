@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreRoleRequest;
+use App\Http\Requests\UpdateRoleRequest;
 use App\Models\Role;
+use App\Traits\Filterable;
+use App\Traits\HandlesAuditFields;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Manages actor roles in the system.
@@ -15,6 +18,20 @@ use Illuminate\Support\Facades\Auth;
  */
 class RoleController extends Controller
 {
+    use Filterable, HandlesAuditFields;
+
+    /**
+     * Filter rules for index method.
+     */
+    protected array $filterRules = [];
+
+    public function __construct()
+    {
+        $this->filterRules = [
+            'Code' => fn ($q, $v) => $q->whereLike('code', "$v%"),
+            'Name' => fn ($q, $v) => $q->whereJsonLike('name', $v),
+        ];
+    }
     /**
      * Display a list of roles with filtering.
      *
@@ -23,19 +40,9 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
-        $Code = $request->input('Code');
-        $Name = $request->input('Name');
-        $role = Role::query();
-
-        if (! is_null($Code)) {
-            $role = $role->whereLike('code', $Code.'%');
-        }
-
-        if (! is_null($Name)) {
-            $role = $role->whereJsonLike('name', $Name);
-        }
-
-        $roles = $role->get();
+        $query = Role::query();
+        $this->applyFilters($query, $request);
+        $roles = $query->get();
 
         if ($request->wantsJson()) {
             return response()->json($roles);
@@ -60,19 +67,14 @@ class RoleController extends Controller
     /**
      * Store a newly created role.
      *
-     * @param Request $request Role data including code, name, and display_order
+     * @param StoreRoleRequest $request Validated role data
      * @return Role The created role
      */
-    public function store(Request $request)
+    public function store(StoreRoleRequest $request)
     {
-        $request->validate([
-            'code' => 'required|unique:actor_role|max:5',
-            'name' => 'required|max:45',
-            'display_order' => 'numeric|nullable',
-        ]);
-        $request->merge(['creator' => Auth::user()->login]);
+        $this->mergeCreator($request);
 
-        return Role::create($request->except(['_token', '_method']));
+        return Role::create($this->getFilteredData($request));
     }
 
     /**
@@ -92,14 +94,14 @@ class RoleController extends Controller
     /**
      * Update the specified role.
      *
-     * @param Request $request Updated role data
+     * @param UpdateRoleRequest $request Validated role data
      * @param Role $role The role to update
      * @return Role The updated role
      */
-    public function update(Request $request, Role $role)
+    public function update(UpdateRoleRequest $request, Role $role)
     {
-        $request->merge(['updater' => Auth::user()->login]);
-        $role->update($request->except(['_token', '_method']));
+        $this->mergeUpdater($request);
+        $role->update($this->getFilteredData($request));
 
         return $role;
     }

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreMatterTypeRequest;
+use App\Http\Requests\UpdateMatterTypeRequest;
 use App\Models\MatterType;
+use App\Traits\Filterable;
+use App\Traits\HandlesAuditFields;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Manages matter type definitions.
@@ -14,6 +17,21 @@ use Illuminate\Support\Facades\Auth;
  */
 class MatterTypeController extends Controller
 {
+    use Filterable, HandlesAuditFields;
+
+    /**
+     * Filter rules for index method.
+     */
+    protected array $filterRules = [];
+
+    public function __construct()
+    {
+        $this->filterRules = [
+            'Code' => fn ($q, $v) => $q->whereLike('code', "$v%"),
+            'Type' => fn ($q, $v) => $q->whereJsonLike('type', $v),
+        ];
+    }
+
     /**
      * Display a list of matter types with filtering.
      *
@@ -22,19 +40,9 @@ class MatterTypeController extends Controller
      */
     public function index(Request $request)
     {
-        $Code = $request->input('Code');
-        $Type = $request->input('Type');
-        $type = MatterType::query();
-
-        if (! is_null($Code)) {
-            $type = $type->whereLike('code', $Code.'%');
-        }
-
-        if (! is_null($Type)) {
-            $type = $type->whereJsonLike('type', $Type);
-        }
-
-        $matter_types = $type->get();
+        $query = MatterType::query();
+        $this->applyFilters($query, $request);
+        $matter_types = $query->get();
 
         if ($request->wantsJson()) {
             return response()->json($matter_types);
@@ -59,18 +67,14 @@ class MatterTypeController extends Controller
     /**
      * Store a newly created matter type.
      *
-     * @param Request $request Matter type data including code and type name
+     * @param StoreMatterTypeRequest $request Validated matter type data
      * @return MatterType The created matter type
      */
-    public function store(Request $request)
+    public function store(StoreMatterTypeRequest $request)
     {
-        $request->validate([
-            'code' => 'required|unique:matter_type|max:5',
-            'type' => 'required|max:45',
-        ]);
-        $request->merge(['creator' => Auth::user()->login]);
+        $this->mergeCreator($request);
 
-        return MatterType::create($request->except(['_token', '_method']));
+        return MatterType::create($this->getFilteredData($request));
     }
 
     /**
@@ -89,14 +93,14 @@ class MatterTypeController extends Controller
     /**
      * Update the specified matter type.
      *
-     * @param Request $request Updated matter type data
+     * @param UpdateMatterTypeRequest $request Validated matter type data
      * @param MatterType $type The matter type to update
      * @return MatterType The updated matter type
      */
-    public function update(Request $request, MatterType $type)
+    public function update(UpdateMatterTypeRequest $request, MatterType $type)
     {
-        $request->merge(['updater' => Auth::user()->login]);
-        $type->update($request->except(['_token', '_method']));
+        $this->mergeUpdater($request);
+        $type->update($this->getFilteredData($request));
 
         return $type;
     }

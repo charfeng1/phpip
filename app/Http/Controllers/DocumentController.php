@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreDocumentRequest;
+use App\Http\Requests\UpdateDocumentRequest;
 use App\Models\Actor;
 use App\Models\Event;
 use App\Models\Matter;
@@ -9,8 +11,8 @@ use App\Models\MatterActors;
 use App\Models\Task;
 use App\Models\TemplateClass;
 use App\Models\TemplateMember;
+use App\Traits\HandlesAuditFields;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 
@@ -23,6 +25,7 @@ use Illuminate\Support\Facades\DB;
  */
 class DocumentController extends Controller
 {
+    use HandlesAuditFields;
     /**
      * Display a paginated list of template classes with filtering.
      *
@@ -69,17 +72,14 @@ class DocumentController extends Controller
     /**
      * Store a newly created template class.
      *
-     * @param Request $request Template class data
+     * @param StoreDocumentRequest $request Validated template class data
      * @return TemplateClass The created template class
      */
-    public function store(Request $request)
+    public function store(StoreDocumentRequest $request)
     {
-        $request->validate([
-            'name' => 'required|max:55',
-        ]);
-        $request->merge(['creator' => Auth::user()->login]);
+        $this->mergeCreator($request);
 
-        return TemplateClass::create($request->except(['_token', '_method']));
+        return TemplateClass::create($this->getFilteredData($request));
     }
 
     /**
@@ -99,14 +99,14 @@ class DocumentController extends Controller
     /**
      * Update the specified template class.
      *
-     * @param Request $request Updated template class data
+     * @param UpdateDocumentRequest $request Validated template class data
      * @param TemplateClass $class The template class to update
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, TemplateClass $class)
+    public function update(UpdateDocumentRequest $request, TemplateClass $class)
     {
-        $request->merge(['updater' => Auth::user()->login]);
-        $class->update($request->except(['_token', '_method']));
+        $this->mergeUpdater($request);
+        $class->update($this->getFilteredData($request));
 
         return response()->json(['success' => 'Template class updated']);
     }

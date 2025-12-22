@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreFeeRequest;
+use App\Http\Requests\UpdateFeeRequest;
 use App\Models\Fee;
+use App\Traits\HandlesAuditFields;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Manages official fee schedules for renewals.
@@ -15,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
  */
 class FeeController extends Controller
 {
+    use HandlesAuditFields;
     /**
      * Display a paginated list of fees with filtering.
      *
@@ -72,28 +75,21 @@ class FeeController extends Controller
      *
      * Can create multiple entries at once when a range is specified (from_qt to to_qt).
      *
-     * @param Request $request Fee data including category, country, quantity range, and costs
+     * @param StoreFeeRequest $request Validated fee data
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(StoreFeeRequest $request)
     {
-        $this->authorize('create', Fee::class);
+        $this->mergeCreator($request);
 
-        $request->validate([
-            'for_category' => 'required',
-            'from_qt' => 'required|integer',
-            'to_qt' => 'nullable|integer',
-            'use_after' => 'nullable|date',
-            'use_before' => 'nullable|date',
-        ]);
-        $request->merge(['creator' => Auth::user()->login]);
+        // Extract base data once before the loop to avoid repeated filtering
+        $baseData = $this->getFilteredData($request, ['from_qt', 'to_qt', 'qt']);
+
         if (is_null($request->input('to_qt'))) {
-            $request->merge(['qt' => $request->input('from_qt')]);
-            Fee::create($request->except(['from_qt', 'to_qt', '_token', '_method']));
+            Fee::create(array_merge($baseData, ['qt' => $request->input('from_qt')]));
         } else {
             for ($i = intval($request->input('from_qt')); $i <= intval($request->input('to_qt')); $i++) {
-                $request->merge(['qt' => $i]);
-                Fee::create($request->except(['from_qt', 'to_qt', '_token', '_method']));
+                Fee::create(array_merge($baseData, ['qt' => $i]));
             }
         }
 
@@ -116,29 +112,14 @@ class FeeController extends Controller
     /**
      * Update the specified fee entry.
      *
-     * @param Request $request Updated fee data
+     * @param UpdateFeeRequest $request Validated fee data
      * @param Fee $fee The fee to update
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, Fee $fee)
+    public function update(UpdateFeeRequest $request, Fee $fee)
     {
-        $this->authorize('update', $fee);
-
-        $this->validate($request, [
-            'use_after' => 'nullable|date',
-            'use_before' => 'nullable|date',
-            'cost' => 'nullable|numeric',
-            'fee' => 'nullable|numeric',
-            'cost_reduced' => 'nullable|numeric',
-            'fee_reduced' => 'nullable|numeric',
-            'cost_sup' => 'nullable|numeric',
-            'fee_sup' => 'nullable|numeric',
-            'cost_sup_reduced' => 'nullable|numeric',
-            'fee_sup_reduced' => 'nullable|numeric',
-        ]);
-        $request->merge(['updater' => Auth::user()->login]);
-
-        $fee->update($request->except(['_token', '_method']));
+        $this->mergeUpdater($request);
+        $fee->update($this->getFilteredData($request));
 
         return response()->json(['success' => 'Fee updated']);
     }

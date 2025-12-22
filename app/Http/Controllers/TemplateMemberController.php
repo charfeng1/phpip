@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreTemplateMemberRequest;
+use App\Http\Requests\UpdateTemplateMemberRequest;
 use App\Models\TemplateMember;
+use App\Traits\HandlesAuditFields;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Manages template members (individual document templates).
@@ -15,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
  */
 class TemplateMemberController extends Controller
 {
+    use HandlesAuditFields;
     /**
      * Supported template languages.
      *
@@ -93,21 +96,14 @@ class TemplateMemberController extends Controller
     /**
      * Store a newly created template member.
      *
-     * @param Request $request Template member data including class_id and language
+     * @param StoreTemplateMemberRequest $request Validated template member data
      * @return TemplateMember The created template member
      */
-    public function store(Request $request)
+    public function store(StoreTemplateMemberRequest $request)
     {
-        $this->authorize('create', TemplateMember::class);
+        $this->mergeCreator($request);
 
-        $request->validate([
-            'class_id' => 'required',
-            'language' => 'required',
-        ]);
-        $request->merge(['creator' => Auth::user()->login]);
-        $a = TemplateMember::create($request->except(['_token', '_method']));
-
-        return $a;
+        return TemplateMember::create($this->getFilteredData($request));
     }
 
     /**
@@ -141,16 +137,14 @@ class TemplateMemberController extends Controller
     /**
      * Update the specified template member.
      *
-     * @param Request $request Updated template member data
+     * @param UpdateTemplateMemberRequest $request Validated template member data
      * @param TemplateMember $templateMember The template member to update
      * @return TemplateMember The updated template member
      */
-    public function update(Request $request, TemplateMember $templateMember)
+    public function update(UpdateTemplateMemberRequest $request, TemplateMember $templateMember)
     {
-        $this->authorize('update', $templateMember);
-
-        $request->merge(['updater' => Auth::user()->login]);
-        $templateMember->update($request->except(['_token', '_method']));
+        $this->mergeUpdater($request);
+        $templateMember->update($this->getFilteredData($request));
 
         return $templateMember;
     }

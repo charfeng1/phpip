@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreRuleRequest;
+use App\Http\Requests\UpdateRuleRequest;
 use App\Models\Rule;
+use App\Traits\HandlesAuditFields;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -16,6 +18,7 @@ use Illuminate\Support\Facades\DB;
  */
 class RuleController extends Controller
 {
+    use HandlesAuditFields;
     /**
      * Display a paginated list of rules with filtering.
      *
@@ -137,28 +140,14 @@ class RuleController extends Controller
     /**
      * Update the specified rule.
      *
-     * @param Request $request Updated rule data
+     * @param UpdateRuleRequest $request Validated rule data
      * @param Rule $rule The rule to update
      * @return Rule The updated rule
      */
-    public function update(Request $request, Rule $rule)
+    public function update(UpdateRuleRequest $request, Rule $rule)
     {
-        $this->authorize('update', $rule);
-
-        $this->validate($request, [
-            'task' => 'sometimes|required',
-            'trigger_event' => 'sometimes|required',
-            'for_category' => 'sometimes|required',
-            'cost' => 'nullable|numeric',
-            'years' => 'nullable|numeric',
-            'months' => 'nullable|numeric',
-            'days' => 'nullable|numeric',
-            'fee' => 'nullable|numeric',
-            'use_before' => 'nullable|date',
-            'use_after' => 'nullable|date',
-        ]);
-        $request->merge(['updater' => Auth::user()->login]);
-        $rule->update($request->except(['_token', '_method']));
+        $this->mergeUpdater($request);
+        $rule->update($this->getFilteredData($request));
 
         return $rule;
     }
@@ -166,27 +155,13 @@ class RuleController extends Controller
     /**
      * Store a newly created rule.
      *
-     * @param Request $request Rule data including task, trigger, category, and timing
+     * @param StoreRuleRequest $request Validated rule data
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(StoreRuleRequest $request)
     {
-        $this->authorize('create', Rule::class);
-
-        $this->validate($request, [
-            'task' => 'required',
-            'trigger_event' => 'required',
-            'for_category' => 'required',
-            'cost' => 'nullable|numeric',
-            'years' => 'numeric',
-            'months' => 'numeric',
-            'days' => 'numeric',
-            'fee' => 'nullable|numeric',
-            'use_before' => 'nullable|date',
-            'use_after' => 'nullable|date',
-        ]);
-        $request->merge(['creator' => Auth::user()->login]);
-        Rule::create($request->except(['_token', '_method']));
+        $this->mergeCreator($request);
+        Rule::create($this->getFilteredData($request));
 
         return response()->json(['redirect' => route('rule.index')]);
     }
