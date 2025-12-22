@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Matter;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreActorPivotRequest extends FormRequest
@@ -10,14 +9,11 @@ class StoreActorPivotRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      *
-     * Authorization is based on the parent Matter - users who can update
-     * a matter can also manage its actor relationships.
+     * Uses ActorPivotPolicy to check if user can create actor relationships.
      */
     public function authorize(): bool
     {
-        $matter = Matter::findOrFail($this->matter_id);
-
-        return $this->user()->can('update', $matter);
+        return $this->user()->can('create', \App\Models\ActorPivot::class);
     }
 
     /**

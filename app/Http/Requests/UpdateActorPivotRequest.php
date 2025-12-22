@@ -10,8 +10,7 @@ class UpdateActorPivotRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      *
-     * Authorization is based on the parent Matter - users who can update
-     * a matter can also manage its actor relationships.
+     * Uses ActorPivotPolicy to check if user can update actor relationships.
      */
     public function authorize(): bool
     {
@@ -21,7 +20,7 @@ class UpdateActorPivotRequest extends FormRequest
             return false;
         }
 
-        return $this->user()->can('update', $actorPivot->matter);
+        return $this->user()->can('update', $actorPivot);
     }
 
     /**
@@ -32,7 +31,7 @@ class UpdateActorPivotRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'date' => 'date',
+            'date' => 'nullable|date',
         ];
     }
 }
