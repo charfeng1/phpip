@@ -242,4 +242,28 @@ class Actor extends Model
     {
         return $this->belongsTo(Country::class, 'nationality');
     }
+
+    /**
+     * Scope a query to perform phonetic matching on actor names.
+     *
+     * Uses database-specific phonetic matching when available:
+     * - MySQL: SOUNDS LIKE operator
+     * - PostgreSQL: soundex() function
+     * - Other: Case-insensitive exact match fallback
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  string  $name  The name to match phonetically
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopePhoneticMatch($query, string $name)
+    {
+        $driver = config('database.default');
+        $connection = config("database.connections.{$driver}.driver");
+
+        return match ($connection) {
+            'mysql' => $query->whereRaw('name SOUNDS LIKE ?', [$name]),
+            'pgsql' => $query->whereRaw('soundex(name) = soundex(?)', [$name]),
+            default => $query->whereRaw('LOWER(name) = ?', [strtolower($name)]),
+        };
+    }
 }

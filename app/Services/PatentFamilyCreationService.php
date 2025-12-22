@@ -23,6 +23,12 @@ use Illuminate\Support\Facades\DB;
  */
 class PatentFamilyCreationService
 {
+    /**
+     * Threshold in months for creating historical tasks.
+     * Tasks older than this threshold are created with completed status.
+     */
+    private const HISTORICAL_TASK_MONTH_THRESHOLD = 4;
+
     protected OPSService $opsService;
 
     protected ?string $creator = null;
@@ -125,7 +131,10 @@ class PatentFamilyCreationService
             $container = $existingFamily->where('container_id', null)->first();
             $containerId = $container?->id;
             foreach ($existingFamily as $existing) {
-                $matterIdMap[$existing->filing->cleanNumber()] = $existing->id;
+                $filing = $existing->filing;
+                if ($filing->exists) {
+                    $matterIdMap[$filing->cleanNumber()] = $existing->id;
+                }
             }
         }
 
@@ -152,7 +161,7 @@ class PatentFamilyCreationService
             }
 
             // Process common elements
-            $this->processCommonElements($matter, $app, $matterIdMap, $apps);
+            $this->processCommonElements($matter, $app, $matterIdMap);
 
             // Save all changes
             $matter->push();
@@ -244,17 +253,15 @@ class PatentFamilyCreationService
     protected function processContainerMember(Matter $matter, array $app, int $clientId): void
     {
         // Create priority filings for non-self priorities
-        if (!array_key_exists('pri', $app)) {
-            return;
-        }
-
-        foreach ($app['pri'] as $pri) {
-            if ($pri['number'] !== $app['app']['number']) {
-                $matter->events()->create([
-                    'code' => EventCode::PRIORITY->value,
-                    'detail' => $pri['country'].$pri['number'],
-                    'event_date' => $pri['date'],
-                ]);
+        if (array_key_exists('pri', $app)) {
+            foreach ($app['pri'] as $pri) {
+                if ($pri['number'] !== $app['app']['number']) {
+                    $matter->events()->create([
+                        'code' => EventCode::PRIORITY->value,
+                        'detail' => $pri['country'].$pri['number'],
+                        'event_date' => $pri['date'],
+                    ]);
+                }
             }
         }
 
@@ -356,8 +363,8 @@ class PatentFamilyCreationService
         bool $isPhysicalPerson,
         int $matterId
     ): Actor {
-        // Search for phonetically equivalent actor
-        $actor = Actor::whereRaw('name SOUNDS LIKE ?', [$name])->first();
+        // Search for phonetically equivalent actor using database-agnostic method
+        $actor = Actor::phoneticMatch($name)->first();
 
         if ($actor) {
             return $actor;
@@ -408,8 +415,7 @@ class PatentFamilyCreationService
     protected function processCommonElements(
         Matter $matter,
         array $app,
-        array $matterIdMap,
-        Collection $apps
+        array $matterIdMap
     ): void {
         $parentNum = $app['div'] ?? $app['cnt'];
 
@@ -501,10 +507,10 @@ class PatentFamilyCreationService
             'event_date' => $step['dispatched'],
         ]);
 
-        if (array_key_exists('replied', $step) && $exa->event_date < now()->subMonths(4)) {
+        if (array_key_exists('replied', $step) && $exa->event_date < now()->subMonths(self::HISTORICAL_TASK_MONTH_THRESHOLD)) {
             $exa->tasks()->create([
                 'code' => EventCode::REPLY->value,
-                'due_date' => $exa->event_date->addMonths(4),
+                'due_date' => $exa->event_date->addMonths(self::HISTORICAL_TASK_MONTH_THRESHOLD),
                 'done_date' => $step['replied'],
                 'done' => 1,
                 'detail' => 'Exam Report',
@@ -522,7 +528,7 @@ class PatentFamilyCreationService
         }
 
         $filing = $matter->filing;
-        if (! $filing) {
+        if (! $filing->exists) {
             return;
         }
 
@@ -550,10 +556,10 @@ class PatentFamilyCreationService
             ]);
         }
 
-        if ($grt && array_key_exists('grt_paid', $step) && $grt->event_date < now()->subMonths(4)) {
+        if ($grt && array_key_exists('grt_paid', $step) && $grt->event_date < now()->subMonths(self::HISTORICAL_TASK_MONTH_THRESHOLD)) {
             $grt->tasks()->create([
                 'code' => EventCode::PAYMENT->value,
-                'due_date' => $grt->event_date->addMonths(4),
+                'due_date' => $grt->event_date->addMonths(self::HISTORICAL_TASK_MONTH_THRESHOLD),
                 'done_date' => $step['grt_paid'],
                 'done' => 1,
                 'detail' => 'Grant Fee',
