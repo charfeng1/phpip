@@ -23,10 +23,19 @@ class StoreFeeRequest extends FormRequest
     {
         return [
             'for_category' => 'required',
+            'for_country' => 'nullable|max:2',
             'from_qt' => 'required|integer',
             'to_qt' => 'nullable|integer',
             'use_after' => 'nullable|date',
             'use_before' => 'nullable|date',
+            'cost' => 'nullable|numeric',
+            'fee' => 'nullable|numeric',
+            'cost_reduced' => 'nullable|numeric',
+            'fee_reduced' => 'nullable|numeric',
+            'cost_sup' => 'nullable|numeric',
+            'fee_sup' => 'nullable|numeric',
+            'cost_sup_reduced' => 'nullable|numeric',
+            'fee_sup_reduced' => 'nullable|numeric',
         ];
     }
 }

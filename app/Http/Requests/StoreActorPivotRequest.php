@@ -31,7 +31,7 @@ class StoreActorPivotRequest extends FormRequest
             'matter_id' => 'required|numeric',
             'actor_id' => 'required|numeric',
             'role' => 'required',
-            'date' => 'date',
+            'date' => 'nullable|date',
         ];
     }
 }

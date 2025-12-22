@@ -81,13 +81,15 @@ class FeeController extends Controller
     public function store(StoreFeeRequest $request)
     {
         $this->mergeCreator($request);
+
+        // Extract base data once before the loop to avoid repeated filtering
+        $baseData = $this->getFilteredData($request, ['from_qt', 'to_qt', 'qt']);
+
         if (is_null($request->input('to_qt'))) {
-            $request->merge(['qt' => $request->input('from_qt')]);
-            Fee::create($this->getFilteredData($request, ['from_qt', 'to_qt']));
+            Fee::create(array_merge($baseData, ['qt' => $request->input('from_qt')]));
         } else {
             for ($i = intval($request->input('from_qt')); $i <= intval($request->input('to_qt')); $i++) {
-                $request->merge(['qt' => $i]);
-                Fee::create($this->getFilteredData($request, ['from_qt', 'to_qt']));
+                Fee::create(array_merge($baseData, ['qt' => $i]));
             }
         }
 
