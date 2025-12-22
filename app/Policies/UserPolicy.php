@@ -3,13 +3,11 @@
 namespace App\Policies;
 
 use App\Models\User;
+use App\Traits\HasPolicyAuthorization;
 
 class UserPolicy
 {
-    protected function isAdmin(User $user): bool
-    {
-        return $user->default_role === 'DBA';
-    }
+    use HasPolicyAuthorization;
 
     public function viewAny(User $user): bool
     {

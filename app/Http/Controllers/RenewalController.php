@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\EventCode;
 use App\Mail\sendCall;
 use App\Models\Actor;
 use App\Models\MatterActors;
@@ -407,10 +408,10 @@ class RenewalController extends Controller
 
         // Prepare description
         $desc = sprintf(config($config_prefix.'.line1'), $ren->uid, $ren->number);
-        if ($ren->event_name == 'FIL') {
+        if ($ren->event_name == EventCode::FILING->value) {
             $desc .= config($config_prefix.'.filed');
         }
-        if ($ren->event_name == 'GRT' || $ren->event_name == 'PR') {
+        if ($ren->event_name == EventCode::GRANT->value || $ren->event_name == EventCode::PRIORITY_CLAIM->value) {
             $desc .= config($config_prefix.'.granted');
         }
         $desc .= Carbon::parse($ren->event_date)->locale($ren->language)->isoFormat('LL');
@@ -629,10 +630,10 @@ class RenewalController extends Controller
                             $earlier = min($earlier, strtotime($ren['due_date']));
                         }
                         $desc = "$ren->uid : Annuité pour l'année $ren->detail du titre $ren->number";
-                        if ($ren->event_name == 'FIL') {
+                        if ($ren->event_name == EventCode::FILING->value) {
                             $desc .= ' déposé le ';
                         }
-                        if ($ren->event_name == 'GRT' || $ren->event_name == 'PR') {
+                        if ($ren->event_name == EventCode::GRANT->value || $ren->event_name == EventCode::PRIORITY_CLAIM->value) {
                             $desc .= ' délivré le ';
                         }
                         $desc .= Carbon::parse($ren->event_date)->isoFormat('LL');

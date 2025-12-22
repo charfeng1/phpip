@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Country;
 use App\Models\User;
+use App\Traits\HasPolicyAuthorization;
 
 /**
  * Authorization policy for Country model.
@@ -16,15 +17,7 @@ use App\Models\User;
  */
 class CountryPolicy
 {
-    protected function isAdmin(User $user): bool
-    {
-        return $user->default_role === 'DBA';
-    }
-
-    protected function canRead(User $user): bool
-    {
-        return in_array($user->default_role, ['DBA', 'DBRW', 'DBRO'], true);
-    }
+    use HasPolicyAuthorization;
 
     public function viewAny(User $user): bool
     {

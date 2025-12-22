@@ -3461,6 +3461,21 @@ class CountryTableSeeder extends Seeder
             ],
 
             [
+                'numcode' => 840,
+                'iso' => 'US',
+                'iso3' => 'USA',
+                'name' => ['en' => 'United States', 'fr' => 'États-Unis', 'de' => 'Vereinigte Staaten'],
+                'ep' => 0,
+                'wo' => 1,
+                'em' => 0,
+                'oa' => 0,
+                'renewal_first' => 4,
+                'renewal_base' => 'FIL',
+                'renewal_start' => 'GRT',
+                'checked_on' => '2020-02-24',
+            ],
+
+            [
                 'numcode' => 858,
                 'iso' => 'UY',
                 'iso3' => 'URY',
@@ -3622,6 +3637,21 @@ class CountryTableSeeder extends Seeder
                 'renewal_first' => 2,
                 'renewal_base' => 'FIL',
                 'renewal_start' => 'FIL',
+                'checked_on' => '2020-02-24',
+            ],
+
+            [
+                'numcode' => 0,
+                'iso' => 'WO',
+                'iso3' => 'WPO',
+                'name' => ['en' => 'WIPO (PCT)', 'fr' => 'OMPI (PCT)', 'de' => 'WIPO (PCT)'],
+                'ep' => 0,
+                'wo' => 0,
+                'em' => 0,
+                'oa' => 0,
+                'renewal_first' => 0,
+                'renewal_base' => null,
+                'renewal_start' => null,
                 'checked_on' => '2020-02-24',
             ],
 

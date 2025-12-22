@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Enums\UserRole;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -26,11 +27,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Paginator::useBootstrapFive();
-        Gate::define('client', fn ($user) => $user->default_role === 'CLI' || empty($user->default_role));
-        Gate::define('except_client', fn ($user) => $user->default_role !== 'CLI' && ! empty($user->default_role));
-        Gate::define('admin', fn ($user) => $user->default_role === 'DBA');
-        Gate::define('readwrite', fn ($user) => in_array($user->default_role, ['DBA', 'DBRW']));
-        Gate::define('readonly', fn ($user) => in_array($user->default_role, ['DBA', 'DBRW', 'DBRO']));
+        Gate::define('client', fn ($user) => $user->default_role === UserRole::CLIENT->value || empty($user->default_role));
+        Gate::define('except_client', fn ($user) => $user->default_role !== UserRole::CLIENT->value && ! empty($user->default_role));
+        Gate::define('admin', fn ($user) => $user->default_role === UserRole::ADMIN->value);
+        Gate::define('readwrite', fn ($user) => in_array($user->default_role, UserRole::writableRoleValues()));
+        Gate::define('readonly', fn ($user) => in_array($user->default_role, UserRole::readableRoleValues()));
 
         // Add query macro for case-insensitive JSON column queries
         // Supports both MySQL and PostgreSQL syntax

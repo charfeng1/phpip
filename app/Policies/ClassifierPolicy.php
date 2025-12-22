@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\Classifier;
 use App\Models\Matter;
 use App\Models\User;
+use App\Traits\HasPolicyAuthorization;
 
 /**
  * Authorization policy for Classifier model.
@@ -16,19 +17,11 @@ use App\Models\User;
  */
 class ClassifierPolicy
 {
-    protected function canRead(User $user): bool
-    {
-        return in_array($user->default_role, ['DBA', 'DBRW', 'DBRO'], true);
-    }
-
-    protected function canWrite(User $user): bool
-    {
-        return in_array($user->default_role, ['DBA', 'DBRW'], true);
-    }
+    use HasPolicyAuthorization;
 
     public function viewAny(User $user): bool
     {
-        return $this->canRead($user) || $user->default_role === 'CLI' || empty($user->default_role);
+        return $this->canRead($user) || $this->isClient($user);
     }
 
     public function view(User $user, Classifier $classifier): bool
@@ -38,7 +31,7 @@ class ClassifierPolicy
         }
 
         // Client users can view classifiers for their own matters
-        if ($user->default_role === 'CLI' || empty($user->default_role)) {
+        if ($this->isClient($user)) {
             $matter = $classifier->matter()->first();
             if ($matter instanceof Matter) {
                 $clientActor = optional($matter->clientFromLnk())->actor_id;

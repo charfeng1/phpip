@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ActorRole;
+use App\Enums\CategoryCode;
+use App\Enums\ClassifierType;
+use App\Enums\EventCode;
 use App\Http\Requests\MatterExportRequest;
 use App\Http\Requests\MergeFileRequest;
 use App\Models\Actor;
@@ -85,7 +89,7 @@ class MatterController extends Controller
             return response()->json($matters);
         }
 
-        $matters = $query->simplePaginate(25);
+        $matters = $query->simplePaginate(config('pagination.matters'));
         $matters->withQueryString()->links();  // Keep URL parameters in the paginator links
 
         return view('matter.index', compact('matters'));
@@ -111,12 +115,12 @@ class MatterController extends Controller
 
         // Get all external matters claiming priority to any family member (by PRI event)
         $externalPriorityMatters = \App\Models\Matter::whereHas('events', function ($q) use ($familyIds) {
-            $q->where('code', 'PRI')->whereIn('alt_matter_id', $familyIds);
+            $q->where('code', EventCode::PRIORITY->value)->whereIn('alt_matter_id', $familyIds);
         })->get();
 
         // For retrolink: if this matter is an external matter claiming priority to a local matter, find the local matter
         $retrolink = null;
-        $priEvent = $matter->events->where('code', 'PRI')->first();
+        $priEvent = $matter->events->where('code', EventCode::PRIORITY->value)->first();
         if ($priEvent && $priEvent->alt_matter_id) {
             $retrolink = \App\Models\Matter::find($priEvent->alt_matter_id);
         }
@@ -151,7 +155,7 @@ class MatterController extends Controller
         Gate::authorize('readwrite');
         $operation = $request->input('operation', 'new'); // new, clone, descendant, ops
         $category = [];
-        $category_code = $request->input('category', 'PAT');
+        $category_code = $request->input('category', CategoryCode::PATENT->value);
         if ($operation != 'new' && $operation != 'ops') {
             $parent_matter = Matter::with(
                 'container',
@@ -262,14 +266,14 @@ class MatterController extends Controller
                 $new_matter->priority()->createMany($parent_matter->priority->toArray());
                 $new_matter->container_id = $parent_matter->container_id ?? $request->parent_id;
                 if ($request->priority) {
-                    $new_matter->events()->create(['code' => 'PRI', 'alt_matter_id' => $request->parent_id]);
+                    $new_matter->events()->create(['code' => EventCode::PRIORITY->value, 'alt_matter_id' => $request->parent_id]);
                 } else {
                     // Copy Filing event from original matter
                     $new_matter->filing()->save($parent_matter->filing->replicate(['detail']));
                     $new_matter->parent_id = $request->parent_id;
                     $new_matter->events()->create(
                         [
-                            'code' => 'ENT',
+                            'code' => EventCode::ENTRY->value,
                             'event_date' => now(),
                             'detail' => 'Descendant filing date',
                         ]
@@ -308,7 +312,7 @@ class MatterController extends Controller
                 }
                 break;
             case 'new':
-                $new_matter->events()->create(['code' => 'REC', 'event_date' => now()]);
+                $new_matter->events()->create(['code' => EventCode::RECEIVED->value, 'event_date' => now()]);
                 break;
         }
 
@@ -358,9 +362,9 @@ class MatterController extends Controller
             }
 
             // Insert "entered" event tracing the actual date of the step
-            $new_matter->events()->create(['code' => 'ENT', 'event_date' => now()]);
+            $new_matter->events()->create(['code' => EventCode::ENTRY->value, 'event_date' => now()]);
             // Insert "Parent filed" event tracing the filing number of the parent PCT or EP
-            $new_matter->events()->create(['code' => 'PFIL', 'alt_matter_id' => $request->parent_id]);
+            $new_matter->events()->create(['code' => EventCode::PCT_FILING->value, 'alt_matter_id' => $request->parent_id]);
 
             $new_matter->parent_id = $parent_id;
             $new_matter->container_id = $parent_matter->container_id ?? $parent_id;
@@ -464,7 +468,7 @@ class MatterController extends Controller
                     if ($pri['number'] != $app['app']['number']) {
                         $new_matter->events()->create(
                             [
-                                'code' => 'PRI',
+                                'code' => EventCode::PRIORITY->value,
                                 'detail' => $pri['country'].$pri['number'],
                                 'event_date' => $pri['date'],
                             ]
@@ -472,15 +476,15 @@ class MatterController extends Controller
                     }
                 }
                 if (array_key_exists('title', $app)) {
-                    $new_matter->classifiersNative()->create(['type_code' => 'TIT', 'value' => $app['title']]);
+                    $new_matter->classifiersNative()->create(['type_code' => ClassifierType::TITLE->value, 'value' => $app['title']]);
                 }
-                $new_matter->actorPivot()->create(['actor_id' => $request->client_id, 'role' => 'CLI', 'shared' => 1]);
+                $new_matter->actorPivot()->create(['actor_id' => $request->client_id, 'role' => ActorRole::CLIENT->value, 'shared' => 1]);
                 if (array_key_exists('applicants', $app)) {
                     if (strtolower($app['applicants'][0]) == strtolower(Actor::find($request->client_id)->name)) {
                         $new_matter->actorPivot()->create(
                             [
                                 'actor_id' => $request->client_id,
-                                'role' => 'APP',
+                                'role' => ActorRole::APPLICANT->value,
                                 'shared' => 1,
                             ]
                         );
@@ -496,7 +500,7 @@ class MatterController extends Controller
                             $new_matter->actorPivot()->firstOrCreate(
                                 [
                                     'actor_id' => $actor->id,
-                                    'role' => 'APP',
+                                    'role' => ActorRole::APPLICANT->value,
                                     'shared' => 1,
                                 ]
                             );
@@ -504,7 +508,7 @@ class MatterController extends Controller
                             $new_actor = Actor::create(
                                 [
                                     'name' => $applicant,
-                                    'default_role' => 'APP',
+                                    'default_role' => ActorRole::APPLICANT->value,
                                     'phy_person' => 0,
                                     'notes' => "Inserted by OPS family create tool for matter ID $new_matter->id",
                                 ]
@@ -512,7 +516,7 @@ class MatterController extends Controller
                             $new_matter->actorPivot()->firstOrCreate(
                                 [
                                     'actor_id' => $new_actor->id,
-                                    'role' => 'APP',
+                                    'role' => ActorRole::APPLICANT->value,
                                     'shared' => 1,
                                 ]
                             );
@@ -532,7 +536,7 @@ class MatterController extends Controller
                             $new_matter->actorPivot()->firstOrCreate(
                                 [
                                     'actor_id' => $actor->id,
-                                    'role' => 'INV',
+                                    'role' => ActorRole::INVENTOR->value,
                                     'shared' => 1,
                                 ]
                             );
@@ -540,7 +544,7 @@ class MatterController extends Controller
                             $new_actor = Actor::create(
                                 [
                                     'name' => $inventor,
-                                    'default_role' => 'INV',
+                                    'default_role' => ActorRole::INVENTOR->value,
                                     'phy_person' => 1,
                                     'notes' => "Inserted by OPS family create tool for matter ID $new_matter->id",
                                 ]
@@ -548,7 +552,7 @@ class MatterController extends Controller
                             $new_matter->actorPivot()->firstOrCreate(
                                 [
                                     'actor_id' => $new_actor->id,
-                                    'role' => 'INV',
+                                    'role' => ActorRole::INVENTOR->value,
                                     'shared' => 1,
                                 ]
                             );
@@ -565,14 +569,14 @@ class MatterController extends Controller
                             // The priority application is in the family
                             $new_matter->events()->create(
                                 [
-                                    'code' => 'PRI',
+                                    'code' => EventCode::PRIORITY->value,
                                     'alt_matter_id' => $matter_id_num[$pri['number']],
                                 ]
                             );
                         } else {
                             $new_matter->events()->create(
                                 [
-                                    'code' => 'PRI',
+                                    'code' => EventCode::PRIORITY->value,
                                     'detail' => $pri['country'].$pri['number'],
                                     'event_date' => $pri['date'],
                                 ]
@@ -585,7 +589,7 @@ class MatterController extends Controller
                 $new_matter->parent_id = $matter_id_num[$app['pct']];
                 $new_matter->events()->create(
                     [
-                        'code' => 'PFIL',
+                        'code' => EventCode::PCT_FILING->value,
                         'alt_matter_id' => $new_matter->parent_id,
                     ]
                 );
@@ -594,7 +598,7 @@ class MatterController extends Controller
                 // This app is a divisional or a continuation
                 $new_matter->events()->create(
                     [
-                        'code' => 'ENT',
+                        'code' => EventCode::ENTRY->value,
                         'event_date' => $app['app']['date'],
                         'detail' => 'Descendant filing date',
                     ]
@@ -604,11 +608,11 @@ class MatterController extends Controller
                 $app['app']['date'] = $parent['app']['date'];
                 $new_matter->parent_id = $matter_id_num["$parent_num"];
             }
-            $new_matter->events()->create(['code' => 'FIL', 'event_date' => $app['app']['date'], 'detail' => $app['app']['number']]);
+            $new_matter->events()->create(['code' => EventCode::FILING->value, 'event_date' => $app['app']['date'], 'detail' => $app['app']['number']]);
             if (array_key_exists('pub', $app)) {
                 $new_matter->events()->create(
                     [
-                        'code' => 'PUB',
+                        'code' => EventCode::PUBLICATION->value,
                         'event_date' => $app['pub']['date'],
                         'detail' => $app['pub']['number'],
                     ]
@@ -617,7 +621,7 @@ class MatterController extends Controller
             if (array_key_exists('grt', $app)) {
                 $new_matter->events()->create(
                     [
-                        'code' => 'GRT',
+                        'code' => EventCode::GRANT->value,
                         'event_date' => $app['grt']['date'],
                         'detail' => $app['grt']['number'],
                     ]
@@ -628,11 +632,11 @@ class MatterController extends Controller
                     switch ($step['code']) {
                         case 'EXRE':
                             // Exam report
-                            $exa = $new_matter->events()->create(['code' => 'EXA', 'event_date' => $step['dispatched']]);
+                            $exa = $new_matter->events()->create(['code' => EventCode::EXAMINATION->value, 'event_date' => $step['dispatched']]);
                             if (array_key_exists('replied', $step) && $exa->event_date < now()->subMonths(4)) {
                                 $exa->tasks()->create(
                                     [
-                                        'code' => 'REP',
+                                        'code' => EventCode::REPLY->value,
                                         'due_date' => $exa->event_date->addMonths(4),
                                         'done_date' => $step['replied'],
                                         'done' => 1,
@@ -644,7 +648,7 @@ class MatterController extends Controller
                         case 'RFEE':
                             // Renewals
                             $new_matter->filing->tasks()->updateOrCreate(
-                                ['code' => 'REN', 'detail' => $step['ren_year']],
+                                ['code' => EventCode::RENEWAL->value, 'detail' => $step['ren_year']],
                                 [
                                     'due_date' => $new_matter->filing->event_date->addYears($step['ren_year'] - 1)->lastOfMonth(),
                                     'done_date' => $step['ren_paid'],
@@ -656,12 +660,12 @@ class MatterController extends Controller
                             // Intention to grant
                             if (array_key_exists('dispatched', $step)) {
                                 // Sometimes the dispatch and the payment are in different steps
-                                $grt = $new_matter->events()->create(['code' => 'ALL', 'event_date' => $step['dispatched']]);
+                                $grt = $new_matter->events()->create(['code' => EventCode::ALLOWANCE->value, 'event_date' => $step['dispatched']]);
                             }
                             if (array_key_exists('grt_paid', $step) && $grt->event_date < now()->subMonths(4)) {
                                 $grt->tasks()->create(
                                     [
-                                        'code' => 'PAY',
+                                        'code' => EventCode::PAYMENT->value,
                                         'due_date' => $grt->event_date->addMonths(4),
                                         'done_date' => $step['grt_paid'],
                                         'done' => 1,
@@ -852,7 +856,7 @@ class MatterController extends Controller
     {
         // All events and their tasks, excepting renewals
         $events = $matter->events()->with(['tasks' => function (HasMany $query) {
-            $query->where('code', '!=', 'REN');
+            $query->where('code', '!=', EventCode::RENEWAL->value);
         }, 'info:code,name', 'tasks.info:code,name'])->get();
         $is_renewals = 0;
 
@@ -869,9 +873,9 @@ class MatterController extends Controller
     {
         // The renewal trigger event and its renewals
         $events = $matter->events()->whereHas('tasks', function (Builder $query) {
-            $query->where('code', 'REN');
+            $query->where('code', EventCode::RENEWAL->value);
         })->with(['tasks' => function (HasMany $query) {
-            $query->where('code', 'REN');
+            $query->where('code', EventCode::RENEWAL->value);
         }, 'info:code,name', 'tasks.info:code,name'])->get();
         $is_renewals = 1;
 

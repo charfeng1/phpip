@@ -4,18 +4,11 @@ namespace App\Policies;
 
 use App\Models\Actor;
 use App\Models\User;
+use App\Traits\HasPolicyAuthorization;
 
 class ActorPolicy
 {
-    protected function canRead(User $user): bool
-    {
-        return in_array($user->default_role, ['DBA', 'DBRW', 'DBRO'], true);
-    }
-
-    protected function canWrite(User $user): bool
-    {
-        return in_array($user->default_role, ['DBA', 'DBRW'], true);
-    }
+    use HasPolicyAuthorization;
 
     public function viewAny(User $user): bool
     {

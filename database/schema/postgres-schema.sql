@@ -49,7 +49,7 @@ COMMENT ON COLUMN country.renewal_start IS 'The event from which renewals become
 DROP TABLE IF EXISTS actor_role CASCADE;
 CREATE TABLE actor_role (
     code CHAR(5) NOT NULL PRIMARY KEY,
-    name VARCHAR(45) NOT NULL,
+    name JSONB NOT NULL DEFAULT '{}',
     display_order SMALLINT DEFAULT 127,
     shareable BOOLEAN NOT NULL DEFAULT FALSE,
     show_ref BOOLEAN NOT NULL DEFAULT FALSE,
@@ -66,7 +66,7 @@ CREATE TABLE actor_role (
 COMMENT ON COLUMN actor_role.display_order IS 'Order of display in interface';
 COMMENT ON COLUMN actor_role.shareable IS 'Indicates whether actors listed with this role are shareable for all matters of the same family';
 
-CREATE INDEX idx_actor_role_name ON actor_role(name);
+CREATE INDEX idx_actor_role_name_en ON actor_role((name->>'en'));
 
 -- Actor table
 DROP TABLE IF EXISTS actor CASCADE;
@@ -160,6 +160,7 @@ CREATE TABLE event_name (
     default_responsible VARCHAR(20),
     use_matter_resp BOOLEAN NOT NULL DEFAULT FALSE,
     killer BOOLEAN NOT NULL DEFAULT FALSE,
+    "unique" BOOLEAN NOT NULL DEFAULT FALSE,
     notes VARCHAR(160),
     creator VARCHAR(20),
     updater VARCHAR(20),
@@ -245,7 +246,7 @@ DROP TABLE IF EXISTS task_rules CASCADE;
 CREATE TABLE task_rules (
     id SERIAL PRIMARY KEY,
     active BOOLEAN NOT NULL DEFAULT TRUE,
-    for_category CHAR(5) NOT NULL REFERENCES matter_category(code) ON UPDATE CASCADE,
+    for_category CHAR(5) REFERENCES matter_category(code) ON UPDATE CASCADE,
     for_country CHAR(2) REFERENCES country(iso) ON DELETE CASCADE ON UPDATE CASCADE,
     for_origin CHAR(2) REFERENCES country(iso) ON DELETE CASCADE ON UPDATE CASCADE,
     for_type CHAR(5) REFERENCES matter_type(code) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -890,7 +891,7 @@ SELECT
     actor.email,
     pivot.display_order,
     pivot.role AS role_code,
-    actor_role.name AS role_name,
+    actor_role.name ->> 'en' AS role_name,
     actor_role.shareable,
     actor_role.show_ref,
     actor_role.show_company,
@@ -977,25 +978,63 @@ FROM actor
 WHERE login IS NOT NULL;
 
 -- ============================================================================
+-- AUDIT LOGS TABLE
+-- ============================================================================
+-- Audit log table for tracking all data changes for compliance and dispute resolution.
+-- Captures who/what/when for every create, update, and delete operation on auditable models.
+DROP TABLE IF EXISTS audit_logs CASCADE;
+CREATE TABLE audit_logs (
+    id BIGSERIAL PRIMARY KEY,
+    auditable_type VARCHAR(100) NOT NULL,
+    auditable_id BIGINT NOT NULL,
+    action VARCHAR(20) NOT NULL,
+    user_login VARCHAR(16),
+    user_name VARCHAR(100),
+    old_values JSONB,
+    new_values JSONB,
+    ip_address VARCHAR(45),
+    user_agent VARCHAR(500),
+    url VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+COMMENT ON COLUMN audit_logs.auditable_type IS 'Model class name (e.g., App\\Models\\Matter)';
+COMMENT ON COLUMN audit_logs.auditable_id IS 'Primary key of the audited record';
+COMMENT ON COLUMN audit_logs.action IS 'Type of action: created, updated, deleted';
+COMMENT ON COLUMN audit_logs.user_login IS 'Login of user who made the change';
+COMMENT ON COLUMN audit_logs.user_name IS 'Full name of user at time of action';
+COMMENT ON COLUMN audit_logs.old_values IS 'Previous values before change (for update/delete)';
+COMMENT ON COLUMN audit_logs.new_values IS 'New values after change (for create/update)';
+COMMENT ON COLUMN audit_logs.ip_address IS 'IP address of the client';
+COMMENT ON COLUMN audit_logs.user_agent IS 'Browser/client user agent';
+COMMENT ON COLUMN audit_logs.url IS 'URL where the action was triggered';
+COMMENT ON COLUMN audit_logs.created_at IS 'When the action occurred';
+
+CREATE INDEX audit_logs_auditable_index ON audit_logs (auditable_type, auditable_id);
+CREATE INDEX audit_logs_user_index ON audit_logs (user_login);
+CREATE INDEX audit_logs_action_index ON audit_logs (action);
+CREATE INDEX audit_logs_created_index ON audit_logs (created_at);
+
+-- ============================================================================
 -- INITIAL DATA SEED (sample roles)
 -- ============================================================================
 
 INSERT INTO actor_role (code, name, display_order, shareable, show_ref) VALUES
-    ('CLI', 'Client', 1, TRUE, TRUE),
-    ('AGT', 'Agent', 2, TRUE, TRUE),
-    ('APP', 'Applicant', 3, TRUE, FALSE),
-    ('INV', 'Inventor', 4, TRUE, FALSE),
-    ('OWN', 'Owner', 5, TRUE, FALSE),
-    ('ANN', 'Annuity Agent', 6, TRUE, TRUE),
-    ('DEL', 'Delegate', 7, FALSE, FALSE),
-    ('TRS', 'Translator', 8, TRUE, TRUE),
-    ('WRI', 'Writer', 9, FALSE, FALSE),
-    ('PAY', 'Payor', 10, TRUE, TRUE)
+    ('CLI', '{"en": "Client"}', 1, TRUE, TRUE),
+    ('AGT', '{"en": "Agent"}', 2, TRUE, TRUE),
+    ('APP', '{"en": "Applicant"}', 3, TRUE, FALSE),
+    ('INV', '{"en": "Inventor"}', 4, TRUE, FALSE),
+    ('OWN', '{"en": "Owner"}', 5, TRUE, FALSE),
+    ('ANN', '{"en": "Annuity Agent"}', 6, TRUE, TRUE),
+    ('DEL', '{"en": "Delegate"}', 7, FALSE, FALSE),
+    ('TRS', '{"en": "Translator"}', 8, TRUE, TRUE),
+    ('WRI', '{"en": "Writer"}', 9, FALSE, FALSE),
+    ('PAY', '{"en": "Payor"}', 10, TRUE, TRUE)
 ON CONFLICT (code) DO NOTHING;
 
 -- Sample database user roles (not actor roles)
 INSERT INTO actor_role (code, name, display_order) VALUES
-    ('DBA', 'Database Admin', 100),
-    ('DBRW', 'Read-Write User', 101),
-    ('DBRO', 'Read-Only User', 102)
+    ('DBA', '{"en": "Database Admin"}', 100),
+    ('DBRW', '{"en": "Read-Write User"}', 101),
+    ('DBRO', '{"en": "Read-Only User"}', 102)
 ON CONFLICT (code) DO NOTHING;

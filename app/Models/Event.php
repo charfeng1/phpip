@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\CategoryCode;
+use App\Enums\EventCode;
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -127,7 +129,7 @@ class Event extends Model
      */
     public function link()
     {
-        return $this->hasOne(Event::class, 'matter_id', 'alt_matter_id')->whereCode('FIL')->withDefault();
+        return $this->hasOne(Event::class, 'matter_id', 'alt_matter_id')->whereCode(EventCode::FILING->value)->withDefault();
     }
 
     /**
@@ -187,7 +189,8 @@ class Event extends Model
      */
     public function publicUrl()
     {
-        if (! in_array($this->code, ['FIL', 'PUB', 'GRT'])) {
+        $validCodes = [EventCode::FILING->value, EventCode::PUBLICATION->value, EventCode::GRANT->value];
+        if (! in_array($this->code, $validCodes)) {
             return false;
         }
         if ($this->matter->origin == 'EP') {
@@ -199,43 +202,66 @@ class Event extends Model
         $cleanednumber = $this->cleanNumber();
         $href = '';
         $pubno = '';
-        if ($this->code == 'PUB' || $this->code == 'GRT') {
+        if ($this->code == EventCode::PUBLICATION->value || $this->code == EventCode::GRANT->value) {
             // Fix US pub number for Espacenet by keeping the last 6 digits after the year
-            if ($CC == 'US' && $this->code == 'PUB') {
+            if ($CC == 'US' && $this->code == EventCode::PUBLICATION->value) {
                 $cleanednumber = substr($cleanednumber, 0, 4).substr($cleanednumber, -6);
             }
-            $href = "http://worldwide.espacenet.com/publicationDetails/biblio?DB=EPODOC&CC=$CC&NR=$cleanednumber";
-        } elseif ($this->code == 'FIL') {
-            switch ($this->matter->country) {
-                case 'EP':
-                    $href = "https://register.epo.org/espacenet/application?number=EP$cleanednumber";
-                    break;
-                case 'FR':
-                    $pubno = $this->matter->publication->cleanNumber();
-                    if ($category == 'PAT' && $pubno) {
-                        $href = "https://data.inpi.fr/brevets/$CC$pubno";
-                    } elseif ($category == 'TM') {
-                        if ($this->event_date->isoFormat('YYYY') >= '2000') {
-                            $cleanednumber = substr($cleanednumber, -7);
-                        }
-                        $href = "https://data.inpi.fr/marques/$CC$cleanednumber";
-                    }
-                    break;
-                case 'US':
-                    if (substr($cleanednumber, 0, 2) < 13) {
-                        $cleanednumber = substr($cleanednumber, 2).$this->event_date->isoFormat('YY');
-                    } else {
-                        $cleanednumber = $this->event_date->isoFormat('YYYY').$cleanednumber;
-                    }
-                    $href = "https://register.epo.org/ipfwretrieve?apn=US.$cleanednumber.A";
-                    break;
-                case 'GB':
-                    $href = "http://www.ipo.gov.uk/p-ipsum/Case/ApplicationNumber/$CC$cleanednumber";
-                    break;
-                case 'EM':
-                    $href = "https://euipo.europa.eu/eSearch/#details/trademarks/$cleanednumber";
-                    break;
+            $href = config('patent_offices.espacenet.publication')."?DB=EPODOC&CC=$CC&NR=$cleanednumber";
+        } elseif ($this->code == EventCode::FILING->value) {
+            $country = $this->matter->country;
+            $registryConfig = config("patent_offices.registries.$country");
+
+            if ($registryConfig) {
+                $href = $this->buildRegistryUrl($registryConfig, $cleanednumber, $CC, $category);
             }
+        }
+
+        return $href;
+    }
+
+    /**
+     * Build a registry URL based on the configuration.
+     *
+     * @param  array  $config  The registry configuration
+     * @param  string  $cleanednumber  The cleaned number
+     * @param  string  $CC  The country code
+     * @param  string  $category  The matter category code
+     * @return string The built URL
+     */
+    protected function buildRegistryUrl(array $config, string $cleanednumber, string $CC, string $category): string
+    {
+        $href = '';
+
+        switch ($this->matter->country) {
+            case 'EP':
+                $href = str_replace('{number}', $cleanednumber, $config['filing']);
+                break;
+            case 'FR':
+                $pubno = $this->matter->publication->cleanNumber();
+                if ($category == CategoryCode::PATENT->value && $pubno) {
+                    $href = str_replace(['{cc}', '{number}'], [$CC, $pubno], $config['patent']);
+                } elseif ($category == CategoryCode::TRADEMARK->value) {
+                    if ($this->event_date->isoFormat('YYYY') >= '2000') {
+                        $cleanednumber = substr($cleanednumber, -7);
+                    }
+                    $href = str_replace(['{cc}', '{number}'], [$CC, $cleanednumber], $config['trademark']);
+                }
+                break;
+            case 'US':
+                if (substr($cleanednumber, 0, 2) < 13) {
+                    $cleanednumber = substr($cleanednumber, 2).$this->event_date->isoFormat('YY');
+                } else {
+                    $cleanednumber = $this->event_date->isoFormat('YYYY').$cleanednumber;
+                }
+                $href = str_replace('{number}', $cleanednumber, $config['filing']);
+                break;
+            case 'GB':
+                $href = str_replace(['{cc}', '{number}'], [$CC, $cleanednumber], $config['filing']);
+                break;
+            case 'EM':
+                $href = str_replace('{number}', $cleanednumber, $config['trademark']);
+                break;
         }
 
         return $href;

@@ -11,3 +11,4 @@ Homestead.yaml
 .DS_Store
 .phpunit.result.cache
 .mcp.json
+.secrets.local
