@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreActorPivotRequest;
+use App\Http\Requests\UpdateActorPivotRequest;
 use App\Models\Actor;
 use App\Models\ActorPivot;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Traits\HandlesAuditFields;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -16,24 +17,18 @@ use Illuminate\Support\Facades\DB;
  */
 class ActorPivotController extends Controller
 {
+    use HandlesAuditFields;
     /**
      * Assign an actor to a matter in a specific role.
      *
      * Automatically maintains display_order sequence within role groups
      * and inherits company_id from the actor.
      *
-     * @param Request $request Contains matter_id, actor_id, role, and optional date
+     * @param StoreActorPivotRequest $request Validated actor-matter relationship data
      * @return ActorPivot The created actor-matter relationship
      */
-    public function store(Request $request)
+    public function store(StoreActorPivotRequest $request)
     {
-        $request->validate([
-            'matter_id' => 'required|numeric',
-            'actor_id' => 'required|numeric',
-            'role' => 'required',
-            'date' => 'date',
-        ]);
-
         // Fix display order indexes if wrong
         $roleGroup = ActorPivot::where('matter_id', $request->matter_id)->where('role', $request->role);
         $max = $roleGroup->max('display_order');
@@ -51,30 +46,27 @@ class ActorPivotController extends Controller
 
         $addedActor = Actor::find($request->actor_id);
 
+        $this->mergeCreator($request);
         $request->merge([
             'display_order' => $max + 1,
-            'creator' => Auth::user()->login,
             'company_id' => $addedActor->company_id,
             'date' => Now(),
         ]);
 
-        return ActorPivot::create($request->except(['_token', '_method']));
+        return ActorPivot::create($this->getFilteredData($request));
     }
 
     /**
      * Update the specified actor-matter relationship.
      *
-     * @param Request $request Updated relationship data
+     * @param UpdateActorPivotRequest $request Validated relationship data
      * @param ActorPivot $actorPivot The actor-matter relationship to update
      * @return ActorPivot The updated relationship
      */
-    public function update(Request $request, ActorPivot $actorPivot)
+    public function update(UpdateActorPivotRequest $request, ActorPivot $actorPivot)
     {
-        $request->validate([
-            'date' => 'date',
-        ]);
-        $request->merge(['updater' => Auth::user()->login]);
-        $actorPivot->update($request->except(['_token', '_method']));
+        $this->mergeUpdater($request);
+        $actorPivot->update($this->getFilteredData($request));
 
         return $actorPivot;
     }

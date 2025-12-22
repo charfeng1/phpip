@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreEventNameRequest;
+use App\Http\Requests\UpdateEventNameRequest;
 use App\Models\EventClassLnk;
 use App\Models\EventName;
+use App\Traits\Filterable;
+use App\Traits\HandlesAuditFields;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Manages event name definitions.
@@ -15,6 +18,21 @@ use Illuminate\Support\Facades\Auth;
  */
 class EventNameController extends Controller
 {
+    use Filterable, HandlesAuditFields;
+
+    /**
+     * Filter rules for index method.
+     */
+    protected array $filterRules = [];
+
+    public function __construct()
+    {
+        $this->filterRules = [
+            'Code' => fn ($q, $v) => $q->whereLike('code', "$v%"),
+            'Name' => fn ($q, $v) => $q->whereJsonLike('name', $v),
+        ];
+    }
+
     /**
      * Display a paginated list of event names with filtering.
      *
@@ -25,23 +43,14 @@ class EventNameController extends Controller
     {
         $this->authorize('viewAny', EventName::class);
 
-        $Code = $request->input('Code');
-        $Name = $request->input('Name');
-        $ename = EventName::query();
-        if (! is_null($Code)) {
-            $ename = $ename->whereLike('code', $Code.'%');
-        }
-
-        if (! is_null($Name)) {
-            $ename = $ename->whereJsonLike('name', $Name);
-        }
+        $query = EventName::query();
+        $this->applyFilters($query, $request);
 
         if ($request->wantsJson()) {
-            return response()->json($ename->get());
+            return response()->json($query->get());
         }
 
-        $enameslist = $ename->paginate(21);
-        $enameslist->appends($request->input())->links();
+        $enameslist = $this->filterAndPaginate($query, $request, config('pagination.default', 21));
 
         return view('eventname.index', compact('enameslist'));
     }
@@ -64,20 +73,13 @@ class EventNameController extends Controller
     /**
      * Store a newly created event name.
      *
-     * @param Request $request Event name data including code, name, and notes
+     * @param StoreEventNameRequest $request Validated event name data
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(StoreEventNameRequest $request)
     {
-        $this->authorize('create', EventName::class);
-
-        $request->validate([
-            'code' => 'required|unique:event_name|max:5',
-            'name' => 'required|max:45',
-            'notes' => 'max:160',
-        ]);
-        $request->merge(['creator' => Auth::user()->login]);
-        EventName::create($request->except(['_token', '_method']));
+        $this->mergeCreator($request);
+        EventName::create($this->getFilteredData($request));
 
         return response()->json(['redirect' => route('eventname.index')]);
     }
@@ -102,16 +104,14 @@ class EventNameController extends Controller
     /**
      * Update the specified event name.
      *
-     * @param Request $request Updated event name data
+     * @param UpdateEventNameRequest $request Validated event name data
      * @param EventName $eventname The event name to update
      * @return EventName The updated event name
      */
-    public function update(Request $request, EventName $eventname)
+    public function update(UpdateEventNameRequest $request, EventName $eventname)
     {
-        $this->authorize('update', $eventname);
-
-        $request->merge(['updater' => Auth::user()->login]);
-        $eventname->update($request->except(['_token', '_method']));
+        $this->mergeUpdater($request);
+        $eventname->update($this->getFilteredData($request));
 
         return $eventname;
     }
