@@ -67,21 +67,36 @@ class PatentFamilyCreationService
             return $apps->toArray();
         }
 
-        return DB::transaction(function () use ($apps, $caseref, $categoryCode, $clientId) {
-            $result = $this->processFamilyMembers(
-                $apps,
-                $caseref,
-                $categoryCode,
-                $clientId
-            );
+        try {
+            return DB::transaction(function () use ($apps, $caseref, $categoryCode, $clientId) {
+                $result = $this->processFamilyMembers(
+                    $apps,
+                    $caseref,
+                    $categoryCode,
+                    $clientId
+                );
+
+                return [
+                    'success' => true,
+                    'redirect' => "/matter?Ref=$caseref&tab=1",
+                    'created' => $result['created'],
+                    'skipped' => $result['skipped'],
+                ];
+            });
+        } catch (\Exception $e) {
+            // Log error and return error response
+            \Log::error('Failed to create patent family from OPS', [
+                'docnum' => $docnum,
+                'caseref' => $caseref,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
 
             return [
-                'success' => true,
-                'redirect' => "/matter?Ref=$caseref&tab=1",
-                'created' => $result['created'],
-                'skipped' => $result['skipped'],
+                'exception' => 'Database error occurred while creating patent family',
+                'message' => 'Failed to create patent family: ' . $e->getMessage(),
             ];
-        });
+        }
     }
 
     /**
@@ -153,7 +168,10 @@ class PatentFamilyCreationService
      * @param  array  $app  The OPS application data
      * @param  string  $caseref  The case reference
      * @param  string  $categoryCode  The category code
-     * @param  int|null  $existingCount  Pre-calculated count of existing matters (for testing)
+     * @param  int|null  $existingCount  Pre-calculated count of existing matters with same UID components.
+     *                                    When provided, bypasses database query and uses this value directly.
+     *                                    When null, executes database query to calculate the count.
+     *                                    Used primarily for testing to avoid database dependencies.
      */
     protected function buildMatterData(
         array $app,
@@ -267,6 +285,11 @@ class PatentFamilyCreationService
      */
     protected function processApplicants(Matter $matter, array $applicants, int $clientId): void
     {
+        // Return early if applicants array is empty to prevent null pointer exception
+        if (empty($applicants)) {
+            return;
+        }
+
         $client = Actor::find($clientId);
 
         // Check if first applicant matches client
@@ -542,7 +565,7 @@ class PatentFamilyCreationService
             return;
         }
 
-        $entryEvent = $matter->events->where('code', 'ENT')->first();
+        $entryEvent = $matter->events->where('code', EventCode::ENTRY->value)->first();
         if ($entryEvent) {
             $entryEvent->event_date = $step['request'];
             $entryEvent->save();
