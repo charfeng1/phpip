@@ -44,7 +44,7 @@ class UpdateUserRequest extends FormRequest
                 Rule::unique('users')->ignore($userId),
             ],
             'password' => $this->passwordRules(),
-            'default_role' => 'nullable|max:5|exists:actor_role,code',
+            'default_role' => 'sometimes|required|max:5|exists:actor_role,code',
             'company_id' => 'nullable|integer|exists:actor,id',
         ];
     }

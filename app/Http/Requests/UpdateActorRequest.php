@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Actor;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Gate;
 
 class UpdateActorRequest extends FormRequest
 {
@@ -12,7 +12,9 @@ class UpdateActorRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Gate::allows('readwrite');
+        $actor = $this->route('actor');
+
+        return $this->user()->can('update', $actor instanceof Actor ? $actor : new Actor());
     }
 
     /**

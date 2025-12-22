@@ -18,7 +18,7 @@ enum ActorRole: string
     case DELEGATE = 'DEL';
     case CONTACT = 'CNT';
     case PAYOR = 'PAY';
-    case WRITER = 'WRT';
+    case WRITER = 'WRI';
     case ANNUITY_AGENT = 'ANN';
 
     /**

@@ -19,7 +19,7 @@ class ActorRoleTest extends TestCase
         $this->assertEquals('DEL', ActorRole::DELEGATE->value);
         $this->assertEquals('CNT', ActorRole::CONTACT->value);
         $this->assertEquals('PAY', ActorRole::PAYOR->value);
-        $this->assertEquals('WRT', ActorRole::WRITER->value);
+        $this->assertEquals('WRI', ActorRole::WRITER->value);
         $this->assertEquals('ANN', ActorRole::ANNUITY_AGENT->value);
     }
 
