@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\TemplateMember;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateTemplateMemberRequest extends FormRequest
@@ -11,7 +12,13 @@ class UpdateTemplateMemberRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('update', $this->route('templateMember'));
+        $templateMember = $this->route('template_member');
+
+        if (! $templateMember instanceof TemplateMember) {
+            return false;
+        }
+
+        return $this->user()->can('update', $templateMember);
     }
 
     /**
