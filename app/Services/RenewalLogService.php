@@ -14,6 +14,30 @@ use Illuminate\Support\Facades\Auth;
  */
 class RenewalLogService
 {
+    protected ?string $userLogin = null;
+
+    /**
+     * Create a new RenewalLogService instance.
+     *
+     * @param  string|null  $userLogin  Optional user login for testing. If null, uses Auth::user().
+     */
+    public function __construct(?string $userLogin = null)
+    {
+        $this->userLogin = $userLogin;
+    }
+
+    /**
+     * Get the current user login.
+     */
+    protected function getUserLogin(): string
+    {
+        if ($this->userLogin !== null) {
+            return $this->userLogin;
+        }
+
+        return Auth::user()->login ?? 'system';
+    }
+
     /**
      * Create a new job ID for batch logging.
      *
@@ -37,11 +61,11 @@ class RenewalLogService
     /**
      * Log a single renewal step transition.
      *
-     * @param int $taskId The task ID
-     * @param int $jobId The job ID for grouping
-     * @param int $fromStep The original step
-     * @param int $toStep The new step
-     * @param array $extra Additional log data (from_grace, to_grace, etc.)
+     * @param  int  $taskId  The task ID
+     * @param  int  $jobId  The job ID for grouping
+     * @param  int  $fromStep  The original step
+     * @param  int  $toStep  The new step
+     * @param  array  $extra  Additional log data (from_grace, to_grace, etc.)
      */
     public function logTransition(
         int $taskId,
@@ -55,7 +79,7 @@ class RenewalLogService
             'job_id' => $jobId,
             'from_step' => $fromStep,
             'to_step' => $toStep,
-            'creator' => Auth::user()->login,
+            'creator' => $this->getUserLogin(),
             'created_at' => now(),
         ], $extra));
     }
@@ -63,8 +87,8 @@ class RenewalLogService
     /**
      * Log multiple renewal transitions in a batch.
      *
-     * @param array $transitions Array of transition data
-     * @param int $jobId The job ID for grouping
+     * @param  array  $transitions  Array of transition data
+     * @param  int  $jobId  The job ID for grouping
      */
     public function logBatch(array $transitions, int $jobId): void
     {
@@ -78,9 +102,9 @@ class RenewalLogService
     /**
      * Build log entries for notification calls (step 0/1 -> 2).
      *
-     * @param Collection $renewals The renewals being notified
-     * @param int $jobId The job ID for grouping
-     * @param string $notifyType The notification type (first, warn, last)
+     * @param  Collection  $renewals  The renewals being notified
+     * @param  int  $jobId  The job ID for grouping
+     * @param  string  $notifyType  The notification type (first, warn, last)
      * @return array The log entries ready for batch insert
      */
     public function buildNotificationLogs(Collection $renewals, int $jobId, string $notifyType): array
@@ -88,7 +112,7 @@ class RenewalLogService
         $logs = [];
         $fromGrace = ($notifyType === 'last') ? 0 : null;
         $toGrace = ($notifyType === 'last') ? 1 : null;
-        $creator = Auth::user()->login;
+        $creator = $this->getUserLogin();
         $now = now();
 
         foreach ($renewals as $renewal) {
@@ -110,10 +134,10 @@ class RenewalLogService
     /**
      * Build log entries for step transitions.
      *
-     * @param Collection $renewals The renewals being transitioned
-     * @param int $jobId The job ID for grouping
-     * @param int $toStep The target step
-     * @param array $extra Additional fields (from_invoice, to_invoice, etc.)
+     * @param  Collection  $renewals  The renewals being transitioned
+     * @param  int  $jobId  The job ID for grouping
+     * @param  int  $toStep  The target step
+     * @param  array  $extra  Additional fields (from_invoice, to_invoice, etc.)
      * @return array The log entries ready for batch insert
      */
     public function buildTransitionLogs(
@@ -123,7 +147,7 @@ class RenewalLogService
         array $extra = []
     ): array {
         $logs = [];
-        $creator = Auth::user()->login;
+        $creator = $this->getUserLogin();
         $now = now();
 
         foreach ($renewals as $renewal) {
@@ -143,10 +167,10 @@ class RenewalLogService
     /**
      * Build log entries for closing renewals with invoice step changes.
      *
-     * @param Collection $renewals The renewals being closed
-     * @param int $jobId The job ID for grouping
-     * @param int $toStep The target step
-     * @param int $toInvoiceStep The target invoice step
+     * @param  Collection  $renewals  The renewals being closed
+     * @param  int  $jobId  The job ID for grouping
+     * @param  int  $toStep  The target step
+     * @param  int  $toInvoiceStep  The target invoice step
      * @return array The log entries ready for batch insert
      */
     public function buildClosingLogs(
@@ -156,7 +180,7 @@ class RenewalLogService
         int $toInvoiceStep
     ): array {
         $logs = [];
-        $creator = Auth::user()->login;
+        $creator = $this->getUserLogin();
         $now = now();
 
         foreach ($renewals as $renewal) {

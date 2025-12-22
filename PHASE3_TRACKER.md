@@ -71,6 +71,11 @@ Extracting business logic from fat controllers into dedicated service classes:
 - [x] RenewalFeeCalculatorService created with 13 unit tests
 - [x] RenewalLogService created with 8 unit tests
 - [x] DolibarrInvoiceService created with 8 unit tests
+- [x] E2E tested matter lifecycle (create matter, add events) - WORKS
+- [x] All 29 unit tests pass
+
+**Known Issue**: Renewal page has pre-existing database error (`MIN(boolean)` not supported in PostgreSQL). This is a schema issue unrelated to Phase 3 services.
+
 - [ ] Next: RenewalNotificationService...
 
 ---

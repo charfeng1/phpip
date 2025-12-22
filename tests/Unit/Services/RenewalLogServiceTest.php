@@ -2,11 +2,8 @@
 
 namespace Tests\Unit\Services;
 
-use App\Models\RenewalsLog;
 use App\Services\RenewalLogService;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Mockery;
 use PHPUnit\Framework\TestCase;
 
 class RenewalLogServiceTest extends TestCase
@@ -16,22 +13,12 @@ class RenewalLogServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new RenewalLogService;
-    }
-
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
+        // Pass user login through constructor to avoid Auth facade dependency
+        $this->service = new RenewalLogService('testuser');
     }
 
     public function test_build_notification_logs_for_first_call(): void
     {
-        // Mock Auth facade
-        $mockUser = Mockery::mock('stdClass');
-        $mockUser->login = 'testuser';
-        Auth::shouldReceive('user')->andReturn($mockUser);
-
         $renewals = new Collection([
             (object) ['id' => 1, 'step' => 0],
             (object) ['id' => 2, 'step' => 1],
@@ -50,10 +37,6 @@ class RenewalLogServiceTest extends TestCase
 
     public function test_build_notification_logs_for_warn_call(): void
     {
-        $mockUser = Mockery::mock('stdClass');
-        $mockUser->login = 'testuser';
-        Auth::shouldReceive('user')->andReturn($mockUser);
-
         $renewals = new Collection([
             (object) ['id' => 1, 'step' => 2],
         ]);
@@ -66,10 +49,6 @@ class RenewalLogServiceTest extends TestCase
 
     public function test_build_notification_logs_for_last_call_sets_grace(): void
     {
-        $mockUser = Mockery::mock('stdClass');
-        $mockUser->login = 'testuser';
-        Auth::shouldReceive('user')->andReturn($mockUser);
-
         $renewals = new Collection([
             (object) ['id' => 1, 'step' => 2],
         ]);
@@ -82,10 +61,6 @@ class RenewalLogServiceTest extends TestCase
 
     public function test_build_transition_logs(): void
     {
-        $mockUser = Mockery::mock('stdClass');
-        $mockUser->login = 'testuser';
-        Auth::shouldReceive('user')->andReturn($mockUser);
-
         $renewals = new Collection([
             (object) ['id' => 1, 'step' => 2],
             (object) ['id' => 2, 'step' => 2],
@@ -101,10 +76,6 @@ class RenewalLogServiceTest extends TestCase
 
     public function test_build_transition_logs_with_extra_fields(): void
     {
-        $mockUser = Mockery::mock('stdClass');
-        $mockUser->login = 'testuser';
-        Auth::shouldReceive('user')->andReturn($mockUser);
-
         $renewals = new Collection([
             (object) ['id' => 1, 'step' => 2],
         ]);
@@ -117,10 +88,6 @@ class RenewalLogServiceTest extends TestCase
 
     public function test_build_closing_logs_includes_invoice_steps(): void
     {
-        $mockUser = Mockery::mock('stdClass');
-        $mockUser->login = 'testuser';
-        Auth::shouldReceive('user')->andReturn($mockUser);
-
         $renewals = new Collection([
             (object) ['id' => 1, 'step' => 8, 'invoice_step' => 2],
         ]);
@@ -135,10 +102,6 @@ class RenewalLogServiceTest extends TestCase
 
     public function test_build_closing_logs_handles_null_invoice_step(): void
     {
-        $mockUser = Mockery::mock('stdClass');
-        $mockUser->login = 'testuser';
-        Auth::shouldReceive('user')->andReturn($mockUser);
-
         $renewals = new Collection([
             (object) ['id' => 1, 'step' => 8, 'invoice_step' => null],
         ]);
@@ -150,10 +113,6 @@ class RenewalLogServiceTest extends TestCase
 
     public function test_build_notification_logs_empty_collection(): void
     {
-        $mockUser = Mockery::mock('stdClass');
-        $mockUser->login = 'testuser';
-        Auth::shouldReceive('user')->andReturn($mockUser);
-
         $renewals = new Collection([]);
 
         $logs = $this->service->buildNotificationLogs($renewals, 1, 'first');
