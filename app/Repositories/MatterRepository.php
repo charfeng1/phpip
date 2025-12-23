@@ -379,6 +379,17 @@ class MatterRepository
     ];
 
     /**
+     * Whitelist of allowed sort keys to prevent SQL injection.
+     * Only these keys can be used for sorting.
+     */
+    protected const ALLOWED_SORT_KEYS = [
+        'id', 'caseref', 'matter.id', 'matter.caseref', 'matter.uid',
+        'matter.country', 'matter.origin', 'matter.responsible', 'matter.type_code',
+        'country', 'Cat', 'Status_date', 'Title', 'Filed', 'FilNo',
+        'Published', 'PubNo', 'Granted', 'GrtNo', 'delegate', 'Ctnr',
+    ];
+
+    /**
      * Apply filters to the query.
      *
      * @param Builder $query
@@ -466,6 +477,14 @@ class MatterRepository
      */
     protected function applySortingAndGrouping(Builder $query, string $sortkey, string $sortdir): Builder
     {
+        // Validate sortkey against whitelist
+        if (! in_array($sortkey, self::ALLOWED_SORT_KEYS, true)) {
+            $sortkey = 'matter.id'; // Fallback to safe default
+        }
+
+        // Validate sortdir
+        $sortdir = strtolower($sortdir) === 'asc' ? 'asc' : 'desc';
+
         $baseGroupBy = [
             'matter.id',
             'tit1.value',
