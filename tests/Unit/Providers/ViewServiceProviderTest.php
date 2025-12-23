@@ -18,12 +18,10 @@ class ViewServiceProviderTest extends TestCase
      */
     public function test_table_comments_injected_into_create_views(): void
     {
-        // Register the provider
-        $provider = new ViewServiceProvider($this->app);
-        $provider->boot();
-
-        // Render a create view
+        // Render a create view (provider is automatically booted via bootstrap/app.php)
+        // Note: View composers only run when the view is rendered, not when made
         $view = View::make('category.create');
+        $view->render(); // Trigger view composers
         $data = $view->getData();
 
         // Assert tableComments is present
@@ -36,15 +34,12 @@ class ViewServiceProviderTest extends TestCase
      */
     public function test_table_comments_injected_into_show_views(): void
     {
-        // Register the provider
-        $provider = new ViewServiceProvider($this->app);
-        $provider->boot();
-
         // Create a mock category
         $category = new Category();
 
-        // Render a show view with the category
+        // Render a show view with the category (provider is automatically booted)
         $view = View::make('category.show', ['category' => $category]);
+        $view->render(); // Trigger view composers
         $data = $view->getData();
 
         // Assert tableComments is present
@@ -57,13 +52,9 @@ class ViewServiceProviderTest extends TestCase
      */
     public function test_existing_table_comments_not_overridden(): void
     {
-        // Register the provider
-        $provider = new ViewServiceProvider($this->app);
-        $provider->boot();
-
         $customComments = ['custom' => 'value'];
 
-        // Render a view with pre-existing tableComments
+        // Render a view with pre-existing tableComments (provider is automatically booted)
         $view = View::make('role.create', ['tableComments' => $customComments]);
         $data = $view->getData();
 
@@ -77,12 +68,9 @@ class ViewServiceProviderTest extends TestCase
      */
     public function test_table_comments_contains_column_data(): void
     {
-        // Register the provider
-        $provider = new ViewServiceProvider($this->app);
-        $provider->boot();
-
-        // Render a create view
+        // Render a create view (provider is automatically booted)
         $view = View::make('role.create');
+        $view->render(); // Trigger view composers
         $data = $view->getData();
 
         // Assert tableComments is an array

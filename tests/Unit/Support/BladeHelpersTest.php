@@ -58,9 +58,12 @@ class BladeHelpersTest extends TestCase
 
         $result = BladeHelpers::formatAttributes($attributes);
 
+        // Verify HTML tags are escaped (not present as tags)
         $this->assertStringNotContainsString('<script>', $result);
-        $this->assertStringNotContainsString('alert', $result);
-        $this->assertStringContainsString('&lt;', $result);
+        $this->assertStringNotContainsString('</script>', $result);
+        // Verify escape sequences are present
+        $this->assertStringContainsString('&lt;script&gt;', $result);
+        $this->assertStringContainsString('&lt;/script&gt;', $result);
         $this->assertStringContainsString('&amp;', $result);
         $this->assertStringContainsString('&quot;', $result);
     }
