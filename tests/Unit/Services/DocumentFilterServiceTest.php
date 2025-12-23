@@ -52,14 +52,14 @@ class DocumentFilterServiceTest extends TestCase
         $this->assertEquals(['Name' => 'Test'], $result['oldfilters']);
     }
 
-    public function test_summary_filter_maps_to_name_in_oldfilters(): void
+    public function test_summary_filter_maps_to_summary_in_oldfilters(): void
     {
         $members = $this->createMockTemplateMember();
 
         $result = $this->service->filterTemplateMembers($members, ['Summary' => 'test']);
 
-        // Note: Original code has a quirk where Summary filter uses 'Name' key
-        $this->assertEquals(['Name' => 'test'], $result['oldfilters']);
+        // Summary filter uses its own 'Summary' key (fixed from original bug)
+        $this->assertEquals(['Summary' => 'test'], $result['oldfilters']);
     }
 
     public function test_style_filter_returns_correct_oldfilters(): void

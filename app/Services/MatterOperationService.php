@@ -78,8 +78,10 @@ class MatterOperationService
                 'alt_matter_id' => $parentId,
             ]);
         } else {
-            // Copy filing event (without detail) from parent
-            $newMatter->filing()->save($parentMatter->filing->replicate(['detail']));
+            // Copy filing event (without detail) from parent, if it exists
+            if ($parentMatter->filing) {
+                $newMatter->filing()->save($parentMatter->filing->replicate(['detail']));
+            }
 
             // Set parent relationship
             $newMatter->parent_id = $parentId;

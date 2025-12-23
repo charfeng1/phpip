@@ -119,8 +119,8 @@ class DocumentFilterService
                 break;
             case 'Summary':
                 $query = $query->whereLike('summary', "{$value}%");
-                // Note: Original code uses 'Name' key for Summary filter (preserved for compatibility)
-                $oldfilters = ['Name' => $value];
+                // Use 'Summary' key to avoid conflict with Name filter
+                $oldfilters = ['Summary' => $value];
                 break;
             case 'Style':
                 $query = $query->whereLike('style', "{$value}%");
