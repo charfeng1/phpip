@@ -43,6 +43,7 @@
         </td>
         <td @if ($inputColspan) colspan="{{ $inputColspan }}" @endif>
           @if ($type === 'custom')
+            {{-- Custom content must be pre-sanitized by caller (e.g., wrapped in Illuminate\Support\HtmlString) --}}
             {!! $field['content'] ?? '' !!}
           @elseif ($type === 'textarea')
             <textarea class="{{ $inputClass }}" name="{{ $name }}" {!! $formatAttributes($inputAttributes) !!}>{{ $value }}</textarea>

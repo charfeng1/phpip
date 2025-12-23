@@ -1,11 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-@php
-  $titleHtml = __('Rules').' <a class="text-primary" href="https://github.com/jjdejong/phpip/wiki/Tables#task_rules" target="_blank"><svg width="16" height="16" fill="currentColor"><use xlink:href="#question-circle-fill"/></svg></a>';
-@endphp
 <x-list-with-panel
-  :title="$titleHtml"
+  title="{{ __('Rules') }}"
   create-url="rule/create"
   :create-label="__('Create Rule')"
   :create-title="__('Rule data')"
@@ -14,6 +11,9 @@
   :panel-title="__('Rule information')"
   :panel-message="__('Click on rule to view and edit details')"
   panel-column-class="col-4">
+  <x-slot name="titleSlot">
+    {{ __('Rules') }} <a class="text-primary" href="https://github.com/jjdejong/phpip/wiki/Tables#task_rules" target="_blank"><svg width="16" height="16" fill="currentColor"><use xlink:href="#question-circle-fill"/></svg></a>
+  </x-slot>
   <x-slot name="list">
     <table class="table table-striped table-hover table-sm">
       <thead>

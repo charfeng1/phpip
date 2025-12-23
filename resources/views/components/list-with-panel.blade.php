@@ -34,7 +34,13 @@
 @endphp
 
 <legend class="alert alert-dark d-flex justify-content-between py-2 mb-1">
-  {!! $title !!}
+  <span>
+    @if (isset($titleSlot))
+      {{ $titleSlot }}
+    @else
+      {{ $title }}
+    @endif
+  </span>
   @if ($createUrl && $createLabel)
     <a href="{{ $createUrl }}"
        class="btn btn-primary"

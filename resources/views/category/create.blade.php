@@ -2,8 +2,8 @@
   <fieldset>
     @php
       $displayWithInput = new Illuminate\Support\HtmlString(
-          '<input type=\"hidden\" name=\"display_with\">'.
-          '<input type=\"text\" class=\"form-control form-control-sm\" data-ac=\"/category/autocomplete\" data-actarget=\"display_with\" autocomplete=\"off\">'
+          '<input type="hidden" name="display_with">'.
+          '<input type="text" class="form-control form-control-sm" data-ac="/category/autocomplete" data-actarget="display_with" autocomplete="off">'
       );
       $rows = [
         [

@@ -11,7 +11,7 @@
   :panel-title="__('Class information')"
   :panel-message="__('Click on class to view and edit details')"
   panel-column-class="col-4"
-  list-card-class="card border-primar p-1">
+  list-card-class="card border-primary p-1">
   <x-slot name="list">
     <table class="table table-striped table-hover table-sm">
       <thead>
@@ -32,7 +32,7 @@
         </tr>
         @endforeach
         <tr>
-          <td colspan="5">
+          <td colspan="2">
             {{ $template_classes->links() }}
           </td>
         </tr>
