@@ -90,8 +90,8 @@ class MatterController extends Controller
             $request->input('sortkey', 'matter.id'),
             $request->input('sortdir', 'desc'),
             $filters,
-            $request->display_with,
-            $request->include_dead
+            $request->display_with ?? false,
+            (bool) $request->include_dead
         );
 
         if ($request->wantsJson()) {
