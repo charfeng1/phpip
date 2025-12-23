@@ -88,10 +88,12 @@ class MatterRepository
         $authUser = Auth::user();
         $authUserRole = $authUser?->default_role;
         $authUserLogin = $authUser?->login;
-        $isClient = $authUserRole == UserRole::CLIENT->value || empty($authUserRole);
+        // Only treat as client if explicitly has CLIENT role (not when unauthenticated/no role)
+        $isClient = $authUserRole === UserRole::CLIENT->value;
 
         return Category::withCount(['matters as total' => function ($query) use ($whatTasks, $authUserLogin, $authUserId, $isClient) {
-            if ($whatTasks == 1) {
+            // Only filter by responsible if we have a valid login
+            if ($whatTasks == 1 && $authUserLogin !== null) {
                 $query->where('responsible', $authUserLogin);
             }
             if ($whatTasks > 1) {
@@ -99,13 +101,14 @@ class MatterRepository
                     $aq->where('actor_id', $whatTasks);
                 });
             }
-            if ($isClient) {
+            // Only apply client filter if user is authenticated and has client role
+            if ($isClient && $authUserId !== null) {
                 $query->whereHas('client', function ($aq) use ($authUserId) {
                     $aq->where('actor_id', $authUserId);
                 });
             }
         }])
-            ->when($isClient, function ($query) use ($authUserId) {
+            ->when($isClient && $authUserId !== null, function ($query) use ($authUserId) {
                 $query->whereHas('matters', function ($q) use ($authUserId) {
                     $q->whereHas('client', function ($aq) use ($authUserId) {
                         $aq->where('actor_id', $authUserId);
@@ -344,10 +347,17 @@ class MatterRepository
      */
     protected function applyAccessControl(Builder $query): Builder
     {
-        $authUserRole = Auth::user()->default_role ?? null;
-        $authUserId = Auth::id();
+        $authUser = Auth::user();
+        if (! $authUser) {
+            // No authenticated user - return query unchanged (controller should handle auth)
+            return $query;
+        }
 
-        if ($authUserRole == UserRole::CLIENT->value || empty($authUserRole)) {
+        $authUserRole = $authUser->default_role;
+        $authUserId = $authUser->id;
+
+        // Only restrict access for users with CLIENT role
+        if ($authUserRole === UserRole::CLIENT->value) {
             $query->where(function ($q) use ($authUserId) {
                 $q->where('cli.id', $authUserId)
                     ->orWhere('clic.id', $authUserId);
@@ -436,9 +446,10 @@ class MatterRepository
      */
     protected function applyTeamFilter(Builder $query, mixed $value): Builder
     {
-        if ($value) {
+        $authUserId = Auth::id();
+        if ($value && $authUserId !== null) {
             $teamService = app(TeamService::class);
-            $teamLogins = $teamService->getSubordinateLogins(Auth::id(), true);
+            $teamLogins = $teamService->getSubordinateLogins($authUserId, true);
             $query->whereIn('matter.responsible', $teamLogins);
         }
 
