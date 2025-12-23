@@ -282,7 +282,7 @@ class MatterRepository
                 DB::raw('COALESCE(matter.container_id, matter.id)'),
                 'tit3.matter_id'
             )
-            ->where('e2.matter_id', null);
+            ->whereNull('e2.matter_id');
     }
 
     /**
