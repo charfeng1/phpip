@@ -134,24 +134,14 @@ class MatterOperationService
         // - the issue arises for actors that are inserted upon matter creation by a trigger based
         //   on the default_actors table
         $actors = $parentMatter->actorPivot->map(function ($item) use ($newMatterId) {
-            return [
-                'matter_id' => $newMatterId,
-                'actor_id' => $item->actor_id,
-                'role_id' => $item->role_id,
-                'shared' => $item->shared,
-            ];
+            return Arr::except(array_merge($item->toArray(), ['matter_id' => $newMatterId]), ['id', 'created_at', 'updated_at']);
         });
         ActorPivot::insertOrIgnore($actors->toArray());
 
         if ($parentMatter->container_id) {
             // Copy shared actors and classifiers from original matter's container
             $sharedActors = $parentMatter->container->actorPivot->where('shared', 1)->map(function ($item) use ($newMatterId) {
-                return [
-                    'matter_id' => $newMatterId,
-                    'actor_id' => $item->actor_id,
-                    'role_id' => $item->role_id,
-                    'shared' => $item->shared,
-                ];
+                return Arr::except(array_merge($item->toArray(), ['matter_id' => $newMatterId]), ['id', 'created_at', 'updated_at']);
             });
             ActorPivot::insertOrIgnore($sharedActors->toArray());
 
