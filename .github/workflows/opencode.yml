@@ -1,14 +1,18 @@
 name: opencode
 
 on:
+  pull_request:
+    types: [opened, synchronize]  # Auto-trigger on PR creation and every new commit
   issue_comment:
-    types: [created]
+    types: [created]  # Also allow manual trigger via /oc command
   pull_request_review_comment:
-    types: [created]
+    types: [created]  # Also allow manual trigger via /oc command
 
 jobs:
   opencode:
+    # Run automatically on PR events, or manually via /oc command
     if: |
+      github.event_name == 'pull_request' ||
       contains(github.event.comment.body, ' /oc') ||
       startsWith(github.event.comment.body, '/oc') ||
       contains(github.event.comment.body, ' /opencode') ||
