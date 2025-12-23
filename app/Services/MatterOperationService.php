@@ -118,7 +118,7 @@ class MatterOperationService
     {
         $parentId = $data['parent_id'] ?? null;
 
-        $parentMatter = Matter::with('priority', 'classifiersNative', 'actorPivot')->find($parentId);
+        $parentMatter = Matter::with('priority', 'classifiersNative', 'actorPivot', 'container.actorPivot', 'container.classifiersNative')->find($parentId);
         if (! $parentMatter) {
             return;
         }
@@ -133,19 +133,25 @@ class MatterOperationService
         // Cannot use Eloquent relationships because they do not handle unique key constraints
         // - the issue arises for actors that are inserted upon matter creation by a trigger based
         //   on the default_actors table
-        $actors = $parentMatter->actorPivot;
-        $actors->each(function ($item) use ($newMatterId) {
-            $item->matter_id = $newMatterId;
-            $item->id = null;
+        $actors = $parentMatter->actorPivot->map(function ($item) use ($newMatterId) {
+            return [
+                'matter_id' => $newMatterId,
+                'actor_id' => $item->actor_id,
+                'role_id' => $item->role_id,
+                'shared' => $item->shared,
+            ];
         });
         ActorPivot::insertOrIgnore($actors->toArray());
 
         if ($parentMatter->container_id) {
             // Copy shared actors and classifiers from original matter's container
-            $sharedActors = $parentMatter->container->actorPivot->where('shared', 1);
-            $sharedActors->each(function ($item) use ($newMatterId) {
-                $item->matter_id = $newMatterId;
-                $item->id = null;
+            $sharedActors = $parentMatter->container->actorPivot->where('shared', 1)->map(function ($item) use ($newMatterId) {
+                return [
+                    'matter_id' => $newMatterId,
+                    'actor_id' => $item->actor_id,
+                    'role_id' => $item->role_id,
+                    'shared' => $item->shared,
+                ];
             });
             ActorPivot::insertOrIgnore($sharedActors->toArray());
 
