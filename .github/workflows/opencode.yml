@@ -1,18 +1,14 @@
 name: opencode
 
 on:
-  pull_request:
-    types: [opened, synchronize]  # Auto-trigger on PR creation and every new commit
   issue_comment:
-    types: [created]  # Also allow manual trigger via /oc command
+    types: [created]
   pull_request_review_comment:
-    types: [created]  # Also allow manual trigger via /oc command
+    types: [created]
 
 jobs:
   opencode:
-    # Run automatically on PR events, or manually via /oc command
     if: |
-      github.event_name == 'pull_request' ||
       contains(github.event.comment.body, ' /oc') ||
       startsWith(github.event.comment.body, '/oc') ||
       contains(github.event.comment.body, ' /opencode') ||
@@ -28,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run opencode
-        uses: charfeng1/opencode/github@fix/pull-request-event-payload
+        uses: sst/opencode/github@latest
         env:
           ZHIPU_API_KEY: ${{ secrets.ZHIPU_API_KEY }}
         with:
