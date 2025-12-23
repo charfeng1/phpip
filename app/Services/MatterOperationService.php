@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\EventCode;
 use App\Models\ActorPivot;
 use App\Models\Matter;
+use Illuminate\Support\Arr;
 
 /**
  * Service for handling special matter creation operations.
@@ -65,8 +66,9 @@ class MatterOperationService
             return;
         }
 
-        // Copy priority claims from original matter
-        $newMatter->priority()->createMany($parentMatter->priority->toArray());
+        // Copy priority claims from original matter (exclude auto-generated fields)
+        $priorities = collect($parentMatter->priority->toArray())->map(fn ($item) => Arr::except($item, ['id', 'created_at', 'updated_at']));
+        $newMatter->priority()->createMany($priorities->toArray());
 
         // Set container from parent (or use parent as container)
         $newMatter->container_id = $parentMatter->container_id ?? $parentId;
@@ -123,8 +125,9 @@ class MatterOperationService
 
         $newMatterId = $newMatter->id;
 
-        // Copy priority claims from original matter
-        $newMatter->priority()->createMany($parentMatter->priority->toArray());
+        // Copy priority claims from original matter (exclude auto-generated fields)
+        $priorities = collect($parentMatter->priority->toArray())->map(fn ($item) => Arr::except($item, ['id', 'created_at', 'updated_at']));
+        $newMatter->priority()->createMany($priorities->toArray());
 
         // Copy actors from original matter
         // Cannot use Eloquent relationships because they do not handle unique key constraints
@@ -146,11 +149,13 @@ class MatterOperationService
             });
             ActorPivot::insertOrIgnore($sharedActors->toArray());
 
-            $newMatter->classifiersNative()
-                ->createMany($parentMatter->container->classifiersNative->toArray());
+            // Copy classifiers from container (exclude auto-generated fields)
+            $classifiers = collect($parentMatter->container->classifiersNative->toArray())->map(fn ($item) => Arr::except($item, ['id', 'created_at', 'updated_at']));
+            $newMatter->classifiersNative()->createMany($classifiers->toArray());
         } else {
-            // Copy classifiers from original matter (no container)
-            $newMatter->classifiersNative()->createMany($parentMatter->classifiersNative->toArray());
+            // Copy classifiers from original matter, no container (exclude auto-generated fields)
+            $classifiers = collect($parentMatter->classifiersNative->toArray())->map(fn ($item) => Arr::except($item, ['id', 'created_at', 'updated_at']));
+            $newMatter->classifiersNative()->createMany($classifiers->toArray());
         }
     }
 
