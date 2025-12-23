@@ -28,10 +28,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run opencode
-        uses: sst/opencode/github@latest
+        uses: charfeng1/opencode/github@fix/pull-request-event-payload
         env:
           ZHIPU_API_KEY: ${{ secrets.ZHIPU_API_KEY }}
         with:
           model: zai-coding-plan/glm-4.7
-          pr_number: ${{ github.event.pull_request.number || github.event.issue.number }}
-          repo: ${{ github.repository }}
