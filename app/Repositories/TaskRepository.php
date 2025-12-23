@@ -311,7 +311,7 @@ class TaskRepository
                 'grace' => $query->where('grace_period', $value),
                 'step' => $query->where('step', $value),
                 'invoice_step' => $query->where('invoice_step', $value),
-                'my_renewals' => $value ? $query->where('task.assigned_to', Auth::user()->login) : $query,
+                'my_renewals' => $value && Auth::check() ? $query->where('task.assigned_to', Auth::user()->login) : $query,
                 'dead' => $value == 0 ? $query->where('matter.dead', 0) : $query,
                 default => $query, // Unreachable due to whitelist check, but required for match exhaustiveness
             };

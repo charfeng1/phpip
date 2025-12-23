@@ -85,8 +85,9 @@ class MatterRepository
     public function getCategoryMatterCount(?int $whatTasks = null): \Illuminate\Support\Collection
     {
         $authUserId = Auth::id();
-        $authUserRole = Auth::user()->default_role ?? null;
-        $authUserLogin = Auth::user()->login;
+        $authUser = Auth::user();
+        $authUserRole = $authUser?->default_role;
+        $authUserLogin = $authUser?->login;
         $isClient = $authUserRole == UserRole::CLIENT->value || empty($authUserRole);
 
         return Category::withCount(['matters as total' => function ($query) use ($whatTasks, $authUserLogin, $authUserId, $isClient) {
@@ -411,8 +412,8 @@ class MatterRepository
                 'FilNo' => $query->whereLike('fil.detail', "$value%"),
                 'Published' => $query->whereLike('pub.event_date', "$value%"),
                 'PubNo' => $query->whereLike('pub.detail', "$value%"),
-                'Granted' => $query->whereLike('grt.event_date', "$value%")->orWhereLike('reg.event_date', "$value%"),
-                'GrtNo' => $query->whereLike('grt.detail', "$value%")->orWhereLike('reg.detail', "$value%"),
+                'Granted' => $query->where(fn ($q) => $q->whereLike('grt.event_date', "$value%")->orWhereLike('reg.event_date', "$value%")),
+                'GrtNo' => $query->where(fn ($q) => $q->whereLike('grt.detail', "$value%")->orWhereLike('reg.detail', "$value%")),
                 'responsible' => $query->where(fn ($q) => $q->where('matter.responsible', $value)->orWhere('del.login', $value)),
                 'team' => $this->applyTeamFilter($query, $value),
                 'Ctnr' => $value ? $query->whereNull('container_id') : $query,
@@ -474,9 +475,7 @@ class MatterRepository
 
         if ($sortkey == 'caseref') {
             $query->groupBy($baseGroupBy);
-            if ($sortdir == 'desc') {
-                $query->orderByDesc('matter.caseref');
-            }
+            $query->orderBy('matter.caseref', $sortdir);
         } else {
             $groupBy = $baseGroupBy;
             if (! in_array($sortkey, $groupBy)) {
