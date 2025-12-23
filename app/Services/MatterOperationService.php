@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\EventCode;
 use App\Models\ActorPivot;
 use App\Models\Matter;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Arr;
 
 /**
@@ -66,37 +67,39 @@ class MatterOperationService
             return;
         }
 
-        // Copy priority claims from original matter (exclude auto-generated fields)
-        $priorities = collect($parentMatter->priority->toArray())->map(fn ($item) => Arr::except($item, ['id', 'created_at', 'updated_at']));
-        $newMatter->priority()->createMany($priorities->toArray());
+        DB::transaction(function () use ($newMatter, $parentMatter, $parentId, $hasPriority) {
+            // Copy priority claims from original matter (exclude auto-generated fields)
+            $priorities = collect($parentMatter->priority->toArray())->map(fn ($item) => Arr::except($item, ['id', 'created_at', 'updated_at']));
+            $newMatter->priority()->createMany($priorities->toArray());
 
-        // Set container from parent (or use parent as container)
-        $newMatter->container_id = $parentMatter->container_id ?? $parentId;
+            // Set container from parent (or use parent as container)
+            $newMatter->container_id = $parentMatter->container_id ?? $parentId;
 
-        if ($hasPriority) {
-            // Create priority claim event linking to parent
-            $newMatter->events()->create([
-                'code' => EventCode::PRIORITY->value,
-                'alt_matter_id' => $parentId,
-            ]);
-        } else {
-            // Copy filing event (without detail) from parent, if it exists
-            if ($parentMatter->filing) {
-                $newMatter->filing()->save($parentMatter->filing->replicate(['detail']));
+            if ($hasPriority) {
+                // Create priority claim event linking to parent
+                $newMatter->events()->create([
+                    'code' => EventCode::PRIORITY->value,
+                    'alt_matter_id' => $parentId,
+                ]);
+            } else {
+                // Copy filing event (without detail) from parent, if it exists
+                if ($parentMatter->filing) {
+                    $newMatter->filing()->save($parentMatter->filing->replicate(['detail']));
+                }
+
+                // Set parent relationship
+                $newMatter->parent_id = $parentId;
+
+                // Create entry event for descendant filing date
+                $newMatter->events()->create([
+                    'code' => EventCode::ENTRY->value,
+                    'event_date' => now(),
+                    'detail' => 'Descendant filing date',
+                ]);
             }
 
-            // Set parent relationship
-            $newMatter->parent_id = $parentId;
-
-            // Create entry event for descendant filing date
-            $newMatter->events()->create([
-                'code' => EventCode::ENTRY->value,
-                'event_date' => now(),
-                'detail' => 'Descendant filing date',
-            ]);
-        }
-
-        $newMatter->save();
+            $newMatter->save();
+        });
     }
 
     /**
@@ -125,34 +128,36 @@ class MatterOperationService
 
         $newMatterId = $newMatter->id;
 
-        // Copy priority claims from original matter (exclude auto-generated fields)
-        $priorities = collect($parentMatter->priority->toArray())->map(fn ($item) => Arr::except($item, ['id', 'created_at', 'updated_at']));
-        $newMatter->priority()->createMany($priorities->toArray());
+        DB::transaction(function () use ($newMatter, $parentMatter, $newMatterId) {
+            // Copy priority claims from original matter (exclude auto-generated fields)
+            $priorities = collect($parentMatter->priority->toArray())->map(fn ($item) => Arr::except($item, ['id', 'created_at', 'updated_at']));
+            $newMatter->priority()->createMany($priorities->toArray());
 
-        // Copy actors from original matter
-        // Cannot use Eloquent relationships because they do not handle unique key constraints
-        // - the issue arises for actors that are inserted upon matter creation by a trigger based
-        //   on the default_actors table
-        $actors = $parentMatter->actorPivot->map(function ($item) use ($newMatterId) {
-            return Arr::except(array_merge($item->toArray(), ['matter_id' => $newMatterId]), ['id', 'created_at', 'updated_at']);
-        });
-        ActorPivot::insertOrIgnore($actors->toArray());
-
-        if ($parentMatter->container_id) {
-            // Copy shared actors and classifiers from original matter's container
-            $sharedActors = $parentMatter->container->actorPivot->where('shared', 1)->map(function ($item) use ($newMatterId) {
+            // Copy actors from original matter
+            // Cannot use Eloquent relationships because they do not handle unique key constraints
+            // - the issue arises for actors that are inserted upon matter creation by a trigger based
+            //   on the default_actors table
+            $actors = $parentMatter->actorPivot->map(function ($item) use ($newMatterId) {
                 return Arr::except(array_merge($item->toArray(), ['matter_id' => $newMatterId]), ['id', 'created_at', 'updated_at']);
             });
-            ActorPivot::insertOrIgnore($sharedActors->toArray());
+            ActorPivot::insertOrIgnore($actors->toArray());
 
-            // Copy classifiers from container (exclude auto-generated fields)
-            $classifiers = collect($parentMatter->container->classifiersNative->toArray())->map(fn ($item) => Arr::except($item, ['id', 'created_at', 'updated_at']));
-            $newMatter->classifiersNative()->createMany($classifiers->toArray());
-        } else {
-            // Copy classifiers from original matter, no container (exclude auto-generated fields)
-            $classifiers = collect($parentMatter->classifiersNative->toArray())->map(fn ($item) => Arr::except($item, ['id', 'created_at', 'updated_at']));
-            $newMatter->classifiersNative()->createMany($classifiers->toArray());
-        }
+            if ($parentMatter->container_id) {
+                // Copy shared actors and classifiers from original matter's container
+                $sharedActors = $parentMatter->container->actorPivot->where('shared', 1)->map(function ($item) use ($newMatterId) {
+                    return Arr::except(array_merge($item->toArray(), ['matter_id' => $newMatterId]), ['id', 'created_at', 'updated_at']);
+                });
+                ActorPivot::insertOrIgnore($sharedActors->toArray());
+
+                // Copy classifiers from container (exclude auto-generated fields)
+                $classifiers = collect($parentMatter->container->classifiersNative->toArray())->map(fn ($item) => Arr::except($item, ['id', 'created_at', 'updated_at']));
+                $newMatter->classifiersNative()->createMany($classifiers->toArray());
+            } else {
+                // Copy classifiers from original matter, no container (exclude auto-generated fields)
+                $classifiers = collect($parentMatter->classifiersNative->toArray())->map(fn ($item) => Arr::except($item, ['id', 'created_at', 'updated_at']));
+                $newMatter->classifiersNative()->createMany($classifiers->toArray());
+            }
+        });
     }
 
     /**
