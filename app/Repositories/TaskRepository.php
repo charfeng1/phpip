@@ -105,6 +105,11 @@ class TaskRepository
             ? "(task.detail ->> 'en')::INTEGER"
             : "CAST(JSON_UNQUOTE(JSON_EXTRACT(task.detail, '$.\"en\"')) AS UNSIGNED)";
 
+        // Small entity calculation with database-agnostic casting
+        $smallEntityExpr = $isPostgres
+            ? 'COALESCE(MIN(own.small_entity::int), MIN(ownc.small_entity::int), MIN(appl.small_entity::int), MIN(applc.small_entity::int))::boolean AS small_entity'
+            : 'COALESCE(MIN(CAST(own.small_entity AS UNSIGNED)), MIN(CAST(ownc.small_entity AS UNSIGNED)), MIN(CAST(appl.small_entity AS UNSIGNED)), MIN(CAST(applc.small_entity AS UNSIGNED))) AS small_entity';
+
         return Matter::select([
             'task.id',
             DB::raw($detailExpr),
@@ -129,7 +134,7 @@ class TaskRepository
             DB::raw("{$countryEN} AS country_EN"),
             DB::raw("{$countryDE} AS country_DE"),
             'matter.origin',
-            DB::raw('COALESCE(MIN(own.small_entity::int), MIN(ownc.small_entity::int), MIN(appl.small_entity::int), MIN(applc.small_entity::int))::boolean AS small_entity'),
+            DB::raw($smallEntityExpr),
             'fil.event_date AS fil_date',
             'fil.detail AS fil_num',
             'grt.event_date AS grt_date',
