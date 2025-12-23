@@ -58,10 +58,7 @@ class ClassifierTypeController extends Controller
      */
     public function create()
     {
-        $table = new ClassifierType;
-        $tableComments = $table->getTableComments();
-
-        return view('classifier_type.create', compact('tableComments'));
+        return view('classifier_type.create');
     }
 
     /**
@@ -85,10 +82,9 @@ class ClassifierTypeController extends Controller
      */
     public function show(ClassifierType $classifier_type)
     {
-        $tableComments = $classifier_type->getTableComments();
         $classifier_type->load(['category:code,category']);
 
-        return view('classifier_type.show', compact('classifier_type', 'tableComments'));
+        return view('classifier_type.show', compact('classifier_type'));
     }
 
     /**

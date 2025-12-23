@@ -63,10 +63,7 @@ class CategoryController extends Controller
     {
         $this->authorize('create', Category::class);
 
-        $category = new Category;
-        $tableComments = $category->getTableComments();
-
-        return view('category.create', compact('tableComments'));
+        return view('category.create');
     }
 
     /**
@@ -92,10 +89,9 @@ class CategoryController extends Controller
     {
         $this->authorize('view', $category);
 
-        $tableComments = $category->getTableComments();
         $category->load(['displayWithInfo:code,category']);
 
-        return view('category.show', compact('category', 'tableComments'));
+        return view('category.show', compact('category'));
     }
 
     /**

@@ -3,7 +3,7 @@
 **Date:** December 20, 2025
 **Codebase:** phpIP (Laravel 12 IP Rights Management System)
 **Analyzed Files:** 27 controllers, 24 models, 8 services, 69 views
-**Last Updated:** December 23, 2025 (Phase 4 Complete)
+**Last Updated:** December 23, 2025 (Phase 5 Complete)
 
 ---
 
@@ -65,11 +65,17 @@ This report identifies areas for improvement across 6 key dimensions:
 **Remaining:**
 - [ ] Apply Filterable trait to remaining 15+ controllers
 
-### 1.3 View Template Duplication (MEDIUM PRIORITY) [ ] PENDING
+### 1.3 View Template Duplication (MEDIUM PRIORITY) [x] COMPLETED
 
 **Problem:** Index table layouts repeated across 8+ views
 
-**Status:** Not yet addressed - lower priority
+**Completed:**
+- [x] Created `ListWithPanel` Blade component for list/detail layouts
+- [x] Created `FormGenerator` component for form rendering
+- [x] Created `AutocompleteField` component for searchable dropdowns
+- [x] Created `ViewServiceProvider` to compose common data (tableComments)
+- [x] Applied to 11 index views: actor, category, classifier_type, countries, default_actor, documents, eventname, role, rule, type, user
+- [x] Applied to 5 create views: category, type, role, classifier_type, eventname
 
 ---
 
@@ -345,11 +351,138 @@ app/Services/
 
 **Total: 3 repositories, 41 unit tests**
 
-### Phase 5: View Components [ ] PENDING
-1. [ ] Create `ListWithPanel` Blade component
-2. [ ] Create `AutocompleteField` component
-3. [ ] Create `FormGenerator` component
-4. [ ] Create view composers for common data
+### Phase 5: View Components [x] COMPLETED
+1. [x] Create `ListWithPanel` Blade component
+2. [x] Create `AutocompleteField` component
+3. [x] Create `FormGenerator` component
+4. [x] Create view composers for common data
+
+### Phase 6: Final Refactoring & Code Standardization [~] IN PROGRESS
+
+**Why Phase 6 Is Critical:**
+
+The codebase now has solid architectural foundations (Phases 1-5), but maintainability is still hindered by **complex conditional logic** scattered across controllers and models. These remaining issues:
+- **Reduce readability**: Large switch statements (30-100+ lines) make code difficult to understand at a glance
+- **Increase bug risk**: Complex branching logic is harder to test and debug
+- **Impede scaling**: New developers struggle to add features without introducing regressions
+- **Violate DRY principle**: Similar filtering/transformation logic repeated across multiple controllers
+
+**Impact**: Completing Phase 6 creates a **clean, standardized codebase** ready for long-term maintenance and team collaboration.
+
+#### Phase 6A: Switch Statement Refactoring [~] PARTIAL (3 of 6 complete)
+
+**Goal:** Convert complex switch statements into data-driven maps or extracted services.
+
+**Completed:**
+1. ~~**DocumentController.php:154-194** (40 lines) - Document filtering~~ ✅ **COMPLETED**
+   - Created `DocumentFilterService`
+   - Refactored 40-line switch to match expression with filter whitelist
+   - 11 unit tests created
+
+2. ~~**MatterController.php:258-313** (55 lines) - Operation type handling~~ ✅ **COMPLETED**
+   - Created `MatterOperationService`
+   - Refactored 55-line switch to match expression
+   - 4 unit tests created
+
+3. ~~**RenewalController.php:536-567** (31 lines) - Log filtering~~ ✅ **COMPLETED**
+   - Created `RenewalLogFilterService`
+   - Refactored 31-line switch to match expression with filter whitelist
+   - 12 unit tests created
+
+**Remaining:**
+4. **Matter.php:883-982** (100 lines) - Dynamic query filtering
+   - Note: Already refactored in Phase 4 (MatterRepository)
+   - Status: COMPLETED via MatterRepository
+
+5. **RenewalController.php:60-105** (45 lines) - Renewal filtering
+   - Note: Already refactored via TaskRepository
+   - Status: COMPLETED via TaskRepository::applyRenewalFilters()
+
+6. **MatterController.php:628-679** (51 lines) - Procedure step handling
+   - Extract to `ProcedureStepHandler`
+   - Current: Switch on step type → Handles procedures
+   - Target: Chain of responsibility pattern
+
+**Tests Created:** 27 unit tests (11 + 4 + 12)
+
+**New Services:**
+- `app/Services/DocumentFilterService.php` (152 lines)
+- `app/Services/MatterOperationService.php` (178 lines)
+- `app/Services/RenewalLogFilterService.php` (88 lines)
+
+#### Phase 6B: Trait Application Completion [~] IN PROGRESS
+
+**Goal:** Standardize common patterns across all controllers.
+
+**Items:**
+1. **HandlesAuditFields** - Apply to ~10 remaining controllers
+   - Currently: 16 of 26 controllers
+   - Remaining: ActorController, DocumentController, FeeController, RenewalController, etc.
+   - Benefit: Consistent audit field handling (creator, updater, created_at, updated_at)
+
+2. **JsonResponses** - Create and apply to all API endpoints
+   - Currently: Trait created but not applied
+   - Benefit: Consistent JSON response format across all endpoints
+   - Target: 15+ controllers
+
+3. **Filterable** - Apply to remaining controllers
+   - Currently: ~12 controllers with trait
+   - Remaining: ~15 controllers
+   - Benefit: Standardized filter application and validation
+
+**Tests Required:** 12+ integration tests
+
+#### Phase 6C: Hardcoded String Migration [~] PENDING
+
+**Goal:** Eliminate remaining ~50 hardcoded magic strings.
+
+**Categories:**
+1. **View keys** (~15 strings) - Move to constants
+   - Current: Scattered view names in controllers
+   - Target: ViewNames or TemplateNames enum
+
+2. **API endpoints** (~12 strings) - Already in config but could be better
+   - Current: config/patent_offices.php
+   - Target: Type-safe URL building
+
+3. **Error messages** (~18 strings) - Create message constants
+   - Current: Inline error strings
+   - Target: AppMessages enum or Messages class
+
+4. **Status/state values** (~8 strings) - Use enums
+   - Current: String comparisons in conditions
+   - Target: Existing enums (EventCode, ActorRole, etc.)
+
+**Tests Required:** 8+ unit tests for enum/constant usage
+
+#### Phase 6D: Response Standardization [~] PENDING
+
+**Goal:** Ensure all controllers return consistent response formats.
+
+**Items:**
+1. **Success responses** - Apply JsonResponses trait pattern
+   - Standardize: { success: true, data: {...}, message: "..." }
+
+2. **Error responses** - Unified error handling
+   - Standardize: { success: false, error: "...", details: {...} }
+
+3. **Pagination responses** - Consistent pagination format
+   - Standardize: { data: [...], pagination: { current_page, per_page, total } }
+
+4. **Validation errors** - Unified validation error format
+   - Standardize: { errors: { field: ["message1", "message2"] } }
+
+**Tests Required:** 16+ feature tests for response formats
+
+---
+
+**Phase 6 Summary:**
+- **Effort:** ~60-80 developer hours (3-4 weeks with other work)
+- **Test Coverage:** 60+ new unit/feature tests
+- **Controllers Affected:** 26 controllers
+- **Files Created:** ~8-10 new services/handlers
+- **Files Modified:** ~40+ controllers and models
+- **Expected Outcome:** Clean, maintainable, standardized codebase ready for production
 
 ---
 
@@ -364,20 +497,20 @@ app/Services/
 | Missing Form Requests | High | Medium | High | **P1** | [x] 36 created |
 | God model (Matter.php) | Critical | High | High | **P2** | [x] Repository extracted |
 | Repeated CRUD patterns | High | Medium | Medium | **P2** | [x] 16 controllers |
-| Switch statement complexity | Medium | Medium | Medium | **P2** | [~] 1 of 7 |
+| Switch statement complexity | Medium | Medium | Medium | **P2** | [~] 3 of 7 (Phase 6A partial) |
 | Inconsistent JSON responses | Medium | Low | Medium | **P3** | [~] Trait created |
-| View template duplication | Medium | Medium | Low | **P3** | [ ] PENDING |
+| View template duplication | Medium | Medium | Low | **P3** | [x] COMPLETED |
 
 ---
 
-## Summary Statistics - UPDATED (December 23, 2025)
+## Summary Statistics - UPDATED (December 23, 2025 - Phase 6A Partial)
 
 | Metric | Original | Current | Status |
 |--------|----------|---------|--------|
 | Files with enum improvements | 0 | 22+ | [x] |
 | Hardcoded magic strings | 150+ | ~50 remaining | [~] |
-| Large switch statements (>10 cases) | 7 | 6 remaining | [~] |
-| Lines in largest controller | 1,308 | 635 (RenewalController) | [x] |
+| Large switch statements (>10 cases) | 7 | 1 remaining | [~] |
+| Lines in largest controller | 1,308 | 540 (MatterController reduced) | [x] |
 | Lines in largest model | 1,241 | ~850 (filter logic extracted) | [x] |
 | Form Request classes | 2 | 36 | [x] |
 | Controllers with traits | 0 | 16 | [x] |
@@ -387,7 +520,8 @@ app/Services/
 | Unit tests added (Phase 3) | 0 | 73 | [x] |
 | Repositories created (Phase 4) | 0 | 3 | [x] |
 | Unit tests added (Phase 4) | 0 | 41 | [x] |
-| **Total unit tests added** | 0 | **114** | [x] |
+| **New Services (Phase 6A)** | 0 | 3 | [~] |
+| **Unit tests added (Phase 6A)** | 0 | 27 | [~] |
 
 ---
 
@@ -398,23 +532,5 @@ app/Services/
 3. `refactor: Apply enums and pagination config to models and controllers`
 4. `refactor: Apply EventCode enum to RenewalController`
 5. `refactor: Apply HandlesAuditFields trait to more controllers`
-6. `refactor: Phase 2 boilerplate reduction - Form Requests and HandlesAuditFields trait`
-7. `feat: Phase 3 foundation services for renewal controller extraction`
-8. `Phase 3: Add notification/workflow services and refactor RenewalController`
-9. `feat: Phase 3B - Extract PatentFamilyCreationService from MatterController`
-10. `feat: Phase 4 - Repository pattern implementation (TaskRepository, MatterRepository, ActorRepository)`
-11. `refactor: Phase 2 completion - Form Requests and HandlesAuditFields for all controllers`
-
----
-
-## Progress Summary
-
-| Phase | Status | Tests |
-|-------|--------|-------|
-| Phase 1: Quick Wins | ✅ Complete | - |
-| Phase 2: Boilerplate | ✅ Complete | - |
-| Phase 3: Service Extraction | ✅ Complete | 73 |
-| Phase 4: Repository Pattern | ✅ Complete | 41 |
-| Phase 5: View Components | Pending | - |
 
 This analysis provides a roadmap for improving code quality and maintainability. Implementation should be phased to minimize disruption while maximizing long-term benefits.
