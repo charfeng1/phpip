@@ -58,10 +58,7 @@ class MatterTypeController extends Controller
      */
     public function create()
     {
-        $table = new MatterType;
-        $tableComments = $table->getTableComments();
-
-        return view('type.create', compact('tableComments'));
+        return view('type.create');
     }
 
     /**
@@ -85,9 +82,7 @@ class MatterTypeController extends Controller
      */
     public function show(MatterType $type)
     {
-        $tableComments = $type->getTableComments();
-
-        return view('type.show', compact('type', 'tableComments'));
+        return view('type.show', compact('type'));
     }
 
     /**

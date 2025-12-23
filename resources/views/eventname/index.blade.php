@@ -1,70 +1,60 @@
 @extends('layouts.app')
 
 @section('content')
-<legend class="alert alert-dark d-flex justify-content-between py-2 mb-1">
-  {{ __('Event Names') }}
-  <a href="eventname/create" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ajaxModal" title="{{ __('Event name') }}" data-resource="/eventname/">{{ __('Create Event Name') }}</a>
-</legend>
-<div class="row">
-  <div class="col">
-    <div class="card border-primary p-1" style="max-height: 640px; overflow: auto;">
-      <table class="table table-striped table-hover table-sm">
-        <thead>
-          <tr id="filter" class="table-primary align-middle">
-            <th>
-              <div class="input-group input-group-sm" style="width: 80px;">
-                <input class="form-control" data-source="/eventname" name="Code" placeholder="{{ __('Code') }}">
-                <button class="btn btn-outline-secondary clear-filter" type="button" style="display: none;" data-target="Code">
-                  <span>&times;</span>
-                </button>
-              </div>
-            </th>
-            <th>
-              <div class="input-group input-group-sm" style="width: 150px;">
-                <input class="form-control" data-source="/eventname" name="Name" placeholder="{{ __('Name') }}">
-                <button class="btn btn-outline-secondary clear-filter" type="button" style="display: none;" data-target="Name">
-                  <span>&times;</span>
-                </button>
-              </div>
-            </th>
-            <th class="text-center" colspan="2">{{ __('Notes') }}</th>
-          </tr>
-        </thead>
-        <tbody id="tableList">
-          @foreach ($enameslist as $event)
-          <tr class="reveal-hidden" data-id="{{ $event->code }}">
-            <td>
-              <a href="/eventname/{{ $event->code }}" data-panel="ajaxPanel" title="{{ __('Event name info') }}">
-                {{ $event->code }}
-              </a>
-            </td>
-            <td>{{ $event->name }}</td>
-            <td>{{ $event->notes }}</td>
-          </tr>
-          @endforeach
-          <tr>
-            <td colspan="5">
-              {{ $enameslist->links() }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div class="col-5">
-    <div class="card border-info">
-      <div class="card-header bg-info text-light">
-        {{ __('Event name information') }}
-      </div>
-      <div class="card-body p-2" id="ajaxPanel">
-        <div class="alert alert-info" role="alert">
-          {{ __('Click on event name to view and edit details') }}
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
+<x-list-with-panel
+  :title="__('Event Names')"
+  create-url="eventname/create"
+  :create-label="__('Create Event Name')"
+  :create-title="__('Event name')"
+  create-resource="/eventname/"
+  :create-attributes="['data-bs-toggle' => 'modal', 'data-bs-target' => '#ajaxModal']"
+  :panel-title="__('Event name information')"
+  :panel-message="__('Click on event name to view and edit details')"
+  list-card-style="max-height: 640px; overflow: auto;">
+  <x-slot name="list">
+    <table class="table table-striped table-hover table-sm">
+      <thead>
+        <tr id="filter" class="table-primary align-middle">
+          <th>
+            <div class="input-group input-group-sm" style="width: 80px;">
+              <input class="form-control" data-source="/eventname" name="Code" placeholder="{{ __('Code') }}">
+              <button class="btn btn-outline-secondary clear-filter" type="button" style="display: none;" data-target="Code">
+                <span>&times;</span>
+              </button>
+            </div>
+          </th>
+          <th>
+            <div class="input-group input-group-sm" style="width: 150px;">
+              <input class="form-control" data-source="/eventname" name="Name" placeholder="{{ __('Name') }}">
+              <button class="btn btn-outline-secondary clear-filter" type="button" style="display: none;" data-target="Name">
+                <span>&times;</span>
+              </button>
+            </div>
+          </th>
+          <th class="text-center" colspan="2">{{ __('Notes') }}</th>
+        </tr>
+      </thead>
+      <tbody id="tableList">
+        @foreach ($enameslist as $event)
+        <tr class="reveal-hidden" data-id="{{ $event->code }}">
+          <td>
+            <a href="/eventname/{{ $event->code }}" data-panel="ajaxPanel" title="{{ __('Event name info') }}">
+              {{ $event->code }}
+            </a>
+          </td>
+          <td>{{ $event->name }}</td>
+          <td>{{ $event->notes }}</td>
+        </tr>
+        @endforeach
+        <tr>
+          <td colspan="5">
+            {{ $enameslist->links() }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </x-slot>
+</x-list-with-panel>
 @endsection
 
 @section('script')
