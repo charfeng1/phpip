@@ -23,7 +23,10 @@ class UpdateCountryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|required',
+            'name' => 'sometimes|required|array',
+            'name.en' => 'sometimes|required|string|max:45',
+            'name.fr' => 'nullable|string|max:45',
+            'name.de' => 'nullable|string|max:45',
             'ep' => 'boolean',
             'wo' => 'boolean',
             'em' => 'boolean',
