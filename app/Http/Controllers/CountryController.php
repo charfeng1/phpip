@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCountryRequest;
+use App\Http\Requests\UpdateCountryRequest;
 use App\Models\Country;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -69,22 +71,9 @@ class CountryController extends Controller
     /**
      * Store a newly created country.
      */
-    public function store(Request $request)
+    public function store(StoreCountryRequest $request)
     {
-        $validated = $request->validate([
-            'iso' => 'required|unique:country|max:2',
-            'name' => 'required|array',
-            'name.en' => 'required|string|max:45',
-            'name.fr' => 'nullable|string|max:45',
-            'name.de' => 'nullable|string|max:45',
-            'ep' => 'boolean',
-            'wo' => 'boolean',
-            'em' => 'boolean',
-            'oa' => 'boolean',
-            'renewal_first' => 'nullable|integer',
-            'renewal_base' => 'nullable|in:FIL,GRT,PUB',
-            'renewal_start' => 'nullable|in:FIL,GRT,PUB',
-        ]);
+        $validated = $request->validated();
 
         // Create country with basic data first
         $countryData = [
@@ -133,7 +122,7 @@ class CountryController extends Controller
     /**
      * Update the specified country.
      */
-    public function update(Request $request, Country $country)
+    public function update(UpdateCountryRequest $request, Country $country)
     {
         // Prevent editing for standard countries (numcode > 0)
         if ($country->numcode > 0) {
@@ -168,18 +157,7 @@ class CountryController extends Controller
         }
 
         // For regular field updates
-        $validated = $request->validate([
-            'ep' => 'boolean',
-            'wo' => 'boolean',
-            'em' => 'boolean',
-            'oa' => 'boolean',
-            'renewal_first' => 'nullable|integer',
-            'renewal_base' => 'nullable|in:FIL,GRT,PUB',
-            'renewal_start' => 'nullable|in:FIL,GRT,PUB',
-            'name' => 'sometimes|required',
-        ]);
-
-        $country->update($validated);
+        $country->update($request->validated());
 
         return response()->json([
             'status' => 'success',

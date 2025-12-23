@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreDefaultActorRequest;
+use App\Http\Requests\UpdateDefaultActorRequest;
 use App\Models\DefaultActor;
 use Illuminate\Http\Request;
 
@@ -79,17 +81,12 @@ class DefaultActorController extends Controller
     /**
      * Store a newly created default actor.
      *
-     * @param Request $request Default actor data including actor_id and role
+     * @param StoreDefaultActorRequest $request Default actor data including actor_id and role
      * @return DefaultActor The created default actor
      */
-    public function store(Request $request)
+    public function store(StoreDefaultActorRequest $request)
     {
-        $request->validate([
-            'actor_id' => 'required',
-            'role' => 'required',
-        ]);
-
-        return DefaultActor::create($request->except(['_token', '_method']));
+        return DefaultActor::create($request->validated());
     }
 
     /**
@@ -109,17 +106,13 @@ class DefaultActorController extends Controller
     /**
      * Update the specified default actor.
      *
-     * @param Request $request Updated default actor data
+     * @param UpdateDefaultActorRequest $request Updated default actor data
      * @param DefaultActor $default_actor The default actor to update
      * @return DefaultActor The updated default actor
      */
-    public function update(Request $request, DefaultActor $default_actor)
+    public function update(UpdateDefaultActorRequest $request, DefaultActor $default_actor)
     {
-        $request->validate([
-            'actor_id' => 'sometimes|required',
-            'role' => 'sometimes|required',
-        ]);
-        $default_actor->update($request->except(['_token', '_method']));
+        $default_actor->update($request->validated());
 
         return $default_actor;
     }

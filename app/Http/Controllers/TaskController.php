@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Enums\EventCode;
 use App\Enums\UserRole;
+use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
 use App\Services\TeamService;
+use App\Traits\HandlesAuditFields;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -21,6 +24,7 @@ use Illuminate\Support\Facades\Gate;
  */
 class TaskController extends Controller
 {
+    use HandlesAuditFields;
     /**
      * Display a paginated list of open tasks with optional filtering.
      *
@@ -95,25 +99,18 @@ class TaskController extends Controller
     /**
      * Store a newly created task.
      *
-     * @param Request $request Task data including trigger_id, due_date, cost, and fee
+     * @param StoreTaskRequest $request Task data including trigger_id, due_date, cost, and fee
      * @return Task The created task
      */
-    public function store(Request $request)
+    public function store(StoreTaskRequest $request)
     {
-        Gate::authorize('readwrite');
-        $request->validate([
-            'trigger_id' => 'required|numeric',
-            'due_date' => 'required',
-            'cost' => 'nullable|numeric',
-            'fee' => 'nullable|numeric',
-        ]);
         $request->merge(['due_date' => Carbon::createFromLocaleIsoFormat('L', app()->getLocale(), $request->due_date)]);
         if ($request->filled('done_date')) {
             $request->merge(['done_date' => Carbon::createFromLocaleIsoFormat('L', app()->getLocale(), $request->done_date)]);
         }
-        $request->merge(['creator' => Auth::user()->login]);
+        $this->mergeCreator($request);
 
-        return Task::create($request->except(['_token', '_method']));
+        return Task::create($this->getFilteredData($request));
     }
 
     /**
@@ -133,20 +130,13 @@ class TaskController extends Controller
      * Handles manual due date changes (removes task rule), detail field translations,
      * and renewal task lifecycle management.
      *
-     * @param Request $request Updated task data
+     * @param UpdateTaskRequest $request Updated task data
      * @param Task $task The task to update
      * @return Task The updated task
      */
-    public function update(Request $request, Task $task)
+    public function update(UpdateTaskRequest $request, Task $task)
     {
-        Gate::authorize('readwrite');
-        $this->validate($request, [
-            'due_date' => 'sometimes|filled',
-            'cost' => 'nullable|numeric',
-            'fee' => 'nullable|numeric',
-            'detail' => 'nullable|string',
-        ]);
-        $request->merge(['updater' => Auth::user()->login]);
+        $this->mergeUpdater($request);
         if ($request->filled('done_date')) {
             $request->merge(['done_date' => Carbon::createFromLocaleIsoFormat('L', app()->getLocale(), $request->done_date)]);
         }
@@ -168,7 +158,7 @@ class TaskController extends Controller
         if (($request->filled('done_date') || $request->done) && $task->code == EventCode::RENEWAL->value) {
             $request->merge(['step' => -1]);
         }
-        $task->update($request->except(['_token', '_method']));
+        $task->update($this->getFilteredData($request));
 
         return $task;
     }

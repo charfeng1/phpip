@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Actor;
 use App\Models\User;
 use App\Services\TeamService;
+use App\Traits\HandlesAuditFields;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -19,6 +20,7 @@ use Illuminate\Validation\Rules\Password;
  */
 class UserController extends Controller
 {
+    use HandlesAuditFields;
     /**
      * Display a paginated list of users.
      *
@@ -75,9 +77,9 @@ class UserController extends Controller
             'email' => 'required|email',
             'default_role' => 'required',
         ]);
-        $request->merge(['creator' => Auth::user()->login]);
+        $this->mergeCreator($request);
 
-        return User::create($request->except(['_token', '_method', 'password_confirmation']));
+        return User::create($this->getFilteredData($request, ['password_confirmation']));
     }
 
     /**
@@ -170,7 +172,7 @@ class UserController extends Controller
             }
         }
 
-        $request->merge(['updater' => Auth::user()->login]);
+        $this->mergeUpdater($request);
         if ($request->filled('password')) {
             $request->merge(['password' => Hash::make($request->password)]);
         }
@@ -180,7 +182,7 @@ class UserController extends Controller
         $newParentId = $request->input('parent_id');
         $parentChanged = $request->has('parent_id') && $oldParentId !== $newParentId;
 
-        $user->update($request->except(['_token', '_method']));
+        $user->update($this->getFilteredData($request));
 
         // Clear team hierarchy cache if parent_id changed
         if ($parentChanged) {

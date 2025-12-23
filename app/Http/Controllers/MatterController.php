@@ -8,6 +8,8 @@ use App\Enums\ClassifierType;
 use App\Enums\EventCode;
 use App\Http\Requests\MatterExportRequest;
 use App\Http\Requests\MergeFileRequest;
+use App\Http\Requests\StoreMatterRequest;
+use App\Http\Requests\UpdateMatterRequest;
 use App\Models\ActorPivot;
 use App\Models\Category;
 use App\Models\Country;
@@ -19,6 +21,7 @@ use App\Services\DocumentMergeService;
 use App\Services\MatterExportService;
 use App\Services\OPSService;
 use App\Services\PatentFamilyCreationService;
+use App\Traits\HandlesAuditFields;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
@@ -33,6 +36,8 @@ use Illuminate\Support\Facades\Gate;
  */
 class MatterController extends Controller
 {
+    use HandlesAuditFields;
+
     protected DocumentMergeService $documentMergeService;
 
     protected MatterExportService $matterExportService;
@@ -230,23 +235,11 @@ class MatterController extends Controller
      * Handles matter creation based on operation type (new, clone, descendant).
      * Manages unique identifier generation, priority claims copying, and actor relationships.
      *
-     * @param Request $request The HTTP request containing matter data.
+     * @param StoreMatterRequest $request The HTTP request containing matter data.
      * @return \Illuminate\Http\JsonResponse JSON response with redirect URL to the new matter.
      */
-    public function store(Request $request)
+    public function store(StoreMatterRequest $request)
     {
-        Gate::authorize('readwrite');
-        $this->validate(
-            $request,
-            [
-                'category_code' => 'required',
-                'caseref' => 'required',
-                'country' => 'required',
-                'responsible' => 'required',
-                'expire_date' => 'date',
-            ]
-        );
-
         // Unique UID handling
         $matters = Matter::where(
             [
@@ -258,7 +251,7 @@ class MatterController extends Controller
             ]
         );
 
-        $request->merge(['creator' => Auth::user()->login]);
+        $this->mergeCreator($request);
 
         $idx = $matters->count();
 
@@ -266,7 +259,7 @@ class MatterController extends Controller
             $request->merge(['idx' => $idx + 1]);
         }
 
-        $new_matter = Matter::create($request->except(['_token', '_method', 'operation', 'parent_id', 'priority']));
+        $new_matter = Matter::create($this->getFilteredData($request, ['operation', 'parent_id', 'priority']));
 
         switch ($request->operation) {
             case 'descendant':
@@ -459,22 +452,14 @@ class MatterController extends Controller
     /**
      * Update a matter in the database.
      *
-     * @param Request $request The HTTP request containing updated matter data.
+     * @param UpdateMatterRequest $request The HTTP request containing updated matter data.
      * @param Matter $matter The matter to update.
      * @return Matter The updated matter model.
      */
-    public function update(Request $request, Matter $matter)
+    public function update(UpdateMatterRequest $request, Matter $matter)
     {
-        Gate::authorize('readwrite');
-        $request->validate(
-            [
-                'term_adjust' => 'numeric',
-                'idx' => 'numeric|nullable',
-                'expire_date' => 'date',
-            ]
-        );
-        $request->merge(['updater' => Auth::user()->login]);
-        $matter->update($request->except(['_token', '_method']));
+        $this->mergeUpdater($request);
+        $matter->update($this->getFilteredData($request));
 
         return $matter;
     }
