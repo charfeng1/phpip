@@ -64,10 +64,7 @@ class EventNameController extends Controller
     {
         $this->authorize('create', EventName::class);
 
-        $table = new EventName;
-        $tableComments = $table->getTableComments();
-
-        return view('eventname.create', compact('tableComments'));
+        return view('eventname.create');
     }
 
     /**
@@ -94,11 +91,10 @@ class EventNameController extends Controller
     {
         $this->authorize('view', $eventname);
 
-        $tableComments = $eventname->getTableComments();
         $eventname->load(['countryInfo:iso,name', 'categoryInfo:code,category', 'default_responsibleInfo:id,name']);
         $links = EventClassLnk::where('event_name_code', '=', $eventname->code)->get();
 
-        return view('eventname.show', compact('eventname', 'tableComments', 'links'));
+        return view('eventname.show', compact('eventname', 'links'));
     }
 
     /**

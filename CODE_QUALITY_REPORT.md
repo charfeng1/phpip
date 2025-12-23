@@ -65,11 +65,16 @@ This report identifies areas for improvement across 6 key dimensions:
 **Remaining:**
 - [ ] Apply Filterable trait to remaining 15+ controllers
 
-### 1.3 View Template Duplication (MEDIUM PRIORITY) [ ] PENDING
+### 1.3 View Template Duplication (MEDIUM PRIORITY) [~] PARTIAL
 
 **Problem:** Index table layouts repeated across 8+ views
 
-**Status:** Not yet addressed - lower priority
+**Completed:**
+- [x] Created `ListWithPanel` Blade component for list/detail layouts
+- [x] Applied to index views: actor, category, classifier_type, countries, default_actor, documents, eventname, role, rule, type, user
+
+**Remaining:**
+- [ ] Apply `ListWithPanel` to remaining index views with custom layouts
 
 ---
 
@@ -342,11 +347,11 @@ app/Services/
 
 **Total: 3 repositories, 41 unit tests**
 
-### Phase 5: View Components [ ] PENDING
-1. [ ] Create `ListWithPanel` Blade component
-2. [ ] Create `AutocompleteField` component
-3. [ ] Create `FormGenerator` component
-4. [ ] Create view composers for common data
+### Phase 5: View Components [x] COMPLETED
+1. [x] Create `ListWithPanel` Blade component
+2. [x] Create `AutocompleteField` component
+3. [x] Create `FormGenerator` component
+4. [x] Create view composers for common data
 
 ---
 
@@ -363,7 +368,7 @@ app/Services/
 | Repeated CRUD patterns | High | Medium | Medium | **P2** | [~] 4 of 15 |
 | Switch statement complexity | Medium | Medium | Medium | **P2** | [~] 1 of 7 |
 | Inconsistent JSON responses | Medium | Low | Medium | **P3** | [~] Trait created |
-| View template duplication | Medium | Medium | Low | **P3** | [ ] PENDING |
+| View template duplication | Medium | Medium | Low | **P3** | [~] IN PROGRESS |
 
 ---
 
