@@ -75,35 +75,35 @@ This report identifies areas for improvement across 6 key dimensions:
 
 ## 2. Modularization Issues
 
-### 2.1 Fat Controllers (CRITICAL) [ ] PENDING
+### 2.1 Fat Controllers (CRITICAL) [x] COMPLETED
 
-#### RenewalController.php - 1308 lines
+#### RenewalController.php - 635 lines (was 1,308)
 **Location:** `app/Http/Controllers/RenewalController.php`
-**Status:** [ ] NOT STARTED
+**Status:** [x] COMPLETED (Phase 3A - December 22, 2025)
 
-**Issues:**
-- Fee calculation logic in private methods (lines 224-284)
-- Email preparation logic (lines 294-537)
-- Direct CURL calls for Dolibarr API (lines 781-830)
-- Direct database inserts (lines 166, 208, 313, 552)
-
-**Recommendation:** Extract to services:
+**Extracted Services:**
 ```text
 app/Services/
-├── RenewalWorkflowService.php     # State transitions
-├── RenewalFeeCalculationService.php # Fee logic
-├── RenewalNotificationService.php  # Email handling
-├── DolibarrInvoiceService.php      # API integration
-└── PaymentOrderXMLService.php      # XML generation
+├── RenewalFeeCalculatorService.php   # Fee calculation (16 tests)
+├── RenewalLogService.php             # Workflow logging (8 tests)
+├── RenewalNotificationService.php    # Email handling (14 tests)
+├── RenewalWorkflowService.php        # State transitions (12 tests)
+└── DolibarrInvoiceService.php        # API integration (11 tests)
 ```
 
-#### MatterController.php - 921 lines
-**Location:** `app/Http/Controllers/MatterController.php`
-**Status:** [ ] NOT STARTED (enums applied but not refactored)
+**Results:** 51% reduction (1,308 → 635 lines), 61 unit tests
 
-**Issues:**
-- `storeFamily()` method spans 305 lines (383-687)
-- Complex logic mixing OPS API, matter creation, events, actors
+#### MatterController.php - 650 lines (was 925)
+**Location:** `app/Http/Controllers/MatterController.php`
+**Status:** [x] COMPLETED (Phase 3B - December 22, 2025)
+
+**Extracted Services:**
+```text
+app/Services/
+└── PatentFamilyCreationService.php   # OPS API integration (12 tests)
+```
+
+**Results:** 30% reduction (925 → 650 lines), `storeFamily()` reduced 89% (305 → 35 lines)
 
 ### 2.2 God Model (CRITICAL) [ ] PENDING
 
@@ -297,17 +297,50 @@ app/Services/
 3. [ ] Create authorization middleware
 4. [~] Apply traits to controllers (4 of ~15 done)
 
-### Phase 3: Service Extraction [ ] PENDING
-1. [ ] Extract `RenewalWorkflowService` from RenewalController
-2. [ ] Extract `DolibarrInvoiceService` for API calls
-3. [ ] Extract `PatentFamilyCreationService` from MatterController
-4. [ ] Create `RenewalFeeCalculationService`
+### Phase 3: Service Extraction [x] COMPLETED (December 22, 2025)
+1. [x] Extract `RenewalFeeCalculatorService` from RenewalController (16 tests)
+2. [x] Extract `RenewalLogService` from RenewalController (8 tests)
+3. [x] Extract `DolibarrInvoiceService` for API calls (11 tests)
+4. [x] Extract `RenewalNotificationService` from RenewalController (14 tests)
+5. [x] Extract `RenewalWorkflowService` from RenewalController (12 tests)
+6. [x] Extract `PatentFamilyCreationService` from MatterController (12 tests)
 
-### Phase 4: Repository Pattern [ ] PENDING
-1. [ ] Create `MatterRepository` with filter logic
-2. [ ] Create `TaskRepository` for renewal queries
-3. [ ] Create `ActorRepository` for actor lookups
-4. [ ] Move complex queries from models to repositories
+**Total: 6 services, 73 unit tests, 42% controller LOC reduction**
+
+### Phase 4: Repository Pattern [x] COMPLETED (December 22, 2025)
+
+#### Phase 4A: TaskRepository [x] COMPLETED
+1. [x] Create `TaskRepository` with `renewals()` method (extracted 130 lines from Task.php)
+2. [x] Extract `applyRenewalFilters()` from RenewalController (10+ filter types)
+3. [x] Update RenewalController to inject TaskRepository
+4. [x] Update RenewalWorkflowService to use TaskRepository
+5. [x] Update RenewalNotificationService to use TaskRepository
+6. [x] Add 12 unit tests for TaskRepository
+
+**Files Created:**
+- `app/Repositories/TaskRepository.php` (280 lines)
+- `tests/Unit/Repositories/TaskRepositoryTest.php` (12 tests)
+
+#### Phase 4B: MatterRepository [x] COMPLETED
+1. [x] Create `MatterRepository` with filter logic (470 lines extracted from Matter.php)
+2. [x] Move `Matter::filter()` to repository with delegation
+3. [x] Update MatterController to inject and use repository
+4. [x] Add 12 unit tests for MatterRepository
+
+**Files Created:**
+- `app/Repositories/MatterRepository.php` (470 lines)
+- `tests/Unit/Repositories/MatterRepositoryTest.php` (12 tests)
+
+#### Phase 4C: ActorRepository [x] COMPLETED
+1. [x] Create `ActorRepository` for actor lookups (207 lines)
+2. [x] Extract phonetic matching logic and common queries
+3. [x] Add 17 unit tests for ActorRepository
+
+**Files Created:**
+- `app/Repositories/ActorRepository.php` (207 lines)
+- `tests/Unit/Repositories/ActorRepositoryTest.php` (17 tests)
+
+**Total: 3 repositories, 41 unit tests**
 
 ### Phase 5: View Components [ ] PENDING
 1. [ ] Create `ListWithPanel` Blade component
@@ -324,9 +357,9 @@ app/Services/
 | Hardcoded role strings | High | Low | High | **P1** | [x] DONE |
 | Hardcoded event codes | High | Low | High | **P1** | [x] DONE |
 | Magic pagination numbers | Low | Low | Low | **P4** | [x] DONE |
-| Fat controllers (>900 lines) | Critical | High | High | **P1** | [ ] PENDING |
+| Fat controllers (>900 lines) | Critical | High | High | **P1** | [x] DONE |
 | Missing Form Requests | High | Medium | High | **P1** | [~] 8 of 44 |
-| God model (Matter.php) | Critical | High | High | **P2** | [ ] PENDING |
+| God model (Matter.php) | Critical | High | High | **P2** | [x] Repository extracted |
 | Repeated CRUD patterns | High | Medium | Medium | **P2** | [~] 4 of 15 |
 | Switch statement complexity | Medium | Medium | Medium | **P2** | [~] 1 of 7 |
 | Inconsistent JSON responses | Medium | Low | Medium | **P3** | [~] Trait created |
@@ -334,19 +367,23 @@ app/Services/
 
 ---
 
-## Summary Statistics - UPDATED
+## Summary Statistics - UPDATED (December 22, 2025)
 
 | Metric | Original | Current | Status |
 |--------|----------|---------|--------|
 | Files with enum improvements | 0 | 22+ | [x] |
 | Hardcoded magic strings | 150+ | ~50 remaining | [~] |
 | Large switch statements (>10 cases) | 7 | 6 remaining | [~] |
-| Lines in largest controller | 1,308 | 1,308 | [ ] |
-| Lines in largest model | 1,241 | 1,241 | [ ] |
+| Lines in largest controller | 1,308 | 650 (MatterController) | [x] |
+| Lines in largest model | 1,241 | ~850 (filter logic extracted) | [x] |
 | Form Request classes | 2 | 10 | [~] |
 | Controllers with traits | 0 | 4 | [~] |
 | Enums created | 0 | 5 | [x] |
 | Config files for magic values | 0 | 2 | [x] |
+| Services extracted (Phase 3) | 0 | 6 | [x] |
+| Unit tests added (Phase 3) | 0 | 73 | [x] |
+| Repositories created (Phase 4) | 0 | 3 | [x] |
+| Unit tests added (Phase 4) | 0 | 41 | [x] |
 
 ---
 
