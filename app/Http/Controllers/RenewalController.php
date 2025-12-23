@@ -529,6 +529,12 @@ class RenewalController extends Controller
     {
         $this->authorize('viewAny', RenewalsLog::class);
 
+        // Validate date format for date filters
+        $request->validate([
+            'Fromdate' => 'nullable|date_format:Y-m-d',
+            'Untildate' => 'nullable|date_format:Y-m-d',
+        ]);
+
         $filters = $request->except(['_token']);
 
         // Use RenewalLogFilterService to handle filtering logic

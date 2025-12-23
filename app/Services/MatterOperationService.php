@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Enums\EventCode;
 use App\Models\ActorPivot;
 use App\Models\Matter;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Service for handling special matter creation operations.

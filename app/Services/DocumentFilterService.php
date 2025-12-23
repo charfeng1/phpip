@@ -6,6 +6,7 @@ use App\Models\Event;
 use App\Models\Task;
 use App\Models\TemplateMember;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Service for filtering template members in document selection.
@@ -73,7 +74,7 @@ class DocumentFilterService
         if ($view === 'documents.select') {
             $query = $query->whereHas('class', function ($q) {
                 $q->whereNotExists(function ($subQuery) {
-                    $subQuery->select(\DB::raw(1))
+                    $subQuery->select(DB::raw(1))
                         ->from('event_class_lnk')
                         ->whereRaw('template_classes.id = event_class_lnk.template_class_id');
                 });

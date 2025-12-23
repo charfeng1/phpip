@@ -73,9 +73,9 @@
           @if ($type === 'custom')
             {{-- Custom content must be pre-sanitized by caller (e.g., wrapped in Illuminate\Support\HtmlString) --}}
             {!! $field['content'] ?? '' !!}
-          @elseif ($type === 'textarea')
+          @elseif ($type === 'textarea' && $name)
             <textarea class="{{ $inputClass }}" name="{{ $name }}" {!! BladeHelpers::formatAttributes($inputAttributes) !!}>{{ $value }}</textarea>
-          @else
+          @elseif ($type !== 'custom' && $type !== 'textarea' && $name)
             <input type="{{ $type }}"
                    class="{{ $inputClass }}"
                    name="{{ $name }}"
