@@ -7,6 +7,7 @@ use App\Models\Task;
 use App\Repositories\TaskRepository;
 use App\Services\DolibarrInvoiceService;
 use App\Services\RenewalFeeCalculatorService;
+use App\Services\RenewalLogFilterService;
 use App\Services\RenewalNotificationService;
 use App\Services\RenewalWorkflowService;
 use Illuminate\Http\Request;
@@ -28,6 +29,7 @@ class RenewalController extends Controller
         protected RenewalWorkflowService $workflowService,
         protected DolibarrInvoiceService $dolibarrService,
         protected TaskRepository $taskRepository,
+        protected RenewalLogFilterService $logFilterService,
     ) {}
     /**
      * Display a paginated list of renewals with filtering.
@@ -527,47 +529,11 @@ class RenewalController extends Controller
     {
         $this->authorize('viewAny', RenewalsLog::class);
 
-        // Get list of logs
-        $logs = new RenewalsLog;
         $filters = $request->except(['_token']);
-        if (! empty($filters)) {
-            foreach ($filters as $key => $value) {
-                if ($value != '') {
-                    switch ($key) {
-                        case 'Matter':
-                            $logs = $logs->whereHas('task', function ($query) use ($value) {
-                                $query->whereHas('matter', function ($q2) use ($value) {
-                                    $q2->where('uid', 'LIKE', "$value%");
-                                });
-                            });
-                            break;
-                        case 'Client':
-                            $logs = $logs->whereHas('task', function ($query) use ($value) {
-                                $query->whereHas('matter', function ($q2) use ($value) {
-                                    $q2->whereHas('client', function ($q3) use ($value) {
-                                        $q3->where('display_name', 'LIKE', "$value%");
-                                    });
-                                });
-                            });
-                            break;
-                        case 'Job':
-                            $logs = $logs->where('job_id', "$value");
-                            break;
-                        case 'User':
-                            $logs = $logs->whereHas('creatorInfo', function ($query) use ($value) {
-                                $query->where('name', 'LIKE', "$value%");
-                            });
-                            break;
-                        case 'Fromdate':
-                            $logs = $logs->where('created_at', '>=', "$value");
-                            break;
-                        case 'Untildate':
-                            $logs = $logs->where('created_at', '<=', "$value");
-                            break;
-                    }
-                }
-            }
-        }
+
+        // Use RenewalLogFilterService to handle filtering logic
+        $logs = $this->logFilterService->filterLogs(new RenewalsLog, $filters);
+
         $logs = $logs->orderby('job_id')->simplePaginate(config('renewal.general.paginate', 25));
 
         return view('renewals.logs', compact('logs'));

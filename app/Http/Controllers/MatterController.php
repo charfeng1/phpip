@@ -10,7 +10,6 @@ use App\Http\Requests\MatterExportRequest;
 use App\Http\Requests\MergeFileRequest;
 use App\Http\Requests\StoreMatterRequest;
 use App\Http\Requests\UpdateMatterRequest;
-use App\Models\ActorPivot;
 use App\Models\Category;
 use App\Models\Country;
 use App\Models\Matter;
@@ -19,6 +18,7 @@ use App\Models\User;
 use App\Repositories\MatterRepository;
 use App\Services\DocumentMergeService;
 use App\Services\MatterExportService;
+use App\Services\MatterOperationService;
 use App\Services\OPSService;
 use App\Services\PatentFamilyCreationService;
 use App\Traits\HandlesAuditFields;
@@ -48,6 +48,8 @@ class MatterController extends Controller
 
     protected PatentFamilyCreationService $patentFamilyService;
 
+    protected MatterOperationService $matterOperationService;
+
     /**
      * Initialize the controller with required services.
      *
@@ -56,19 +58,22 @@ class MatterController extends Controller
      * @param MatterRepository $matterRepository Repository for matter queries.
      * @param OPSService $opsService Service for interacting with EPO OPS API.
      * @param PatentFamilyCreationService $patentFamilyService Service for creating patent families from OPS.
+     * @param MatterOperationService $matterOperationService Service for handling special matter creation operations.
      */
     public function __construct(
         DocumentMergeService $documentMergeService,
         MatterExportService $matterExportService,
         MatterRepository $matterRepository,
         OPSService $opsService,
-        PatentFamilyCreationService $patentFamilyService
+        PatentFamilyCreationService $patentFamilyService,
+        MatterOperationService $matterOperationService
     ) {
         $this->documentMergeService = $documentMergeService;
         $this->matterExportService = $matterExportService;
         $this->matterRepository = $matterRepository;
         $this->opsService = $opsService;
         $this->patentFamilyService = $patentFamilyService;
+        $this->matterOperationService = $matterOperationService;
     }
 
     /**
@@ -261,62 +266,12 @@ class MatterController extends Controller
 
         $new_matter = Matter::create($this->getFilteredData($request, ['operation', 'parent_id', 'priority']));
 
-        switch ($request->operation) {
-            case 'descendant':
-                $parent_matter = Matter::with('priority', 'filing')->find($request->parent_id);
-                // Copy priority claims from original matter
-                $new_matter->priority()->createMany($parent_matter->priority->toArray());
-                $new_matter->container_id = $parent_matter->container_id ?? $request->parent_id;
-                if ($request->priority) {
-                    $new_matter->events()->create(['code' => EventCode::PRIORITY->value, 'alt_matter_id' => $request->parent_id]);
-                } else {
-                    // Copy Filing event from original matter
-                    $new_matter->filing()->save($parent_matter->filing->replicate(['detail']));
-                    $new_matter->parent_id = $request->parent_id;
-                    $new_matter->events()->create(
-                        [
-                            'code' => EventCode::ENTRY->value,
-                            'event_date' => now(),
-                            'detail' => 'Descendant filing date',
-                        ]
-                    );
-                }
-                $new_matter->save();
-                break;
-            case 'clone':
-                $parent_matter = Matter::with('priority', 'classifiersNative', 'actorPivot')->find($request->parent_id);
-                // Copy priority claims from original matter
-                $new_matter->priority()->createMany($parent_matter->priority->toArray());
-                // Copy actors from original matter
-                // Cannot use Eloquent relationships because they do not handle unique key constraints
-                // - the issue arises for actors that are inserted upon matter creation by a trigger based
-                //   on the default_actors table
-                $actors = $parent_matter->actorPivot;
-                $new_matter_id = $new_matter->id;
-                $actors->each(function ($item) use ($new_matter_id) {
-                    $item->matter_id = $new_matter_id;
-                    $item->id = null;
-                });
-                ActorPivot::insertOrIgnore($actors->toArray());
-                if ($parent_matter->container_id) {
-                    // Copy shared actors and classifiers from original matter's container
-                    $actors = $parent_matter->container->actorPivot->where('shared', 1);
-                    $actors->each(function ($item) use ($new_matter_id) {
-                        $item->matter_id = $new_matter_id;
-                        $item->id = null;
-                    });
-                    ActorPivot::insertOrIgnore($actors->toArray());
-                    $new_matter->classifiersNative()
-                        ->createMany($parent_matter->container->classifiersNative->toArray());
-                } else {
-                    // Copy classifiers from original matter
-                    $new_matter->classifiersNative()->createMany($parent_matter->classifiersNative->toArray());
-                }
-                break;
-            case 'new':
-                $new_matter->events()->create(['code' => EventCode::RECEIVED->value, 'event_date' => now()]);
-                break;
-        }
+        // Handle special operations (descendant, clone, new) using MatterOperationService
+        $operation = $request->operation ?? 'new';
+        $this->matterOperationService->handleOperation($new_matter, $operation, [
+            'parent_id' => $request->parent_id,
+            'priority' => $request->priority,
+        ]);
 
         return response()->json(['redirect' => route('matter.show', [$new_matter])]);
     }

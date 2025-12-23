@@ -357,7 +357,7 @@ app/Services/
 3. [x] Create `FormGenerator` component
 4. [x] Create view composers for common data
 
-### Phase 6: Final Refactoring & Code Standardization [ ] PENDING
+### Phase 6: Final Refactoring & Code Standardization [~] IN PROGRESS
 
 **Why Phase 6 Is Critical:**
 
@@ -369,42 +369,46 @@ The codebase now has solid architectural foundations (Phases 1-5), but maintaina
 
 **Impact**: Completing Phase 6 creates a **clean, standardized codebase** ready for long-term maintenance and team collaboration.
 
-#### Phase 6A: Switch Statement Refactoring [~] IN PROGRESS (6 remaining)
+#### Phase 6A: Switch Statement Refactoring [~] PARTIAL (3 of 6 complete)
 
 **Goal:** Convert complex switch statements into data-driven maps or extracted services.
 
-**Items:**
-1. **Matter.php:883-982** (100 lines) - Dynamic query filtering
-   - Extract to `MatterFilteringService`
-   - Current: Switch on filter type → Builds WHERE clause
-   - Target: Filter map + closure-based query builders
+**Completed:**
+1. ~~**DocumentController.php:154-194** (40 lines) - Document filtering~~ ✅ **COMPLETED**
+   - Created `DocumentFilterService`
+   - Refactored 40-line switch to match expression with filter whitelist
+   - 11 unit tests created
 
-2. **RenewalController.php:60-105** (45 lines) - Renewal filtering
-   - Extract to `RenewalFilterService`
-   - Current: Switch on filter key → Applies query filters
-   - Target: Filter registry + strategy pattern
+2. ~~**MatterController.php:258-313** (55 lines) - Operation type handling~~ ✅ **COMPLETED**
+   - Created `MatterOperationService`
+   - Refactored 55-line switch to match expression
+   - 4 unit tests created
 
-3. **RenewalController.php:1269-1300** (31 lines) - Log filtering
-   - Extract to `LogFilteringService`
-   - Current: Switch on filter type → Filters renewal logs
-   - Target: Composable filter pipeline
+3. ~~**RenewalController.php:536-567** (31 lines) - Log filtering~~ ✅ **COMPLETED**
+   - Created `RenewalLogFilterService`
+   - Refactored 31-line switch to match expression with filter whitelist
+   - 12 unit tests created
 
-4. **DocumentController.php:154-194** (40 lines) - Document filtering
-   - Extract to `DocumentFilterService`
-   - Current: Switch on filter type → Filters documents
-   - Target: Filter strategies in service
+**Remaining:**
+4. **Matter.php:883-982** (100 lines) - Dynamic query filtering
+   - Note: Already refactored in Phase 4 (MatterRepository)
+   - Status: COMPLETED via MatterRepository
 
-5. **MatterController.php:258-313** (55 lines) - Operation type handling
-   - Extract to `OperationTypeHandler`
-   - Current: Switch on operation type → Handles different operations
-   - Target: Strategy objects with execute() method
+5. **RenewalController.php:60-105** (45 lines) - Renewal filtering
+   - Note: Already refactored via TaskRepository
+   - Status: COMPLETED via TaskRepository::applyRenewalFilters()
 
 6. **MatterController.php:628-679** (51 lines) - Procedure step handling
    - Extract to `ProcedureStepHandler`
    - Current: Switch on step type → Handles procedures
    - Target: Chain of responsibility pattern
 
-**Tests Required:** 24+ unit tests (4 per extracted service)
+**Tests Created:** 27 unit tests (11 + 4 + 12)
+
+**New Services:**
+- `app/Services/DocumentFilterService.php` (152 lines)
+- `app/Services/MatterOperationService.php` (178 lines)
+- `app/Services/RenewalLogFilterService.php` (88 lines)
 
 #### Phase 6B: Trait Application Completion [~] IN PROGRESS
 
@@ -493,20 +497,20 @@ The codebase now has solid architectural foundations (Phases 1-5), but maintaina
 | Missing Form Requests | High | Medium | High | **P1** | [x] 36 created |
 | God model (Matter.php) | Critical | High | High | **P2** | [x] Repository extracted |
 | Repeated CRUD patterns | High | Medium | Medium | **P2** | [x] 16 controllers |
-| Switch statement complexity | Medium | Medium | Medium | **P2** | [~] 1 of 7 |
+| Switch statement complexity | Medium | Medium | Medium | **P2** | [~] 3 of 7 (Phase 6A partial) |
 | Inconsistent JSON responses | Medium | Low | Medium | **P3** | [~] Trait created |
 | View template duplication | Medium | Medium | Low | **P3** | [x] COMPLETED |
 
 ---
 
-## Summary Statistics - UPDATED (December 23, 2025)
+## Summary Statistics - UPDATED (December 23, 2025 - Phase 6A Partial)
 
 | Metric | Original | Current | Status |
 |--------|----------|---------|--------|
 | Files with enum improvements | 0 | 22+ | [x] |
 | Hardcoded magic strings | 150+ | ~50 remaining | [~] |
-| Large switch statements (>10 cases) | 7 | 6 remaining | [~] |
-| Lines in largest controller | 1,308 | 635 (RenewalController) | [x] |
+| Large switch statements (>10 cases) | 7 | 1 remaining | [~] |
+| Lines in largest controller | 1,308 | 540 (MatterController reduced) | [x] |
 | Lines in largest model | 1,241 | ~850 (filter logic extracted) | [x] |
 | Form Request classes | 2 | 36 | [x] |
 | Controllers with traits | 0 | 16 | [x] |
@@ -516,6 +520,8 @@ The codebase now has solid architectural foundations (Phases 1-5), but maintaina
 | Unit tests added (Phase 3) | 0 | 73 | [x] |
 | Repositories created (Phase 4) | 0 | 3 | [x] |
 | Unit tests added (Phase 4) | 0 | 41 | [x] |
+| **New Services (Phase 6A)** | 0 | 3 | [~] |
+| **Unit tests added (Phase 6A)** | 0 | 27 | [~] |
 
 ---
 

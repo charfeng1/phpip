@@ -11,6 +11,7 @@ use App\Models\MatterActors;
 use App\Models\Task;
 use App\Models\TemplateClass;
 use App\Models\TemplateMember;
+use App\Services\DocumentFilterService;
 use App\Traits\HandlesAuditFields;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
@@ -26,6 +27,10 @@ use Illuminate\Support\Facades\DB;
 class DocumentController extends Controller
 {
     use HandlesAuditFields;
+
+    public function __construct(
+        protected DocumentFilterService $filterService,
+    ) {}
     /**
      * Display a paginated list of template classes with filtering.
      *
@@ -141,73 +146,26 @@ class DocumentController extends Controller
                 ->where([['matter_id', $matter->id]])->whereNotNull('email')->distinct();
         }
         $contacts = $contacts->get();
-        $filters = $request->except(['page']);
+
         $members = new TemplateMember;
         $tableComments = $members->getTableComments();
-        $oldfilters = [];
-        $view = 'documents.select';
-        $event = null;
-        $task = null;
-        if (! empty($filters)) {
-            foreach ($filters as $key => $value) {
-                if ($value != '') {
-                    switch ($key) {
-                        case 'Category':
-                            $members = $members->whereLike('category', "{$value}%");
-                            $oldfilters['Category'] = $value;
-                            break;
-                        case 'Language':
-                            $members = $members->whereLike('language', "{$value}%");
-                            $oldfilters['Language'] = $value;
-                            break;
-                        case 'Name':
-                            $members = $members->whereHas('class', function ($query) use ($value) {
-                                $query->whereLike('name', "{$value}%");
-                            });
-                            $oldfilters['Name'] = $value;
-                            break;
-                        case 'Summary':
-                            $members = $members->whereLike('summary', "{$value}%");
-                            $oldfilters['Name'] = $value;
-                            break;
-                        case 'Style':
-                            $members = $members->whereLike('style', "{$value}%");
-                            $oldfilters['Style'] = $value;
-                            break;
-                        case 'EventName':
-                            $members = $members->whereHas('class', function ($query) use ($value) {
-                                $query->whereHas('eventNames', function ($q2) use ($value) {
-                                    $q2->where('event_name_code', "$value");
-                                });
-                            });
-                            $oldfilters['EventName'] = $value;
-                            // specific view for within event window
-                            $view = 'documents.select2';
-                            break;
-                        case 'Event':
-                            $event = Event::where('id', "$value")->first();
-                            break;
-                        case 'Task':
-                            $task = Task::where('id', "$value")->first();
-                            $event = $task->trigger;
-                            break;
-                    }
-                }
-            }
-        }
-        if ($view == 'documents.select') {
-            //  We exclude members linked to any of event or task
-            $members = $members->whereHas('class', function ($query) {
-                $query->whereNotExists(function ($query) {
-                    $query->select(DB::raw(1))
-                        ->from('event_class_lnk')
-                        ->whereRaw('template_classes.id = event_class_lnk.template_class_id');
-                });
-            });
-        }
-        $members = $members->orderBy('summary')->get();
+        $filters = $request->except(['page']);
 
-        return view($view, compact('matter', 'members', 'contacts', 'tableComments', 'oldfilters', 'event', 'task'));
+        // Use DocumentFilterService to handle filtering logic
+        $result = $this->filterService->filterTemplateMembers($members, $filters);
+
+        $members = $result['query']->get();
+
+        return view($result['view'], array_merge([
+            'matter' => $matter,
+            'members' => $members,
+            'contacts' => $contacts,
+            'tableComments' => $tableComments,
+        ], array_filter([
+            'oldfilters' => $result['oldfilters'],
+            'event' => $result['event'],
+            'task' => $result['task'],
+        ])));
     }
 
     /**
