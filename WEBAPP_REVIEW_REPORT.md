@@ -1,7 +1,7 @@
 # phpIP Webapp Review Report
 
 ## Scope
-This report focuses on the phpIP web application codebase (Laravel) after the recent refactor. It covers:
+This report focuses on the phpIP web application codebase (Laravel 12) after the recent refactor. It covers:
 - Webapp structure and routing
 - Security-relevant configuration
 - Refactor status and technical debt tracking
@@ -13,11 +13,12 @@ This report focuses on the phpIP web application codebase (Laravel) after the re
   - `can:admin` for audit trail and export
   - `can:except_client` for administrative resources
 - Countries management routes are wrapped with `auth` + `verified` middleware.
-- The Laravel 11 bootstrap style is used via `bootstrap/app.php`, where web middleware is appended (`SetLocale`).
+- The Laravel 12 bootstrap style is used via `bootstrap/app.php`, where web middleware is appended (`SetLocale`).
 
 **Key files:**
 - `routes/web.php`
 - `bootstrap/app.php`
+- `composer.json`
 
 ## Refactor Status (from Project Report)
 The refactor progress and remaining hotspots are tracked in `CODE_QUALITY_REPORT.md`:
@@ -45,7 +46,7 @@ The refactor progress and remaining hotspots are tracked in `CODE_QUALITY_REPORT
 - Auth uses the standard session guard with Eloquent user provider.
 
 ### Items to Review
-- HTML Purifier allows iframes and objects. This is acceptable only if content is trusted. For untrusted content, consider tightening `HTML.Allowed` and disabling `SafeObject`/`SafeIframe`.
+- HTML Purifier is configured to allow a controlled subset of tags and attributes, including `a` tags with `target` and table markup. It also allows iframe/object tags when explicitly marked safe. This is acceptable only if the HTML input is trusted or constrained; for untrusted input, consider removing `HTML.SafeIframe`, `HTML.SafeObject`, and tightening `HTML.Allowed`.
 - Ensure `SESSION_SECURE_COOKIE=true` in production to prevent cookies over HTTP.
 
 **Key files:**
