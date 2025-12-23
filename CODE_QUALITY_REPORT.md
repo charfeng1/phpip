@@ -357,6 +357,129 @@ app/Services/
 3. [x] Create `FormGenerator` component
 4. [x] Create view composers for common data
 
+### Phase 6: Final Refactoring & Code Standardization [ ] PENDING
+
+**Why Phase 6 Is Critical:**
+
+The codebase now has solid architectural foundations (Phases 1-5), but maintainability is still hindered by **complex conditional logic** scattered across controllers and models. These remaining issues:
+- **Reduce readability**: Large switch statements (30-100+ lines) make code difficult to understand at a glance
+- **Increase bug risk**: Complex branching logic is harder to test and debug
+- **Impede scaling**: New developers struggle to add features without introducing regressions
+- **Violate DRY principle**: Similar filtering/transformation logic repeated across multiple controllers
+
+**Impact**: Completing Phase 6 creates a **clean, standardized codebase** ready for long-term maintenance and team collaboration.
+
+#### Phase 6A: Switch Statement Refactoring [~] IN PROGRESS (6 remaining)
+
+**Goal:** Convert complex switch statements into data-driven maps or extracted services.
+
+**Items:**
+1. **Matter.php:883-982** (100 lines) - Dynamic query filtering
+   - Extract to `MatterFilteringService`
+   - Current: Switch on filter type → Builds WHERE clause
+   - Target: Filter map + closure-based query builders
+
+2. **RenewalController.php:60-105** (45 lines) - Renewal filtering
+   - Extract to `RenewalFilterService`
+   - Current: Switch on filter key → Applies query filters
+   - Target: Filter registry + strategy pattern
+
+3. **RenewalController.php:1269-1300** (31 lines) - Log filtering
+   - Extract to `LogFilteringService`
+   - Current: Switch on filter type → Filters renewal logs
+   - Target: Composable filter pipeline
+
+4. **DocumentController.php:154-194** (40 lines) - Document filtering
+   - Extract to `DocumentFilterService`
+   - Current: Switch on filter type → Filters documents
+   - Target: Filter strategies in service
+
+5. **MatterController.php:258-313** (55 lines) - Operation type handling
+   - Extract to `OperationTypeHandler`
+   - Current: Switch on operation type → Handles different operations
+   - Target: Strategy objects with execute() method
+
+6. **MatterController.php:628-679** (51 lines) - Procedure step handling
+   - Extract to `ProcedureStepHandler`
+   - Current: Switch on step type → Handles procedures
+   - Target: Chain of responsibility pattern
+
+**Tests Required:** 24+ unit tests (4 per extracted service)
+
+#### Phase 6B: Trait Application Completion [~] IN PROGRESS
+
+**Goal:** Standardize common patterns across all controllers.
+
+**Items:**
+1. **HandlesAuditFields** - Apply to ~10 remaining controllers
+   - Currently: 16 of 26 controllers
+   - Remaining: ActorController, DocumentController, FeeController, RenewalController, etc.
+   - Benefit: Consistent audit field handling (creator, updater, created_at, updated_at)
+
+2. **JsonResponses** - Create and apply to all API endpoints
+   - Currently: Trait created but not applied
+   - Benefit: Consistent JSON response format across all endpoints
+   - Target: 15+ controllers
+
+3. **Filterable** - Apply to remaining controllers
+   - Currently: ~12 controllers with trait
+   - Remaining: ~15 controllers
+   - Benefit: Standardized filter application and validation
+
+**Tests Required:** 12+ integration tests
+
+#### Phase 6C: Hardcoded String Migration [~] PENDING
+
+**Goal:** Eliminate remaining ~50 hardcoded magic strings.
+
+**Categories:**
+1. **View keys** (~15 strings) - Move to constants
+   - Current: Scattered view names in controllers
+   - Target: ViewNames or TemplateNames enum
+
+2. **API endpoints** (~12 strings) - Already in config but could be better
+   - Current: config/patent_offices.php
+   - Target: Type-safe URL building
+
+3. **Error messages** (~18 strings) - Create message constants
+   - Current: Inline error strings
+   - Target: AppMessages enum or Messages class
+
+4. **Status/state values** (~8 strings) - Use enums
+   - Current: String comparisons in conditions
+   - Target: Existing enums (EventCode, ActorRole, etc.)
+
+**Tests Required:** 8+ unit tests for enum/constant usage
+
+#### Phase 6D: Response Standardization [~] PENDING
+
+**Goal:** Ensure all controllers return consistent response formats.
+
+**Items:**
+1. **Success responses** - Apply JsonResponses trait pattern
+   - Standardize: { success: true, data: {...}, message: "..." }
+
+2. **Error responses** - Unified error handling
+   - Standardize: { success: false, error: "...", details: {...} }
+
+3. **Pagination responses** - Consistent pagination format
+   - Standardize: { data: [...], pagination: { current_page, per_page, total } }
+
+4. **Validation errors** - Unified validation error format
+   - Standardize: { errors: { field: ["message1", "message2"] } }
+
+**Tests Required:** 16+ feature tests for response formats
+
+---
+
+**Phase 6 Summary:**
+- **Effort:** ~60-80 developer hours (3-4 weeks with other work)
+- **Test Coverage:** 60+ new unit/feature tests
+- **Controllers Affected:** 26 controllers
+- **Files Created:** ~8-10 new services/handlers
+- **Files Modified:** ~40+ controllers and models
+- **Expected Outcome:** Clean, maintainable, standardized codebase ready for production
+
 ---
 
 ## 8. Priority Matrix - UPDATED
