@@ -3,6 +3,7 @@
 namespace Tests\Unit\Services;
 
 use App\Enums\EventCode;
+use App\Repositories\TaskRepository;
 use App\Services\RenewalFeeCalculatorService;
 use App\Services\RenewalLogService;
 use App\Services\RenewalNotificationService;
@@ -16,16 +17,20 @@ class RenewalNotificationServiceTest extends TestCase
 
     protected RenewalLogService $logService;
 
+    protected TaskRepository $taskRepository;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->feeCalculator = new RenewalFeeCalculatorService(145.0, 1.0);
         $this->logService = new RenewalLogService('testuser');
+        $this->taskRepository = $this->createMock(TaskRepository::class);
 
         // Pass all config values through constructor for testing without Laravel
         $this->service = new RenewalNotificationService(
             $this->feeCalculator,
             $this->logService,
+            $this->taskRepository,
             0.2, // vatRate
             ['before' => 60, 'before_last' => 30, 'instruct_before' => 45], // validityConfig
             'client' // mailRecipient

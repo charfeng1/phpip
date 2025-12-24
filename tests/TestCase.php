@@ -24,8 +24,16 @@ abstract class TestCase extends BaseTestCase
      */
     public function resetDatabase()
     {
-        $this->artisan('migrate:rollback');
-        $this->artisan('migrate');
+        $options = [
+            '--drop-views' => property_exists($this, 'dropViews') ? $this->dropViews : false,
+            '--drop-types' => property_exists($this, 'dropTypes') ? $this->dropTypes : false,
+        ];
+        $schemaPath = database_path('schema/postgres-schema.sql');
+        if (config('database.default') === 'pgsql' && is_file($schemaPath)) {
+            $options['--schema-path'] = $schemaPath;
+        }
+
+        $this->artisan('migrate:fresh', $options);
         $this->artisan('db:seed');
     }
 
