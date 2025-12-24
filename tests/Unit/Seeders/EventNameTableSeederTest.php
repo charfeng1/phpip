@@ -2,6 +2,11 @@
 
 namespace Tests\Unit\Seeders;
 
+use Database\Seeders\CountryTableSeeder;
+use Database\Seeders\EventNameTableSeeder;
+use Database\Seeders\MatterCategoryTableSeeder;
+use Database\Seeders\MatterTypeTableSeeder;
+use Database\Seeders\TaskRulesTableSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
@@ -17,12 +22,23 @@ use Tests\TestCase;
  */
 class EventNameTableSeederTest extends TestCase
 {
+    protected static bool $seeded = false;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         if (! Schema::hasTable('event_name') || ! Schema::hasTable('task_rules')) {
             $this->markTestSkipped('Requires base schema with event_name and task_rules tables.');
+        }
+
+        if (! self::$seeded) {
+            $this->seed(CountryTableSeeder::class);
+            $this->seed(MatterCategoryTableSeeder::class);
+            $this->seed(MatterTypeTableSeeder::class);
+            $this->seed(EventNameTableSeeder::class);
+            $this->seed(TaskRulesTableSeeder::class);
+            self::$seeded = true;
         }
     }
 
