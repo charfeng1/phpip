@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Actor;
 use App\Models\User;
 use App\Services\TeamService;
+use App\Traits\Filterable;
 use App\Traits\HandlesAuditFields;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +22,24 @@ use Illuminate\Validation\Rules\Password;
 class UserController extends Controller
 {
     use HandlesAuditFields;
+    use Filterable;
+
+    /**
+     * Filter rules for index method.
+     */
+    protected array $filterRules = [];
+
+    public function __construct()
+    {
+        $this->filterRules = [
+            'Name' => function ($q, $v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
+                return $q->where('name', 'like', $escapedValue.'%');
+            },
+        ];
+    }
     /**
      * Display a paginated list of users.
      *
@@ -30,12 +49,15 @@ class UserController extends Controller
     public function index(Request $request)
     {
         Gate::authorize('readonly');
-        $user = new User;
-        if ($request->filled('Name')) {
-            $user = $user->where('name', 'like', $request->Name.'%');
-        }
 
-        $query = $user->with('company')->orderby('name');
+        // Validate input
+        $request->validate([
+            'Name' => 'nullable|string|max:255',
+        ]);
+
+        $query = User::query();
+        $this->applyFilters($query, $request);
+        $query = $query->with('company')->orderBy('name');
 
         if ($request->wantsJson()) {
             return response()->json($query->get());

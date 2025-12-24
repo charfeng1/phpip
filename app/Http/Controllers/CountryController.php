@@ -5,15 +5,53 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCountryRequest;
 use App\Http\Requests\UpdateCountryRequest;
 use App\Models\Country;
+use App\Traits\Filterable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class CountryController extends Controller
 {
+    use Filterable;
+
+    /**
+     * Filter rules for index method.
+     */
+    protected array $filterRules = [];
+
     public function __construct()
     {
         $this->middleware('auth');
         $this->middleware('can:admin');
+
+        $this->filterRules = [
+            'iso' => function ($q, $v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
+                return $q->where('iso', 'LIKE', $escapedValue.'%');
+            },
+            'name' => function ($q, $v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
+                $driver = DB::connection()->getDriverName();
+                $isPostgres = $driver === 'pgsql';
+
+                if ($isPostgres) {
+                    return $q->where(function ($subQuery) use ($escapedValue) {
+                        $subQuery->whereRaw("name ->> 'en' ILIKE ?", ['%'.$escapedValue.'%'])
+                            ->orWhereRaw("name ->> 'fr' ILIKE ?", ['%'.$escapedValue.'%'])
+                            ->orWhereRaw("name ->> 'de' ILIKE ?", ['%'.$escapedValue.'%']);
+                    });
+                }
+
+                return $q->where(function ($subQuery) use ($escapedValue) {
+                    $subQuery->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.en'))) LIKE LOWER(?)", ['%'.$escapedValue.'%'])
+                        ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.fr'))) LIKE LOWER(?)", ['%'.$escapedValue.'%'])
+                        ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.de'))) LIKE LOWER(?)", ['%'.$escapedValue.'%']);
+                });
+            },
+        ];
     }
 
     /**
@@ -21,32 +59,14 @@ class CountryController extends Controller
      */
     public function index(Request $request)
     {
-        $iso = $request->input('iso');
-        $name = $request->input('name');
+        // Validate input
+        $request->validate([
+            'iso' => 'nullable|string|max:2',
+            'name' => 'nullable|string|max:255',
+        ]);
+
         $query = Country::query();
-
-        if (! is_null($iso)) {
-            $query = $query->where('iso', 'LIKE', $iso.'%');
-        }
-
-        if (! is_null($name)) {
-            $driver = DB::connection()->getDriverName();
-            $isPostgres = $driver === 'pgsql';
-
-            if ($isPostgres) {
-                $query = $query->where(function ($subQuery) use ($name) {
-                    $subQuery->whereRaw("name ->> 'en' ILIKE ?", ['%'.$name.'%'])
-                        ->orWhereRaw("name ->> 'fr' ILIKE ?", ['%'.$name.'%'])
-                        ->orWhereRaw("name ->> 'de' ILIKE ?", ['%'.$name.'%']);
-                });
-            } else {
-                $query = $query->where(function ($subQuery) use ($name) {
-                    $subQuery->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.en'))) LIKE LOWER(?)", ['%'.$name.'%'])
-                        ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.fr'))) LIKE LOWER(?)", ['%'.$name.'%'])
-                        ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.de'))) LIKE LOWER(?)", ['%'.$name.'%']);
-                });
-            }
-        }
+        $this->applyFilters($query, $request);
 
         if ($request->wantsJson()) {
             return response()->json($query->get());

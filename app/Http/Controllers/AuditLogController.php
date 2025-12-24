@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
+use App\Traits\Filterable;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -20,6 +22,33 @@ use Illuminate\Support\Facades\Gate;
  */
 class AuditLogController extends Controller
 {
+    use Filterable;
+
+    /**
+     * Filter rules for index and export methods.
+     */
+    protected array $filterRules = [];
+
+    public function __construct()
+    {
+        $this->filterRules = [
+            'model' => function ($q, $v) {
+                $modelClass = $this->resolveModelClass($v);
+                if ($modelClass) {
+                    $q->where('auditable_type', $modelClass);
+                }
+            },
+            'user' => function ($q, $v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $userSearch = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+                $q->where('user_login', 'like', $userSearch.'%');
+            },
+            'action' => fn ($q, $v) => $q->where('action', $v),
+            'from_date' => fn ($q, $v) => $q->where('created_at', '>=', $v),
+            'to_date' => fn ($q, $v) => $q->where('created_at', '<=', Carbon::parse($v)->endOfDay()),
+            'record_id' => fn ($q, $v) => $q->where('auditable_id', $v),
+        ];
+    }
     /**
      * Display a paginated list of audit logs with filtering.
      *
@@ -32,7 +61,7 @@ class AuditLogController extends Controller
         Gate::authorize('admin');
 
         // Validate input
-        $validated = $request->validate([
+        $request->validate([
             'model' => 'nullable|string|max:255',
             'user' => 'nullable|string|max:255',
             'action' => 'nullable|in:created,updated,deleted',
@@ -45,36 +74,7 @@ class AuditLogController extends Controller
             ->with(['auditable', 'user'])
             ->orderByDesc('created_at');
 
-        // Apply filters
-        if (!empty($validated['model'])) {
-            $modelClass = $this->resolveModelClass($validated['model']);
-            if ($modelClass) {
-                $query->where('auditable_type', $modelClass);
-            }
-        }
-
-        if (!empty($validated['user'])) {
-            // Escape LIKE wildcards to prevent SQL wildcard injection
-            $userSearch = str_replace(['%', '_'], ['\\%', '\\_'], $validated['user']);
-            $query->where('user_login', 'like', $userSearch.'%');
-        }
-
-        if (!empty($validated['action'])) {
-            $query->where('action', $validated['action']);
-        }
-
-        if (!empty($validated['from_date'])) {
-            $query->where('created_at', '>=', $validated['from_date']);
-        }
-
-        if (!empty($validated['to_date'])) {
-            // Use Carbon for proper end-of-day handling
-            $query->where('created_at', '<=', \Carbon\Carbon::parse($validated['to_date'])->endOfDay());
-        }
-
-        if (!empty($validated['record_id'])) {
-            $query->where('auditable_id', $validated['record_id']);
-        }
+        $this->applyFilters($query, $request);
 
         $auditLogs = $query->paginate(50)->withQueryString();
 
@@ -165,7 +165,7 @@ class AuditLogController extends Controller
         Gate::authorize('admin');
 
         // Validate input (same as index method)
-        $validated = $request->validate([
+        $request->validate([
             'model' => 'nullable|string|max:255',
             'user' => 'nullable|string|max:255',
             'action' => 'nullable|in:created,updated,deleted',
@@ -178,32 +178,7 @@ class AuditLogController extends Controller
             ->with(['auditable', 'user'])
             ->orderByDesc('created_at');
 
-        // Apply same filters as index
-        if (!empty($validated['model'])) {
-            $modelClass = $this->resolveModelClass($validated['model']);
-            if ($modelClass) {
-                $query->where('auditable_type', $modelClass);
-            }
-        }
-
-        if (!empty($validated['user'])) {
-            // Escape LIKE wildcards to prevent SQL wildcard injection
-            $userSearch = str_replace(['%', '_'], ['\\%', '\\_'], $validated['user']);
-            $query->where('user_login', 'like', $userSearch.'%');
-        }
-
-        if (!empty($validated['action'])) {
-            $query->where('action', $validated['action']);
-        }
-
-        if (!empty($validated['from_date'])) {
-            $query->where('created_at', '>=', $validated['from_date']);
-        }
-
-        if (!empty($validated['to_date'])) {
-            // Use Carbon for proper end-of-day handling
-            $query->where('created_at', '<=', \Carbon\Carbon::parse($validated['to_date'])->endOfDay());
-        }
+        $this->applyFilters($query, $request);
 
         $filename = 'audit_log_'.date('Y-m-d_His').'.csv';
 
