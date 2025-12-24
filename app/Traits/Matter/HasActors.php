@@ -153,7 +153,7 @@ trait HasActors
      */
     public function getOwnerNameAttribute()
     {
-        $names = $this->owners->pluck('name')->toArray();
+        $names = $this->owners()->pluck('name')->toArray();
 
         return implode('; ', $names);
     }

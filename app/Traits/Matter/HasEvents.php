@@ -49,14 +49,13 @@ trait HasEvents
      * Get the parent filing event(s) for this matter.
      *
      * Parent filing events represent the filing dates of priority applications.
-     * Returns a default empty model if no parent filing events exist.
      *
      * @return HasMany
      */
     public function parentFiling(): HasMany
     {
         return $this->hasMany(Event::class)
-            ->whereCode(EventCode::PCT_FILING->value)->withDefault();
+            ->whereCode(EventCode::PCT_FILING->value);
     }
 
     /**
