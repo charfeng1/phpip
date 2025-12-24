@@ -13,18 +13,23 @@ return new class extends Migration
     private string $usersViewSql = "
         CREATE OR REPLACE VIEW users AS
         SELECT
-            id,
-            login AS name,
-            login,
-            email,
-            password,
-            default_role,
-            language,
-            remember_token,
-            created_at,
-            updated_at
+            actor.id,
+            actor.name,
+            actor.login,
+            actor.language,
+            actor.password,
+            actor.default_role,
+            actor.company_id,
+            actor.email,
+            actor.phone,
+            actor.notes,
+            actor.creator,
+            actor.created_at,
+            actor.updated_at,
+            actor.updater,
+            actor.remember_token
         FROM actor
-        WHERE login IS NOT NULL
+        WHERE actor.login IS NOT NULL
     ";
 
     /**
