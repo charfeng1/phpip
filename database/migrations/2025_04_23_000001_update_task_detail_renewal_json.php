@@ -8,9 +8,10 @@ class UpdateTaskDetailRenewalJson extends Migration
 {
     public function up()
     {
-        // Skip for PostgreSQL - the schema already has the function with JSONB
-        if (DB::getDriverName() === 'pgsql') {
-            Log::info('Skipping insert_recurring_renewals procedure update for PostgreSQL - schema already handles this');
+        // Skip for PostgreSQL - schema already has function with JSONB
+        // Skip for SQLite - uses MySQL stored procedures
+        if (DB::getDriverName() === 'pgsql' || DB::getDriverName() === 'sqlite') {
+            Log::info('Skipping insert_recurring_renewals procedure update for ' . DB::getDriverName());
 
             return;
         }
@@ -69,8 +70,8 @@ class UpdateTaskDetailRenewalJson extends Migration
 
     public function down()
     {
-        // Skip for PostgreSQL
-        if (DB::getDriverName() === 'pgsql') {
+        // Skip for PostgreSQL and SQLite
+        if (DB::getDriverName() === 'pgsql' || DB::getDriverName() === 'sqlite') {
             return;
         }
 

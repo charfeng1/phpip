@@ -11,8 +11,9 @@ return new class extends Migration
     public function up(): void
     {
         // Skip for PostgreSQL - this is a MySQL-specific collation migration
-        if (DB::getDriverName() === 'pgsql') {
-            echo "Skipping MySQL collation migration for PostgreSQL\n";
+        // Skip for SQLite - uses MySQL-specific SQL (SELECT VERSION(), SHOW CREATE PROCEDURE)
+        if (DB::getDriverName() === 'pgsql' || DB::getDriverName() === 'sqlite') {
+            echo "Skipping MySQL collation migration for " . DB::getDriverName() . "\n";
 
             return;
         }

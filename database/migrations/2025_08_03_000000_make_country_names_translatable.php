@@ -23,9 +23,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Skip for PostgreSQL - the schema already has JSONB name column
-        if (DB::getDriverName() === 'pgsql') {
-            Log::info('Skipping country names migration for PostgreSQL - schema already has JSONB column');
+        // Skip for PostgreSQL - schema already has JSONB name column
+        // Skip for SQLite - uses MySQL-specific SQL (select version())
+        if (DB::getDriverName() === 'pgsql' || DB::getDriverName() === 'sqlite') {
+            Log::info('Skipping country names migration for ' . DB::getDriverName());
 
             return;
         }
@@ -177,8 +178,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Skip for PostgreSQL
-        if (DB::getDriverName() === 'pgsql') {
+        // Skip for PostgreSQL and SQLite
+        if (DB::getDriverName() === 'pgsql' || DB::getDriverName() === 'sqlite') {
             return;
         }
 

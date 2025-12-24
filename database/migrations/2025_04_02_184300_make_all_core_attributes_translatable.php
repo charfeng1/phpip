@@ -49,8 +49,9 @@ return new class extends Migration
     public function up(): void
     {
         // Skip for PostgreSQL - the schema already has JSONB columns
-        if (DB::getDriverName() === 'pgsql') {
-            Log::info('Skipping translatable attributes migration for PostgreSQL - schema already has JSONB columns');
+        // Skip for SQLite - uses MySQL-specific SQL (select version())
+        if (DB::getDriverName() === 'pgsql' || DB::getDriverName() === 'sqlite') {
+            Log::info('Skipping translatable attributes migration for ' . DB::getDriverName());
 
             return;
         }
@@ -156,8 +157,9 @@ return new class extends Migration
     public function down(): void
     {
         // Skip for PostgreSQL - nothing to reverse
-        if (DB::getDriverName() === 'pgsql') {
-            Log::info('Skipping translatable attributes rollback for PostgreSQL');
+        // Skip for SQLite - uses MySQL-specific SQL (select version())
+        if (DB::getDriverName() === 'pgsql' || DB::getDriverName() === 'sqlite') {
+            Log::info('Skipping translatable attributes rollback for ' . DB::getDriverName());
 
             return;
         }
