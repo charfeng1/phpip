@@ -58,11 +58,9 @@ class AppServiceProvider extends ServiceProvider
             }
 
             // MySQL: use JSON_UNQUOTE(JSON_EXTRACT()) with COLLATE for case-insensitive
-            // Use parameterized locale path for safety
-            $safeLocale = addslashes($locale);
-
+            // Locale is validated by regex above - only [a-zA-Z]{2} allowed
             return $this->whereRaw(
-                "JSON_UNQUOTE(JSON_EXTRACT($column, '$.\"$safeLocale\"')) COLLATE utf8mb4_0900_ai_ci LIKE ?",
+                "JSON_UNQUOTE(JSON_EXTRACT($column, '$.\"{$locale}\"')) COLLATE utf8mb4_0900_ai_ci LIKE ?",
                 ["$value%"]
             );
         });

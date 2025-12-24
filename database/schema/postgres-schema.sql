@@ -99,7 +99,7 @@ CREATE TABLE actor (
     warn BOOLEAN NOT NULL DEFAULT FALSE,
     ren_discount DECIMAL(8,2) NOT NULL DEFAULT 0,
     notes TEXT,
-    "VAT_number" VARCHAR(45),
+    VAT_number VARCHAR(45),
     creator CHAR(16),
     updater CHAR(16),
     created_at TIMESTAMP,

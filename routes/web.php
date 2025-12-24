@@ -110,7 +110,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('event/{event}/recreateTasks', function (App\Models\Event $event) {
         Gate::authorize('readwrite');
 
-        return DB::statement('CALL recreate_tasks(?, ?)', [$event->id, Auth::user()->login]);
+        DB::statement('CALL recreate_tasks(?, ?)', [$event->id, Auth::user()->login]);
+
+        return response()->json(['success' => true]);
     });
 
     // Resource routes

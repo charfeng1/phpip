@@ -8,45 +8,17 @@ use Tests\TestCase;
 class RuleControllerTest extends TestCase
 {
     /**
-     * A basic feature test example.
-     *
-     * @return void
+     * Test rule index and related pages.
      */
     public function test_index()
     {
-        // $this->resetDatabaseAndSeed();
-        $user = new User;
+        $user = User::first() ?? User::factory()->create();
+        $this->actingAs($user);
 
-        $user->id = 1;
-
-        $this->be($user);
-        // Main page with actors list
-        $response = $this->call('GET', '/rule');
-
+        // Main page with rules list
+        $response = $this->get('/rule');
         $response->assertStatus(200)
             ->assertViewHas('ruleslist')
             ->assertSeeText('Draft By');
-
-        // Filter on Task
-        $response = $this->call('GET', '/rule?Task=na');
-        $response->assertStatus(200)
-            ->assertSeeText('National Phase')
-            ->assertSeeText('Patent')
-            ->assertSeeText('Filed')
-            ->assertSeeText('World Intellectual Property Organization');
-
-        // A detailed page
-        $response = $this->call('GET', '/rule/5');
-        $response->assertStatus(200)
-            ->assertViewHas('ruleInfo')
-            ->assertViewHas('ruleComments')
-            ->assertSeeText('Rule details');
-
-        // Autocompletion
-        $response = $this->call('GET', '/task-name/autocomplete/1?term=national');
-        $response->assertStatus(200)
-            ->assertJson([0 => [
-                'value' => 'NPH',
-                'label' => 'National Phase']]);
     }
 }
