@@ -24,7 +24,12 @@ class CountryController extends Controller
         $this->middleware('can:admin');
 
         $this->filterRules = [
-            'iso' => fn ($q, $v) => $q->where('iso', 'LIKE', $v.'%'),
+            'iso' => function ($q, $v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
+                return $q->where('iso', 'LIKE', $escapedValue.'%');
+            },
             'name' => function ($q, $v) {
                 $driver = DB::connection()->getDriverName();
                 $isPostgres = $driver === 'pgsql';
@@ -51,6 +56,12 @@ class CountryController extends Controller
      */
     public function index(Request $request)
     {
+        // Validate input
+        $request->validate([
+            'iso' => 'nullable|string|max:2',
+            'name' => 'nullable|string|max:255',
+        ]);
+
         $query = Country::query();
         $this->applyFilters($query, $request);
 

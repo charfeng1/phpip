@@ -32,7 +32,12 @@ class UserController extends Controller
     public function __construct()
     {
         $this->filterRules = [
-            'Name' => fn ($q, $v) => $q->where('name', 'like', $v.'%'),
+            'Name' => function ($q, $v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
+                return $q->where('name', 'like', $escapedValue.'%');
+            },
         ];
     }
     /**
@@ -44,6 +49,12 @@ class UserController extends Controller
     public function index(Request $request)
     {
         Gate::authorize('readonly');
+
+        // Validate input
+        $request->validate([
+            'Name' => 'nullable|string|max:255',
+        ]);
+
         $query = User::query();
         $this->applyFilters($query, $request);
         $query = $query->with('company')->orderBy('name');

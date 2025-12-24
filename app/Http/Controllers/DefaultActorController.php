@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateDefaultActorRequest;
 use App\Models\DefaultActor;
 use App\Traits\Filterable;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Manages default actor assignments for matters.
@@ -27,11 +28,60 @@ class DefaultActorController extends Controller
     public function __construct()
     {
         $this->filterRules = [
-            'Actor' => fn ($q, $v) => $q->whereHas('actor', fn ($aq) => $aq->where('name', 'like', $v.'%')),
-            'Role' => fn ($q, $v) => $q->whereHas('roleInfo', fn ($rq) => $rq->where('name', 'like', $v.'%')),
-            'Country' => fn ($q, $v) => $q->whereHas('country', fn ($cq) => $cq->where('name', 'like', $v.'%')),
-            'Category' => fn ($q, $v) => $q->whereHas('category', fn ($cq) => $cq->where('category', 'like', $v.'%')),
-            'Client' => fn ($q, $v) => $q->whereHas('client', fn ($cq) => $cq->where('name', 'like', $v.'%')),
+            'Actor' => function ($q, $v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
+                return $q->whereHas('actor', fn ($aq) => $aq->where('name', 'like', $escapedValue.'%'));
+            },
+            'Role' => function ($q, $v) {
+                return $q->whereHas('roleInfo', function ($rq) use ($v) {
+                    $driver = DB::connection()->getDriverName();
+                    if ($driver === 'pgsql') {
+                        $rq->where(fn ($sub) => $sub->whereRaw("name ->> 'en' ILIKE ?", [$v.'%'])
+                            ->orWhereRaw("name ->> 'fr' ILIKE ?", [$v.'%'])
+                            ->orWhereRaw("name ->> 'de' ILIKE ?", [$v.'%']));
+                    } else {
+                        $rq->where(fn ($sub) => $sub->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.en'))) LIKE LOWER(?)", [$v.'%'])
+                            ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.fr'))) LIKE LOWER(?)", [$v.'%'])
+                            ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.de'))) LIKE LOWER(?)", [$v.'%']));
+                    }
+                });
+            },
+            'Country' => function ($q, $v) {
+                return $q->whereHas('country', function ($cq) use ($v) {
+                    $driver = DB::connection()->getDriverName();
+                    if ($driver === 'pgsql') {
+                        $cq->where(fn ($sub) => $sub->whereRaw("name ->> 'en' ILIKE ?", [$v.'%'])
+                            ->orWhereRaw("name ->> 'fr' ILIKE ?", [$v.'%'])
+                            ->orWhereRaw("name ->> 'de' ILIKE ?", [$v.'%']));
+                    } else {
+                        $cq->where(fn ($sub) => $sub->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.en'))) LIKE LOWER(?)", [$v.'%'])
+                            ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.fr'))) LIKE LOWER(?)", [$v.'%'])
+                            ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.de'))) LIKE LOWER(?)", [$v.'%']));
+                    }
+                });
+            },
+            'Category' => function ($q, $v) {
+                return $q->whereHas('category', function ($cq) use ($v) {
+                    $driver = DB::connection()->getDriverName();
+                    if ($driver === 'pgsql') {
+                        $cq->where(fn ($sub) => $sub->whereRaw("category ->> 'en' ILIKE ?", [$v.'%'])
+                            ->orWhereRaw("category ->> 'fr' ILIKE ?", [$v.'%'])
+                            ->orWhereRaw("category ->> 'de' ILIKE ?", [$v.'%']));
+                    } else {
+                        $cq->where(fn ($sub) => $sub->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(category, '$.en'))) LIKE LOWER(?)", [$v.'%'])
+                            ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(category, '$.fr'))) LIKE LOWER(?)", [$v.'%'])
+                            ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(category, '$.de'))) LIKE LOWER(?)", [$v.'%']));
+                    }
+                });
+            },
+            'Client' => function ($q, $v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
+                return $q->whereHas('client', fn ($cq) => $cq->where('name', 'like', $escapedValue.'%'));
+            },
         ];
     }
     /**
@@ -42,6 +92,15 @@ class DefaultActorController extends Controller
      */
     public function index(Request $request)
     {
+        // Validate input
+        $request->validate([
+            'Actor' => 'nullable|string|max:255',
+            'Role' => 'nullable|string|max:255',
+            'Country' => 'nullable|string|max:255',
+            'Category' => 'nullable|string|max:255',
+            'Client' => 'nullable|string|max:255',
+        ]);
+
         $query = DefaultActor::query();
         $this->applyFilters($query, $request);
         $default_actors = $query->with(['roleInfo:code,name', 'actor:id,name', 'client:id,name', 'category:code,category', 'country:iso,name'])->get();

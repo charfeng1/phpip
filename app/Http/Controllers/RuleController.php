@@ -32,11 +32,21 @@ class RuleController extends Controller
         $this->filterRules = [
             'Task' => fn ($q, $v) => $q->whereHas('taskInfo', fn ($tq) => $tq->whereJsonLike('name', $v)),
             'Trigger' => fn ($q, $v) => $q->whereHas('trigger', fn ($tq) => $tq->whereJsonLike('name', $v)),
-            'Country' => fn ($q, $v) => $q->whereLike('for_country', $v.'%'),
+            'Country' => function ($q, $v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
+                return $q->whereLike('for_country', $escapedValue.'%');
+            },
             'Category' => fn ($q, $v) => $q->whereHas('category', fn ($cq) => $cq->whereJsonLike('category', $v)),
             'Detail' => fn ($q, $v) => $q->whereJsonLike('detail', $v),
             'Type' => fn ($q, $v) => $q->whereHas('type', fn ($tq) => $tq->whereJsonLike('type', $v)),
-            'Origin' => fn ($q, $v) => $q->whereLike('for_origin', "{$v}%"),
+            'Origin' => function ($q, $v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
+                return $q->whereLike('for_origin', "{$escapedValue}%");
+            },
         ];
     }
     /**
@@ -48,6 +58,17 @@ class RuleController extends Controller
     public function index(Request $request)
     {
         $this->authorize('viewAny', Rule::class);
+
+        // Validate input
+        $request->validate([
+            'Task' => 'nullable|string|max:255',
+            'Trigger' => 'nullable|string|max:255',
+            'Country' => 'nullable|string|max:255',
+            'Category' => 'nullable|string|max:255',
+            'Detail' => 'nullable|string|max:255',
+            'Type' => 'nullable|string|max:255',
+            'Origin' => 'nullable|string|max:255',
+        ]);
 
         $rule = Rule::query();
         $locale = app()->getLocale();

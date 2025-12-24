@@ -39,8 +39,18 @@ class DocumentController extends Controller
         protected DocumentFilterService $filterService,
     ) {
         $this->filterRules = [
-            'Name' => fn ($q, $v) => $q->whereLike('name', $v.'%'),
-            'Notes' => fn ($q, $v) => $q->whereLike('notes', $v.'%'),
+            'Name' => function ($q, $v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
+                return $q->whereLike('name', $escapedValue.'%');
+            },
+            'Notes' => function ($q, $v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
+                return $q->whereLike('notes', $escapedValue.'%');
+            },
         ];
     }
     /**
@@ -51,6 +61,12 @@ class DocumentController extends Controller
      */
     public function index(Request $request)
     {
+        // Validate input
+        $request->validate([
+            'Name' => 'nullable|string|max:255',
+            'Notes' => 'nullable|string|max:255',
+        ]);
+
         $query = TemplateClass::query();
         $this->applyFilters($query, $request);
         $query = $query->orderBy('name');
