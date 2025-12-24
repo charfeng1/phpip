@@ -6,12 +6,10 @@ use App\Models\Actor;
 use App\Models\AuditLog;
 use App\Models\Country;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class AuditLogControllerTest extends TestCase
 {
-    use RefreshDatabase;
 
     /** @test */
     public function audit_logs_can_be_filtered_by_record_id()

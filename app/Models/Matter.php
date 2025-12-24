@@ -97,9 +97,9 @@ class Matter extends Model
      */
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
-    /*protected $casts = [
-        'expire_date' => 'date:Y-m-d'
-    ];*/
+    protected $casts = [
+        'expire_date' => 'date:Y-m-d',
+    ];
 
     /**
      * Get the country information for this matter.

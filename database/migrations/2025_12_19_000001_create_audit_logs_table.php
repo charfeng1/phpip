@@ -14,6 +14,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Skip if table already exists (e.g., loaded from postgres-schema.sql)
+        if (Schema::hasTable('audit_logs')) {
+            return;
+        }
+
         Schema::create('audit_logs', function (Blueprint $table) {
             $table->id();
 

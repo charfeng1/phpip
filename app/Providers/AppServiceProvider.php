@@ -42,6 +42,11 @@ class AppServiceProvider extends ServiceProvider
                 $locale = substr($locale, 0, 2);
             }
 
+            // Validate locale is only alphabetic characters to prevent SQL injection
+            if (! preg_match('/^[a-zA-Z]{2}$/', $locale)) {
+                $locale = 'en'; // Fallback to English if invalid
+            }
+
             $driver = $this->getConnection()->getDriverName();
 
             if ($driver === 'pgsql') {
@@ -53,8 +58,9 @@ class AppServiceProvider extends ServiceProvider
             }
 
             // MySQL: use JSON_UNQUOTE(JSON_EXTRACT()) with COLLATE for case-insensitive
+            // Locale is validated by regex above - only [a-zA-Z]{2} allowed
             return $this->whereRaw(
-                "JSON_UNQUOTE(JSON_EXTRACT($column, '$.$locale')) COLLATE utf8mb4_0900_ai_ci LIKE ?",
+                "JSON_UNQUOTE(JSON_EXTRACT($column, '$.\"{$locale}\"')) COLLATE utf8mb4_0900_ai_ci LIKE ?",
                 ["$value%"]
             );
         });

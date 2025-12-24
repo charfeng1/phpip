@@ -6,12 +6,10 @@ use App\Models\Actor;
 use App\Models\Matter;
 use App\Models\User;
 use App\Policies\MatterPolicy;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class MatterPolicyTest extends TestCase
 {
-    use RefreshDatabase;
 
     protected MatterPolicy $policy;
 

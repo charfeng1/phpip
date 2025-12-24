@@ -5,12 +5,10 @@ namespace Tests\Unit\Policies;
 use App\Models\Actor;
 use App\Models\User;
 use App\Policies\ActorPolicy;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ActorPolicyTest extends TestCase
 {
-    use RefreshDatabase;
 
     protected ActorPolicy $policy;
 

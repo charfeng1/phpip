@@ -98,16 +98,21 @@ class RuleController extends Controller
         $rule = Rule::query();
         $locale = app()->getLocale();
         // Normalize to the base locale (e.g., 'en' from 'en_US')
+        // Validate locale is only alphabetic characters to prevent SQL injection
         $baseLocale = substr($locale, 0, 2);
+        if (! preg_match('/^[a-zA-Z]{2}$/', $baseLocale)) {
+            $baseLocale = 'en'; // Fallback to English if invalid
+        }
 
         $this->applyFilters($rule, $request);
 
         // Database-agnostic JSON ordering
         $driver = DB::connection()->getDriverName();
         $isPostgres = $driver === 'pgsql';
+        // Locale is validated by regex above - only [a-zA-Z]{2} allowed
         $orderExpr = $isPostgres
             ? "t.name ->> '{$baseLocale}'"
-            : "JSON_UNQUOTE(JSON_EXTRACT(t.name, '$.\"$baseLocale\"'))";
+            : "JSON_UNQUOTE(JSON_EXTRACT(t.name, '$.\"{$baseLocale}\"'))";
 
         $query = $rule->with(['country:iso,name', 'trigger:code,name', 'category:code,category', 'origin:iso,name', 'type:code,type', 'taskInfo:code,name'])
             ->select('task_rules.*')

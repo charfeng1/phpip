@@ -9,12 +9,10 @@ use App\Models\Event;
 use App\Models\Matter;
 use App\Models\Task;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class MatterTest extends TestCase
 {
-    use RefreshDatabase;
 
     protected function setUp(): void
     {

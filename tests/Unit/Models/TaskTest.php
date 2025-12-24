@@ -8,12 +8,10 @@ use App\Models\Matter;
 use App\Models\Rule;
 use App\Models\Task;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class TaskTest extends TestCase
 {
-    use RefreshDatabase;
 
     protected function setUp(): void
     {

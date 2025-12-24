@@ -124,17 +124,6 @@ class TemplateMemberController extends Controller
     }
 
     /**
-     * Show the form for editing the specified template member.
-     *
-     * @param TemplateMember $templateMember The template member to edit
-     * @return void
-     */
-    public function edit(TemplateMember $templateMember)
-    {
-        $this->authorize('update', $templateMember);
-    }
-
-    /**
      * Update the specified template member.
      *
      * @param UpdateTemplateMemberRequest $request Validated template member data

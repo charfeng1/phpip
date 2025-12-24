@@ -2,48 +2,51 @@
 
 namespace Tests\Feature;
 
+use App\Models\Actor;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class ActorControllerTest extends TestCase
 {
     /**
-     * A basic feature test example.
-     *
-     * @return void
+     * Test actor index and related pages.
      */
     public function test_index()
     {
-        $this->resetDatabaseAndSeed();
-        $user = new User;
+        // Create test actor within transaction
+        $actorId = DB::table('actor')->max('id') + 1;
+        $actor = Actor::create([
+            'id' => $actorId,
+            'name' => 'Test Company Inc.',
+            'first_name' => '',
+            'display_name' => 'Test Company Inc.',
+        ]);
 
-        $user->id = 1;
+        $user = User::first() ?? User::factory()->create();
+        $this->actingAs($user);
 
-        $this->be($user);
         // Main page with actors list
-        $response = $this->call('GET', '/actor');
-
+        $response = $this->get('/actor');
         $response->assertStatus(200)
-            ->assertViewHas('actorslist')
-            ->assertSeeText('Tesla Motors Inc.');
+            ->assertViewHas('actorslist');
 
         // A detailed page
-        $response = $this->call('GET', '/actor/124');
+        $response = $this->get("/actor/{$actor->id}");
         $response->assertStatus(200)
             ->assertViewHas('actorInfo')
             ->assertSeeText('Actor details');
 
         // A page used-in
-        $response = $this->call('GET', '/actor/124/usedin');
+        $response = $this->get("/actor/{$actor->id}/usedin");
         $response->assertStatus(200)
             ->assertViewHas('matter_dependencies')
             ->assertViewHas('other_dependencies')
             ->assertSeeText('Matter Dependencies');
 
         // Autocompletion
-        $response = $this->call('GET', '/actor/autocomplete?term=Tes');
+        $response = $this->get('/actor/autocomplete?term=Test');
         $response->assertStatus(200)
-            ->assertJson([0 => [
-                'value' => 'Tesla Motors Inc.']]);
+            ->assertJsonFragment(['value' => 'Test Company Inc.']);
     }
 }

@@ -7,12 +7,10 @@ use App\Models\Category;
 use App\Models\Country;
 use App\Models\EventName;
 use App\Models\Rule;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class RuleTest extends TestCase
 {
-    use RefreshDatabase;
 
     protected function setUp(): void
     {

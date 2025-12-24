@@ -4,12 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\Country;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class CountryControllerTest extends TestCase
 {
-    use RefreshDatabase;
 
     /** @test */
     public function countries_can_be_filtered_by_iso_prefix()
