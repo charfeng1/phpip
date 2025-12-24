@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Actor;
 use App\Models\User;
 use App\Services\TeamService;
+use App\Traits\Filterable;
 use App\Traits\HandlesAuditFields;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +22,19 @@ use Illuminate\Validation\Rules\Password;
 class UserController extends Controller
 {
     use HandlesAuditFields;
+    use Filterable;
+
+    /**
+     * Filter rules for index method.
+     */
+    protected array $filterRules = [];
+
+    public function __construct()
+    {
+        $this->filterRules = [
+            'Name' => fn ($q, $v) => $q->where('name', 'like', $v.'%'),
+        ];
+    }
     /**
      * Display a paginated list of users.
      *
@@ -30,12 +44,9 @@ class UserController extends Controller
     public function index(Request $request)
     {
         Gate::authorize('readonly');
-        $user = new User;
-        if ($request->filled('Name')) {
-            $user = $user->where('name', 'like', $request->Name.'%');
-        }
-
-        $query = $user->with('company')->orderby('name');
+        $query = User::query();
+        $this->applyFilters($query, $request);
+        $query = $query->with('company')->orderBy('name');
 
         if ($request->wantsJson()) {
             return response()->json($query->get());

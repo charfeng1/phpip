@@ -5,15 +5,45 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCountryRequest;
 use App\Http\Requests\UpdateCountryRequest;
 use App\Models\Country;
+use App\Traits\Filterable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class CountryController extends Controller
 {
+    use Filterable;
+
+    /**
+     * Filter rules for index method.
+     */
+    protected array $filterRules = [];
+
     public function __construct()
     {
         $this->middleware('auth');
         $this->middleware('can:admin');
+
+        $this->filterRules = [
+            'iso' => fn ($q, $v) => $q->where('iso', 'LIKE', $v.'%'),
+            'name' => function ($q, $v) {
+                $driver = DB::connection()->getDriverName();
+                $isPostgres = $driver === 'pgsql';
+
+                if ($isPostgres) {
+                    return $q->where(function ($subQuery) use ($v) {
+                        $subQuery->whereRaw("name ->> 'en' ILIKE ?", ['%'.$v.'%'])
+                            ->orWhereRaw("name ->> 'fr' ILIKE ?", ['%'.$v.'%'])
+                            ->orWhereRaw("name ->> 'de' ILIKE ?", ['%'.$v.'%']);
+                    });
+                }
+
+                return $q->where(function ($subQuery) use ($v) {
+                    $subQuery->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.en'))) LIKE LOWER(?)", ['%'.$v.'%'])
+                        ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.fr'))) LIKE LOWER(?)", ['%'.$v.'%'])
+                        ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.de'))) LIKE LOWER(?)", ['%'.$v.'%']);
+                });
+            },
+        ];
     }
 
     /**
@@ -21,32 +51,8 @@ class CountryController extends Controller
      */
     public function index(Request $request)
     {
-        $iso = $request->input('iso');
-        $name = $request->input('name');
         $query = Country::query();
-
-        if (! is_null($iso)) {
-            $query = $query->where('iso', 'LIKE', $iso.'%');
-        }
-
-        if (! is_null($name)) {
-            $driver = DB::connection()->getDriverName();
-            $isPostgres = $driver === 'pgsql';
-
-            if ($isPostgres) {
-                $query = $query->where(function ($subQuery) use ($name) {
-                    $subQuery->whereRaw("name ->> 'en' ILIKE ?", ['%'.$name.'%'])
-                        ->orWhereRaw("name ->> 'fr' ILIKE ?", ['%'.$name.'%'])
-                        ->orWhereRaw("name ->> 'de' ILIKE ?", ['%'.$name.'%']);
-                });
-            } else {
-                $query = $query->where(function ($subQuery) use ($name) {
-                    $subQuery->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.en'))) LIKE LOWER(?)", ['%'.$name.'%'])
-                        ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.fr'))) LIKE LOWER(?)", ['%'.$name.'%'])
-                        ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.de'))) LIKE LOWER(?)", ['%'.$name.'%']);
-                });
-            }
-        }
+        $this->applyFilters($query, $request);
 
         if ($request->wantsJson()) {
             return response()->json($query->get());

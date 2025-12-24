@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreDefaultActorRequest;
 use App\Http\Requests\UpdateDefaultActorRequest;
 use App\Models\DefaultActor;
+use App\Traits\Filterable;
 use Illuminate\Http\Request;
 
 /**
@@ -16,6 +17,23 @@ use Illuminate\Http\Request;
  */
 class DefaultActorController extends Controller
 {
+    use Filterable;
+
+    /**
+     * Filter rules for index method.
+     */
+    protected array $filterRules = [];
+
+    public function __construct()
+    {
+        $this->filterRules = [
+            'Actor' => fn ($q, $v) => $q->whereHas('actor', fn ($aq) => $aq->where('name', 'like', $v.'%')),
+            'Role' => fn ($q, $v) => $q->whereHas('roleInfo', fn ($rq) => $rq->where('name', 'like', $v.'%')),
+            'Country' => fn ($q, $v) => $q->whereHas('country', fn ($cq) => $cq->where('name', 'like', $v.'%')),
+            'Category' => fn ($q, $v) => $q->whereHas('category', fn ($cq) => $cq->where('category', 'like', $v.'%')),
+            'Client' => fn ($q, $v) => $q->whereHas('client', fn ($cq) => $cq->where('name', 'like', $v.'%')),
+        ];
+    }
     /**
      * Display a list of default actors with filtering.
      *
@@ -24,39 +42,9 @@ class DefaultActorController extends Controller
      */
     public function index(Request $request)
     {
-        $Actor = $request->input('Actor');
-        $Role = $request->input('Role');
-        $Country = $request->input('Country');
-        $Category = $request->input('Category');
-        $Client = $request->input('Client');
-        $default_actor = new DefaultActor;
-
-        if (! is_null($Actor)) {
-            $default_actor = $default_actor->whereHas('actor', function ($q) use ($Actor) {
-                $q->where('name', 'like', $Actor.'%');
-            });
-        }
-        if (! is_null($Role)) {
-            $default_actor = $default_actor->whereHas('roleInfo', function ($q) use ($Role) {
-                $q->where('name', 'like', $Role.'%');
-            });
-        }
-        if (! is_null($Country)) {
-            $default_actor = $default_actor->whereHas('country', function ($q) use ($Country) {
-                $q->where('name', 'like', $Country.'%');
-            });
-        }
-        if (! is_null($Category)) {
-            $default_actor = $default_actor->whereHas('category', function ($q) use ($Category) {
-                $q->where('category', 'like', $Category.'%');
-            });
-        }
-        if (! is_null($Client)) {
-            $default_actor = $default_actor->whereHas('client', function ($q) use ($Client) {
-                $q->where('name', 'like', $Client.'%');
-            });
-        }
-        $default_actors = $default_actor->with(['roleInfo:code,name', 'actor:id,name', 'client:id,name', 'category:code,category', 'country:iso,name'])->get();
+        $query = DefaultActor::query();
+        $this->applyFilters($query, $request);
+        $default_actors = $query->with(['roleInfo:code,name', 'actor:id,name', 'client:id,name', 'category:code,category', 'country:iso,name'])->get();
 
         if ($request->wantsJson()) {
             return response()->json($default_actors);

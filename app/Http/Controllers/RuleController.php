@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreRuleRequest;
 use App\Http\Requests\UpdateRuleRequest;
 use App\Models\Rule;
+use App\Traits\Filterable;
 use App\Traits\HandlesAuditFields;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,25 @@ use Illuminate\Support\Facades\DB;
 class RuleController extends Controller
 {
     use HandlesAuditFields;
+    use Filterable;
+
+    /**
+     * Filter rules for index method.
+     */
+    protected array $filterRules = [];
+
+    public function __construct()
+    {
+        $this->filterRules = [
+            'Task' => fn ($q, $v) => $q->whereHas('taskInfo', fn ($tq) => $tq->whereJsonLike('name', $v)),
+            'Trigger' => fn ($q, $v) => $q->whereHas('trigger', fn ($tq) => $tq->whereJsonLike('name', $v)),
+            'Country' => fn ($q, $v) => $q->whereLike('for_country', $v.'%'),
+            'Category' => fn ($q, $v) => $q->whereHas('category', fn ($cq) => $cq->whereJsonLike('category', $v)),
+            'Detail' => fn ($q, $v) => $q->whereJsonLike('detail', $v),
+            'Type' => fn ($q, $v) => $q->whereHas('type', fn ($tq) => $tq->whereJsonLike('type', $v)),
+            'Origin' => fn ($q, $v) => $q->whereLike('for_origin', "{$v}%"),
+        ];
+    }
     /**
      * Display a paginated list of rules with filtering.
      *
@@ -29,49 +49,12 @@ class RuleController extends Controller
     {
         $this->authorize('viewAny', Rule::class);
 
-        $Task = $request->input('Task');
-        $Trigger = $request->input('Trigger');
-        $Country = $request->input('Country');
-        $Origin = $request->input('Origin');
-        $Detail = $request->input('Detail');
-        $Type = $request->input('Type');
-        $Category = $request->input('Category');
-        $rule = new Rule;
+        $rule = Rule::query();
         $locale = app()->getLocale();
         // Normalize to the base locale (e.g., 'en' from 'en_US')
         $baseLocale = substr($locale, 0, 2);
 
-        if (! is_null($Task)) {
-            $rule = $rule->whereHas('taskInfo', function ($q) use ($Task) {
-                $q->whereJsonLike('name', $Task);
-            });
-        }
-        if (! is_null($Trigger)) {
-            $rule = $rule->whereHas('trigger', function ($q) use ($Trigger) {
-                $q->whereJsonLike('name', $Trigger);
-            });
-        }
-        if (! is_null($Country)) {
-            $rule = $rule->whereLike('for_country', $Country.'%');
-        }
-        if (! is_null($Category)) {
-            $rule = $rule->whereHas('category', function ($q) use ($Category) {
-                $q->whereJsonLike('category', $Category);
-            });
-        }
-
-        if (! is_null($Detail)) {
-            $rule = $rule->whereJsonLike('detail', $Detail);
-        }
-
-        if (! is_null($Type)) {
-            $rule = $rule->whereHas('type', function ($q) use ($Type) {
-                $q->whereJsonLike('type', $Type);
-            });
-        }
-        if (! is_null($Origin)) {
-            $rule = $rule->whereLike('for_origin', "{$Origin}%");
-        }
+        $this->applyFilters($rule, $request);
 
         // Database-agnostic JSON ordering
         $driver = DB::connection()->getDriverName();

@@ -15,13 +15,12 @@ trait helpers where needed.
 
 ## Checklist
 
-- [ ] Inventory controllers missing `HandlesAuditFields`.
-- [ ] Inventory controllers missing `Filterable`.
-- [ ] Decide whether to introduce `JsonResponses` now and which controllers use
-      it (API endpoints only).
-- [ ] Apply traits and update calls to use the shared helpers.
-- [ ] Run a small smoke check (controller list pages + create/update flows) or
-      focused tests if available.
-- [ ] Update tracking docs (e.g., `tasks/backlog/CODE_QUALITY_REPORT.md`) with
+- [x] Inventory controllers missing `HandlesAuditFields` (no new controllers with creator/updater fields).
+- [x] Inventory controllers missing `Filterable`.
+- [~] Decide whether to introduce `JsonResponses` now and which controllers use
+      it (API endpoints only). Deferred pending Phase 6D response format alignment.
+- [x] Apply traits and update calls to use the shared helpers (Filterable added to Country, DefaultActor, Document, Rule, User, AuditLog).
+- [x] Run a small smoke check (controller list pages + create/update flows) or
+      focused tests if available (added feature tests for new filters).
+- [x] Update tracking docs (e.g., `tasks/backlog/CODE_QUALITY_REPORT.md`) with
       new coverage counts.
-

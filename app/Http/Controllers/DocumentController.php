@@ -12,6 +12,7 @@ use App\Models\Task;
 use App\Models\TemplateClass;
 use App\Models\TemplateMember;
 use App\Services\DocumentFilterService;
+use App\Traits\Filterable;
 use App\Traits\HandlesAuditFields;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
@@ -27,10 +28,21 @@ use Illuminate\Support\Facades\DB;
 class DocumentController extends Controller
 {
     use HandlesAuditFields;
+    use Filterable;
+
+    /**
+     * Filter rules for index method.
+     */
+    protected array $filterRules = [];
 
     public function __construct(
         protected DocumentFilterService $filterService,
-    ) {}
+    ) {
+        $this->filterRules = [
+            'Name' => fn ($q, $v) => $q->whereLike('name', $v.'%'),
+            'Notes' => fn ($q, $v) => $q->whereLike('notes', $v.'%'),
+        ];
+    }
     /**
      * Display a paginated list of template classes with filtering.
      *
@@ -39,17 +51,9 @@ class DocumentController extends Controller
      */
     public function index(Request $request)
     {
-        $Notes = $request->input('Notes');
-        $Name = $request->input('Name');
-        $template_classes = TemplateClass::query();
-        if (! is_null($Name)) {
-            $template_classes = $template_classes->whereLike('name', $Name.'%');
-        }
-        if (! is_null($Notes)) {
-            $template_classes = $template_classes->whereLike('notes', $Notes.'%');
-        }
-
-        $query = $template_classes->orderby('name');
+        $query = TemplateClass::query();
+        $this->applyFilters($query, $request);
+        $query = $query->orderBy('name');
 
         if ($request->wantsJson()) {
             return response()->json($query->get());

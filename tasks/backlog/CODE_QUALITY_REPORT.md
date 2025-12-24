@@ -60,10 +60,10 @@ This report identifies areas for improvement across 6 key dimensions:
 
 **Completed:**
 - [x] Created `Filterable` trait with `applyFilters()` method
-- [x] Applied to CategoryController and ActorController
+- [x] Applied to CategoryController, ActorController, RoleController, EventNameController, MatterTypeController, ClassifierTypeController, CountryController, DefaultActorController, DocumentController, RuleController, UserController, AuditLogController
 
 **Remaining:**
-- [ ] Apply Filterable trait to remaining 15+ controllers
+- [ ] Apply Filterable trait to remaining controllers with index filtering (TaskController, RenewalController, MatterController, FeeController, TemplateMemberController, ActorPivotController, MatterSearchController)
 
 ### 1.3 View Template Duplication (MEDIUM PRIORITY) [x] COMPLETED
 
@@ -300,7 +300,7 @@ app/Services/
 ### Phase 2: Boilerplate Reduction [x] COMPLETED (December 23, 2025)
 1. [x] Create Form Request classes for validation (36 created)
 2. [x] Create traits for common operations
-3. [x] Apply traits to controllers (16 controllers)
+3. [x] Apply HandlesAuditFields to controllers (16 controllers)
 
 **Form Requests created:** StoreDefaultActorRequest, UpdateDefaultActorRequest, StoreTaskRequest, UpdateTaskRequest, StoreCountryRequest, UpdateCountryRequest, StoreMatterRequest, UpdateMatterRequest, and 28 others.
 
@@ -415,9 +415,9 @@ The codebase now has solid architectural foundations (Phases 1-5), but maintaina
 **Goal:** Standardize common patterns across all controllers.
 
 **Items:**
-1. **HandlesAuditFields** - Apply to ~10 remaining controllers
+1. **HandlesAuditFields** - Apply to remaining controllers that persist creator/updater
    - Currently: 16 of 26 controllers
-   - Remaining: ActorController, DocumentController, FeeController, RenewalController, etc.
+   - Remaining: No new candidates identified in Phase 6B (read-only or no audit fields)
    - Benefit: Consistent audit field handling (creator, updater, created_at, updated_at)
 
 2. **JsonResponses** - Create and apply to all API endpoints
@@ -426,11 +426,11 @@ The codebase now has solid architectural foundations (Phases 1-5), but maintaina
    - Target: 15+ controllers
 
 3. **Filterable** - Apply to remaining controllers
-   - Currently: ~12 controllers with trait
-   - Remaining: ~15 controllers
+   - Currently: 12 controllers (Category, Actor, Role, EventName, MatterType, ClassifierType, Country, DefaultActor, Document, Rule, User, AuditLog)
+   - Remaining: TaskController, RenewalController, MatterController, FeeController, TemplateMemberController, ActorPivotController, MatterSearchController
    - Benefit: Standardized filter application and validation
 
-**Tests Required:** 12+ integration tests
+**Tests Added:** 6 feature tests (Country, User, Rule, DefaultActor, Document, AuditLog filters)
 
 #### Phase 6C: Hardcoded String Migration [~] PENDING
 
@@ -513,7 +513,7 @@ The codebase now has solid architectural foundations (Phases 1-5), but maintaina
 | Lines in largest controller | 1,308 | 540 (MatterController reduced) | [x] |
 | Lines in largest model | 1,241 | ~850 (filter logic extracted) | [x] |
 | Form Request classes | 2 | 36 | [x] |
-| Controllers with traits | 0 | 16 | [x] |
+| Controllers with traits | 0 | 19 | [x] |
 | Enums created | 0 | 5 | [x] |
 | Config files for magic values | 0 | 2 | [x] |
 | Services extracted (Phase 3) | 0 | 6 | [x] |
