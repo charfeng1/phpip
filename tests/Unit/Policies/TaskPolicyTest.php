@@ -7,12 +7,10 @@ use App\Models\Matter;
 use App\Models\Task;
 use App\Models\User;
 use App\Policies\TaskPolicy;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class TaskPolicyTest extends TestCase
 {
-    use RefreshDatabase;
 
     protected TaskPolicy $policy;
 

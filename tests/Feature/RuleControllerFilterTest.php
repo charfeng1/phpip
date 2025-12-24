@@ -5,12 +5,10 @@ namespace Tests\Feature;
 use App\Models\EventName;
 use App\Models\Rule;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class RuleControllerFilterTest extends TestCase
 {
-    use RefreshDatabase;
 
     /** @test */
     public function rules_can_be_filtered_by_task_name()

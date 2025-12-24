@@ -4,12 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\TemplateClass;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class DocumentControllerTest extends TestCase
 {
-    use RefreshDatabase;
 
     /** @test */
     public function template_classes_can_be_filtered_by_name()

@@ -6,12 +6,10 @@ use App\Models\Actor;
 use App\Models\Country;
 use App\Models\Matter;
 use App\Models\Role;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ActorTest extends TestCase
 {
-    use RefreshDatabase;
 
     protected function setUp(): void
     {

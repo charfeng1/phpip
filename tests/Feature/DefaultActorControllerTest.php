@@ -8,12 +8,10 @@ use App\Models\Country;
 use App\Models\DefaultActor;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class DefaultActorControllerTest extends TestCase
 {
-    use RefreshDatabase;
 
     /** @test */
     public function default_actors_can_be_filtered_by_actor_name()

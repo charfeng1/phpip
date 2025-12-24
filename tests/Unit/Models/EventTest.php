@@ -6,12 +6,10 @@ use App\Models\Event;
 use App\Models\EventName;
 use App\Models\Matter;
 use App\Models\Task;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class EventTest extends TestCase
 {
-    use RefreshDatabase;
 
     protected function setUp(): void
     {

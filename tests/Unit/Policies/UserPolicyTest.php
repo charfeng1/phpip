@@ -4,12 +4,10 @@ namespace Tests\Unit\Policies;
 
 use App\Models\User;
 use App\Policies\UserPolicy;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class UserPolicyTest extends TestCase
 {
-    use RefreshDatabase;
 
     protected UserPolicy $policy;
 

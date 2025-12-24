@@ -4,13 +4,11 @@ namespace Tests\Unit\Traits;
 
 use App\Traits\DatabaseJsonHelper;
 use Illuminate\Database\Query\Expression;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class DatabaseJsonHelperTest extends TestCase
 {
-    use RefreshDatabase;
     use DatabaseJsonHelper;
 
     protected function setUp(): void

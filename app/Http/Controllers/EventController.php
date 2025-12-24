@@ -41,17 +41,6 @@ class EventController extends Controller
     }
 
     /**
-     * Display detailed information for a specific event.
-     *
-     * @param Event $event The event to display.
-     * @return void Not implemented.
-     */
-    public function show(Event $event)
-    {
-        $this->authorize('view', $event);
-    }
-
-    /**
      * Update an event in the database.
      *
      * @param Request $request The HTTP request containing updated event data.

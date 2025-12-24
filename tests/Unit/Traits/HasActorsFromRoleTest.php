@@ -6,12 +6,10 @@ use App\Models\Actor;
 use App\Models\Event;
 use App\Models\Matter;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class HasActorsFromRoleTest extends TestCase
 {
-    use RefreshDatabase;
 
     protected function setUp(): void
     {

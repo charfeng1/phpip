@@ -118,17 +118,6 @@ class ActorController extends Controller
     }
 
     /**
-     * Show the form for editing an actor.
-     *
-     * @param  Actor  $actor  The actor to edit.
-     * @return void Not implemented.
-     */
-    public function edit(Actor $actor)
-    {
-        //
-    }
-
-    /**
      * Update an actor in the database.
      *
      * @param  UpdateActorRequest  $request  The validated HTTP request containing updated actor data.
