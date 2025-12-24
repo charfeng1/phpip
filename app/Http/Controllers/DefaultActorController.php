@@ -35,44 +35,53 @@ class DefaultActorController extends Controller
                 return $q->whereHas('actor', fn ($aq) => $aq->where('name', 'like', $escapedValue.'%'));
             },
             'Role' => function ($q, $v) {
-                return $q->whereHas('roleInfo', function ($rq) use ($v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
+                return $q->whereHas('roleInfo', function ($rq) use ($escapedValue) {
                     $driver = DB::connection()->getDriverName();
                     if ($driver === 'pgsql') {
-                        $rq->where(fn ($sub) => $sub->whereRaw("name ->> 'en' ILIKE ?", [$v.'%'])
-                            ->orWhereRaw("name ->> 'fr' ILIKE ?", [$v.'%'])
-                            ->orWhereRaw("name ->> 'de' ILIKE ?", [$v.'%']));
+                        $rq->where(fn ($sub) => $sub->whereRaw("name ->> 'en' ILIKE ?", [$escapedValue.'%'])
+                            ->orWhereRaw("name ->> 'fr' ILIKE ?", [$escapedValue.'%'])
+                            ->orWhereRaw("name ->> 'de' ILIKE ?", [$escapedValue.'%']));
                     } else {
-                        $rq->where(fn ($sub) => $sub->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.en'))) LIKE LOWER(?)", [$v.'%'])
-                            ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.fr'))) LIKE LOWER(?)", [$v.'%'])
-                            ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.de'))) LIKE LOWER(?)", [$v.'%']));
+                        $rq->where(fn ($sub) => $sub->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.en'))) LIKE LOWER(?)", [$escapedValue.'%'])
+                            ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.fr'))) LIKE LOWER(?)", [$escapedValue.'%'])
+                            ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.de'))) LIKE LOWER(?)", [$escapedValue.'%']));
                     }
                 });
             },
             'Country' => function ($q, $v) {
-                return $q->whereHas('country', function ($cq) use ($v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
+                return $q->whereHas('country', function ($cq) use ($escapedValue) {
                     $driver = DB::connection()->getDriverName();
                     if ($driver === 'pgsql') {
-                        $cq->where(fn ($sub) => $sub->whereRaw("name ->> 'en' ILIKE ?", [$v.'%'])
-                            ->orWhereRaw("name ->> 'fr' ILIKE ?", [$v.'%'])
-                            ->orWhereRaw("name ->> 'de' ILIKE ?", [$v.'%']));
+                        $cq->where(fn ($sub) => $sub->whereRaw("name ->> 'en' ILIKE ?", [$escapedValue.'%'])
+                            ->orWhereRaw("name ->> 'fr' ILIKE ?", [$escapedValue.'%'])
+                            ->orWhereRaw("name ->> 'de' ILIKE ?", [$escapedValue.'%']));
                     } else {
-                        $cq->where(fn ($sub) => $sub->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.en'))) LIKE LOWER(?)", [$v.'%'])
-                            ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.fr'))) LIKE LOWER(?)", [$v.'%'])
-                            ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.de'))) LIKE LOWER(?)", [$v.'%']));
+                        $cq->where(fn ($sub) => $sub->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.en'))) LIKE LOWER(?)", [$escapedValue.'%'])
+                            ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.fr'))) LIKE LOWER(?)", [$escapedValue.'%'])
+                            ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.de'))) LIKE LOWER(?)", [$escapedValue.'%']));
                     }
                 });
             },
             'Category' => function ($q, $v) {
-                return $q->whereHas('category', function ($cq) use ($v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
+                return $q->whereHas('category', function ($cq) use ($escapedValue) {
                     $driver = DB::connection()->getDriverName();
                     if ($driver === 'pgsql') {
-                        $cq->where(fn ($sub) => $sub->whereRaw("category ->> 'en' ILIKE ?", [$v.'%'])
-                            ->orWhereRaw("category ->> 'fr' ILIKE ?", [$v.'%'])
-                            ->orWhereRaw("category ->> 'de' ILIKE ?", [$v.'%']));
+                        $cq->where(fn ($sub) => $sub->whereRaw("category ->> 'en' ILIKE ?", [$escapedValue.'%'])
+                            ->orWhereRaw("category ->> 'fr' ILIKE ?", [$escapedValue.'%'])
+                            ->orWhereRaw("category ->> 'de' ILIKE ?", [$escapedValue.'%']));
                     } else {
-                        $cq->where(fn ($sub) => $sub->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(category, '$.en'))) LIKE LOWER(?)", [$v.'%'])
-                            ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(category, '$.fr'))) LIKE LOWER(?)", [$v.'%'])
-                            ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(category, '$.de'))) LIKE LOWER(?)", [$v.'%']));
+                        $cq->where(fn ($sub) => $sub->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(category, '$.en'))) LIKE LOWER(?)", [$escapedValue.'%'])
+                            ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(category, '$.fr'))) LIKE LOWER(?)", [$escapedValue.'%'])
+                            ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(category, '$.de'))) LIKE LOWER(?)", [$escapedValue.'%']));
                     }
                 });
             },

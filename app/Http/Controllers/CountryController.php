@@ -31,21 +31,24 @@ class CountryController extends Controller
                 return $q->where('iso', 'LIKE', $escapedValue.'%');
             },
             'name' => function ($q, $v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
                 $driver = DB::connection()->getDriverName();
                 $isPostgres = $driver === 'pgsql';
 
                 if ($isPostgres) {
-                    return $q->where(function ($subQuery) use ($v) {
-                        $subQuery->whereRaw("name ->> 'en' ILIKE ?", ['%'.$v.'%'])
-                            ->orWhereRaw("name ->> 'fr' ILIKE ?", ['%'.$v.'%'])
-                            ->orWhereRaw("name ->> 'de' ILIKE ?", ['%'.$v.'%']);
+                    return $q->where(function ($subQuery) use ($escapedValue) {
+                        $subQuery->whereRaw("name ->> 'en' ILIKE ?", ['%'.$escapedValue.'%'])
+                            ->orWhereRaw("name ->> 'fr' ILIKE ?", ['%'.$escapedValue.'%'])
+                            ->orWhereRaw("name ->> 'de' ILIKE ?", ['%'.$escapedValue.'%']);
                     });
                 }
 
-                return $q->where(function ($subQuery) use ($v) {
-                    $subQuery->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.en'))) LIKE LOWER(?)", ['%'.$v.'%'])
-                        ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.fr'))) LIKE LOWER(?)", ['%'.$v.'%'])
-                        ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.de'))) LIKE LOWER(?)", ['%'.$v.'%']);
+                return $q->where(function ($subQuery) use ($escapedValue) {
+                    $subQuery->whereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.en'))) LIKE LOWER(?)", ['%'.$escapedValue.'%'])
+                        ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.fr'))) LIKE LOWER(?)", ['%'.$escapedValue.'%'])
+                        ->orWhereRaw("LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.de'))) LIKE LOWER(?)", ['%'.$escapedValue.'%']);
                 });
             },
         ];

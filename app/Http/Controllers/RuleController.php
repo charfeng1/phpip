@@ -30,17 +30,42 @@ class RuleController extends Controller
     public function __construct()
     {
         $this->filterRules = [
-            'Task' => fn ($q, $v) => $q->whereHas('taskInfo', fn ($tq) => $tq->whereJsonLike('name', $v)),
-            'Trigger' => fn ($q, $v) => $q->whereHas('trigger', fn ($tq) => $tq->whereJsonLike('name', $v)),
+            'Task' => function ($q, $v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
+                return $q->whereHas('taskInfo', fn ($tq) => $tq->whereJsonLike('name', $escapedValue));
+            },
+            'Trigger' => function ($q, $v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
+                return $q->whereHas('trigger', fn ($tq) => $tq->whereJsonLike('name', $escapedValue));
+            },
             'Country' => function ($q, $v) {
                 // Escape LIKE wildcards to prevent SQL wildcard injection
                 $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
 
                 return $q->whereLike('for_country', $escapedValue.'%');
             },
-            'Category' => fn ($q, $v) => $q->whereHas('category', fn ($cq) => $cq->whereJsonLike('category', $v)),
-            'Detail' => fn ($q, $v) => $q->whereJsonLike('detail', $v),
-            'Type' => fn ($q, $v) => $q->whereHas('type', fn ($tq) => $tq->whereJsonLike('type', $v)),
+            'Category' => function ($q, $v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
+                return $q->whereHas('category', fn ($cq) => $cq->whereJsonLike('category', $escapedValue));
+            },
+            'Detail' => function ($q, $v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
+                return $q->whereJsonLike('detail', $escapedValue);
+            },
+            'Type' => function ($q, $v) {
+                // Escape LIKE wildcards to prevent SQL wildcard injection
+                $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
+
+                return $q->whereHas('type', fn ($tq) => $tq->whereJsonLike('type', $escapedValue));
+            },
             'Origin' => function ($q, $v) {
                 // Escape LIKE wildcards to prevent SQL wildcard injection
                 $escapedValue = str_replace(['%', '_'], ['\\%', '\\_'], $v);
