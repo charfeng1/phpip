@@ -37,4 +37,29 @@ abstract class TestCase extends BaseTestCase
         $this->resetDatabase();
         $this->artisan('db:seed --class=SampleSeeder');
     }
+
+    /**
+     * Use the PostgreSQL schema dump when available to hydrate the base schema
+     * before running migrations in tests.
+     */
+    protected function migrateFreshUsing()
+    {
+        $options = [
+            '--drop-views' => property_exists($this, 'dropViews') ? $this->dropViews : false,
+            '--drop-types' => property_exists($this, 'dropTypes') ? $this->dropTypes : false,
+        ];
+
+        $schemaPath = database_path('schema/postgres-schema.sql');
+        if (config('database.default') === 'pgsql' && is_file($schemaPath)) {
+            $options['--schema-path'] = $schemaPath;
+        }
+
+        if (property_exists($this, 'seeder') && $this->seeder) {
+            $options['--seeder'] = $this->seeder;
+        } else {
+            $options['--seed'] = property_exists($this, 'seed') ? $this->seed : false;
+        }
+
+        return $options;
+    }
 }
