@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -10,13 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Only update the view if the actor table exists
+        // This allows migrations to run on fresh databases where the core schema
+        // (database/schema/postgres-schema.sql) hasn't been loaded yet
+        if (!Schema::hasTable('actor')) {
+            return;
+        }
+
         // Drop the existing users view
         DB::statement('DROP VIEW IF EXISTS users');
 
         // Create the updated users view with the language field
         DB::statement('
-            CREATE VIEW users AS 
-            SELECT 
+            CREATE VIEW users AS
+            SELECT
                 actor.id,
                 actor.name,
                 actor.login,
@@ -32,7 +40,7 @@ return new class extends Migration
                 actor.updated_at,
                 actor.updater,
                 actor.remember_token
-            FROM actor 
+            FROM actor
             WHERE actor.login IS NOT NULL
         ');
     }
@@ -42,13 +50,18 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Only revert the view if the actor table exists
+        if (!Schema::hasTable('actor')) {
+            return;
+        }
+
         // Drop the updated view
         DB::statement('DROP VIEW IF EXISTS users');
 
         // Recreate the original view without the language field
         DB::statement('
-            CREATE VIEW users AS 
-            SELECT 
+            CREATE VIEW users AS
+            SELECT
                 actor.id,
                 actor.name,
                 actor.login,
@@ -63,7 +76,7 @@ return new class extends Migration
                 actor.updated_at,
                 actor.updater,
                 actor.remember_token
-            FROM actor 
+            FROM actor
             WHERE actor.login IS NOT NULL
         ');
     }
