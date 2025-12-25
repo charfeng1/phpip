@@ -47,6 +47,8 @@ class DefaultActorTest extends TestCase
     /** @test */
     public function it_can_belong_to_a_country()
     {
+        // Ensure country exists
+        Country::firstOrCreate(['iso' => 'US'], ['name' => ['en' => 'United States']]);
         $actor = Actor::factory()->create();
 
         $defaultActor = DefaultActor::create([
@@ -57,17 +59,15 @@ class DefaultActorTest extends TestCase
 
         $country = $defaultActor->country;
 
-        if ($country) {
-            $this->assertInstanceOf(Country::class, $country);
-            $this->assertEquals('US', $country->iso);
-        } else {
-            $this->assertTrue(true);
-        }
+        $this->assertInstanceOf(Country::class, $country);
+        $this->assertEquals('US', $country->iso);
     }
 
     /** @test */
     public function it_can_belong_to_a_category()
     {
+        // Ensure category exists
+        Category::firstOrCreate(['code' => 'PAT'], ['category' => ['en' => 'Patent']]);
         $actor = Actor::factory()->create();
 
         $defaultActor = DefaultActor::create([
@@ -78,12 +78,8 @@ class DefaultActorTest extends TestCase
 
         $category = $defaultActor->category;
 
-        if ($category) {
-            $this->assertInstanceOf(Category::class, $category);
-            $this->assertEquals('PAT', $category->code);
-        } else {
-            $this->assertTrue(true);
-        }
+        $this->assertInstanceOf(Category::class, $category);
+        $this->assertEquals('PAT', $category->code);
     }
 
     /** @test */
@@ -105,15 +101,9 @@ class DefaultActorTest extends TestCase
     /** @test */
     public function it_can_have_a_role()
     {
+        // Ensure role exists
+        Role::firstOrCreate(['code' => 'AGT'], ['name' => ['en' => 'Agent']]);
         $actor = Actor::factory()->create();
-        $role = Role::find('AGT');
-
-        if (!$role) {
-            $role = Role::create([
-                'code' => 'AGT',
-                'name' => ['en' => 'Agent'],
-            ]);
-        }
 
         $defaultActor = DefaultActor::create([
             'actor_id' => $actor->id,
@@ -122,12 +112,8 @@ class DefaultActorTest extends TestCase
 
         $roleInfo = $defaultActor->roleInfo;
 
-        if ($roleInfo) {
-            $this->assertInstanceOf(Role::class, $roleInfo);
-            $this->assertEquals('AGT', $roleInfo->code);
-        } else {
-            $this->assertTrue(true);
-        }
+        $this->assertInstanceOf(Role::class, $roleInfo);
+        $this->assertEquals('AGT', $roleInfo->code);
     }
 
     /** @test */

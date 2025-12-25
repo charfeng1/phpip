@@ -94,20 +94,23 @@ class CategoryTest extends TestCase
     }
 
     /** @test */
-    public function existing_categories_can_be_retrieved()
+    public function categories_can_be_created_and_retrieved()
     {
-        // Test that standard categories from seeders exist
-        $pat = Category::find('PAT');
-        $tm = Category::find('TM');
+        // Create standard categories using factory
+        $pat = Category::firstOrCreate(
+            ['code' => 'PAT'],
+            ['category' => ['en' => 'Patent']]
+        );
+        $tm = Category::firstOrCreate(
+            ['code' => 'TM'],
+            ['category' => ['en' => 'Trademark']]
+        );
 
-        if ($pat) {
-            $this->assertEquals('PAT', $pat->code);
-        }
-        if ($tm) {
-            $this->assertEquals('TM', $tm->code);
-        }
+        $this->assertEquals('PAT', $pat->code);
+        $this->assertEquals('TM', $tm->code);
 
-        // At least ensure the model works
-        $this->assertTrue(true);
+        // Verify retrieval works
+        $this->assertInstanceOf(Category::class, Category::find('PAT'));
+        $this->assertInstanceOf(Category::class, Category::find('TM'));
     }
 }

@@ -74,12 +74,8 @@ class RenewalsLogTest extends TestCase
 
         $creatorInfo = $log->creatorInfo;
 
-        if ($creatorInfo) {
-            $this->assertInstanceOf(User::class, $creatorInfo);
-            $this->assertEquals('renewal.user', $creatorInfo->login);
-        } else {
-            $this->assertTrue(true);
-        }
+        $this->assertInstanceOf(User::class, $creatorInfo);
+        $this->assertEquals('renewal.user', $creatorInfo->login);
     }
 
     /** @test */

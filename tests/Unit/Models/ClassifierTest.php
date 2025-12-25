@@ -110,16 +110,18 @@ class ClassifierTest extends TestCase
         $classifier = new Classifier();
         $reflection = new \ReflectionClass($classifier);
 
-        if ($reflection->hasProperty('auditExclude')) {
-            $property = $reflection->getProperty('auditExclude');
-            $property->setAccessible(true);
-            $auditExclude = $property->getValue($classifier);
+        // The model should have auditExclude property
+        $this->assertTrue(
+            $reflection->hasProperty('auditExclude'),
+            'Classifier should have auditExclude property'
+        );
 
-            $this->assertContains('created_at', $auditExclude);
-            $this->assertContains('updated_at', $auditExclude);
-        } else {
-            $this->assertTrue(true);
-        }
+        $property = $reflection->getProperty('auditExclude');
+        $property->setAccessible(true);
+        $auditExclude = $property->getValue($classifier);
+
+        $this->assertContains('created_at', $auditExclude);
+        $this->assertContains('updated_at', $auditExclude);
     }
 
     /** @test */

@@ -241,9 +241,15 @@ class TeamServiceTest extends TestCase
     {
         $user = User::factory()->create();
 
+        // Populate the cache first
+        $this->teamService->getSubordinateIds($user->id);
+
+        // Clear cache should not throw an exception
         $this->teamService->clearCache($user->id);
 
-        $this->assertTrue(true);
+        // Verify method completed by making another call
+        $result = $this->teamService->getSubordinateIds($user->id);
+        $this->assertInstanceOf(\Illuminate\Support\Collection::class, $result);
     }
 
     /** @test */

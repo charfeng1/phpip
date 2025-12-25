@@ -10,19 +10,16 @@ class MatterTypeTest extends TestCase
     /** @test */
     public function it_uses_code_as_primary_key()
     {
-        $type = MatterType::first();
+        // Always create a matter type to ensure test data exists
+        $type = MatterType::create([
+            'code' => 'TEST',
+            'type' => ['en' => 'Test Type'],
+        ]);
 
-        if ($type) {
-            $this->assertEquals('code', $type->getKeyName());
-            $this->assertFalse($type->incrementing);
-            $this->assertEquals('string', $type->getKeyType());
-        } else {
-            $type = MatterType::create([
-                'code' => 'TEST',
-                'type' => ['en' => 'Test Type'],
-            ]);
-            $this->assertEquals('TEST', $type->getKey());
-        }
+        $this->assertEquals('code', $type->getKeyName());
+        $this->assertEquals('TEST', $type->getKey());
+        $this->assertFalse($type->incrementing);
+        $this->assertEquals('string', $type->getKeyType());
     }
 
     /** @test */
@@ -93,22 +90,21 @@ class MatterTypeTest extends TestCase
     }
 
     /** @test */
-    public function standard_matter_types_may_exist()
+    public function matter_types_can_be_created()
     {
-        // Common matter types that might exist from seeders
-        $standardTypes = ['PRV', 'NPR', 'PCT', 'NAT', 'DIV', 'CNT'];
+        // Create common matter types to verify factory works
+        $standardTypes = ['PRV', 'NPR', 'PCT'];
 
-        $foundCount = 0;
         foreach ($standardTypes as $code) {
-            $type = MatterType::find($code);
-            if ($type) {
-                $this->assertEquals($code, $type->code);
-                $foundCount++;
-            }
+            $type = MatterType::firstOrCreate(
+                ['code' => $code],
+                ['type' => ['en' => "Type $code"]]
+            );
+            $this->assertEquals($code, $type->code);
         }
 
-        // Test passes regardless of seeded data
-        $this->assertTrue(true);
+        // Verify all types were created
+        $this->assertCount(3, $standardTypes);
     }
 
     /** @test */

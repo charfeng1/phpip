@@ -30,6 +30,9 @@ class FeeTest extends TestCase
     /** @test */
     public function it_belongs_to_a_country()
     {
+        // Ensure country exists
+        Country::firstOrCreate(['iso' => 'US'], ['name' => ['en' => 'United States']]);
+
         $fee = Fee::create([
             'for_country' => 'US',
             'for_category' => 'PAT',
@@ -40,17 +43,16 @@ class FeeTest extends TestCase
 
         $country = $fee->country;
 
-        if ($country) {
-            $this->assertInstanceOf(Country::class, $country);
-            $this->assertEquals('US', $country->iso);
-        } else {
-            $this->assertTrue(true); // Country may not be seeded
-        }
+        $this->assertInstanceOf(Country::class, $country);
+        $this->assertEquals('US', $country->iso);
     }
 
     /** @test */
     public function it_belongs_to_a_category()
     {
+        // Ensure category exists
+        Category::firstOrCreate(['code' => 'PAT'], ['category' => ['en' => 'Patent']]);
+
         $fee = Fee::create([
             'for_country' => 'EP',
             'for_category' => 'PAT',
@@ -61,17 +63,16 @@ class FeeTest extends TestCase
 
         $category = $fee->category;
 
-        if ($category) {
-            $this->assertInstanceOf(Category::class, $category);
-            $this->assertEquals('PAT', $category->code);
-        } else {
-            $this->assertTrue(true); // Category may not be seeded
-        }
+        $this->assertInstanceOf(Category::class, $category);
+        $this->assertEquals('PAT', $category->code);
     }
 
     /** @test */
     public function it_can_have_origin_country()
     {
+        // Ensure origin country exists
+        Country::firstOrCreate(['iso' => 'EP'], ['name' => ['en' => 'European Patent Office']]);
+
         $fee = Fee::create([
             'for_country' => 'US',
             'for_category' => 'PAT',
@@ -83,12 +84,8 @@ class FeeTest extends TestCase
 
         $origin = $fee->origin;
 
-        if ($origin) {
-            $this->assertInstanceOf(Country::class, $origin);
-            $this->assertEquals('EP', $origin->iso);
-        } else {
-            $this->assertTrue(true);
-        }
+        $this->assertInstanceOf(Country::class, $origin);
+        $this->assertEquals('EP', $origin->iso);
     }
 
     /** @test */

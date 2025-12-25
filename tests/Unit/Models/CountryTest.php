@@ -10,16 +10,16 @@ class CountryTest extends TestCase
     /** @test */
     public function it_uses_iso_as_primary_key()
     {
-        $country = Country::find('US');
+        // Create a country with factory to ensure data exists
+        $country = Country::firstOrCreate(
+            ['iso' => 'XX'],
+            ['name' => ['en' => 'Test Country']]
+        );
 
-        if ($country) {
-            $this->assertEquals('iso', $country->getKeyName());
-            $this->assertEquals('US', $country->getKey());
-            $this->assertFalse($country->incrementing);
-            $this->assertEquals('string', $country->getKeyType());
-        } else {
-            $this->assertTrue(true); // Country seeder may not have run
-        }
+        $this->assertEquals('iso', $country->getKeyName());
+        $this->assertEquals('XX', $country->getKey());
+        $this->assertFalse($country->incrementing);
+        $this->assertEquals('string', $country->getKeyType());
     }
 
     /** @test */
@@ -64,41 +64,43 @@ class CountryTest extends TestCase
     /** @test */
     public function it_returns_null_natcountries_for_non_regional_offices()
     {
-        $us = Country::find('US');
+        // Create a non-regional country
+        $us = Country::firstOrCreate(
+            ['iso' => 'US'],
+            ['name' => ['en' => 'United States']]
+        );
 
-        if ($us) {
-            $this->assertNull($us->natcountries);
-        } else {
-            $this->assertTrue(true);
-        }
+        $this->assertNull($us->natcountries);
     }
 
     /** @test */
     public function regional_offices_have_natcountries()
     {
-        $ep = Country::find('EP');
+        // Create EP as regional office
+        $ep = Country::firstOrCreate(
+            ['iso' => 'EP'],
+            ['name' => ['en' => 'European Patent Office']]
+        );
 
-        if ($ep && $ep->goesnational) {
-            $natcountries = $ep->natcountries;
-            // If properly seeded, EP should have designated states
-            $this->assertTrue($natcountries === null || $natcountries instanceof \Illuminate\Support\Collection);
-        } else {
-            $this->assertTrue(true);
-        }
+        // EP is identified as regional (goes national)
+        $this->assertTrue($ep->goesnational);
+
+        // natcountries should return null or Collection
+        $natcountries = $ep->natcountries;
+        $this->assertTrue($natcountries === null || $natcountries instanceof \Illuminate\Support\Collection);
     }
 
     /** @test */
     public function it_hides_iso3_and_numcode_on_serialization()
     {
-        $country = Country::find('US');
+        $country = Country::firstOrCreate(
+            ['iso' => 'US'],
+            ['name' => ['en' => 'United States'], 'iso3' => 'USA', 'numcode' => 840]
+        );
 
-        if ($country) {
-            $array = $country->toArray();
-            $this->assertArrayNotHasKey('iso3', $array);
-            $this->assertArrayNotHasKey('numcode', $array);
-        } else {
-            $this->assertTrue(true);
-        }
+        $array = $country->toArray();
+        $this->assertArrayNotHasKey('iso3', $array);
+        $this->assertArrayNotHasKey('numcode', $array);
     }
 
     /** @test */

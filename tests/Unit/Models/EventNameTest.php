@@ -59,6 +59,9 @@ class EventNameTest extends TestCase
     /** @test */
     public function it_can_belong_to_a_country()
     {
+        // Ensure country exists
+        Country::firstOrCreate(['iso' => 'US'], ['name' => ['en' => 'United States']]);
+
         $eventName = EventName::factory()->create([
             'code' => 'USEV',
             'country' => 'US',
@@ -66,17 +69,16 @@ class EventNameTest extends TestCase
 
         $country = $eventName->countryInfo;
 
-        if ($country) {
-            $this->assertInstanceOf(Country::class, $country);
-            $this->assertEquals('US', $country->iso);
-        } else {
-            $this->assertTrue(true);
-        }
+        $this->assertInstanceOf(Country::class, $country);
+        $this->assertEquals('US', $country->iso);
     }
 
     /** @test */
     public function it_can_belong_to_a_category()
     {
+        // Ensure category exists
+        Category::firstOrCreate(['code' => 'PAT'], ['category' => ['en' => 'Patent']]);
+
         $eventName = EventName::factory()->create([
             'code' => 'PATEV',
             'category' => 'PAT',
@@ -84,12 +86,8 @@ class EventNameTest extends TestCase
 
         $category = $eventName->categoryInfo;
 
-        if ($category) {
-            $this->assertInstanceOf(Category::class, $category);
-            $this->assertEquals('PAT', $category->code);
-        } else {
-            $this->assertTrue(true);
-        }
+        $this->assertInstanceOf(Category::class, $category);
+        $this->assertEquals('PAT', $category->code);
     }
 
     /** @test */
@@ -104,12 +102,8 @@ class EventNameTest extends TestCase
 
         $responsible = $eventName->default_responsibleInfo;
 
-        if ($responsible) {
-            $this->assertInstanceOf(User::class, $responsible);
-            $this->assertEquals('resp.user', $responsible->login);
-        } else {
-            $this->assertTrue(true);
-        }
+        $this->assertInstanceOf(User::class, $responsible);
+        $this->assertEquals('resp.user', $responsible->login);
     }
 
     /** @test */
@@ -147,18 +141,19 @@ class EventNameTest extends TestCase
     }
 
     /** @test */
-    public function standard_event_names_exist()
+    public function standard_event_names_can_be_created()
     {
-        // Check for common event names that should exist
+        // Create common event names to verify factory works
         $standardCodes = ['FIL', 'PUB', 'GRT', 'REN', 'PRI'];
 
         foreach ($standardCodes as $code) {
-            $eventName = EventName::find($code);
-            if ($eventName) {
-                $this->assertEquals($code, $eventName->code);
-            }
+            $eventName = EventName::firstOrCreate(
+                ['code' => $code],
+                ['name' => ['en' => "Event $code"]]
+            );
+            $this->assertEquals($code, $eventName->code);
         }
 
-        $this->assertTrue(true); // At least one should pass
+        $this->assertCount(5, $standardCodes);
     }
 }

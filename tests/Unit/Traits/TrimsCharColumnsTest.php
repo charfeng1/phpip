@@ -126,7 +126,9 @@ class TrimsCharColumnsTest extends TestCase
         $actor = Actor::factory()->asClient()->create();
 
         // CLI should be trimmed to 3 characters even if stored as 'CLI   '
-        $this->assertEquals('CLI', trim($actor->default_role ?? ''));
+        // Do NOT use trim() here - that would defeat the purpose of testing the trait
+        $this->assertEquals('CLI', $actor->default_role);
+        $this->assertStringNotContainsString(' ', $actor->default_role ?? '');
     }
 
     /** @test */

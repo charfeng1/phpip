@@ -188,9 +188,10 @@ class AuditableTest extends TestCase
             'value' => 'No Audit Test',
         ]);
 
-        $classifier->withoutAuditing();
+        $result = $classifier->withoutAuditing();
 
-        $this->assertTrue(true); // Method exists and doesn't throw
+        // Method should return the model instance for chaining
+        $this->assertInstanceOf(Classifier::class, $result);
     }
 
     /** @test */
@@ -225,11 +226,8 @@ class AuditableTest extends TestCase
 
         $latestLog = $classifier->getLatestAuditLog();
 
-        if ($latestLog) {
-            $this->assertEquals('updated', $latestLog->action);
-        }
-
-        $this->assertTrue(true);
+        $this->assertNotNull($latestLog, 'Latest audit log should exist after update');
+        $this->assertEquals('updated', $latestLog->action);
     }
 
     /** @test */

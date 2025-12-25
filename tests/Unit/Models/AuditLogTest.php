@@ -63,12 +63,8 @@ class AuditLogTest extends TestCase
 
         $auditUser = $auditLog->user;
 
-        if ($auditUser) {
-            $this->assertInstanceOf(User::class, $auditUser);
-            $this->assertEquals('test.user', $auditUser->login);
-        } else {
-            $this->assertTrue(true);
-        }
+        $this->assertInstanceOf(User::class, $auditUser);
+        $this->assertEquals('test.user', $auditUser->login);
     }
 
     /** @test */
