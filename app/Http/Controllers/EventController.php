@@ -24,7 +24,7 @@ class EventController extends Controller
      */
     public function index()
     {
-        $events = Event::with('info')->get();
+        $events = Event::with('info')->paginate();
 
         return response()->json($events);
     }
