@@ -12,7 +12,7 @@ The database schema is managed entirely through **proper Laravel migrations** in
 | `000040_create_tier4_*` | Relationship/junction tables |
 | `000050_create_tier5_*` | Laravel standard tables |
 | `000060_create_tier6_*` | Audit logging |
-| `000070_create_stored_functions` | 6 stored procedures |
+| `000070_create_stored_functions` | 13 stored functions |
 | `000080_create_views` | 5 views (including `users` for auth) |
 | `000090_create_triggers` | 7 triggers |
 

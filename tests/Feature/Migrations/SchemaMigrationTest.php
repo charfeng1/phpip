@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
- * Tests for the baseline migration that creates the complete phpIP schema.
+ * Tests for the tier-based migrations that create the complete phpIP schema.
  *
  * These tests verify that migrate:fresh creates all required database objects:
  * - 24 tables across 6 dependency tiers
@@ -19,7 +19,7 @@ use Tests\TestCase;
  *
  * Uses PHPUnit data providers to consolidate repetitive tests into data-driven tests.
  */
-class BaselineMigrationTest extends TestCase
+class SchemaMigrationTest extends TestCase
 {
     use RefreshDatabase;
 
