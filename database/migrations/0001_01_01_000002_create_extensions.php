@@ -7,8 +7,7 @@ use Illuminate\Support\Facades\DB;
  * Create PostgreSQL extensions required by phpIP.
  *
  * This migration creates the uuid-ossp extension for UUID generation.
- * It checks if the extension exists before creating to support both
- * fresh installs and upgrades from baseline migration.
+ * It uses CREATE EXTENSION IF NOT EXISTS for idempotent execution.
  */
 return new class extends Migration
 {
@@ -17,12 +16,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Check if extension already exists (from baseline migration)
-        $exists = DB::select("SELECT 1 FROM pg_extension WHERE extname = 'uuid-ossp'");
-
-        if (empty($exists)) {
-            DB::statement('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
-        }
+        DB::statement('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
     }
 
     /**

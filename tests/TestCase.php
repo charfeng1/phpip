@@ -20,9 +20,8 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
  *    - Faster for most tests
  *    - Inherited from this base class
  *
- * The baseline migration (0001_01_01_000001_create_baseline_schema) loads
- * the complete schema from postgres-schema.sql, so `php artisan migrate:fresh`
- * now works correctly.
+ * The tier-based migrations (000002-000090) create the complete schema
+ * in dependency order, so `php artisan migrate:fresh` works correctly.
  *
  * Quick start:
  *   php artisan migrate:fresh --env=testing --seed

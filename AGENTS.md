@@ -6,18 +6,23 @@ This file contains critical instructions for AI agents (Claude, GPT, Copilot, et
 
 ## Database Schema Management
 
-### Baseline Schema
-The file `database/schema/postgres-schema.sql` is the **authoritative baseline** for the database schema. A baseline migration (`0001_01_01_000001_create_baseline_schema.php`) loads this schema, enabling standard Laravel workflows like `php artisan migrate:fresh`.
+### Tier-Based Migrations
+The database schema is managed through tier-based migrations organized by dependency order:
+- `000002` - Extensions (uuid-ossp)
+- `000010` - Tier 1: Foundation tables (country, actor_role, etc.)
+- `000020` - Tier 2: First-level FK tables (actor, classifier_value, etc.)
+- `000030` - Tier 3: Business core tables (matter, event, task_rules)
+- `000040` - Tier 4: Relationship tables (classifier, matter_actor_lnk, etc.)
+- `000050` - Tier 5: Laravel standard tables (jobs, cache, sessions)
+- `000060` - Tier 6: Audit table
+- `000070` - Stored functions
+- `000080` - Views (including critical 'users' view)
+- `000090` - Triggers
 
-**When to modify `postgres-schema.sql`:**
-- Fixing bugs or omissions in the baseline (missing columns, wrong types)
-- Pre-production corrections to align schema with models/factories/seeders
+The file `database/schema/postgres-schema.sql` serves as a **reference document** for the complete schema.
 
-**When to create a new migration instead:**
-- Adding new features after the baseline is established
-- Any changes in a production environment
-- Changes that need to be tracked separately for review
-
+**Adding new schema changes:**
+Create a new migration with an appropriate timestamp:
 ```bash
 php artisan make:migration add_column_to_table_name
 ```
@@ -92,7 +97,7 @@ $event->code === 'FIL'                      // Avoid
 
 ## Common Pitfalls
 
-1. **Don't use `Schema::create()` for existing tables** - They already exist from the baseline
+1. **Don't use `Schema::create()` for existing tables** - They already exist from the tier migrations
 2. **Don't assume standard Laravel auth** - Users are actors with a role
-3. **Create migrations for new features** - After the baseline is established
+3. **Create migrations for new features** - Use standard Laravel migration timestamps
 4. **Use `DatabaseTransactions` for most tests** - Faster than `RefreshDatabase`

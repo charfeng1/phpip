@@ -171,7 +171,9 @@ POST-SCHEMA:
   - Tests use `RefreshDatabase` trait successfully
   - Verifies all 24 tables, 5 views, 13 functions, 7 triggers
 
-### Phase 2: Proper Table Migrations (Priority: MEDIUM) - IN PROGRESS
+### Phase 2: Proper Table Migrations (Priority: MEDIUM) ✅ COMPLETED
+
+> **Completed**: 2024-12-25
 
 Break down `postgres-schema.sql` into individual migrations:
 
@@ -205,11 +207,22 @@ Break down `postgres-schema.sql` into individual migrations:
 **Test file created:**
 - `tests/Feature/Migrations/TierMigrationsTest.php` - Data provider-based tests for all tiers
 
-### Phase 3: Cleanup (Priority: LOW)
+### Phase 3: Cleanup (Priority: LOW) ✅ COMPLETED
 
-- [ ] **Task 3.1**: Remove `postgres-schema.sql` dependency
-- [ ] **Task 3.2**: Update documentation
-- [ ] **Task 3.3**: Archive or remove `setup-test-db.sh`
+> **Completed**: 2024-12-25
+
+- [x] **Task 3.1**: Remove `postgres-schema.sql` dependency
+  - Deleted `0001_01_01_000001_create_baseline_schema.php`
+  - Individual tier migrations (000002-000090) now handle schema creation
+  - `database/schema/postgres-schema.sql` kept as reference documentation only
+
+- [x] **Task 3.2**: Update documentation
+  - Updated `CLAUDE.md` to reflect tier-based migration approach
+  - Removed references to baseline migration
+
+- [x] **Task 3.3**: Removed `setup-test-db.sh`
+  - Deleted `tests/setup-test-db.sh` - no longer needed
+  - Standard `php artisan migrate:fresh --seed` now works for all setup
 
 ---
 
