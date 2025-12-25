@@ -41,11 +41,16 @@ createdb -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "$DB_NAME"
 echo "3. Loading schema from postgres-schema.sql..."
 psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -f "$SCHEMA_FILE" -q
 
-echo "4. Running migrations..."
+echo "4. Generating APP_KEY for testing (if not set)..."
 cd "$PROJECT_DIR"
+if ! grep -q "^APP_KEY=base64:" .env.testing 2>/dev/null; then
+    php artisan key:generate --env=testing --force
+fi
+
+echo "5. Running migrations..."
 php artisan migrate --env=testing --force
 
-echo "5. Seeding basic reference data..."
+echo "6. Seeding basic reference data..."
 # Seed just enough data for tests to work
 php artisan db:seed --class=CountryTableSeeder --env=testing --force 2>/dev/null || echo "   (CountryTableSeeder failed, continuing)"
 php artisan db:seed --class=MatterCategoryTableSeeder --env=testing --force 2>/dev/null || echo "   (MatterCategoryTableSeeder failed, continuing)"
