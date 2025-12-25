@@ -36,8 +36,9 @@ class RuleControllerFilterTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertViewHas('ruleslist', function ($rules) {
+            // Verify filter works: all returned rules should have task 'REN'
             return $rules->count() >= 1
-                && $rules->contains('task', 'REN');
+                && $rules->every(fn ($rule) => $rule->task === 'REN');
         });
     }
 }
