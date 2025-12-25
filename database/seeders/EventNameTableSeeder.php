@@ -9,11 +9,13 @@ class EventNameTableSeeder extends Seeder
 {
     public function run()
     {
+        $translations = TranslatedAttributesSeeder::getEventNames();
+
         DB::table('event_name')->insertOrIgnore([
 
             [
                 'code' => 'ABA',
-                'name' => json_encode(['en' => 'Abandoned', 'fr' => 'Abandonné', 'de' => 'Aufgegeben', 'zh' => '放弃']),
+                'name' => json_encode($translations['ABA']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -31,7 +33,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'ABO',
-                'name' => json_encode(['en' => 'Abandon Original', 'fr' => 'Abandon original', 'de' => 'Ursprüngliches aufgeben', 'zh' => '放弃原案']),
+                'name' => json_encode($translations['ABO']),
                 'category' => 'PAT',
                 'country' => 'EP',
                 'is_task' => 1,
@@ -49,7 +51,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'ADV',
-                'name' => json_encode(['en' => 'Advisory Action', 'fr' => 'Advisory Action', 'de' => 'Advisory Action', 'zh' => '咨询意见']),
+                'name' => json_encode($translations['ADV']),
                 'category' => 'PAT',
                 'country' => 'US',
                 'is_task' => 0,
@@ -67,7 +69,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'ALL',
-                'name' => json_encode(['en' => 'Allowance', 'fr' => 'Intention délivrance', 'de' => 'Zulassung', 'zh' => '授权意向']),
+                'name' => json_encode($translations['ALL']),
                 'category' => 'PAT',
                 'country' => null,
                 'is_task' => 0,
@@ -85,7 +87,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'APL',
-                'name' => json_encode(['en' => 'Appeal', 'fr' => 'Recours', 'de' => 'Beschwerde', 'zh' => '上诉']),
+                'name' => json_encode($translations['APL']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -103,7 +105,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'CAN',
-                'name' => json_encode(['en' => 'Cancelled', 'fr' => 'Annulé', 'de' => 'Storniert', 'zh' => '取消']),
+                'name' => json_encode($translations['CAN']),
                 'category' => 'TM',
                 'country' => null,
                 'is_task' => 0,
@@ -121,7 +123,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'CLO',
-                'name' => json_encode(['en' => 'Closed', 'fr' => 'Clôturé', 'de' => 'Geschlossen', 'zh' => '关闭']),
+                'name' => json_encode($translations['CLO']),
                 'category' => 'LTG',
                 'country' => null,
                 'is_task' => 0,
@@ -139,7 +141,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'COM',
-                'name' => json_encode(['en' => 'Communication', 'fr' => 'Communication', 'de' => 'Mitteilung', 'zh' => '通知']),
+                'name' => json_encode($translations['COM']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -157,7 +159,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'CRE',
-                'name' => json_encode(['en' => 'Created', 'fr' => 'Création', 'de' => 'Erstellt', 'zh' => '创建']),
+                'name' => json_encode($translations['CRE']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -175,7 +177,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'DAPL',
-                'name' => json_encode(['en' => 'Decision on Appeal', 'fr' => 'Décision sur recours', 'de' => 'Beschwerdeentscheidung', 'zh' => '上诉决定']),
+                'name' => json_encode($translations['DAPL']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,

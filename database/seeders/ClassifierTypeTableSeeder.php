@@ -9,11 +9,13 @@ class ClassifierTypeTableSeeder extends Seeder
 {
     public function run()
     {
+        $translations = TranslatedAttributesSeeder::getClassifierTypes();
+
         DB::table('classifier_type')->insertOrIgnore([
 
             [
                 'code' => 'ABS',
-                'type' => json_encode(['en' => 'Abstract', 'fr' => 'Abrégé', 'de' => 'Zusammenfassung', 'zh' => '摘要']),
+                'type' => json_encode($translations['ABS']),
                 'main_display' => 0,
                 'for_category' => null,
                 'display_order' => 127,
@@ -26,7 +28,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'AGR',
-                'type' => json_encode(['en' => 'Agreement', 'fr' => 'Accord', 'de' => 'Vereinbarung', 'zh' => '协议']),
+                'type' => json_encode($translations['AGR']),
                 'main_display' => 0,
                 'for_category' => null,
                 'display_order' => 127,
@@ -39,7 +41,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'BU',
-                'type' => json_encode(['en' => 'Business Unit', 'fr' => 'Unité commerciale', 'de' => 'Geschäftsbereich', 'zh' => '业务单元']),
+                'type' => json_encode($translations['BU']),
                 'main_display' => 0,
                 'for_category' => null,
                 'display_order' => 127,
@@ -52,7 +54,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'DESC',
-                'type' => json_encode(['en' => 'Description', 'fr' => 'Description', 'de' => 'Beschreibung', 'zh' => '说明']),
+                'type' => json_encode($translations['DESC']),
                 'main_display' => 0,
                 'for_category' => 'PAT',
                 'display_order' => 5,
@@ -65,7 +67,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'EVAL',
-                'type' => json_encode(['en' => 'Evaluation', 'fr' => 'Évaluation', 'de' => 'Bewertung', 'zh' => '评估']),
+                'type' => json_encode($translations['EVAL']),
                 'main_display' => 0,
                 'for_category' => null,
                 'display_order' => 127,
@@ -78,7 +80,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'IMG',
-                'type' => json_encode(['en' => 'Image', 'fr' => 'Image', 'de' => 'Bild', 'zh' => '图片']),
+                'type' => json_encode($translations['IMG']),
                 'main_display' => 0,
                 'for_category' => null,
                 'display_order' => 127,
@@ -91,7 +93,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'IPC',
-                'type' => json_encode(['en' => 'Int. Pat. Class.', 'fr' => 'Class. Int. des Brevets', 'de' => 'Int. Pat. Klass.', 'zh' => '国际专利分类']),
+                'type' => json_encode($translations['IPC']),
                 'main_display' => 1,
                 'for_category' => 'PAT',
                 'display_order' => 15,
@@ -104,7 +106,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'KW',
-                'type' => json_encode(['en' => 'Keyword', 'fr' => 'Mot-clé', 'de' => 'Stichwort', 'zh' => '关键词']),
+                'type' => json_encode($translations['KW']),
                 'main_display' => 1,
                 'for_category' => null,
                 'display_order' => 10,
@@ -117,7 +119,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'LNK',
-                'type' => json_encode(['en' => 'Link', 'fr' => 'Lien', 'de' => 'Link', 'zh' => '链接']),
+                'type' => json_encode($translations['LNK']),
                 'main_display' => 0,
                 'for_category' => null,
                 'display_order' => 127,
@@ -130,7 +132,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'LOC',
-                'type' => json_encode(['en' => 'Location', 'fr' => 'Lieu', 'de' => 'Standort', 'zh' => '位置']),
+                'type' => json_encode($translations['LOC']),
                 'main_display' => 0,
                 'for_category' => null,
                 'display_order' => 127,
@@ -143,7 +145,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'ORG',
-                'type' => json_encode(['en' => 'Organization', 'fr' => 'Organisation', 'de' => 'Organisation', 'zh' => '组织']),
+                'type' => json_encode($translations['ORG']),
                 'main_display' => 0,
                 'for_category' => null,
                 'display_order' => 127,
@@ -156,7 +158,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'PA',
-                'type' => json_encode(['en' => 'Prior Art', 'fr' => 'Art antérieur', 'de' => 'Stand der Technik', 'zh' => '现有技术']),
+                'type' => json_encode($translations['PA']),
                 'main_display' => 0,
                 'for_category' => 'PAT',
                 'display_order' => 20,
@@ -169,7 +171,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'PROD',
-                'type' => json_encode(['en' => 'Product', 'fr' => 'Produit', 'de' => 'Produkt', 'zh' => '产品']),
+                'type' => json_encode($translations['PROD']),
                 'main_display' => 0,
                 'for_category' => null,
                 'display_order' => 127,
@@ -182,7 +184,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'PROJ',
-                'type' => json_encode(['en' => 'Project', 'fr' => 'Projet', 'de' => 'Projekt', 'zh' => '项目']),
+                'type' => json_encode($translations['PROJ']),
                 'main_display' => 0,
                 'for_category' => null,
                 'display_order' => 127,
@@ -195,7 +197,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'TECH',
-                'type' => json_encode(['en' => 'Technology', 'fr' => 'Technologie', 'de' => 'Technologie', 'zh' => '技术']),
+                'type' => json_encode($translations['TECH']),
                 'main_display' => 0,
                 'for_category' => null,
                 'display_order' => 127,
@@ -208,7 +210,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'TIT',
-                'type' => json_encode(['en' => 'Title', 'fr' => 'Titre', 'de' => 'Titel', 'zh' => '标题']),
+                'type' => json_encode($translations['TIT']),
                 'main_display' => 1,
                 'for_category' => null,
                 'display_order' => 5,
@@ -221,7 +223,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'TITAL',
-                'type' => json_encode(['en' => 'Alt. Title', 'fr' => 'Titre alternatif', 'de' => 'Alternativer Titel', 'zh' => '替代标题']),
+                'type' => json_encode($translations['TITAL']),
                 'main_display' => 0,
                 'for_category' => null,
                 'display_order' => 127,
@@ -234,7 +236,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'TITEN',
-                'type' => json_encode(['en' => 'English Title', 'fr' => 'Titre anglais', 'de' => 'Englischer Titel', 'zh' => '英文标题']),
+                'type' => json_encode($translations['TITEN']),
                 'main_display' => 0,
                 'for_category' => null,
                 'display_order' => 127,
@@ -247,7 +249,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'TITOF',
-                'type' => json_encode(['en' => 'Official Title', 'fr' => 'Titre officiel', 'de' => 'Offizieller Titel', 'zh' => '正式标题']),
+                'type' => json_encode($translations['TITOF']),
                 'main_display' => 0,
                 'for_category' => null,
                 'display_order' => 127,
@@ -260,7 +262,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'TM',
-                'type' => json_encode(['en' => 'Trademark', 'fr' => 'Marque', 'de' => 'Marke', 'zh' => '商标']),
+                'type' => json_encode($translations['TM']),
                 'main_display' => 1,
                 'for_category' => 'TM',
                 'display_order' => 5,
@@ -273,7 +275,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'TMCL',
-                'type' => json_encode(['en' => 'Class (TM)', 'fr' => 'Classe (Marque)', 'de' => 'Klasse (Marke)', 'zh' => '分类（商标）']),
+                'type' => json_encode($translations['TMCL']),
                 'main_display' => 1,
                 'for_category' => 'TM',
                 'display_order' => 10,
@@ -286,7 +288,7 @@ class ClassifierTypeTableSeeder extends Seeder
 
             [
                 'code' => 'TMTYP',
-                'type' => json_encode(['en' => 'Type (TM)', 'fr' => 'Type (Marque)', 'de' => 'Typ (Marke)', 'zh' => '类型（商标）']),
+                'type' => json_encode($translations['TMTYP']),
                 'main_display' => 0,
                 'for_category' => 'TM',
                 'display_order' => 15,
