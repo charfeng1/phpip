@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\ApiToken;
 use App\Traits\TrimsCharColumns;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -162,5 +164,15 @@ class User extends Authenticatable
     public function renewals()
     {
         return $this->matters()->has('renewalsPending')->with('renewalsPending');
+    }
+
+    /**
+     * API tokens issued for this user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function apiTokens(): HasMany
+    {
+        return $this->hasMany(ApiToken::class);
     }
 }

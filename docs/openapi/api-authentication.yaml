@@ -1,0 +1,108 @@
+openapi: 3.1.0
+info:
+  title: phpIP API Authentication
+  version: "1.0.0"
+  description: |
+    Token-based authentication endpoints for phpIP integrations.
+servers:
+  - url: https://your-domain.example.com
+    description: Production
+  - url: http://localhost:8000
+    description: Local development
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Token
+paths:
+  /api/auth/token:
+    post:
+      summary: Issue an API token
+      description: Exchange phpIP credentials for a bearer token with optional abilities and expiry.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - login
+                - password
+              properties:
+                login:
+                  type: string
+                  example: phpipuser
+                password:
+                  type: string
+                  format: password
+                device_name:
+                  type: string
+                  example: integration-script
+                abilities:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Token created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Bearer token to send in the Authorization header
+                  token_type:
+                    type: string
+                    example: Bearer
+                  expires_at:
+                    type: string
+                    format: date-time
+        '422':
+          description: Invalid credentials
+        '429':
+          description: Too many attempts on the auth endpoint
+  /api/auth/me:
+    get:
+      security:
+        - BearerAuth: []
+      summary: Get the authenticated user
+      responses:
+        '200':
+          description: Authenticated user profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  login:
+                    type: string
+                  name:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+                  role:
+                    type: string
+                  language:
+                    type: string
+        '401':
+          description: Missing or invalid token
+        '429':
+          description: Rate limit exceeded
+  /api/auth/logout:
+    post:
+      security:
+        - BearerAuth: []
+      summary: Revoke the current token
+      responses:
+        '200':
+          description: Token revoked successfully
+        '401':
+          description: Missing or invalid token
+        '429':
+          description: Rate limit exceeded

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Actor;
 use App\Models\ActorPivot;
+use App\Models\ApiToken;
 use App\Models\Category;
 use App\Models\Classifier;
 use App\Models\ClassifierType;
@@ -39,6 +40,8 @@ use App\Policies\TemplateClassPolicy;
 use App\Policies\TemplateMemberPolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -66,5 +69,17 @@ class AuthServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->registerPolicies();
+
+        Auth::viaRequest('api-token', function (Request $request) {
+            $token = ApiToken::findActiveToken($request->bearerToken());
+
+            if ($token) {
+                $token->forceFill(['last_used_at' => now()])->saveQuietly();
+
+                return $token->user;
+            }
+
+            return null;
+        });
     }
 }

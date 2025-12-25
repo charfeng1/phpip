@@ -3,8 +3,11 @@
 namespace App\Providers;
 
 use App\Enums\UserRole;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -32,6 +35,19 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('admin', fn ($user) => $user->default_role === UserRole::ADMIN->value);
         Gate::define('readwrite', fn ($user) => in_array($user->default_role, UserRole::writableRoleValues()));
         Gate::define('readonly', fn ($user) => in_array($user->default_role, UserRole::readableRoleValues()));
+
+        RateLimiter::for('api', function (Request $request) {
+            $limit = (int) config('api.rate_limit', 120);
+            $key = $request->user()?->id ? 'user:'.$request->user()->id : 'ip:'.$request->ip();
+
+            return Limit::perMinute($limit)->by($key);
+        });
+
+        RateLimiter::for('api-auth', function (Request $request) {
+            $limit = (int) config('api.auth_rate_limit', 10);
+
+            return Limit::perMinute($limit)->by($request->ip());
+        });
 
         // Add query macro for case-insensitive JSON column queries
         // Supports both MySQL and PostgreSQL syntax
