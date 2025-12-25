@@ -508,10 +508,12 @@ class MatterRepository
             $query->orderBy('matter.caseref', $sortdir);
         } else {
             $groupBy = $baseGroupBy;
-            if (! in_array($sortkey, $groupBy)) {
-                $groupBy[] = $sortkey;
+            // Qualify 'id' column with table name to avoid ambiguity in joins
+            $qualifiedSortkey = ($sortkey === 'id') ? 'matter.id' : $sortkey;
+            if (! in_array($qualifiedSortkey, $groupBy)) {
+                $groupBy[] = $qualifiedSortkey;
             }
-            $query->groupBy($groupBy)->orderBy($sortkey, $sortdir);
+            $query->groupBy($groupBy)->orderBy($qualifiedSortkey, $sortdir);
         }
 
         return $query;

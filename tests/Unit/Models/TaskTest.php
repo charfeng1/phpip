@@ -187,9 +187,10 @@ class TaskTest extends TestCase
     /** @test */
     public function it_can_have_grace_period()
     {
-        $task = Task::factory()->create(['grace_period' => 6]);
+        // grace_period is a boolean in the database
+        $task = Task::factory()->create(['grace_period' => true]);
 
-        $this->assertEquals(6, $task->grace_period);
+        $this->assertTrue((bool) $task->grace_period);
     }
 
     /** @test */

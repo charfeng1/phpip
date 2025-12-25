@@ -256,8 +256,7 @@ class HasActorsFromRoleTest extends TestCase
             'display_order' => 1,
         ]);
 
-        // Use getActorFromRole since writer() method doesn't exist
-        $result = $matter->getActorFromRole('WRI');
+        $result = $matter->writer();
 
         $this->assertNotNull($result);
         $this->assertEquals($writer->id, $result->actor_id);
