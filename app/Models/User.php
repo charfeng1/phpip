@@ -14,7 +14,7 @@ use Illuminate\Notifications\Notifiable;
  * staff members who manage IP matters, though the system also supports client users
  * with restricted access.
  *
- * Database table: users
+ * Database table: actor (users is a non-writable VIEW on actor)
  *
  * Key relationships:
  * - Belongs to a role (determines permissions)
