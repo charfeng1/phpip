@@ -232,7 +232,8 @@ class MatterTest extends TestCase
         $expiryDate = new \DateTime('+20 years');
         $matter = Matter::factory()->withExpiry($expiryDate)->create();
 
-        $this->assertEquals($expiryDate->format('Y-m-d'), $matter->expire_date);
+        // expire_date is cast to Carbon, so format both for comparison
+        $this->assertEquals($expiryDate->format('Y-m-d'), $matter->expire_date->format('Y-m-d'));
     }
 
     /** @test */

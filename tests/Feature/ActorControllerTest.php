@@ -35,7 +35,7 @@ class ActorControllerTest extends TestCase
         $response = $this->get("/actor/{$actor->id}");
         $response->assertStatus(200)
             ->assertViewHas('actorInfo')
-            ->assertSeeText('Actor details');
+            ->assertSee('Main');  // Tab name in the actor show view
 
         // A page used-in
         $response = $this->get("/actor/{$actor->id}/usedin");

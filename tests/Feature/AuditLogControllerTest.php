@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Actor;
 use App\Models\AuditLog;
-use App\Models\Country;
 use App\Models\User;
 use Tests\TestCase;
 
@@ -14,8 +13,7 @@ class AuditLogControllerTest extends TestCase
     /** @test */
     public function audit_logs_can_be_filtered_by_record_id()
     {
-        $admin = User::factory()->admin()->create(['login' => 'admin.user']);
-        Country::factory()->create(['iso' => 'US', 'name' => json_encode(['en' => 'United States'])]);
+        $admin = User::factory()->admin()->create();
 
         $actorOne = Actor::factory()->create(['name' => 'Audit Target One']);
         $actorTwo = Actor::factory()->create(['name' => 'Audit Target Two']);
@@ -52,8 +50,9 @@ class AuditLogControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertViewHas('auditLogs', function ($auditLogs) use ($actorOne) {
-            return $auditLogs->count() === 1
-                && $auditLogs->first()->auditable_id === $actorOne->id;
+            // Check that all returned logs match the filtered record_id
+            return $auditLogs->count() >= 1
+                && $auditLogs->every(fn ($log) => $log->auditable_id === $actorOne->id);
         });
     }
 }

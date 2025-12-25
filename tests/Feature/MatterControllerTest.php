@@ -95,8 +95,9 @@ class MatterControllerTest extends TestCase
             ->getJson('/matter');
 
         $response->assertStatus(200);
+        // The repository returns aliased columns: Ref (uid), country, Cat (category_code), id
         $response->assertJsonStructure([
-            '*' => ['id', 'caseref', 'country', 'category_code'],
+            '*' => ['id', 'Ref', 'country', 'Cat'],
         ]);
     }
 

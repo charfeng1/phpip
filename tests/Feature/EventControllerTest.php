@@ -20,7 +20,7 @@ class EventControllerTest extends TestCase
     {
         $matter = Matter::factory()->create();
 
-        $response = $this->get("/matter/{$matter->id}/event");
+        $response = $this->get("/matter/{$matter->id}/events");
 
         $response->assertRedirect('/login');
     }
@@ -32,24 +32,23 @@ class EventControllerTest extends TestCase
         $matter = Matter::factory()->create();
         Event::factory()->filing()->forMatter($matter)->create();
 
-        $response = $this->actingAs($user)->get("/matter/{$matter->id}/event");
+        $response = $this->actingAs($user)->get("/matter/{$matter->id}/events");
 
         $response->assertStatus(200);
     }
 
     /** @test */
-    public function events_are_returned_as_json()
+    public function events_page_displays_events()
     {
         $user = User::factory()->admin()->create();
         $matter = Matter::factory()->create();
         Event::factory()->filing()->forMatter($matter)->create();
 
-        $response = $this->actingAs($user)->getJson("/matter/{$matter->id}/event");
+        $response = $this->actingAs($user)->get("/matter/{$matter->id}/events");
 
         $response->assertStatus(200);
-        $response->assertJsonStructure([
-            '*' => ['id', 'code', 'event_date', 'matter_id'],
-        ]);
+        $response->assertViewHas('events');
+        $response->assertViewHas('matter');
     }
 
     /** @test */
@@ -88,13 +87,15 @@ class EventControllerTest extends TestCase
         $user = User::factory()->admin()->create();
         $matter = Matter::factory()->create();
 
-        $response = $this->actingAs($user)->post("/matter/{$matter->id}/event", [
+        $response = $this->actingAs($user)->post('/event', [
+            'matter_id' => $matter->id,
             'code' => 'PUB',
-            'event_date' => '2024-06-15',
+            'eventName' => 'Publication',
+            'event_date' => '06/15/2024',
             'detail' => 'US2024123456',
         ]);
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
         $this->assertDatabaseHas('event', [
             'matter_id' => $matter->id,
             'code' => 'PUB',
@@ -138,9 +139,11 @@ class EventControllerTest extends TestCase
         $user = User::factory()->readOnly()->create();
         $matter = Matter::factory()->create();
 
-        $response = $this->actingAs($user)->post("/matter/{$matter->id}/event", [
+        $response = $this->actingAs($user)->post('/event', [
+            'matter_id' => $matter->id,
             'code' => 'PUB',
-            'event_date' => '2024-06-15',
+            'eventName' => 'Publication',
+            'event_date' => '06/15/2024',
         ]);
 
         $response->assertStatus(403);

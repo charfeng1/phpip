@@ -100,9 +100,10 @@ class TaskControllerTest extends TestCase
         $event = Event::factory()->filing()->forMatter($matter)->create();
         $task = Task::factory()->pending()->forEvent($event)->create();
 
+        // done_date must be in locale format (L), e.g., 'm/d/Y' for US
         $response = $this->actingAs($user)->put("/task/{$task->id}", [
             'done' => 1,
-            'done_date' => now()->format('Y-m-d'),
+            'done_date' => now()->format('m/d/Y'),
         ]);
 
         $response->assertStatus(200);
@@ -116,9 +117,10 @@ class TaskControllerTest extends TestCase
         $event = Event::factory()->filing()->forMatter($matter)->create();
         $task = Task::factory()->pending()->forEvent($event)->create();
 
+        // done_date must be in locale format (L), e.g., '01/15/2024' for US
         $response = $this->actingAs($user)->put("/task/{$task->id}", [
             'done' => 1,
-            'done_date' => '2024-01-15',
+            'done_date' => '01/15/2024',
         ]);
 
         $task->refresh();

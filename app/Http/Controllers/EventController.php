@@ -16,6 +16,34 @@ use Illuminate\Support\Carbon;
 class EventController extends Controller
 {
     use HandlesAuditFields;
+
+    /**
+     * Display a listing of events.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index()
+    {
+        $this->authorize('viewAny', Event::class);
+
+        $events = Event::with('info')->paginate();
+
+        return response()->json($events);
+    }
+
+    /**
+     * Display the specified event.
+     *
+     * @param Event $event The event to display.
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(Event $event)
+    {
+        $this->authorize('view', $event);
+
+        return response()->json($event);
+    }
+
     /**
      * Store a new event in the database.
      *
@@ -33,11 +61,17 @@ class EventController extends Controller
             'event_date' => 'required_without:alt_matter_id',
         ]);
         if ($request->filled('event_date')) {
-            $request->merge(['event_date' => Carbon::createFromLocaleIsoFormat('L', app()->getLocale(), $request->event_date)]);
+            try {
+                $request->merge(['event_date' => Carbon::createFromLocaleIsoFormat('L', app()->getLocale(), $request->event_date)]);
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Invalid date format'], 422);
+            }
         }
         $this->mergeCreator($request);
 
-        return Event::create($this->getFilteredData($request, ['eventName']));
+        $event = Event::create($this->getFilteredData($request, ['eventName']));
+
+        return response()->json($event, 201);
     }
 
     /**
@@ -56,7 +90,11 @@ class EventController extends Controller
             'event_date' => 'sometimes|required_without:alt_matter_id',
         ]);
         if ($request->filled('event_date')) {
-            $request->merge(['event_date' => Carbon::createFromLocaleIsoFormat('L', app()->getLocale(), $request->event_date)]);
+            try {
+                $request->merge(['event_date' => Carbon::createFromLocaleIsoFormat('L', app()->getLocale(), $request->event_date)]);
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Invalid date format'], 422);
+            }
         }
         $this->mergeUpdater($request);
         $event->update($this->getFilteredData($request));

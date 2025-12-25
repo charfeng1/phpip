@@ -12,23 +12,24 @@ class CountryControllerTest extends TestCase
     /** @test */
     public function countries_can_be_filtered_by_iso_prefix()
     {
-        $admin = User::factory()->admin()->create(['name' => 'Admin User']);
+        $admin = User::factory()->admin()->create();
 
+        // Use unique test codes that won't conflict with seeded data
         Country::factory()->create([
-            'iso' => 'US',
-            'name' => json_encode(['en' => 'United States']),
+            'iso' => 'X1',
+            'name' => json_encode(['en' => 'Test Country X1']),
         ]);
         Country::factory()->create([
-            'iso' => 'FR',
-            'name' => json_encode(['en' => 'France']),
+            'iso' => 'Y1',
+            'name' => json_encode(['en' => 'Test Country Y1']),
         ]);
 
-        $response = $this->actingAs($admin)->get('/countries?iso=U');
+        $response = $this->actingAs($admin)->get('/countries?iso=X');
 
         $response->assertStatus(200);
         $response->assertViewHas('countries', function ($countries) {
             return $countries->count() === 1
-                && $countries->first()->iso === 'US';
+                && $countries->first()->iso === 'X1';
         });
     }
 }
