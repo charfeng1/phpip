@@ -263,6 +263,76 @@ class RenewalControllerTest extends TestCase
     }
 
     /** @test */
+    public function admin_can_process_receipt_with_valid_task()
+    {
+        $task = $this->createRenewalTask(['step' => 6]);
+
+        $response = $this->actingAs($this->adminUser)
+            ->postJson('/renewal/receipt', ['task_ids' => [$task->id]]);
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => '1 receipts registered']);
+
+        $task->refresh();
+        $this->assertEquals(8, $task->step);
+    }
+
+    /** @test */
+    public function admin_can_process_closing_with_valid_task()
+    {
+        $task = $this->createRenewalTask(['step' => 8, 'done' => 0]);
+
+        $response = $this->actingAs($this->adminUser)
+            ->postJson('/renewal/closing', ['task_ids' => [$task->id]]);
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => '1 closed']);
+
+        $task->refresh();
+        $this->assertEquals(10, $task->step);
+    }
+
+    /** @test */
+    public function admin_can_process_abandon_with_valid_task()
+    {
+        $task = $this->createRenewalTask(['step' => 2]);
+
+        $response = $this->actingAs($this->adminUser)
+            ->postJson('/renewal/abandon', ['task_ids' => [$task->id]]);
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => '1 abandons registered']);
+
+        $task->refresh();
+        $this->assertEquals(12, $task->step);
+
+        $this->assertDatabaseHas('events', [
+            'matter_id' => $task->trigger_id,
+            'code' => 'ABA',
+        ]);
+    }
+
+    /** @test */
+    public function admin_can_process_lapsing_with_valid_task()
+    {
+        $task = $this->createRenewalTask(['step' => 2]);
+
+        $response = $this->actingAs($this->adminUser)
+            ->postJson('/renewal/lapsing', ['task_ids' => [$task->id]]);
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => '1 communications registered']);
+
+        $task->refresh();
+        $this->assertEquals(14, $task->step);
+
+        $this->assertDatabaseHas('events', [
+            'matter_id' => $task->trigger_id,
+            'code' => 'LAP',
+        ]);
+    }
+
+    /** @test */
     public function admin_can_access_renewal_logs()
     {
         $response = $this->actingAs($this->adminUser)->get('/renewal/logs');

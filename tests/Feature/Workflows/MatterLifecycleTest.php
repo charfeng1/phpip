@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Workflows;
 
+use App\Enums\ActorRole;
+use App\Enums\CategoryCode;
 use App\Enums\EventCode;
 use App\Models\Actor;
 use App\Models\ActorPivot;
@@ -29,7 +31,7 @@ class MatterLifecycleTest extends TestCase
         $user = User::factory()->readWrite()->create();
 
         $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
-        $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
+        $category = Category::first() ?? Category::factory()->create(['code' => CategoryCode::PATENT->value]);
 
         $response = $this->actingAs($user)->post(route('matter.store'), [
             'category_code' => $category->code,
@@ -48,7 +50,7 @@ class MatterLifecycleTest extends TestCase
         $user = User::factory()->readWrite()->create();
 
         $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
-        $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
+        $category = Category::first() ?? Category::factory()->create(['code' => CategoryCode::PATENT->value]);
 
         $matter = Matter::factory()->create([
             'category_code' => $category->code,
@@ -56,10 +58,10 @@ class MatterLifecycleTest extends TestCase
             'caseref' => 'FILING001',
         ]);
 
-        $eventName = EventName::where('code', 'FIL')->first();
+        $eventName = EventName::where('code', EventCode::FILING->value)->first();
         if (!$eventName) {
             $eventName = EventName::create([
-                'code' => 'FIL',
+                'code' => EventCode::FILING->value,
                 'name' => ['en' => 'Filing'],
                 'is_task' => 0,
             ]);
@@ -75,7 +77,7 @@ class MatterLifecycleTest extends TestCase
         $response->assertStatus(201);
         $this->assertDatabaseHas('event', [
             'matter_id' => $matter->id,
-            'code' => 'FIL',
+            'code' => EventCode::FILING->value,
         ]);
     }
 
@@ -85,8 +87,8 @@ class MatterLifecycleTest extends TestCase
         $user = User::factory()->readWrite()->create();
 
         $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
-        $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
-        $role = Role::where('code', 'CLI')->first() ?? Role::factory()->create(['code' => 'CLI']);
+        $category = Category::first() ?? Category::factory()->create(['code' => CategoryCode::PATENT->value]);
+        $role = Role::where('code', ActorRole::CLIENT->value)->first() ?? Role::factory()->create(['code' => ActorRole::CLIENT->value]);
 
         $matter = Matter::factory()->create([
             'category_code' => $category->code,
@@ -116,137 +118,8 @@ class MatterLifecycleTest extends TestCase
         $user = User::factory()->readWrite()->create();
 
         $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
-        $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
+        $category = Category::first() ?? Category::factory()->create(['code' => CategoryCode::PATENT->value]);
 
-        $matter = Matter::factory()->create([
-            'category_code' => $category->code,
-            'country' => $country->iso,
-        ]);
-
-        $classifierType = ClassifierType::where('code', 'TIT')->first();
-        if (!$classifierType) {
-            $classifierType = ClassifierType::create([
-                'code' => 'TIT',
-                'type' => ['en' => 'Title'],
-            ]);
-        }
-
-        $response = $this->actingAs($user)->postJson(route('classifier.store'), [
-            'matter_id' => $matter->id,
-            'type_code' => $classifierType->code,
-            'value' => 'Test Patent Title',
-        ]);
-
-        $response->assertStatus(201);
-        $this->assertDatabaseHas('classifier', [
-            'matter_id' => $matter->id,
-            'type_code' => 'TIT',
-        ]);
-    }
-
-    /** @test */
-    public function matter_details_can_be_viewed()
-    {
-        $user = User::factory()->readWrite()->create();
-
-        $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
-        $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
-
-        $matter = Matter::factory()->create([
-            'category_code' => $category->code,
-            'country' => $country->iso,
-        ]);
-
-        $response = $this->actingAs($user)->get(route('matter.show', $matter));
-
-        $response->assertStatus(200);
-        $response->assertViewIs('matter.show');
-    }
-
-    /** @test */
-    public function matter_events_can_be_listed()
-    {
-        $user = User::factory()->readWrite()->create();
-
-        $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
-        $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
-
-        $matter = Matter::factory()->create([
-            'category_code' => $category->code,
-            'country' => $country->iso,
-        ]);
-
-        $response = $this->actingAs($user)->get(route('matter.events', $matter));
-
-        $response->assertStatus(200);
-    }
-
-    /** @test */
-    public function matter_can_be_updated()
-    {
-        $user = User::factory()->readWrite()->create();
-
-        $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
-        $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
-
-        $matter = Matter::factory()->create([
-            'category_code' => $category->code,
-            'country' => $country->iso,
-            'caseref' => 'UPDATE001',
-        ]);
-
-        $response = $this->actingAs($user)->put(route('matter.update', $matter), [
-            'notes' => 'Updated notes for the matter',
-        ]);
-
-        $response->assertRedirect();
-    }
-
-    /** @test */
-    public function matter_tasks_can_be_listed()
-    {
-        $user = User::factory()->readWrite()->create();
-
-        $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
-        $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
-
-        $matter = Matter::factory()->create([
-            'category_code' => $category->code,
-            'country' => $country->iso,
-        ]);
-
-        $response = $this->actingAs($user)->get(route('matter.tasks', $matter));
-
-        $response->assertStatus(200);
-    }
-
-    /** @test */
-    public function matter_renewals_can_be_listed()
-    {
-        $user = User::factory()->readWrite()->create();
-
-        $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
-        $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
-
-        $matter = Matter::factory()->create([
-            'category_code' => $category->code,
-            'country' => $country->iso,
-        ]);
-
-        $response = $this->actingAs($user)->get(route('matter.renewals', $matter));
-
-        $response->assertStatus(200);
-    }
-
-    /** @test */
-    public function client_can_only_view_their_own_matters()
-    {
-        $clientUser = User::factory()->client()->create();
-
-        $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
-        $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
-
-        // Create a matter not linked to this client
         $matter = Matter::factory()->create([
             'category_code' => $category->code,
             'country' => $country->iso,

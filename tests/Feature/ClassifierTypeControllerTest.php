@@ -146,6 +146,9 @@ class ClassifierTypeControllerTest extends TestCase
         ]);
 
         $response->assertSuccessful();
+        $this->assertDatabaseHas('classifier_type', ['code' => 'TUPD']);
+        $classifierType->refresh();
+        $this->assertEquals('Updated Type Name', $classifierType->getTranslation('type', 'en'));
     }
 
     /** @test */
@@ -185,16 +188,28 @@ class ClassifierTypeControllerTest extends TestCase
     /** @test */
     public function classifier_type_index_can_be_filtered_by_code()
     {
-        $response = $this->actingAs($this->adminUser)->get(route('classifier_type.index', ['Code' => 'TIT']));
+        $match = $this->createClassifierType('TIT', 'Title Type');
+        $noMatch = $this->createClassifierType('AUT', 'Author Type');
 
-        $response->assertStatus(200);
+        $response = $this->actingAs($this->adminUser)
+            ->getJson(route('classifier_type.index', ['Code' => 'TIT']));
+
+        $response->assertStatus(200)
+            ->assertJsonFragment(['code' => 'TIT'])
+            ->assertJsonMissing(['code' => 'AUT']);
     }
 
     /** @test */
     public function classifier_type_index_can_be_filtered_by_type()
     {
-        $response = $this->actingAs($this->adminUser)->get(route('classifier_type.index', ['Type' => 'Title']));
+        $match = $this->createClassifierType('FTY', 'Filter Type');
+        $noMatch = $this->createClassifierType('NFT', 'No Filter Type');
 
-        $response->assertStatus(200);
+        $response = $this->actingAs($this->adminUser)
+            ->getJson(route('classifier_type.index', ['Type' => 'Filter']));
+
+        $response->assertStatus(200)
+            ->assertJsonFragment(['code' => 'FTY'])
+            ->assertJsonMissing(['code' => 'NFT']);
     }
 }
