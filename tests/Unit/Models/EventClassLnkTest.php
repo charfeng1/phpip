@@ -3,7 +3,6 @@
 namespace Tests\Unit\Models;
 
 use App\Models\EventClassLnk;
-use App\Models\TemplateClass;
 use Tests\TestCase;
 
 class EventClassLnkTest extends TestCase

@@ -3,7 +3,6 @@
 namespace Tests\Unit\Models;
 
 use App\Models\EventLnkList;
-use App\Models\Matter;
 use Tests\TestCase;
 
 class EventLnkListTest extends TestCase

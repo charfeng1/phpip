@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\TemplateClass;
 use App\Models\TemplateMember;
 use Tests\TestCase;
 

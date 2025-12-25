@@ -9,6 +9,45 @@ use Tests\TestCase;
 
 class TemplateMemberControllerTest extends TestCase
 {
+    protected User $adminUser;
+
+    protected User $readWriteUser;
+
+    protected User $readOnlyUser;
+
+    protected User $clientUser;
+
+    protected TemplateClass $templateClass;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Create users deterministically using factories
+        $this->adminUser = User::factory()->admin()->create();
+        $this->readWriteUser = User::factory()->readWrite()->create();
+        $this->readOnlyUser = User::factory()->readOnly()->create();
+        $this->clientUser = User::factory()->client()->create();
+
+        // Create required reference data
+        $this->templateClass = TemplateClass::create([
+            'name' => 'Test Template Class',
+        ]);
+    }
+
+    /**
+     * Helper to create a template member for testing
+     */
+    protected function createTemplateMember(array $attributes = []): TemplateMember
+    {
+        return TemplateMember::create(array_merge([
+            'summary' => 'Test Template',
+            'language' => 'en',
+            'template_class_id' => $this->templateClass->id,
+            'format' => 'odt',
+        ], $attributes));
+    }
+
     /** @test */
     public function guest_cannot_access_template_members()
     {
@@ -20,9 +59,7 @@ class TemplateMemberControllerTest extends TestCase
     /** @test */
     public function client_cannot_access_template_members()
     {
-        $user = User::factory()->client()->create();
-
-        $response = $this->actingAs($user)->get(route('template-member.index'));
+        $response = $this->actingAs($this->clientUser)->get(route('template-member.index'));
 
         $response->assertStatus(403);
     }
@@ -30,9 +67,7 @@ class TemplateMemberControllerTest extends TestCase
     /** @test */
     public function admin_can_access_template_member_index()
     {
-        $user = User::factory()->admin()->create();
-
-        $response = $this->actingAs($user)->get(route('template-member.index'));
+        $response = $this->actingAs($this->adminUser)->get(route('template-member.index'));
 
         $response->assertStatus(200);
         $response->assertViewIs('template-members.index');
@@ -41,9 +76,7 @@ class TemplateMemberControllerTest extends TestCase
     /** @test */
     public function read_only_user_can_access_template_member_index()
     {
-        $user = User::factory()->readOnly()->create();
-
-        $response = $this->actingAs($user)->get(route('template-member.index'));
+        $response = $this->actingAs($this->readOnlyUser)->get(route('template-member.index'));
 
         $response->assertStatus(200);
     }
@@ -51,9 +84,7 @@ class TemplateMemberControllerTest extends TestCase
     /** @test */
     public function read_write_user_can_access_template_member_index()
     {
-        $user = User::factory()->readWrite()->create();
-
-        $response = $this->actingAs($user)->get(route('template-member.index'));
+        $response = $this->actingAs($this->readWriteUser)->get(route('template-member.index'));
 
         $response->assertStatus(200);
     }
@@ -61,20 +92,19 @@ class TemplateMemberControllerTest extends TestCase
     /** @test */
     public function template_member_index_returns_json_when_requested()
     {
-        $user = User::factory()->admin()->create();
+        // Create a template member to ensure data exists
+        $this->createTemplateMember(['summary' => 'JSON Test Template']);
 
-        $response = $this->actingAs($user)->getJson(route('template-member.index'));
+        $response = $this->actingAs($this->adminUser)->getJson(route('template-member.index'));
 
         $response->assertStatus(200);
-        $response->assertJsonStructure([]);
+        $response->assertJsonIsArray();
     }
 
     /** @test */
     public function template_member_index_can_be_filtered_by_summary()
     {
-        $user = User::factory()->admin()->create();
-
-        $response = $this->actingAs($user)->get(route('template-member.index', ['summary' => 'Letter']));
+        $response = $this->actingAs($this->adminUser)->get(route('template-member.index', ['summary' => 'Letter']));
 
         $response->assertStatus(200);
     }
@@ -82,9 +112,7 @@ class TemplateMemberControllerTest extends TestCase
     /** @test */
     public function template_member_index_can_be_filtered_by_language()
     {
-        $user = User::factory()->admin()->create();
-
-        $response = $this->actingAs($user)->get(route('template-member.index', ['language' => 'en']));
+        $response = $this->actingAs($this->adminUser)->get(route('template-member.index', ['language' => 'en']));
 
         $response->assertStatus(200);
     }
@@ -92,9 +120,7 @@ class TemplateMemberControllerTest extends TestCase
     /** @test */
     public function template_member_index_can_be_filtered_by_category()
     {
-        $user = User::factory()->admin()->create();
-
-        $response = $this->actingAs($user)->get(route('template-member.index', ['category' => 'General']));
+        $response = $this->actingAs($this->adminUser)->get(route('template-member.index', ['category' => 'General']));
 
         $response->assertStatus(200);
     }
@@ -102,9 +128,7 @@ class TemplateMemberControllerTest extends TestCase
     /** @test */
     public function template_member_index_can_be_filtered_by_style()
     {
-        $user = User::factory()->admin()->create();
-
-        $response = $this->actingAs($user)->get(route('template-member.index', ['style' => 'Formal']));
+        $response = $this->actingAs($this->adminUser)->get(route('template-member.index', ['style' => 'Formal']));
 
         $response->assertStatus(200);
     }
@@ -112,9 +136,7 @@ class TemplateMemberControllerTest extends TestCase
     /** @test */
     public function template_member_index_can_be_filtered_by_class()
     {
-        $user = User::factory()->admin()->create();
-
-        $response = $this->actingAs($user)->get(route('template-member.index', ['class' => 'Letters']));
+        $response = $this->actingAs($this->adminUser)->get(route('template-member.index', ['class' => 'Letters']));
 
         $response->assertStatus(200);
     }
@@ -122,9 +144,7 @@ class TemplateMemberControllerTest extends TestCase
     /** @test */
     public function template_member_index_can_be_filtered_by_format()
     {
-        $user = User::factory()->admin()->create();
-
-        $response = $this->actingAs($user)->get(route('template-member.index', ['format' => 'odt']));
+        $response = $this->actingAs($this->adminUser)->get(route('template-member.index', ['format' => 'odt']));
 
         $response->assertStatus(200);
     }
@@ -132,9 +152,7 @@ class TemplateMemberControllerTest extends TestCase
     /** @test */
     public function admin_can_access_create_template_member()
     {
-        $user = User::factory()->admin()->create();
-
-        $response = $this->actingAs($user)->get(route('template-member.create'));
+        $response = $this->actingAs($this->adminUser)->get(route('template-member.create'));
 
         $response->assertStatus(200);
         $response->assertViewIs('template-members.create');
@@ -143,9 +161,7 @@ class TemplateMemberControllerTest extends TestCase
     /** @test */
     public function read_write_user_cannot_access_create_template_member()
     {
-        $user = User::factory()->readWrite()->create();
-
-        $response = $this->actingAs($user)->get(route('template-member.create'));
+        $response = $this->actingAs($this->readWriteUser)->get(route('template-member.create'));
 
         $response->assertStatus(403);
     }
@@ -153,59 +169,35 @@ class TemplateMemberControllerTest extends TestCase
     /** @test */
     public function admin_can_store_template_member()
     {
-        $user = User::factory()->admin()->create();
-
-        $templateClass = TemplateClass::first();
-        if (!$templateClass) {
-            $templateClass = TemplateClass::create([
-                'name' => 'Test Class for Store',
-            ]);
-        }
-
-        $response = $this->actingAs($user)->post(route('template-member.store'), [
-            'summary' => 'Test Template',
+        $response = $this->actingAs($this->adminUser)->post(route('template-member.store'), [
+            'summary' => 'New Stored Template',
             'language' => 'en',
-            'template_class_id' => $templateClass->id,
+            'template_class_id' => $this->templateClass->id,
             'format' => 'odt',
         ]);
 
         $response->assertSuccessful();
-        $this->assertDatabaseHas('template_members', ['summary' => 'Test Template']);
+        $this->assertDatabaseHas('template_members', ['summary' => 'New Stored Template']);
     }
 
     /** @test */
     public function read_write_user_cannot_store_template_member()
     {
-        $user = User::factory()->readWrite()->create();
-
-        $response = $this->actingAs($user)->post(route('template-member.store'), [
-            'summary' => 'New Template',
+        $response = $this->actingAs($this->readWriteUser)->post(route('template-member.store'), [
+            'summary' => 'Blocked Template',
             'language' => 'en',
         ]);
 
         $response->assertStatus(403);
+        $this->assertDatabaseMissing('template_members', ['summary' => 'Blocked Template']);
     }
 
     /** @test */
     public function admin_can_view_template_member()
     {
-        $user = User::factory()->admin()->create();
+        $templateMember = $this->createTemplateMember(['summary' => 'View Test Template']);
 
-        $templateClass = TemplateClass::first();
-        if (!$templateClass) {
-            $templateClass = TemplateClass::create([
-                'name' => 'Test Class for View',
-            ]);
-        }
-
-        $templateMember = TemplateMember::create([
-            'summary' => 'Test View Template',
-            'language' => 'en',
-            'template_class_id' => $templateClass->id,
-            'format' => 'odt',
-        ]);
-
-        $response = $this->actingAs($user)->get(route('template-member.show', $templateMember));
+        $response = $this->actingAs($this->adminUser)->get(route('template-member.show', $templateMember));
 
         $response->assertStatus(200);
         $response->assertViewIs('template-members.show');
@@ -214,23 +206,9 @@ class TemplateMemberControllerTest extends TestCase
     /** @test */
     public function read_only_user_can_view_template_member()
     {
-        $user = User::factory()->readOnly()->create();
+        $templateMember = $this->createTemplateMember(['summary' => 'RO View Template']);
 
-        $templateClass = TemplateClass::first();
-        if (!$templateClass) {
-            $templateClass = TemplateClass::create([
-                'name' => 'Test Class for RO View',
-            ]);
-        }
-
-        $templateMember = TemplateMember::create([
-            'summary' => 'Test RO View Template',
-            'language' => 'en',
-            'template_class_id' => $templateClass->id,
-            'format' => 'odt',
-        ]);
-
-        $response = $this->actingAs($user)->get(route('template-member.show', $templateMember));
+        $response = $this->actingAs($this->readOnlyUser)->get(route('template-member.show', $templateMember));
 
         $response->assertStatus(200);
     }
@@ -238,101 +216,68 @@ class TemplateMemberControllerTest extends TestCase
     /** @test */
     public function admin_can_update_template_member()
     {
-        $user = User::factory()->admin()->create();
+        $templateMember = $this->createTemplateMember(['summary' => 'Original Summary']);
 
-        $templateClass = TemplateClass::first();
-        if (!$templateClass) {
-            $templateClass = TemplateClass::create([
-                'name' => 'Test Class for Update',
-            ]);
-        }
-
-        $templateMember = TemplateMember::create([
-            'summary' => 'Original Summary',
-            'language' => 'en',
-            'template_class_id' => $templateClass->id,
-            'format' => 'odt',
-        ]);
-
-        $response = $this->actingAs($user)->put(route('template-member.update', $templateMember), [
+        $response = $this->actingAs($this->adminUser)->put(route('template-member.update', $templateMember), [
             'summary' => 'Updated Summary',
         ]);
 
         $response->assertSuccessful();
+
+        // Verify database was updated
+        $this->assertDatabaseHas('template_members', [
+            'id' => $templateMember->id,
+            'summary' => 'Updated Summary',
+        ]);
     }
 
     /** @test */
     public function read_write_user_cannot_update_template_member()
     {
-        $user = User::factory()->readWrite()->create();
+        $templateMember = $this->createTemplateMember(['summary' => 'No Update Summary']);
 
-        $templateClass = TemplateClass::first();
-        if (!$templateClass) {
-            $templateClass = TemplateClass::create([
-                'name' => 'Test Class for RW Update',
-            ]);
-        }
-
-        $templateMember = TemplateMember::create([
-            'summary' => 'No Update Summary',
-            'language' => 'en',
-            'template_class_id' => $templateClass->id,
-            'format' => 'odt',
-        ]);
-
-        $response = $this->actingAs($user)->put(route('template-member.update', $templateMember), [
+        $response = $this->actingAs($this->readWriteUser)->put(route('template-member.update', $templateMember), [
             'summary' => 'Changed Summary',
         ]);
 
         $response->assertStatus(403);
+
+        // Verify database was NOT updated
+        $this->assertDatabaseHas('template_members', [
+            'id' => $templateMember->id,
+            'summary' => 'No Update Summary',
+        ]);
     }
 
     /** @test */
     public function admin_can_delete_template_member()
     {
-        $user = User::factory()->admin()->create();
+        $templateMember = $this->createTemplateMember(['summary' => 'To Delete Template']);
+        $templateMemberId = $templateMember->id;
 
-        $templateClass = TemplateClass::first();
-        if (!$templateClass) {
-            $templateClass = TemplateClass::create([
-                'name' => 'Test Class for Delete',
-            ]);
-        }
-
-        $templateMember = TemplateMember::create([
-            'summary' => 'To Delete Template',
-            'language' => 'en',
-            'template_class_id' => $templateClass->id,
-            'format' => 'odt',
-        ]);
-
-        $response = $this->actingAs($user)->delete(route('template-member.destroy', $templateMember));
+        $response = $this->actingAs($this->adminUser)->delete(route('template-member.destroy', $templateMember));
 
         $response->assertStatus(200);
         $response->assertJson(['success' => 'Template deleted']);
+
+        // Verify database record was deleted
+        $this->assertDatabaseMissing('template_members', [
+            'id' => $templateMemberId,
+        ]);
     }
 
     /** @test */
     public function read_write_user_cannot_delete_template_member()
     {
-        $user = User::factory()->readWrite()->create();
+        $templateMember = $this->createTemplateMember(['summary' => 'No Delete Template']);
 
-        $templateClass = TemplateClass::first();
-        if (!$templateClass) {
-            $templateClass = TemplateClass::create([
-                'name' => 'Test Class for RW Delete',
-            ]);
-        }
-
-        $templateMember = TemplateMember::create([
-            'summary' => 'No Delete Template',
-            'language' => 'en',
-            'template_class_id' => $templateClass->id,
-            'format' => 'odt',
-        ]);
-
-        $response = $this->actingAs($user)->delete(route('template-member.destroy', $templateMember));
+        $response = $this->actingAs($this->readWriteUser)->delete(route('template-member.destroy', $templateMember));
 
         $response->assertStatus(403);
+
+        // Verify record still exists
+        $this->assertDatabaseHas('template_members', [
+            'id' => $templateMember->id,
+        ]);
     }
 }

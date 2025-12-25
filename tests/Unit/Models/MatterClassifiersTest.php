@@ -2,9 +2,6 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\Classifier;
-use App\Models\ClassifierType;
-use App\Models\Matter;
 use App\Models\MatterClassifiers;
 use Tests\TestCase;
 

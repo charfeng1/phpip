@@ -2,10 +2,7 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\Actor;
-use App\Models\Matter;
 use App\Models\MatterActors;
-use App\Models\Role;
 use Tests\TestCase;
 
 class MatterActorsTest extends TestCase

@@ -2,9 +2,6 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\EventName;
-use App\Models\Role;
-use App\Models\Rule;
 use App\Models\TemplateClass;
 use Tests\TestCase;
 

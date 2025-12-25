@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ActorRole;
 use App\Models\Actor;
 use App\Models\ActorPivot;
 use App\Models\Category;
@@ -13,6 +14,57 @@ use Tests\TestCase;
 
 class ActorPivotControllerTest extends TestCase
 {
+    protected User $adminUser;
+
+    protected User $readWriteUser;
+
+    protected User $readOnlyUser;
+
+    protected User $clientUser;
+
+    protected Country $country;
+
+    protected Category $category;
+
+    protected Role $role;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Create users deterministically using factories
+        $this->adminUser = User::factory()->admin()->create();
+        $this->readWriteUser = User::factory()->readWrite()->create();
+        $this->readOnlyUser = User::factory()->readOnly()->create();
+        $this->clientUser = User::factory()->client()->create();
+
+        // Create required reference data
+        $this->country = Country::factory()->create();
+        $this->category = Category::factory()->create();
+        $this->role = Role::factory()->create(['code' => ActorRole::CLIENT->value]);
+    }
+
+    /**
+     * Helper to create a matter with actor pivot for testing
+     */
+    protected function createActorPivot(array $attributes = []): ActorPivot
+    {
+        $matter = Matter::factory()->create([
+            'category_code' => $this->category->code,
+            'country' => $this->country->iso,
+        ]);
+
+        $actor = Actor::factory()->create(['country' => $this->country->iso]);
+
+        return ActorPivot::create(array_merge([
+            'matter_id' => $matter->id,
+            'actor_id' => $actor->id,
+            'role' => $this->role->code,
+            'shared' => 0,
+            'display_order' => 1,
+        ], $attributes));
+    }
+
     /** @test */
     public function guest_cannot_access_actor_pivot_routes()
     {
@@ -24,9 +76,7 @@ class ActorPivotControllerTest extends TestCase
     /** @test */
     public function client_cannot_access_actor_pivot_routes()
     {
-        $user = User::factory()->client()->create();
-
-        $response = $this->actingAs($user)->postJson(route('actor-pivot.store'), []);
+        $response = $this->actingAs($this->clientUser)->postJson(route('actor-pivot.store'), []);
 
         $response->assertStatus(403);
     }
@@ -34,24 +84,17 @@ class ActorPivotControllerTest extends TestCase
     /** @test */
     public function read_write_user_can_store_actor_pivot()
     {
-        $user = User::factory()->readWrite()->create();
-
-        // Ensure required related data exists
-        $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
-        $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
-        $role = Role::first() ?? Role::factory()->create(['code' => 'CLI']);
-
         $matter = Matter::factory()->create([
-            'category_code' => $category->code,
-            'country' => $country->iso,
+            'category_code' => $this->category->code,
+            'country' => $this->country->iso,
         ]);
 
-        $actor = Actor::factory()->create(['country' => $country->iso]);
+        $actor = Actor::factory()->create(['country' => $this->country->iso]);
 
-        $response = $this->actingAs($user)->postJson(route('actor-pivot.store'), [
+        $response = $this->actingAs($this->readWriteUser)->postJson(route('actor-pivot.store'), [
             'matter_id' => $matter->id,
             'actor_id' => $actor->id,
-            'role' => $role->code,
+            'role' => $this->role->code,
             'shared' => 0,
         ]);
 
@@ -59,45 +102,43 @@ class ActorPivotControllerTest extends TestCase
         $this->assertDatabaseHas('matter_actor_lnk', [
             'matter_id' => $matter->id,
             'actor_id' => $actor->id,
-            'role' => $role->code,
+            'role' => $this->role->code,
         ]);
     }
 
     /** @test */
     public function admin_can_store_actor_pivot()
     {
-        $user = User::factory()->admin()->create();
-
-        $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
-        $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
-        $role = Role::first() ?? Role::factory()->create(['code' => 'APP']);
-
         $matter = Matter::factory()->create([
-            'category_code' => $category->code,
-            'country' => $country->iso,
+            'category_code' => $this->category->code,
+            'country' => $this->country->iso,
         ]);
 
-        $actor = Actor::factory()->create(['country' => $country->iso]);
+        $actor = Actor::factory()->create(['country' => $this->country->iso]);
+        $applicantRole = Role::factory()->create(['code' => ActorRole::APPLICANT->value]);
 
-        $response = $this->actingAs($user)->postJson(route('actor-pivot.store'), [
+        $response = $this->actingAs($this->adminUser)->postJson(route('actor-pivot.store'), [
             'matter_id' => $matter->id,
             'actor_id' => $actor->id,
-            'role' => $role->code,
+            'role' => $applicantRole->code,
             'shared' => 0,
         ]);
 
         $response->assertStatus(201);
+        $this->assertDatabaseHas('matter_actor_lnk', [
+            'matter_id' => $matter->id,
+            'actor_id' => $actor->id,
+            'role' => $applicantRole->code,
+        ]);
     }
 
     /** @test */
     public function read_only_user_cannot_store_actor_pivot()
     {
-        $user = User::factory()->readOnly()->create();
-
-        $response = $this->actingAs($user)->postJson(route('actor-pivot.store'), [
+        $response = $this->actingAs($this->readOnlyUser)->postJson(route('actor-pivot.store'), [
             'matter_id' => 1,
             'actor_id' => 1,
-            'role' => 'CLI',
+            'role' => ActorRole::CLIENT->value,
         ]);
 
         $response->assertStatus(403);
@@ -106,99 +147,58 @@ class ActorPivotControllerTest extends TestCase
     /** @test */
     public function read_write_user_can_update_actor_pivot()
     {
-        $user = User::factory()->readWrite()->create();
+        $actorPivot = $this->createActorPivot(['shared' => 0]);
 
-        $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
-        $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
-        $role = Role::first() ?? Role::factory()->create(['code' => 'CLI']);
-
-        $matter = Matter::factory()->create([
-            'category_code' => $category->code,
-            'country' => $country->iso,
-        ]);
-
-        $actor = Actor::factory()->create(['country' => $country->iso]);
-
-        $actorPivot = ActorPivot::create([
-            'matter_id' => $matter->id,
-            'actor_id' => $actor->id,
-            'role' => $role->code,
-            'shared' => 0,
-            'display_order' => 1,
-        ]);
-
-        $response = $this->actingAs($user)->putJson(route('actor-pivot.update', $actorPivot), [
+        $response = $this->actingAs($this->readWriteUser)->putJson(route('actor-pivot.update', $actorPivot), [
             'shared' => 1,
         ]);
 
         $response->assertStatus(200);
+
+        // Verify database was updated
+        $this->assertDatabaseHas('matter_actor_lnk', [
+            'id' => $actorPivot->id,
+            'shared' => 1,
+        ]);
     }
 
     /** @test */
     public function read_write_user_can_delete_actor_pivot()
     {
-        $user = User::factory()->readWrite()->create();
+        $actorPivot = $this->createActorPivot();
+        $actorPivotId = $actorPivot->id;
 
-        $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
-        $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
-        $role = Role::first() ?? Role::factory()->create(['code' => 'CLI']);
-
-        $matter = Matter::factory()->create([
-            'category_code' => $category->code,
-            'country' => $country->iso,
-        ]);
-
-        $actor = Actor::factory()->create(['country' => $country->iso]);
-
-        $actorPivot = ActorPivot::create([
-            'matter_id' => $matter->id,
-            'actor_id' => $actor->id,
-            'role' => $role->code,
-            'shared' => 0,
-            'display_order' => 1,
-        ]);
-
-        $response = $this->actingAs($user)->deleteJson(route('actor-pivot.destroy', $actorPivot));
+        $response = $this->actingAs($this->readWriteUser)->deleteJson(route('actor-pivot.destroy', $actorPivot));
 
         $response->assertStatus(200);
+
+        // Verify database record was deleted
+        $this->assertDatabaseMissing('matter_actor_lnk', [
+            'id' => $actorPivotId,
+        ]);
     }
 
     /** @test */
     public function read_only_user_cannot_delete_actor_pivot()
     {
-        $user = User::factory()->readOnly()->create();
+        $actorPivot = $this->createActorPivot();
 
-        $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
-        $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
-        $role = Role::first() ?? Role::factory()->create(['code' => 'CLI']);
-
-        $matter = Matter::factory()->create([
-            'category_code' => $category->code,
-            'country' => $country->iso,
-        ]);
-
-        $actor = Actor::factory()->create(['country' => $country->iso]);
-
-        $actorPivot = ActorPivot::create([
-            'matter_id' => $matter->id,
-            'actor_id' => $actor->id,
-            'role' => $role->code,
-            'shared' => 0,
-            'display_order' => 1,
-        ]);
-
-        $response = $this->actingAs($user)->deleteJson(route('actor-pivot.destroy', $actorPivot));
+        $response = $this->actingAs($this->readOnlyUser)->deleteJson(route('actor-pivot.destroy', $actorPivot));
 
         $response->assertStatus(403);
+
+        // Verify record still exists
+        $this->assertDatabaseHas('matter_actor_lnk', [
+            'id' => $actorPivot->id,
+        ]);
     }
 
     /** @test */
     public function admin_can_view_actor_used_in()
     {
-        $user = User::factory()->admin()->create();
-        $actor = Actor::factory()->create(['country' => 'US']);
+        $actor = Actor::factory()->create(['country' => $this->country->iso]);
 
-        $response = $this->actingAs($user)->get("/actor/{$actor->id}/usedin");
+        $response = $this->actingAs($this->adminUser)->get(route('actor.usedin', $actor));
 
         $response->assertStatus(200);
         $response->assertViewIs('actor.usedin');
@@ -207,10 +207,9 @@ class ActorPivotControllerTest extends TestCase
     /** @test */
     public function read_write_user_can_view_actor_used_in()
     {
-        $user = User::factory()->readWrite()->create();
-        $actor = Actor::factory()->create(['country' => 'US']);
+        $actor = Actor::factory()->create(['country' => $this->country->iso]);
 
-        $response = $this->actingAs($user)->get("/actor/{$actor->id}/usedin");
+        $response = $this->actingAs($this->readWriteUser)->get(route('actor.usedin', $actor));
 
         $response->assertStatus(200);
     }
@@ -218,10 +217,9 @@ class ActorPivotControllerTest extends TestCase
     /** @test */
     public function client_cannot_view_actor_used_in()
     {
-        $user = User::factory()->client()->create();
-        $actor = Actor::factory()->create(['country' => 'US']);
+        $actor = Actor::factory()->create(['country' => $this->country->iso]);
 
-        $response = $this->actingAs($user)->get("/actor/{$actor->id}/usedin");
+        $response = $this->actingAs($this->clientUser)->get(route('actor.usedin', $actor));
 
         $response->assertStatus(403);
     }

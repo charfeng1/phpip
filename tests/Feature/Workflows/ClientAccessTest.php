@@ -2,7 +2,8 @@
 
 namespace Tests\Feature\Workflows;
 
-use App\Models\Actor;
+use App\Enums\ActorRole;
+use App\Enums\EventCode;
 use App\Models\ActorPivot;
 use App\Models\Category;
 use App\Models\Country;
@@ -18,21 +19,59 @@ use Tests\TestCase;
  */
 class ClientAccessTest extends TestCase
 {
+    protected User $clientUser;
+
+    protected Country $country;
+
+    protected Category $category;
+
+    protected Role $clientRole;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Create client user deterministically
+        $this->clientUser = User::factory()->client()->create();
+
+        // Create required reference data
+        $this->country = Country::factory()->create();
+        $this->category = Category::factory()->create();
+        $this->clientRole = Role::factory()->create(['code' => ActorRole::CLIENT->value]);
+    }
+
+    /**
+     * Helper to create a matter for testing
+     */
+    protected function createMatter(array $attributes = []): Matter
+    {
+        return Matter::factory()->create(array_merge([
+            'category_code' => $this->category->code,
+            'country' => $this->country->iso,
+        ], $attributes));
+    }
+
+    /**
+     * Helper to link a client to a matter
+     */
+    protected function linkClientToMatter(User $client, Matter $matter): ActorPivot
+    {
+        return ActorPivot::create([
+            'matter_id' => $matter->id,
+            'actor_id' => $client->id,
+            'role' => $this->clientRole->code,
+            'shared' => 0,
+            'display_order' => 1,
+        ]);
+    }
+
     /** @test */
     public function client_cannot_view_unrelated_matters()
     {
-        $client = User::factory()->client()->create();
-
-        $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
-        $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
-
         // Create a matter not linked to this client
-        $matter = Matter::factory()->create([
-            'category_code' => $category->code,
-            'country' => $country->iso,
-        ]);
+        $matter = $this->createMatter();
 
-        $response = $this->actingAs($client)->get(route('matter.show', $matter));
+        $response = $this->actingAs($this->clientUser)->get(route('matter.show', $matter));
 
         $response->assertStatus(403);
     }
@@ -40,29 +79,11 @@ class ClientAccessTest extends TestCase
     /** @test */
     public function client_can_view_their_own_matters()
     {
-        $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
-        $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
-        $clientRole = Role::where('code', 'CLI')->first() ?? Role::factory()->create(['code' => 'CLI']);
+        // Create a matter and link client to it
+        $matter = $this->createMatter();
+        $this->linkClientToMatter($this->clientUser, $matter);
 
-        // Create client user (actor)
-        $client = User::factory()->client()->create();
-
-        // Create a matter
-        $matter = Matter::factory()->create([
-            'category_code' => $category->code,
-            'country' => $country->iso,
-        ]);
-
-        // Link client to the matter
-        ActorPivot::create([
-            'matter_id' => $matter->id,
-            'actor_id' => $client->id,
-            'role' => $clientRole->code,
-            'shared' => 0,
-            'display_order' => 1,
-        ]);
-
-        $response = $this->actingAs($client)->get(route('matter.show', $matter));
+        $response = $this->actingAs($this->clientUser)->get(route('matter.show', $matter));
 
         $response->assertStatus(200);
     }
@@ -70,9 +91,7 @@ class ClientAccessTest extends TestCase
     /** @test */
     public function client_cannot_access_category_management()
     {
-        $client = User::factory()->client()->create();
-
-        $response = $this->actingAs($client)->get(route('category.index'));
+        $response = $this->actingAs($this->clientUser)->get(route('category.index'));
 
         $response->assertStatus(403);
     }
@@ -80,9 +99,7 @@ class ClientAccessTest extends TestCase
     /** @test */
     public function client_cannot_access_rule_management()
     {
-        $client = User::factory()->client()->create();
-
-        $response = $this->actingAs($client)->get(route('rule.index'));
+        $response = $this->actingAs($this->clientUser)->get(route('rule.index'));
 
         $response->assertStatus(403);
     }
@@ -90,9 +107,7 @@ class ClientAccessTest extends TestCase
     /** @test */
     public function client_cannot_access_event_name_management()
     {
-        $client = User::factory()->client()->create();
-
-        $response = $this->actingAs($client)->get(route('eventname.index'));
+        $response = $this->actingAs($this->clientUser)->get(route('eventname.index'));
 
         $response->assertStatus(403);
     }
@@ -100,9 +115,7 @@ class ClientAccessTest extends TestCase
     /** @test */
     public function client_cannot_access_fee_management()
     {
-        $client = User::factory()->client()->create();
-
-        $response = $this->actingAs($client)->get(route('fee.index'));
+        $response = $this->actingAs($this->clientUser)->get(route('fee.index'));
 
         $response->assertStatus(403);
     }
@@ -110,9 +123,7 @@ class ClientAccessTest extends TestCase
     /** @test */
     public function client_cannot_access_template_member_management()
     {
-        $client = User::factory()->client()->create();
-
-        $response = $this->actingAs($client)->get(route('template-member.index'));
+        $response = $this->actingAs($this->clientUser)->get(route('template-member.index'));
 
         $response->assertStatus(403);
     }
@@ -120,9 +131,7 @@ class ClientAccessTest extends TestCase
     /** @test */
     public function client_cannot_access_classifier_type_management()
     {
-        $client = User::factory()->client()->create();
-
-        $response = $this->actingAs($client)->get(route('classifier_type.index'));
+        $response = $this->actingAs($this->clientUser)->get(route('classifier_type.index'));
 
         $response->assertStatus(403);
     }
@@ -130,9 +139,7 @@ class ClientAccessTest extends TestCase
     /** @test */
     public function client_cannot_access_renewal_management()
     {
-        $client = User::factory()->client()->create();
-
-        $response = $this->actingAs($client)->get(route('renewal.index'));
+        $response = $this->actingAs($this->clientUser)->get(route('renewal.index'));
 
         $response->assertStatus(403);
     }
@@ -140,9 +147,7 @@ class ClientAccessTest extends TestCase
     /** @test */
     public function client_can_access_matter_search()
     {
-        $client = User::factory()->client()->create();
-
-        $response = $this->actingAs($client)->post(route('matter.search'), [
+        $response = $this->actingAs($this->clientUser)->post(route('matter.search'), [
             'search_field' => 'Ref',
             'matter_search' => 'TEST',
         ]);
@@ -153,27 +158,10 @@ class ClientAccessTest extends TestCase
     /** @test */
     public function client_can_view_their_own_matter_events()
     {
-        $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
-        $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
-        $clientRole = Role::where('code', 'CLI')->first() ?? Role::factory()->create(['code' => 'CLI']);
+        $matter = $this->createMatter();
+        $this->linkClientToMatter($this->clientUser, $matter);
 
-        $client = User::factory()->client()->create();
-
-        $matter = Matter::factory()->create([
-            'category_code' => $category->code,
-            'country' => $country->iso,
-        ]);
-
-        // Link client to the matter
-        ActorPivot::create([
-            'matter_id' => $matter->id,
-            'actor_id' => $client->id,
-            'role' => $clientRole->code,
-            'shared' => 0,
-            'display_order' => 1,
-        ]);
-
-        $response = $this->actingAs($client)->get(route('matter.events', $matter));
+        $response = $this->actingAs($this->clientUser)->get(route('matter.events', $matter));
 
         $response->assertStatus(200);
     }
@@ -181,18 +169,10 @@ class ClientAccessTest extends TestCase
     /** @test */
     public function client_cannot_view_other_clients_matter_events()
     {
-        $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
-        $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
-
-        $client = User::factory()->client()->create();
-
         // Create matter not linked to this client
-        $matter = Matter::factory()->create([
-            'category_code' => $category->code,
-            'country' => $country->iso,
-        ]);
+        $matter = $this->createMatter();
 
-        $response = $this->actingAs($client)->get(route('matter.events', $matter));
+        $response = $this->actingAs($this->clientUser)->get(route('matter.events', $matter));
 
         $response->assertStatus(403);
     }
@@ -200,12 +180,10 @@ class ClientAccessTest extends TestCase
     /** @test */
     public function client_cannot_modify_actors()
     {
-        $client = User::factory()->client()->create();
-
-        $response = $this->actingAs($client)->postJson(route('actor-pivot.store'), [
+        $response = $this->actingAs($this->clientUser)->postJson(route('actor-pivot.store'), [
             'matter_id' => 1,
             'actor_id' => 1,
-            'role' => 'CLI',
+            'role' => ActorRole::CLIENT->value,
         ]);
 
         $response->assertStatus(403);
@@ -214,11 +192,9 @@ class ClientAccessTest extends TestCase
     /** @test */
     public function client_cannot_modify_events()
     {
-        $client = User::factory()->client()->create();
-
-        $response = $this->actingAs($client)->postJson(route('event.store'), [
+        $response = $this->actingAs($this->clientUser)->postJson(route('event.store'), [
             'matter_id' => 1,
-            'code' => 'FIL',
+            'code' => EventCode::FILING->value,
             'event_date' => now()->format('Y-m-d'),
         ]);
 
@@ -228,9 +204,7 @@ class ClientAccessTest extends TestCase
     /** @test */
     public function client_cannot_access_audit_logs()
     {
-        $client = User::factory()->client()->create();
-
-        $response = $this->actingAs($client)->get(route('audit.index'));
+        $response = $this->actingAs($this->clientUser)->get(route('audit.index'));
 
         $response->assertStatus(403);
     }
@@ -238,9 +212,7 @@ class ClientAccessTest extends TestCase
     /** @test */
     public function client_can_access_home_page()
     {
-        $client = User::factory()->client()->create();
-
-        $response = $this->actingAs($client)->get(route('home'));
+        $response = $this->actingAs($this->clientUser)->get(route('home'));
 
         $response->assertStatus(200);
     }
@@ -248,9 +220,7 @@ class ClientAccessTest extends TestCase
     /** @test */
     public function client_cannot_access_autocomplete_endpoints()
     {
-        $client = User::factory()->client()->create();
-
-        $response = $this->actingAs($client)->getJson('/user/autocomplete?term=test');
+        $response = $this->actingAs($this->clientUser)->getJson(route('user.autocomplete', ['term' => 'test']));
 
         $response->assertStatus(403);
     }
