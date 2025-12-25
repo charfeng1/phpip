@@ -69,3 +69,8 @@ php artisan migrate:fresh --seed            # Reset database with seed data
 npm run dev                                 # Vite dev server
 npm run build                               # Production build
 ```
+
+## AI Code Review
+This repository uses Claude Opus 4.5 for automated code review via GitHub Actions:
+- **Auto-review**: PRs are automatically reviewed when opened
+- **On-demand**: Mention `@claude` in any issue or PR comment for assistance
