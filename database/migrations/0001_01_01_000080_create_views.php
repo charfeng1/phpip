@@ -76,6 +76,7 @@ return new class extends Migration
 
         DB::statement("
             CREATE OR REPLACE VIEW matter_actors AS
+            -- Direct actor links (not shared)
             SELECT
                 pivot.id,
                 actor.id AS actor_id,
@@ -98,13 +99,48 @@ return new class extends Migration
                 pivot.rate,
                 pivot.shared,
                 co.name AS company,
-                CASE WHEN pivot.matter_id = matter.container_id THEN 1 ELSE 0 END AS inherited
+                0 AS inherited
             FROM matter_actor_lnk pivot
-            JOIN matter ON pivot.matter_id = matter.id OR (pivot.shared = TRUE AND pivot.matter_id = matter.container_id)
+            JOIN matter ON pivot.matter_id = matter.id
             JOIN actor ON pivot.actor_id = actor.id
             LEFT JOIN actor co ON co.id = pivot.company_id
             JOIN actor_role ON pivot.role = actor_role.code
-            ORDER BY actor_role.display_order, pivot.display_order
+            WHERE pivot.shared = FALSE
+
+            UNION ALL
+
+            -- Shared actor links (inherited from container)
+            SELECT
+                pivot.id,
+                actor.id AS actor_id,
+                COALESCE(actor.display_name, actor.name) AS display_name,
+                actor.name,
+                actor.first_name,
+                actor.email,
+                pivot.display_order,
+                pivot.role AS role_code,
+                actor_role.name ->> 'en' AS role_name,
+                actor_role.shareable,
+                actor_role.show_ref,
+                actor_role.show_company,
+                actor_role.show_rate,
+                actor_role.show_date,
+                matter.id AS matter_id,
+                actor.warn,
+                pivot.actor_ref,
+                pivot.date,
+                pivot.rate,
+                pivot.shared,
+                co.name AS company,
+                1 AS inherited
+            FROM matter_actor_lnk pivot
+            JOIN matter ON pivot.matter_id = matter.container_id
+            JOIN actor ON pivot.actor_id = actor.id
+            LEFT JOIN actor co ON co.id = pivot.company_id
+            JOIN actor_role ON pivot.role = actor_role.code
+            WHERE pivot.shared = TRUE
+
+            ORDER BY role_code, display_order
         ");
     }
 
@@ -120,6 +156,7 @@ return new class extends Migration
 
         DB::statement("
             CREATE OR REPLACE VIEW matter_classifiers AS
+            -- Classifiers for matters without containers
             SELECT
                 classifier.id,
                 matter.id AS matter_id,
@@ -132,9 +169,30 @@ return new class extends Migration
                 classifier.display_order
             FROM classifier
             JOIN classifier_type ON classifier.type_code = classifier_type.code
-            JOIN matter ON COALESCE(matter.container_id, matter.id) = classifier.matter_id
+            JOIN matter ON matter.id = classifier.matter_id
             LEFT JOIN classifier_value ON classifier_value.id = classifier.value_id
-            ORDER BY classifier_type.display_order, classifier.display_order
+            WHERE matter.container_id IS NULL
+
+            UNION ALL
+
+            -- Classifiers for matters with containers (use container's classifiers)
+            SELECT
+                classifier.id,
+                matter.id AS matter_id,
+                classifier.type_code,
+                classifier_type.type ->> 'en' AS type_name,
+                classifier_type.main_display,
+                CASE WHEN classifier.value_id IS NULL THEN classifier.value ELSE classifier_value.value END AS value,
+                classifier.url,
+                classifier.lnk_matter_id,
+                classifier.display_order
+            FROM classifier
+            JOIN classifier_type ON classifier.type_code = classifier_type.code
+            JOIN matter ON matter.container_id = classifier.matter_id
+            LEFT JOIN classifier_value ON classifier_value.id = classifier.value_id
+            WHERE matter.container_id IS NOT NULL
+
+            ORDER BY display_order
         ");
     }
 
@@ -150,6 +208,7 @@ return new class extends Migration
 
         DB::statement("
             CREATE OR REPLACE VIEW task_list AS
+            -- Tasks for matters without containers
             SELECT
                 task.id,
                 task.code,
@@ -173,11 +232,45 @@ return new class extends Migration
                 task.rule_used,
                 matter.dead
             FROM matter
-            LEFT JOIN matter_actor_lnk ON COALESCE(matter.container_id, matter.id) = matter_actor_lnk.matter_id AND matter_actor_lnk.role = 'DEL'
+            LEFT JOIN matter_actor_lnk ON matter.id = matter_actor_lnk.matter_id AND matter_actor_lnk.role = 'DEL'
             LEFT JOIN actor ON actor.id = matter_actor_lnk.actor_id
             JOIN event ON matter.id = event.matter_id
             JOIN task ON task.trigger_id = event.id
             JOIN event_name ON task.code = event_name.code
+            WHERE matter.container_id IS NULL
+
+            UNION ALL
+
+            -- Tasks for matters with containers (use container's delegate)
+            SELECT
+                task.id,
+                task.code,
+                event_name.name ->> 'en' AS name,
+                task.detail,
+                task.due_date,
+                task.done,
+                task.done_date,
+                event.matter_id,
+                task.cost,
+                task.fee,
+                task.trigger_id,
+                matter.category_code AS category,
+                matter.caseref,
+                matter.country,
+                matter.origin,
+                matter.type_code,
+                matter.idx,
+                COALESCE(task.assigned_to, matter.responsible) AS responsible,
+                actor.login AS delegate,
+                task.rule_used,
+                matter.dead
+            FROM matter
+            LEFT JOIN matter_actor_lnk ON matter.container_id = matter_actor_lnk.matter_id AND matter_actor_lnk.role = 'DEL'
+            LEFT JOIN actor ON actor.id = matter_actor_lnk.actor_id
+            JOIN event ON matter.id = event.matter_id
+            JOIN task ON task.trigger_id = event.id
+            JOIN event_name ON task.code = event_name.code
+            WHERE matter.container_id IS NOT NULL
         ");
     }
 

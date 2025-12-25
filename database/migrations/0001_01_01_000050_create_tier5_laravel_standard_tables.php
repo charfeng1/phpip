@@ -44,11 +44,9 @@ return new class extends Migration
         }
 
         Schema::create('password_resets', function (Blueprint $table) {
-            $table->string('email', 255);
+            $table->string('email', 255)->primary();
             $table->string('token', 255);
             $table->timestamp('created_at')->nullable();
-
-            $table->index('email', 'idx_password_resets_email');
         });
     }
 

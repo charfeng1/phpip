@@ -201,10 +201,8 @@ return new class extends Migration
                 INTO base_date, start_date, first_renewal, expiry_date, origin
                 FROM country
                 JOIN matter ON country.iso = matter.country
-                JOIN event estart ON estart.matter_id = matter.id AND estart.id = p_trigger_id
-                JOIN event ebase ON ebase.matter_id = matter.id
-                WHERE country.renewal_start = estart.code
-                AND country.renewal_base = ebase.code;
+                JOIN event estart ON estart.matter_id = matter.id AND estart.id = p_trigger_id AND estart.code = country.renewal_start
+                JOIN event ebase ON ebase.matter_id = matter.id AND ebase.code = country.renewal_base;
 
                 -- Leave if the country has no parameters
                 IF start_date IS NULL THEN
