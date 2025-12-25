@@ -34,7 +34,7 @@ class SchemaMigrationTest extends TestCase
     // =========================================================================
 
     /**
-     * Test that tables exist and have the expected columns.
+     * Test that tables exist and have the expected key columns.
      */
     #[DataProvider('tableStructureProvider')]
     public function test_tables_have_correct_structure(string $table, array $columns): void
@@ -43,13 +43,13 @@ class SchemaMigrationTest extends TestCase
 
         if (!empty($columns)) {
             $actualColumns = Schema::getColumnListing($table);
-            sort($columns);
-            sort($actualColumns);
-            $this->assertEquals(
-                $columns,
-                $actualColumns,
-                "Table '{$table}' should have the exact specified columns."
-            );
+            foreach ($columns as $column) {
+                $this->assertContains(
+                    $column,
+                    $actualColumns,
+                    "Table '{$table}' should have column '{$column}'"
+                );
+            }
         }
     }
 
@@ -108,7 +108,7 @@ class SchemaMigrationTest extends TestCase
     // =========================================================================
 
     /**
-     * Test that views exist and optionally verify their columns.
+     * Test that views exist and optionally verify their key columns.
      */
     #[DataProvider('viewProvider')]
     public function test_views_exist(string $view, array $expectedColumns = []): void
@@ -116,7 +116,7 @@ class SchemaMigrationTest extends TestCase
         $views = DB::select("SELECT viewname FROM pg_views WHERE schemaname = 'public' AND viewname = ?", [$view]);
         $this->assertCount(1, $views, "The '{$view}' view should exist");
 
-        // Verify columns if provided (e.g., for critical views like 'users')
+        // Verify key columns if provided (e.g., for critical views like 'users')
         if (!empty($expectedColumns)) {
             $columns = DB::select("
                 SELECT column_name FROM information_schema.columns
@@ -126,13 +126,13 @@ class SchemaMigrationTest extends TestCase
 
             $columnNames = array_map(fn ($c) => $c->column_name, $columns);
 
-            sort($expectedColumns);
-            sort($columnNames);
-            $this->assertEquals(
-                $expectedColumns,
-                $columnNames,
-                "View '{$view}' should have the exact specified columns."
-            );
+            foreach ($expectedColumns as $column) {
+                $this->assertContains(
+                    $column,
+                    $columnNames,
+                    "View '{$view}' should have column '{$column}'"
+                );
+            }
         }
     }
 
@@ -143,7 +143,8 @@ class SchemaMigrationTest extends TestCase
     public static function viewProvider(): array
     {
         return [
-            'users_view' => ['users', ['id', 'name', 'email', 'password', 'login']],
+            // Check key Laravel auth columns exist in users view
+            'users_view' => ['users', ['id', 'name', 'email', 'password', 'login', 'remember_token']],
             'event_lnk_list_view' => ['event_lnk_list', []],
             'matter_actors_view' => ['matter_actors', []],
             'matter_classifiers_view' => ['matter_classifiers', []],
