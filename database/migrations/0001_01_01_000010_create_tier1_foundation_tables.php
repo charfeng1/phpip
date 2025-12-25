@@ -68,9 +68,9 @@ return new class extends Migration
             $table->boolean('wo')->default(false);
             $table->boolean('em')->default(false);
             $table->boolean('oa')->default(false);
-            $table->smallInteger('renewal_first')->default(2);
-            $table->string('renewal_base', 5)->default('FIL');
-            $table->string('renewal_start', 5)->default('FIL');
+            $table->smallInteger('renewal_first')->nullable()->default(2);
+            $table->string('renewal_base', 5)->nullable()->default('FIL');
+            $table->string('renewal_start', 5)->nullable()->default('FIL');
             $table->date('checked_on')->nullable();
         });
 
