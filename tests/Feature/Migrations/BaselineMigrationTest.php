@@ -56,6 +56,11 @@ class BaselineMigrationTest extends TestCase
     /**
      * Provides table names and their expected columns for structure verification.
      * Organized by dependency tiers.
+     *
+     * Note: Tables with empty column arrays or partial column lists are managed
+     * by third-party packages (Laravel framework or Auditable package) whose
+     * structure can change between versions. These tables are still verified
+     * to exist, but full column validation is not performed.
      */
     public static function tableStructureProvider(): array
     {
@@ -88,12 +93,12 @@ class BaselineMigrationTest extends TestCase
             'event_class_lnk' => ['event_class_lnk', ['id', 'event_name_code', 'template_class_id']],
             'renewals_logs' => ['renewals_logs', ['id', 'task_id']],
 
-            // Tier 5: Laravel Standard Tables
+            // Tier 5: Laravel Standard Tables (framework-managed, existence-only check)
             'migrations' => ['migrations', []],
             'password_resets' => ['password_resets', []],
             'failed_jobs' => ['failed_jobs', []],
 
-            // Tier 6: Audit Table
+            // Tier 6: Audit Table (managed by Auditable package, partial key columns)
             'audit_logs' => ['audit_logs', ['id', 'auditable_type', 'auditable_id']],
         ];
     }
