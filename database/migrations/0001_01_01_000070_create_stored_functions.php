@@ -68,6 +68,9 @@ return new class extends Migration
                 END IF;
 
                 words := string_to_array(str, ' ');
+                IF array_length(words, 1) IS NULL THEN
+                    RETURN '';
+                END IF;
                 FOR i IN 1..array_length(words, 1) LOOP
                     word := words[i];
                     IF length(word) > 0 THEN
