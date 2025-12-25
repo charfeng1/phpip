@@ -270,6 +270,9 @@ return new class extends Migration
                     INSERT INTO event (code, matter_id, event_date, created_at, creator, updated_at)
                     VALUES ('EXP', rec.id, rec.expire_date, CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP)
                     ON CONFLICT DO NOTHING;
+
+                    -- Mark the matter as dead so it won't be processed again
+                    UPDATE matter SET dead = TRUE, updated_at = CURRENT_TIMESTAMP WHERE id = rec.id;
                 END LOOP;
             END;
             \$\$ LANGUAGE plpgsql

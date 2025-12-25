@@ -208,7 +208,6 @@ return new class extends Migration
                 CREATE OR REPLACE FUNCTION matter_before_update_func() RETURNS TRIGGER AS \$\$
                 BEGIN
                     NEW.uid := compute_matter_uid(NEW.caseref, NEW.country, NEW.origin, NEW.type_code, NEW.idx);
-                    NEW.updater := current_user;
                     NEW.updated_at := CURRENT_TIMESTAMP;
                     RETURN NEW;
                 END;
