@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\TrimsCharColumns;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -44,6 +45,19 @@ class User extends Authenticatable
      * since views are not directly writable in PostgreSQL.
      */
     protected $table = 'actor';
+
+    /**
+     * Boot the model and add global scope.
+     *
+     * Filters queries to only include actors with a login (replicating
+     * the WHERE login IS NOT NULL filter from the users VIEW).
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope('login', function (Builder $query) {
+            $query->whereNotNull('login');
+        });
+    }
 
     /**
      * CHAR columns that should be automatically trimmed.
