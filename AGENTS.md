@@ -4,15 +4,25 @@ This file contains critical instructions for AI agents (Claude, GPT, Copilot, et
 
 ---
 
-## Database Schema Changes: Always Use Migrations
+## Database Schema Management
 
-When modifying the database schema (adding tables, columns, indexes, etc.), **always create a new Laravel migration**. Never modify `database/schema/postgres-schema.sql` directly.
+### Baseline Schema
+The file `database/schema/postgres-schema.sql` is the **authoritative baseline** for the database schema. A baseline migration (`0001_01_01_000001_create_baseline_schema.php`) loads this schema, enabling standard Laravel workflows like `php artisan migrate:fresh`.
+
+**When to modify `postgres-schema.sql`:**
+- Fixing bugs or omissions in the baseline (missing columns, wrong types)
+- Pre-production corrections to align schema with models/factories/seeders
+
+**When to create a new migration instead:**
+- Adding new features after the baseline is established
+- Any changes in a production environment
+- Changes that need to be tracked separately for review
 
 ```bash
 php artisan make:migration add_column_to_table_name
 ```
 
-**Why this matters:** The `postgres-schema.sql` file is a frozen snapshot from the MySQL-to-PostgreSQL migration. All subsequent changes must be migrations so they are:
+**Why migrations matter:**
 - Version controlled and reviewable in PRs
 - Automatically applied during deployment
 - Rollback-able if needed
@@ -22,28 +32,35 @@ php artisan make:migration add_column_to_table_name
 
 ## Testing Infrastructure
 
-### The Problem
-This project does NOT have complete "from scratch" Laravel migrations. The database schema was originally created via SQL dump, not migrations. The migrations that exist are incremental patches.
+### Database Setup
+Run `php artisan migrate:fresh --env=testing --seed` to set up the test database.
 
-### The Solution
-Tests should:
-1. Use `DatabaseTransactions` trait (NOT `RefreshDatabase`)
-2. Assume the database schema already exists
-3. Roll back changes after each test
+### Test Traits
+- **`DatabaseTransactions`** (default, faster): Wraps each test in a transaction, rolls back after. Use for most tests.
+- **`RefreshDatabase`**: Full reset each test. Use when testing migrations or needing a completely clean slate.
 
 ```php
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class MyTest extends TestCase
 {
-    use DatabaseTransactions;  // NOT RefreshDatabase
+    use DatabaseTransactions;  // Default for most tests
 
     // ...
 }
 ```
 
-### Why RefreshDatabase Fails
-`RefreshDatabase` tries to run all migrations from scratch, but there's no migration to create the base tables (matter, actor, event, etc.) - those come from `postgres-schema.sql`.
+```php
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+class MigrationTest extends TestCase
+{
+    use RefreshDatabase;  // For migration tests
+    protected $seed = true;  // Seed after migrations
+
+    // ...
+}
+```
 
 ---
 
@@ -75,7 +92,7 @@ $event->code === 'FIL'                      // Avoid
 
 ## Common Pitfalls
 
-1. **Don't use `Schema::create()` for existing tables** - They already exist from the SQL dump
+1. **Don't use `Schema::create()` for existing tables** - They already exist from the baseline
 2. **Don't assume standard Laravel auth** - Users are actors with a role
-3. **Don't modify postgres-schema.sql** - Use migrations instead
-4. **Don't use RefreshDatabase in tests** - Use DatabaseTransactions
+3. **Create migrations for new features** - After the baseline is established
+4. **Use `DatabaseTransactions` for most tests** - Faster than `RefreshDatabase`

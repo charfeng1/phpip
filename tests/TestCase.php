@@ -8,17 +8,25 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 /**
  * Base test case for phpIP tests.
  *
- * IMPORTANT: This project uses a schema-dump approach, not full Laravel migrations.
- * The base database structure comes from `database/schema/postgres-schema.sql`,
- * and migrations are incremental changes on top of that.
+ * Database Setup Options:
  *
- * Tests use DatabaseTransactions (not RefreshDatabase) to:
- * 1. Wrap each test in a transaction
- * 2. Roll back after each test
- * 3. Avoid the need to rebuild the database from migrations
+ * 1. RefreshDatabase (full reset each test):
+ *    - Use when testing migrations or needing a completely clean slate
+ *    - Slower but guarantees isolation
+ *    - Example: `use RefreshDatabase;` in your test class
  *
- * Before running tests, ensure the test database exists and has the schema loaded:
- *   ./tests/setup-test-db.sh
+ * 2. DatabaseTransactions (default, faster):
+ *    - Wraps each test in a transaction, rolls back after
+ *    - Faster for most tests
+ *    - Inherited from this base class
+ *
+ * The baseline migration (0001_01_01_000001_create_baseline_schema) loads
+ * the complete schema from postgres-schema.sql, so `php artisan migrate:fresh`
+ * now works correctly.
+ *
+ * Quick start:
+ *   php artisan migrate:fresh --env=testing --seed
+ *   php artisan test
  */
 abstract class TestCase extends BaseTestCase
 {

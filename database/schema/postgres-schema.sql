@@ -32,8 +32,8 @@ CREATE TABLE country (
     em BOOLEAN DEFAULT FALSE,
     oa BOOLEAN DEFAULT FALSE,
     renewal_first SMALLINT DEFAULT 2,
-    renewal_base CHAR(5) DEFAULT 'FIL',
-    renewal_start CHAR(5) DEFAULT 'FIL',
+    renewal_base VARCHAR(5) DEFAULT 'FIL',
+    renewal_start VARCHAR(5) DEFAULT 'FIL',
     checked_on DATE
 );
 
@@ -48,7 +48,7 @@ COMMENT ON COLUMN country.renewal_start IS 'The event from which renewals become
 -- Actor role table
 DROP TABLE IF EXISTS actor_role CASCADE;
 CREATE TABLE actor_role (
-    code CHAR(5) NOT NULL PRIMARY KEY,
+    code VARCHAR(5) NOT NULL PRIMARY KEY,
     name JSONB NOT NULL DEFAULT '{}',
     display_order SMALLINT DEFAULT 127,
     shareable BOOLEAN NOT NULL DEFAULT FALSE,
@@ -77,7 +77,7 @@ CREATE TABLE actor (
     display_name VARCHAR(30) UNIQUE,
     login CHAR(16) UNIQUE,
     password VARCHAR(60),
-    default_role CHAR(5) REFERENCES actor_role(code) ON DELETE SET NULL ON UPDATE CASCADE,
+    default_role VARCHAR(5) REFERENCES actor_role(code) ON DELETE SET NULL ON UPDATE CASCADE,
     function VARCHAR(45),
     parent_id INTEGER REFERENCES actor(id) ON DELETE SET NULL ON UPDATE CASCADE,
     company_id INTEGER REFERENCES actor(id) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -94,6 +94,8 @@ CREATE TABLE actor (
     country_billing CHAR(2) REFERENCES country(iso) ON DELETE SET NULL ON UPDATE CASCADE,
     email VARCHAR(45),
     phone VARCHAR(20),
+    fax VARCHAR(20),
+    url VARCHAR(256),
     legal_form VARCHAR(60),
     registration_no VARCHAR(20),
     warn BOOLEAN NOT NULL DEFAULT FALSE,
@@ -125,10 +127,10 @@ CREATE INDEX idx_actor_name ON actor(name);
 -- Matter category table
 DROP TABLE IF EXISTS matter_category CASCADE;
 CREATE TABLE matter_category (
-    code CHAR(5) NOT NULL PRIMARY KEY,
+    code VARCHAR(5) NOT NULL PRIMARY KEY,
     category JSONB NOT NULL DEFAULT '{}',
     display_with VARCHAR(5),
-    ref_prefix CHAR(5),
+    ref_prefix VARCHAR(5),
     creator VARCHAR(20),
     updater VARCHAR(20),
     created_at TIMESTAMP,
@@ -140,7 +142,7 @@ COMMENT ON COLUMN matter_category.display_with IS 'Display with category code';
 -- Matter type table
 DROP TABLE IF EXISTS matter_type CASCADE;
 CREATE TABLE matter_type (
-    code CHAR(5) NOT NULL PRIMARY KEY,
+    code VARCHAR(5) NOT NULL PRIMARY KEY,
     type JSONB NOT NULL DEFAULT '{}',
     creator VARCHAR(20),
     updater VARCHAR(20),
@@ -151,9 +153,9 @@ CREATE TABLE matter_type (
 -- Event name table
 DROP TABLE IF EXISTS event_name CASCADE;
 CREATE TABLE event_name (
-    code CHAR(5) NOT NULL PRIMARY KEY,
+    code VARCHAR(5) NOT NULL PRIMARY KEY,
     name JSONB NOT NULL DEFAULT '{}',
-    category CHAR(5) REFERENCES matter_category(code) ON DELETE SET NULL ON UPDATE CASCADE,
+    category VARCHAR(5) REFERENCES matter_category(code) ON DELETE SET NULL ON UPDATE CASCADE,
     country CHAR(2) REFERENCES country(iso) ON DELETE SET NULL ON UPDATE CASCADE,
     is_task BOOLEAN NOT NULL DEFAULT FALSE,
     status_event BOOLEAN NOT NULL DEFAULT FALSE,
@@ -177,11 +179,11 @@ COMMENT ON COLUMN event_name.killer IS 'Indicates whether this event kills the m
 DROP TABLE IF EXISTS matter CASCADE;
 CREATE TABLE matter (
     id SERIAL PRIMARY KEY,
-    category_code CHAR(5) NOT NULL REFERENCES matter_category(code) ON UPDATE CASCADE,
+    category_code VARCHAR(5) NOT NULL REFERENCES matter_category(code) ON UPDATE CASCADE,
     caseref VARCHAR(30) NOT NULL,
     country CHAR(2) NOT NULL REFERENCES country(iso) ON UPDATE CASCADE,
     origin CHAR(2) REFERENCES country(iso) ON DELETE SET NULL ON UPDATE CASCADE,
-    type_code CHAR(5) REFERENCES matter_type(code) ON DELETE SET NULL ON UPDATE CASCADE,
+    type_code VARCHAR(5) REFERENCES matter_type(code) ON DELETE SET NULL ON UPDATE CASCADE,
     idx SMALLINT,
     suffix VARCHAR(16),
     parent_id INTEGER REFERENCES matter(id) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -220,7 +222,7 @@ CREATE INDEX idx_matter_responsible ON matter(responsible);
 DROP TABLE IF EXISTS event CASCADE;
 CREATE TABLE event (
     id SERIAL PRIMARY KEY,
-    code CHAR(5) NOT NULL REFERENCES event_name(code) ON DELETE RESTRICT ON UPDATE CASCADE,
+    code VARCHAR(5) NOT NULL REFERENCES event_name(code) ON DELETE RESTRICT ON UPDATE CASCADE,
     matter_id INTEGER NOT NULL REFERENCES matter(id) ON DELETE CASCADE ON UPDATE CASCADE,
     event_date DATE,
     alt_matter_id INTEGER REFERENCES matter(id) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -246,26 +248,26 @@ DROP TABLE IF EXISTS task_rules CASCADE;
 CREATE TABLE task_rules (
     id SERIAL PRIMARY KEY,
     active BOOLEAN NOT NULL DEFAULT TRUE,
-    for_category CHAR(5) REFERENCES matter_category(code) ON UPDATE CASCADE,
+    for_category VARCHAR(5) REFERENCES matter_category(code) ON UPDATE CASCADE,
     for_country CHAR(2) REFERENCES country(iso) ON DELETE CASCADE ON UPDATE CASCADE,
     for_origin CHAR(2) REFERENCES country(iso) ON DELETE CASCADE ON UPDATE CASCADE,
-    for_type CHAR(5) REFERENCES matter_type(code) ON DELETE CASCADE ON UPDATE CASCADE,
-    task CHAR(5) NOT NULL REFERENCES event_name(code) ON UPDATE CASCADE,
+    for_type VARCHAR(5) REFERENCES matter_type(code) ON DELETE CASCADE ON UPDATE CASCADE,
+    task VARCHAR(5) NOT NULL REFERENCES event_name(code) ON UPDATE CASCADE,
     detail JSONB,
     days SMALLINT NOT NULL DEFAULT 0,
     months SMALLINT NOT NULL DEFAULT 0,
     years SMALLINT NOT NULL DEFAULT 0,
     recurring BOOLEAN NOT NULL DEFAULT FALSE,
     end_of_month BOOLEAN NOT NULL DEFAULT FALSE,
-    abort_on CHAR(5) REFERENCES event_name(code) ON DELETE SET NULL ON UPDATE CASCADE,
-    condition_event CHAR(5) REFERENCES event_name(code) ON DELETE SET NULL ON UPDATE CASCADE,
+    abort_on VARCHAR(5) REFERENCES event_name(code) ON DELETE SET NULL ON UPDATE CASCADE,
+    condition_event VARCHAR(5) REFERENCES event_name(code) ON DELETE SET NULL ON UPDATE CASCADE,
     use_priority BOOLEAN NOT NULL DEFAULT FALSE,
     use_before DATE,
     use_after DATE,
     cost DECIMAL(6,2),
     fee DECIMAL(6,2),
     currency CHAR(3) DEFAULT 'EUR',
-    trigger_event CHAR(5) NOT NULL REFERENCES event_name(code) ON UPDATE CASCADE,
+    trigger_event VARCHAR(5) NOT NULL REFERENCES event_name(code) ON UPDATE CASCADE,
     clear_task BOOLEAN NOT NULL DEFAULT FALSE,
     delete_task BOOLEAN NOT NULL DEFAULT FALSE,
     responsible VARCHAR(20),
@@ -299,7 +301,7 @@ DROP TABLE IF EXISTS task CASCADE;
 CREATE TABLE task (
     id SERIAL PRIMARY KEY,
     trigger_id INTEGER NOT NULL REFERENCES event(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    code CHAR(5) NOT NULL REFERENCES event_name(code) ON UPDATE CASCADE,
+    code VARCHAR(5) NOT NULL REFERENCES event_name(code) ON UPDATE CASCADE,
     due_date DATE,
     done BOOLEAN NOT NULL DEFAULT FALSE,
     done_date DATE,
@@ -334,10 +336,10 @@ CREATE INDEX idx_task_done ON task(done);
 -- Classifier type table
 DROP TABLE IF EXISTS classifier_type CASCADE;
 CREATE TABLE classifier_type (
-    code CHAR(5) NOT NULL PRIMARY KEY,
+    code VARCHAR(5) NOT NULL PRIMARY KEY,
     type JSONB NOT NULL DEFAULT '{}',
     main_display BOOLEAN NOT NULL DEFAULT FALSE,
-    for_category CHAR(5) REFERENCES matter_category(code) ON DELETE SET NULL ON UPDATE CASCADE,
+    for_category VARCHAR(5) REFERENCES matter_category(code) ON DELETE SET NULL ON UPDATE CASCADE,
     display_order SMALLINT DEFAULT 127,
     notes VARCHAR(160),
     creator VARCHAR(20),
@@ -354,7 +356,7 @@ DROP TABLE IF EXISTS classifier_value CASCADE;
 CREATE TABLE classifier_value (
     id SERIAL PRIMARY KEY,
     value VARCHAR(160) NOT NULL,
-    type_code CHAR(5) REFERENCES classifier_type(code) ON DELETE SET NULL ON UPDATE CASCADE,
+    type_code VARCHAR(5) REFERENCES classifier_type(code) ON DELETE SET NULL ON UPDATE CASCADE,
     notes VARCHAR(255),
     creator VARCHAR(20),
     updater VARCHAR(20),
@@ -370,7 +372,7 @@ DROP TABLE IF EXISTS classifier CASCADE;
 CREATE TABLE classifier (
     id SERIAL PRIMARY KEY,
     matter_id INTEGER NOT NULL REFERENCES matter(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    type_code CHAR(5) NOT NULL REFERENCES classifier_type(code) ON UPDATE CASCADE,
+    type_code VARCHAR(5) NOT NULL REFERENCES classifier_type(code) ON UPDATE CASCADE,
     value TEXT,
     img BYTEA,
     url VARCHAR(256),
@@ -398,7 +400,7 @@ CREATE TABLE matter_actor_lnk (
     id SERIAL PRIMARY KEY,
     matter_id INTEGER NOT NULL REFERENCES matter(id) ON DELETE CASCADE ON UPDATE CASCADE,
     actor_id INTEGER NOT NULL REFERENCES actor(id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    role CHAR(5) NOT NULL REFERENCES actor_role(code) ON DELETE CASCADE ON UPDATE CASCADE,
+    role VARCHAR(5) NOT NULL REFERENCES actor_role(code) ON DELETE CASCADE ON UPDATE CASCADE,
     display_order SMALLINT NOT NULL DEFAULT 1,
     shared BOOLEAN NOT NULL DEFAULT FALSE,
     actor_ref VARCHAR(45),
@@ -425,8 +427,8 @@ DROP TABLE IF EXISTS default_actor CASCADE;
 CREATE TABLE default_actor (
     id SERIAL PRIMARY KEY,
     actor_id INTEGER NOT NULL REFERENCES actor(id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    role CHAR(5) NOT NULL REFERENCES actor_role(code) ON DELETE CASCADE ON UPDATE CASCADE,
-    for_category CHAR(5) REFERENCES matter_category(code) ON DELETE CASCADE ON UPDATE CASCADE,
+    role VARCHAR(5) NOT NULL REFERENCES actor_role(code) ON DELETE CASCADE ON UPDATE CASCADE,
+    for_category VARCHAR(5) REFERENCES matter_category(code) ON DELETE CASCADE ON UPDATE CASCADE,
     for_country CHAR(2) REFERENCES country(iso) ON DELETE CASCADE ON UPDATE CASCADE,
     for_client INTEGER REFERENCES actor(id) ON DELETE CASCADE ON UPDATE CASCADE,
     shared BOOLEAN NOT NULL DEFAULT FALSE,
@@ -444,7 +446,8 @@ DROP TABLE IF EXISTS fees CASCADE;
 CREATE TABLE fees (
     id SERIAL PRIMARY KEY,
     for_country CHAR(2) NOT NULL REFERENCES country(iso) ON DELETE CASCADE ON UPDATE CASCADE,
-    for_category CHAR(5) NOT NULL REFERENCES matter_category(code) ON DELETE CASCADE ON UPDATE CASCADE,
+    for_category VARCHAR(5) NOT NULL REFERENCES matter_category(code) ON DELETE CASCADE ON UPDATE CASCADE,
+    for_origin CHAR(2) REFERENCES country(iso) ON DELETE CASCADE ON UPDATE CASCADE,
     qt INTEGER NOT NULL,
     use_before DATE,
     use_after DATE,
@@ -478,6 +481,7 @@ CREATE TABLE template_classes (
     id SERIAL PRIMARY KEY,
     name VARCHAR(45) NOT NULL,
     notes VARCHAR(160),
+    default_role VARCHAR(5) REFERENCES actor_role(code) ON DELETE SET NULL ON UPDATE CASCADE,
     creator VARCHAR(20),
     updater VARCHAR(20),
     created_at TIMESTAMP,
@@ -491,9 +495,10 @@ CREATE TABLE template_members (
     class_id INTEGER NOT NULL REFERENCES template_classes(id) ON DELETE CASCADE ON UPDATE CASCADE,
     language CHAR(2),
     style VARCHAR(45),
+    category VARCHAR(45),
     format VARCHAR(45),
     summary VARCHAR(160),
-    description TEXT,
+    subject TEXT,
     body TEXT,
     notes VARCHAR(160),
     creator VARCHAR(20),
@@ -508,7 +513,7 @@ CREATE INDEX idx_template_members_class ON template_members(class_id);
 DROP TABLE IF EXISTS event_class_lnk CASCADE;
 CREATE TABLE event_class_lnk (
     id SERIAL PRIMARY KEY,
-    event_name_code CHAR(5) NOT NULL REFERENCES event_name(code) ON DELETE CASCADE ON UPDATE CASCADE,
+    event_name_code VARCHAR(5) NOT NULL REFERENCES event_name(code) ON DELETE CASCADE ON UPDATE CASCADE,
     template_class_id INTEGER NOT NULL REFERENCES template_classes(id) ON DELETE CASCADE ON UPDATE CASCADE,
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
