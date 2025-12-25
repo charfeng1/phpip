@@ -83,18 +83,14 @@ return new class extends Migration
      */
     private function dropTriggers(): void
     {
-        $triggers = [
-            'classifier_before_insert' => 'classifier',
-            'event_before_insert' => 'event',
-            'event_before_update' => 'event',
-            'matter_before_insert' => 'matter',
-            'matter_before_update' => 'matter',
-            'task_before_insert' => 'task',
-            'task_before_update' => 'task',
-        ];
+        $triggers = DB::select("
+            SELECT trigger_name, event_object_table
+            FROM information_schema.triggers
+            WHERE trigger_schema = 'public'
+        ");
 
-        foreach ($triggers as $trigger => $table) {
-            DB::statement("DROP TRIGGER IF EXISTS {$trigger} ON {$table}");
+        foreach ($triggers as $trigger) {
+            DB::statement("DROP TRIGGER IF EXISTS {$trigger->trigger_name} ON {$trigger->event_object_table}");
         }
     }
 
@@ -103,26 +99,16 @@ return new class extends Migration
      */
     private function dropFunctions(): void
     {
-        $functions = [
-            // Business logic functions
-            'tcase(TEXT)',
-            'actor_list(INTEGER, TEXT)',
-            'matter_status(INTEGER)',
-            'compute_matter_uid(VARCHAR, VARCHAR, VARCHAR, VARCHAR, SMALLINT)',
-            'insert_recurring_renewals(INTEGER, INTEGER, DATE, VARCHAR, VARCHAR)',
-            'update_expired()',
-            // Trigger functions
-            'classifier_before_insert_func()',
-            'event_before_insert_func()',
-            'event_before_update_func()',
-            'matter_before_insert_func()',
-            'matter_before_update_func()',
-            'task_before_insert_func()',
-            'task_before_update_func()',
-        ];
+        $functions = DB::select("
+            SELECT proname, pg_get_function_arguments(oid) as args
+            FROM pg_proc
+            JOIN pg_namespace ON pg_proc.pronamespace = pg_namespace.oid
+            WHERE nspname = 'public'
+        ");
 
         foreach ($functions as $function) {
-            DB::statement("DROP FUNCTION IF EXISTS {$function} CASCADE");
+            $functionSignature = $function->proname . '(' . $function->args . ')';
+            DB::statement("DROP FUNCTION IF EXISTS {$functionSignature} CASCADE");
         }
     }
 
@@ -131,16 +117,10 @@ return new class extends Migration
      */
     private function dropViews(): void
     {
-        $views = [
-            'users',
-            'event_lnk_list',
-            'matter_actors',
-            'matter_classifiers',
-            'task_list',
-        ];
+        $views = DB::select("SELECT viewname FROM pg_views WHERE schemaname = 'public'");
 
         foreach ($views as $view) {
-            DB::statement("DROP VIEW IF EXISTS {$view} CASCADE");
+            DB::statement("DROP VIEW IF EXISTS {$view->viewname} CASCADE");
         }
     }
 
@@ -153,9 +133,9 @@ return new class extends Migration
         Schema::dropIfExists('audit_logs');
 
         // Tier 5 - Laravel standard (these may be managed by other migrations)
-        // Schema::dropIfExists('failed_jobs');
-        // Schema::dropIfExists('password_resets');
-        // Schema::dropIfExists('migrations');
+        Schema::dropIfExists('failed_jobs');
+        Schema::dropIfExists('password_resets');
+        Schema::dropIfExists('migrations');
 
         // Tier 4 - Relationships
         Schema::dropIfExists('renewals_logs');
