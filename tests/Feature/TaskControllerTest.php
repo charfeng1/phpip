@@ -40,7 +40,7 @@ class TaskControllerTest extends TestCase
         $user = User::factory()->admin()->create();
         $matter = Matter::factory()->create(['dead' => false]);
         $event = Event::factory()->filing()->forMatter($matter)->create();
-        $task = Task::factory()->pending()->forEvent($event)->create(['code' => 'DL']);
+        $task = Task::factory()->pending()->forEvent($event)->create(['code' => 'REP']);
 
         $response = $this->actingAs($user)->get('/task');
 

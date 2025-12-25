@@ -74,7 +74,8 @@ class TaskTest extends TestCase
     {
         $task = Task::factory()->deadline()->create();
 
-        $this->assertEquals('DL', $task->code);
+        // REP = Respond, used as a general deadline/response task
+        $this->assertEquals('REP', $task->code);
     }
 
     /** @test */

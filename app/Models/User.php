@@ -37,6 +37,15 @@ class User extends Authenticatable
     use TrimsCharColumns;
 
     /**
+     * The table associated with the model.
+     *
+     * Note: 'users' is a VIEW on the 'actor' table.
+     * We use 'actor' as the table for writes (insert/update/delete)
+     * since views are not directly writable in PostgreSQL.
+     */
+    protected $table = 'actor';
+
+    /**
      * CHAR columns that should be automatically trimmed.
      *
      * PostgreSQL CHAR columns are fixed-length and pad with spaces.

@@ -47,7 +47,7 @@ class TaskFactory extends Factory
     public function deadline(): static
     {
         return $this->state(fn (array $attributes) => [
-            'code' => 'DL',
+            'code' => 'REP',  // REP = Respond, a valid task code in event_name
             'detail' => json_encode(['en' => 'Response deadline', 'fr' => 'Délai de réponse']),
         ]);
     }

@@ -23,9 +23,11 @@ class RenewalNotificationServiceTest extends TestCase
         $this->logService = new RenewalLogService('testuser');
 
         // Pass all config values through constructor for testing without Laravel
+        // Constructor signature: feeCalculator, logService, taskRepository, vatRate, validityConfig, mailRecipient
         $this->service = new RenewalNotificationService(
             $this->feeCalculator,
             $this->logService,
+            null, // taskRepository - not needed for these unit tests
             0.2, // vatRate
             ['before' => 60, 'before_last' => 30, 'instruct_before' => 45], // validityConfig
             'client' // mailRecipient
