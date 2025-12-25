@@ -1,26 +1,33 @@
 # Database Schema Management
 
-## Baseline Schema
-The file `database/schema/postgres-schema.sql` is the **authoritative baseline** for the database schema. A baseline migration (`0001_01_01_000001_create_baseline_schema.php`) loads this schema, enabling standard Laravel workflows like `php artisan migrate:fresh`.
+## Migrations
+The database schema is managed entirely through **proper Laravel migrations** in `database/migrations/`. The migrations are organized in tiers by dependency order:
 
-**When to modify `postgres-schema.sql`:**
-- Fixing bugs or omissions in the baseline (missing columns, wrong types)
-- Pre-production corrections to align schema with models/factories/seeders
+| Migration | Contents |
+|-----------|----------|
+| `000002_create_extensions` | PostgreSQL uuid-ossp extension |
+| `000010_create_tier1_*` | Foundation tables (no FK dependencies) |
+| `000020_create_tier2_*` | First-level FK tables |
+| `000030_create_tier3_*` | Business core tables |
+| `000040_create_tier4_*` | Relationship/junction tables |
+| `000050_create_tier5_*` | Laravel standard tables |
+| `000060_create_tier6_*` | Audit logging |
+| `000070_create_stored_functions` | 6 stored procedures |
+| `000080_create_views` | 5 views (including `users` for auth) |
+| `000090_create_triggers` | 7 triggers |
 
-**When to create a new migration instead:**
-- Adding new features after the baseline is established
-- Any changes in a production environment
-- Changes that need to be tracked separately for review
+**Reference documentation:** `database/schema/postgres-schema.sql` is kept as reference only.
 
+**Creating new migrations:**
 ```bash
 php artisan make:migration add_column_to_table_name
 ```
 
-**Why migrations matter:**
+**Why this approach works:**
+- Standard Laravel workflow: `php artisan migrate:fresh --seed`
+- `RefreshDatabase` trait works in tests
 - Version controlled and reviewable in PRs
-- Automatically applied during deployment
-- Rollback-able if needed
-- Compatible with the test infrastructure
+- Rollback-able when needed
 
 ---
 
@@ -35,7 +42,7 @@ phpIP is an intellectual property management system built with Laravel 12 and Po
 - PostgreSQL with JSONB for translatable fields
 - `users` is a VIEW on the `actor` table (not a standard Laravel users table)
 - Translations stored as JSON: `{"en": "English", "fr": "Français"}`
-- Baseline migration loads complete schema from `postgres-schema.sql`
+- Schema managed through tier-based migrations (see above)
 
 ### Authentication & Authorization
 - Role-based: DBA (admin), DBRW (read-write), DBRO (read-only), CLI (client)
