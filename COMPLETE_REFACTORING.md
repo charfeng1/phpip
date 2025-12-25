@@ -1,43 +1,33 @@
-# Completing the Seeder Refactoring
+# Seeder Refactoring - Complete! ✅
 
 ## Status
 
-The seeder refactoring to use `TranslatedAttributesSeeder` as a single source of truth is **90% complete**.
+The seeder refactoring to use `TranslatedAttributesSeeder` as a single source of truth is **100% complete**.
 
 ### ✅ Completed:
 - `TranslatedAttributesSeeder.php` - Added 3 static getter methods:
   - `getClassifierTypes()` - 22 translations
-  - `getEventNames()` - 70 translations
+  - `getEventNames()` - 69 translations
   - `getTaskRuleDetails()` - 80 translations
 - `ClassifierTypeTableSeeder.php` - ✅ Fully refactored (22/22 entries)
 - `TaskRulesTableSeeder.php` - ✅ Fully refactored (80/80 entries)
-- `EventNameTableSeeder.php` - ⚠️  Partially refactored (10/69 entries)
+- `EventNameTableSeeder.php` - ✅ Fully refactored (69/69 entries)
 
-### ⚠️ Remaining Work:
-`EventNameTableSeeder.php` needs 59 more entries refactored.
+## What Was Refactored
 
-## How to Complete
+All translation data has been centralized in `TranslatedAttributesSeeder.php` with public static getter methods. Individual seeders now consume these centralized translations instead of hardcoding them.
 
-Run this one-liner to complete the refactoring:
-
-```bash
-cd database/seeders
-for code in DBY DEX DPAPL DRA DW EHK ENT EOP EXA EXAF EXP FAP FBY FDIV FIL FOP FPR FRCE GRT INV IPER LAP NPH OPP ORI OPR ORE PAY PDES PFIL PR PREP PRI PRID PROD PSR PUB RCE REC REF REJF REG REM REN REP REST REQ RSTR SOL SOP SR SUS SUO TRF TRS VAL WAT WIT WO; do
-  perl -i -0777 -pe "s/('code' => '$code',)\\s*'name' => json_encode\\(\\[.*?\\]\\)/\$1\\n                'name' => json_encode(\\\$translations['$code'])/s" EventNameTableSeeder.php
-done
-```
-
-Or manually replace each line matching:
+**Before (duplicated):**
 ```php
-'name' => json_encode(['en' => '...', 'fr' => '...', 'de' => '...', 'zh' => '...']),
+'name' => json_encode(['en' => 'Abandoned', 'fr' => 'Abandonné', 'de' => 'Aufgegeben', 'zh' => '放弃']),
 ```
 
-With:
+**After (single source of truth):**
 ```php
-'name' => json_encode($translations['CODE']),
+$translations = TranslatedAttributesSeeder::getEventNames();
+// ...
+'name' => json_encode($translations['ABA']),
 ```
-
-Where `CODE` is the event code (e.g., 'DBY', 'DEX', etc.).
 
 ## Benefits of This Refactoring
 
