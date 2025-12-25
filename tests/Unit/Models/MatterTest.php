@@ -174,8 +174,8 @@ class MatterTest extends TestCase
         $matter = Matter::factory()->create();
         $event = Event::factory()->filing()->forMatter($matter)->create();
 
-        $pendingTask = Task::factory()->pending()->forEvent($event)->create(['code' => 'DL']);
-        $completedTask = Task::factory()->completed()->forEvent($event)->create(['code' => 'DL']);
+        $pendingTask = Task::factory()->pending()->forEvent($event)->create(['code' => 'REP']);
+        $completedTask = Task::factory()->completed()->forEvent($event)->create(['code' => 'REP']);
 
         $pendingTasks = $matter->tasksPending;
 
@@ -190,7 +190,7 @@ class MatterTest extends TestCase
         $event = Event::factory()->filing()->forMatter($matter)->create();
 
         $renewal = Task::factory()->renewal()->pending()->forEvent($event)->create();
-        $nonRenewal = Task::factory()->pending()->forEvent($event)->create(['code' => 'DL']);
+        $nonRenewal = Task::factory()->pending()->forEvent($event)->create(['code' => 'REP']);
 
         $renewals = $matter->renewalsPending;
 

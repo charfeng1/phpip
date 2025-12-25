@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\TrimsCharColumns;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -14,7 +15,7 @@ use Illuminate\Notifications\Notifiable;
  * staff members who manage IP matters, though the system also supports client users
  * with restricted access.
  *
- * Database table: users
+ * Database table: actor (users is a non-writable VIEW on actor)
  *
  * Key relationships:
  * - Belongs to a role (determines permissions)
@@ -35,6 +36,28 @@ class User extends Authenticatable
     use HasFactory;
     use Notifiable;
     use TrimsCharColumns;
+
+    /**
+     * The table associated with the model.
+     *
+     * Note: 'users' is a VIEW on the 'actor' table.
+     * We use 'actor' as the table for writes (insert/update/delete)
+     * since views are not directly writable in PostgreSQL.
+     */
+    protected $table = 'actor';
+
+    /**
+     * Boot the model and add global scope.
+     *
+     * Filters queries to only include actors with a login (replicating
+     * the WHERE login IS NOT NULL filter from the users VIEW).
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope('login', function (Builder $query) {
+            $query->whereNotNull('login');
+        });
+    }
 
     /**
      * CHAR columns that should be automatically trimmed.
@@ -74,7 +97,6 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
 

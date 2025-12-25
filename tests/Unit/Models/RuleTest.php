@@ -99,9 +99,10 @@ class RuleTest extends TestCase
     /** @test */
     public function it_can_have_abort_event()
     {
-        $rule = Rule::factory()->abortsOn('ABD')->create();
+        // ABA is a valid event code for Abandoned
+        $rule = Rule::factory()->abortsOn('ABA')->create();
 
-        $this->assertEquals('ABD', $rule->abort_on);
+        $this->assertEquals('ABA', $rule->abort_on);
     }
 
     /** @test */
@@ -148,14 +149,6 @@ class RuleTest extends TestCase
         $rule = Rule::factory()->recurring()->create();
 
         $this->assertTrue((bool) $rule->recurring);
-    }
-
-    /** @test */
-    public function it_can_use_parent_date()
-    {
-        $rule = Rule::factory()->usesParent()->create();
-
-        $this->assertTrue((bool) $rule->use_parent);
     }
 
     /** @test */

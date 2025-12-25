@@ -243,7 +243,7 @@ class HasActorsFromRoleTest extends TestCase
     }
 
     /** @test */
-    public function writer_returns_wrt_role()
+    public function writer_returns_wri_role()
     {
         $matter = Matter::factory()->create();
         $writer = Actor::factory()->create();
@@ -251,7 +251,7 @@ class HasActorsFromRoleTest extends TestCase
         \DB::table('matter_actor_lnk')->insert([
             'matter_id' => $matter->id,
             'actor_id' => $writer->id,
-            'role' => 'WRT',
+            'role' => 'WRI',  // WRI is the correct role code for Writer
             'shared' => 0,
             'display_order' => 1,
         ]);

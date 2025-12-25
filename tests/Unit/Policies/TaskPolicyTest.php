@@ -7,17 +7,19 @@ use App\Models\Matter;
 use App\Models\Task;
 use App\Models\User;
 use App\Policies\TaskPolicy;
+use App\Services\TeamService;
 use Tests\TestCase;
 
 class TaskPolicyTest extends TestCase
 {
-
     protected TaskPolicy $policy;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new TaskPolicy();
+        // TaskPolicy requires TeamService dependency
+        $teamService = app(TeamService::class);
+        $this->policy = new TaskPolicy($teamService);
     }
 
     // viewAny tests

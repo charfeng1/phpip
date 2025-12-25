@@ -171,7 +171,7 @@ class MatterControllerTest extends TestCase
         $user = User::factory()->admin()->create();
         $matter = Matter::factory()->create();
         $event = Event::factory()->filing()->forMatter($matter)->create();
-        $task = Task::factory()->pending()->forEvent($event)->create(['code' => 'DL']);
+        $task = Task::factory()->pending()->forEvent($event)->create(['code' => 'REP']);
 
         $response = $this->actingAs($user)->get("/matter/{$matter->id}");
 

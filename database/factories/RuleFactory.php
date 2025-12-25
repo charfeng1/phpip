@@ -28,7 +28,6 @@ class RuleFactory extends Factory
             'years' => 0,
             'end_of_month' => false,
             'recurring' => false,
-            'use_parent' => false,
             'use_priority' => false,
             'condition_event' => null,
             'abort_on' => null,
@@ -37,7 +36,8 @@ class RuleFactory extends Factory
             'fee' => null,
             'cost' => null,
             'use_before' => null,
-            'clear_task' => null,
+            'clear_task' => false,
+            'delete_task' => false,
         ];
     }
 
@@ -134,16 +134,6 @@ class RuleFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'recurring' => true,
-        ]);
-    }
-
-    /**
-     * Rule that uses parent date
-     */
-    public function usesParent(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'use_parent' => true,
         ]);
     }
 
