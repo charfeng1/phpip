@@ -5,6 +5,7 @@ namespace Tests\Feature\Migrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
@@ -15,6 +16,8 @@ use Tests\TestCase;
  * - 5 views (including critical 'users' view)
  * - 13 stored functions (6 business logic + 7 trigger functions)
  * - 7 triggers
+ *
+ * Uses PHPUnit data providers to consolidate repetitive tests into data-driven tests.
  */
 class BaselineMigrationTest extends TestCase
 {
@@ -27,374 +30,192 @@ class BaselineMigrationTest extends TestCase
     protected $seed = true;
 
     // =========================================================================
-    // TIER 1: Foundation Tables (No FK Dependencies)
+    // DATA-DRIVEN TABLE STRUCTURE TESTS
     // =========================================================================
 
-    public function test_tier1_country_table_exists(): void
+    /**
+     * Test that tables exist and have the expected columns.
+     */
+    #[DataProvider('tableStructureProvider')]
+    public function test_tables_have_correct_structure(string $table, array $columns): void
     {
-        $this->assertTrue(Schema::hasTable('country'));
-        $this->assertTrue(Schema::hasColumn('country', 'iso'));
-        $this->assertTrue(Schema::hasColumn('country', 'name'));
-        $this->assertTrue(Schema::hasColumn('country', 'ep'));
-        $this->assertTrue(Schema::hasColumn('country', 'wo'));
+        $this->assertTrue(Schema::hasTable($table), "Table '{$table}' should exist");
+
+        if (!empty($columns)) {
+            $actualColumns = Schema::getColumnListing($table);
+            sort($columns);
+            sort($actualColumns);
+            $this->assertEquals(
+                $columns,
+                $actualColumns,
+                "Table '{$table}' should have the exact specified columns."
+            );
+        }
     }
 
-    public function test_tier1_actor_role_table_exists(): void
+    /**
+     * Provides table names and their expected columns for structure verification.
+     * Organized by dependency tiers.
+     *
+     * Note: Tables with empty column arrays or partial column lists are managed
+     * by third-party packages (Laravel framework or Auditable package) whose
+     * structure can change between versions. These tables are still verified
+     * to exist, but full column validation is not performed.
+     */
+    public static function tableStructureProvider(): array
     {
-        $this->assertTrue(Schema::hasTable('actor_role'));
-        $this->assertTrue(Schema::hasColumn('actor_role', 'code'));
-        $this->assertTrue(Schema::hasColumn('actor_role', 'name'));
-        $this->assertTrue(Schema::hasColumn('actor_role', 'shareable'));
-    }
+        return [
+            // Tier 1: Foundation Tables (No FK Dependencies)
+            'country' => ['country', ['iso', 'name', 'ep', 'wo']],
+            'actor_role' => ['actor_role', ['code', 'name', 'shareable']],
+            'matter_category' => ['matter_category', ['code', 'category']],
+            'matter_type' => ['matter_type', ['code', 'type']],
+            'event_name' => ['event_name', ['code', 'name', 'is_task']],
+            'classifier_type' => ['classifier_type', ['code', 'type']],
+            'template_classes' => ['template_classes', ['id', 'name']],
 
-    public function test_tier1_matter_category_table_exists(): void
-    {
-        $this->assertTrue(Schema::hasTable('matter_category'));
-        $this->assertTrue(Schema::hasColumn('matter_category', 'code'));
-        $this->assertTrue(Schema::hasColumn('matter_category', 'category'));
-    }
+            // Tier 2: First-Level FK Dependencies
+            'actor' => ['actor', ['id', 'name', 'login', 'password', 'default_role']],
+            'classifier_value' => ['classifier_value', ['id', 'value', 'type_code']],
+            'template_members' => ['template_members', ['id', 'class_id']],
+            'fees' => ['fees', ['id', 'for_country', 'for_category']],
+            'default_actor' => ['default_actor', ['id', 'actor_id', 'role']],
 
-    public function test_tier1_matter_type_table_exists(): void
-    {
-        $this->assertTrue(Schema::hasTable('matter_type'));
-        $this->assertTrue(Schema::hasColumn('matter_type', 'code'));
-        $this->assertTrue(Schema::hasColumn('matter_type', 'type'));
-    }
+            // Tier 3: Business Core Tables
+            'matter' => ['matter', ['id', 'caseref', 'uid', 'category_code', 'country']],
+            'event' => ['event', ['id', 'matter_id', 'code', 'event_date']],
+            'task_rules' => ['task_rules', ['id', 'task', 'trigger_event']],
+            'task' => ['task', ['id', 'trigger_id', 'code', 'due_date']],
 
-    public function test_tier1_event_name_table_exists(): void
-    {
-        $this->assertTrue(Schema::hasTable('event_name'));
-        $this->assertTrue(Schema::hasColumn('event_name', 'code'));
-        $this->assertTrue(Schema::hasColumn('event_name', 'name'));
-        $this->assertTrue(Schema::hasColumn('event_name', 'is_task'));
-    }
+            // Tier 4: Relationship Tables
+            'matter_actor_lnk' => ['matter_actor_lnk', ['id', 'matter_id', 'actor_id', 'role']],
+            'classifier' => ['classifier', ['id', 'matter_id', 'type_code']],
+            'event_class_lnk' => ['event_class_lnk', ['id', 'event_name_code', 'template_class_id']],
+            'renewals_logs' => ['renewals_logs', ['id', 'task_id']],
 
-    public function test_tier1_classifier_type_table_exists(): void
-    {
-        $this->assertTrue(Schema::hasTable('classifier_type'));
-        $this->assertTrue(Schema::hasColumn('classifier_type', 'code'));
-        $this->assertTrue(Schema::hasColumn('classifier_type', 'type'));
-    }
+            // Tier 5: Laravel Standard Tables (framework-managed, existence-only check)
+            'migrations' => ['migrations', []],
+            'password_resets' => ['password_resets', []],
+            'failed_jobs' => ['failed_jobs', []],
 
-    public function test_tier1_template_classes_table_exists(): void
-    {
-        $this->assertTrue(Schema::hasTable('template_classes'));
-        $this->assertTrue(Schema::hasColumn('template_classes', 'id'));
-        $this->assertTrue(Schema::hasColumn('template_classes', 'name'));
-    }
-
-    // =========================================================================
-    // TIER 2: First-Level FK Dependencies
-    // =========================================================================
-
-    public function test_tier2_actor_table_exists(): void
-    {
-        $this->assertTrue(Schema::hasTable('actor'));
-        $this->assertTrue(Schema::hasColumn('actor', 'id'));
-        $this->assertTrue(Schema::hasColumn('actor', 'name'));
-        $this->assertTrue(Schema::hasColumn('actor', 'login'));
-        $this->assertTrue(Schema::hasColumn('actor', 'password'));
-        $this->assertTrue(Schema::hasColumn('actor', 'default_role'));
-    }
-
-    public function test_tier2_classifier_value_table_exists(): void
-    {
-        $this->assertTrue(Schema::hasTable('classifier_value'));
-        $this->assertTrue(Schema::hasColumn('classifier_value', 'id'));
-        $this->assertTrue(Schema::hasColumn('classifier_value', 'value'));
-        $this->assertTrue(Schema::hasColumn('classifier_value', 'type_code'));
-    }
-
-    public function test_tier2_template_members_table_exists(): void
-    {
-        $this->assertTrue(Schema::hasTable('template_members'));
-        $this->assertTrue(Schema::hasColumn('template_members', 'id'));
-        $this->assertTrue(Schema::hasColumn('template_members', 'class_id'));
-    }
-
-    public function test_tier2_fees_table_exists(): void
-    {
-        $this->assertTrue(Schema::hasTable('fees'));
-        $this->assertTrue(Schema::hasColumn('fees', 'id'));
-        $this->assertTrue(Schema::hasColumn('fees', 'for_country'));
-        $this->assertTrue(Schema::hasColumn('fees', 'for_category'));
-    }
-
-    public function test_tier2_default_actor_table_exists(): void
-    {
-        $this->assertTrue(Schema::hasTable('default_actor'));
-        $this->assertTrue(Schema::hasColumn('default_actor', 'id'));
-        $this->assertTrue(Schema::hasColumn('default_actor', 'actor_id'));
-        $this->assertTrue(Schema::hasColumn('default_actor', 'role'));
+            // Tier 6: Audit Table (managed by Auditable package, partial key columns)
+            'audit_logs' => ['audit_logs', ['id', 'auditable_type', 'auditable_id']],
+        ];
     }
 
     // =========================================================================
-    // TIER 3: Business Core Tables
+    // DATA-DRIVEN VIEW TESTS
     // =========================================================================
 
-    public function test_tier3_matter_table_exists(): void
+    /**
+     * Test that views exist and optionally verify their columns.
+     */
+    #[DataProvider('viewProvider')]
+    public function test_views_exist(string $view, array $expectedColumns = []): void
     {
-        $this->assertTrue(Schema::hasTable('matter'));
-        $this->assertTrue(Schema::hasColumn('matter', 'id'));
-        $this->assertTrue(Schema::hasColumn('matter', 'caseref'));
-        $this->assertTrue(Schema::hasColumn('matter', 'uid'));
-        $this->assertTrue(Schema::hasColumn('matter', 'category_code'));
-        $this->assertTrue(Schema::hasColumn('matter', 'country'));
+        $views = DB::select("SELECT viewname FROM pg_views WHERE schemaname = 'public' AND viewname = ?", [$view]);
+        $this->assertCount(1, $views, "The '{$view}' view should exist");
+
+        // Verify columns if provided (e.g., for critical views like 'users')
+        if (!empty($expectedColumns)) {
+            $columns = DB::select("
+                SELECT column_name FROM information_schema.columns
+                WHERE table_schema = 'public' AND table_name = ?
+                ORDER BY ordinal_position
+            ", [$view]);
+
+            $columnNames = array_map(fn ($c) => $c->column_name, $columns);
+
+            sort($expectedColumns);
+            sort($columnNames);
+            $this->assertEquals(
+                $expectedColumns,
+                $columnNames,
+                "View '{$view}' should have the exact specified columns."
+            );
+        }
     }
 
-    public function test_tier3_event_table_exists(): void
+    /**
+     * Provides view names and their expected columns for verification.
+     * The 'users' view has explicit column checks as it's critical for authentication.
+     */
+    public static function viewProvider(): array
     {
-        $this->assertTrue(Schema::hasTable('event'));
-        $this->assertTrue(Schema::hasColumn('event', 'id'));
-        $this->assertTrue(Schema::hasColumn('event', 'matter_id'));
-        $this->assertTrue(Schema::hasColumn('event', 'code'));
-        $this->assertTrue(Schema::hasColumn('event', 'event_date'));
-    }
-
-    public function test_tier3_task_rules_table_exists(): void
-    {
-        $this->assertTrue(Schema::hasTable('task_rules'));
-        $this->assertTrue(Schema::hasColumn('task_rules', 'id'));
-        $this->assertTrue(Schema::hasColumn('task_rules', 'task'));
-        $this->assertTrue(Schema::hasColumn('task_rules', 'trigger_event'));
-    }
-
-    public function test_tier3_task_table_exists(): void
-    {
-        $this->assertTrue(Schema::hasTable('task'));
-        $this->assertTrue(Schema::hasColumn('task', 'id'));
-        $this->assertTrue(Schema::hasColumn('task', 'trigger_id'));
-        $this->assertTrue(Schema::hasColumn('task', 'code'));
-        $this->assertTrue(Schema::hasColumn('task', 'due_date'));
-    }
-
-    // =========================================================================
-    // TIER 4: Relationship Tables
-    // =========================================================================
-
-    public function test_tier4_matter_actor_lnk_table_exists(): void
-    {
-        $this->assertTrue(Schema::hasTable('matter_actor_lnk'));
-        $this->assertTrue(Schema::hasColumn('matter_actor_lnk', 'id'));
-        $this->assertTrue(Schema::hasColumn('matter_actor_lnk', 'matter_id'));
-        $this->assertTrue(Schema::hasColumn('matter_actor_lnk', 'actor_id'));
-        $this->assertTrue(Schema::hasColumn('matter_actor_lnk', 'role'));
-    }
-
-    public function test_tier4_classifier_table_exists(): void
-    {
-        $this->assertTrue(Schema::hasTable('classifier'));
-        $this->assertTrue(Schema::hasColumn('classifier', 'id'));
-        $this->assertTrue(Schema::hasColumn('classifier', 'matter_id'));
-        $this->assertTrue(Schema::hasColumn('classifier', 'type_code'));
-    }
-
-    public function test_tier4_event_class_lnk_table_exists(): void
-    {
-        $this->assertTrue(Schema::hasTable('event_class_lnk'));
-        $this->assertTrue(Schema::hasColumn('event_class_lnk', 'id'));
-        $this->assertTrue(Schema::hasColumn('event_class_lnk', 'event_name_code'));
-        $this->assertTrue(Schema::hasColumn('event_class_lnk', 'template_class_id'));
-    }
-
-    public function test_tier4_renewals_logs_table_exists(): void
-    {
-        $this->assertTrue(Schema::hasTable('renewals_logs'));
-        $this->assertTrue(Schema::hasColumn('renewals_logs', 'id'));
-        $this->assertTrue(Schema::hasColumn('renewals_logs', 'task_id'));
+        return [
+            'users_view' => ['users', ['id', 'name', 'email', 'password', 'login']],
+            'event_lnk_list_view' => ['event_lnk_list', []],
+            'matter_actors_view' => ['matter_actors', []],
+            'matter_classifiers_view' => ['matter_classifiers', []],
+            'task_list_view' => ['task_list', []],
+        ];
     }
 
     // =========================================================================
-    // TIER 5: Laravel Standard Tables
+    // DATA-DRIVEN FUNCTION TESTS
     // =========================================================================
 
-    public function test_tier5_migrations_table_exists(): void
+    /**
+     * Test that stored functions exist.
+     */
+    #[DataProvider('functionProvider')]
+    public function test_functions_exist(string $functionName): void
     {
-        $this->assertTrue(Schema::hasTable('migrations'));
+        $result = DB::select("SELECT proname FROM pg_proc WHERE proname = ?", [$functionName]);
+        $this->assertCount(1, $result, "The '{$functionName}' function should exist");
     }
 
-    public function test_tier5_password_resets_table_exists(): void
+    /**
+     * Provides function names to verify existence.
+     */
+    public static function functionProvider(): array
     {
-        $this->assertTrue(Schema::hasTable('password_resets'));
-    }
-
-    public function test_tier5_failed_jobs_table_exists(): void
-    {
-        $this->assertTrue(Schema::hasTable('failed_jobs'));
-    }
-
-    // =========================================================================
-    // TIER 6: Audit Table
-    // =========================================================================
-
-    public function test_tier6_audit_logs_table_exists(): void
-    {
-        $this->assertTrue(Schema::hasTable('audit_logs'));
-        $this->assertTrue(Schema::hasColumn('audit_logs', 'id'));
-        $this->assertTrue(Schema::hasColumn('audit_logs', 'auditable_type'));
-        $this->assertTrue(Schema::hasColumn('audit_logs', 'auditable_id'));
+        return [
+            'tcase' => ['tcase'],
+            'actor_list' => ['actor_list'],
+            'matter_status' => ['matter_status'],
+            'compute_matter_uid' => ['compute_matter_uid'],
+            'insert_recurring_renewals' => ['insert_recurring_renewals'],
+            'update_expired' => ['update_expired'],
+        ];
     }
 
     // =========================================================================
-    // VIEWS
+    // DATA-DRIVEN TRIGGER TESTS
     // =========================================================================
 
-    public function test_users_view_exists(): void
-    {
-        $views = DB::select("SELECT viewname FROM pg_views WHERE schemaname = 'public' AND viewname = 'users'");
-        $this->assertCount(1, $views, 'The users view should exist');
-    }
-
-    public function test_users_view_has_correct_columns(): void
-    {
-        $columns = DB::select("
-            SELECT column_name FROM information_schema.columns
-            WHERE table_schema = 'public' AND table_name = 'users'
-            ORDER BY ordinal_position
-        ");
-
-        $columnNames = array_map(fn ($c) => $c->column_name, $columns);
-
-        $this->assertContains('id', $columnNames);
-        $this->assertContains('name', $columnNames);
-        $this->assertContains('email', $columnNames);
-        $this->assertContains('password', $columnNames);
-        $this->assertContains('login', $columnNames);
-    }
-
-    public function test_event_lnk_list_view_exists(): void
-    {
-        $views = DB::select("SELECT viewname FROM pg_views WHERE schemaname = 'public' AND viewname = 'event_lnk_list'");
-        $this->assertCount(1, $views, 'The event_lnk_list view should exist');
-    }
-
-    public function test_matter_actors_view_exists(): void
-    {
-        $views = DB::select("SELECT viewname FROM pg_views WHERE schemaname = 'public' AND viewname = 'matter_actors'");
-        $this->assertCount(1, $views, 'The matter_actors view should exist');
-    }
-
-    public function test_matter_classifiers_view_exists(): void
-    {
-        $views = DB::select("SELECT viewname FROM pg_views WHERE schemaname = 'public' AND viewname = 'matter_classifiers'");
-        $this->assertCount(1, $views, 'The matter_classifiers view should exist');
-    }
-
-    public function test_task_list_view_exists(): void
-    {
-        $views = DB::select("SELECT viewname FROM pg_views WHERE schemaname = 'public' AND viewname = 'task_list'");
-        $this->assertCount(1, $views, 'The task_list view should exist');
-    }
-
-    // =========================================================================
-    // STORED FUNCTIONS
-    // =========================================================================
-
-    public function test_tcase_function_exists(): void
-    {
-        $result = DB::select("SELECT proname FROM pg_proc WHERE proname = 'tcase'");
-        $this->assertCount(1, $result, 'The tcase function should exist');
-    }
-
-    public function test_actor_list_function_exists(): void
-    {
-        $result = DB::select("SELECT proname FROM pg_proc WHERE proname = 'actor_list'");
-        $this->assertCount(1, $result, 'The actor_list function should exist');
-    }
-
-    public function test_matter_status_function_exists(): void
-    {
-        $result = DB::select("SELECT proname FROM pg_proc WHERE proname = 'matter_status'");
-        $this->assertCount(1, $result, 'The matter_status function should exist');
-    }
-
-    public function test_compute_matter_uid_function_exists(): void
-    {
-        $result = DB::select("SELECT proname FROM pg_proc WHERE proname = 'compute_matter_uid'");
-        $this->assertCount(1, $result, 'The compute_matter_uid function should exist');
-    }
-
-    public function test_insert_recurring_renewals_function_exists(): void
-    {
-        $result = DB::select("SELECT proname FROM pg_proc WHERE proname = 'insert_recurring_renewals'");
-        $this->assertCount(1, $result, 'The insert_recurring_renewals function should exist');
-    }
-
-    public function test_update_expired_function_exists(): void
-    {
-        $result = DB::select("SELECT proname FROM pg_proc WHERE proname = 'update_expired'");
-        $this->assertCount(1, $result, 'The update_expired function should exist');
-    }
-
-    // =========================================================================
-    // TRIGGERS
-    // =========================================================================
-
-    public function test_classifier_before_insert_trigger_exists(): void
+    /**
+     * Test that triggers exist.
+     */
+    #[DataProvider('triggerProvider')]
+    public function test_triggers_exist(string $triggerName): void
     {
         $result = DB::select("
             SELECT trigger_name FROM information_schema.triggers
-            WHERE trigger_schema = 'public' AND trigger_name = 'classifier_before_insert'
-        ");
-        $this->assertCount(1, $result, 'The classifier_before_insert trigger should exist');
+            WHERE trigger_schema = 'public' AND trigger_name = ?
+        ", [$triggerName]);
+
+        $this->assertCount(1, $result, "The '{$triggerName}' trigger should exist");
     }
 
-    public function test_event_before_insert_trigger_exists(): void
+    /**
+     * Provides trigger names to verify existence.
+     */
+    public static function triggerProvider(): array
     {
-        $result = DB::select("
-            SELECT trigger_name FROM information_schema.triggers
-            WHERE trigger_schema = 'public' AND trigger_name = 'event_before_insert'
-        ");
-        $this->assertCount(1, $result, 'The event_before_insert trigger should exist');
-    }
-
-    public function test_event_before_update_trigger_exists(): void
-    {
-        $result = DB::select("
-            SELECT trigger_name FROM information_schema.triggers
-            WHERE trigger_schema = 'public' AND trigger_name = 'event_before_update'
-        ");
-        $this->assertCount(1, $result, 'The event_before_update trigger should exist');
-    }
-
-    public function test_matter_before_insert_trigger_exists(): void
-    {
-        $result = DB::select("
-            SELECT trigger_name FROM information_schema.triggers
-            WHERE trigger_schema = 'public' AND trigger_name = 'matter_before_insert'
-        ");
-        $this->assertCount(1, $result, 'The matter_before_insert trigger should exist');
-    }
-
-    public function test_matter_before_update_trigger_exists(): void
-    {
-        $result = DB::select("
-            SELECT trigger_name FROM information_schema.triggers
-            WHERE trigger_schema = 'public' AND trigger_name = 'matter_before_update'
-        ");
-        $this->assertCount(1, $result, 'The matter_before_update trigger should exist');
-    }
-
-    public function test_task_before_insert_trigger_exists(): void
-    {
-        $result = DB::select("
-            SELECT trigger_name FROM information_schema.triggers
-            WHERE trigger_schema = 'public' AND trigger_name = 'task_before_insert'
-        ");
-        $this->assertCount(1, $result, 'The task_before_insert trigger should exist');
-    }
-
-    public function test_task_before_update_trigger_exists(): void
-    {
-        $result = DB::select("
-            SELECT trigger_name FROM information_schema.triggers
-            WHERE trigger_schema = 'public' AND trigger_name = 'task_before_update'
-        ");
-        $this->assertCount(1, $result, 'The task_before_update trigger should exist');
+        return [
+            'classifier_before_insert' => ['classifier_before_insert'],
+            'event_before_insert' => ['event_before_insert'],
+            'event_before_update' => ['event_before_update'],
+            'matter_before_insert' => ['matter_before_insert'],
+            'matter_before_update' => ['matter_before_update'],
+            'task_before_insert' => ['task_before_insert'],
+            'task_before_update' => ['task_before_update'],
+        ];
     }
 
     // =========================================================================
-    // SUMMARY TEST
+    // SUMMARY TESTS (Aggregate Verification)
     // =========================================================================
 
     public function test_all_expected_tables_exist(): void
