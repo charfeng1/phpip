@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Actor;
 use App\Models\Category;
-use App\Models\Country;
 use App\Models\DefaultActor;
 use App\Models\Role;
 use App\Models\User;
@@ -17,14 +16,15 @@ class DefaultActorControllerTest extends TestCase
     public function default_actors_can_be_filtered_by_actor_name()
     {
         $admin = User::factory()->admin()->create();
-        Country::factory()->create(['iso' => 'US', 'name' => json_encode(['en' => 'United States'])]);
+        // AGT role, PAT category, and US country already exist from seeded data
 
         $actorAlpha = Actor::factory()->create(['name' => 'Alpha Actor']);
         $actorBeta = Actor::factory()->create(['name' => 'Beta Actor']);
         $client = Actor::factory()->create(['name' => 'Client One']);
 
-        $role = Role::factory()->agent()->create();
-        $category = Category::factory()->patent()->create();
+        // Use existing seeded data
+        $role = Role::find('AGT');
+        $category = Category::find('PAT');
 
         DefaultActor::create([
             'actor_id' => $actorAlpha->id,

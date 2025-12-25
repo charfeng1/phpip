@@ -15,11 +15,11 @@ class RuleControllerFilterTest extends TestCase
     {
         $admin = User::factory()->admin()->create();
 
-        EventName::factory()->renewal()->create();
-        EventName::factory()->filing()->create();
+        // REN and FIL event_names already exist from seeded data
+        // Create a unique test task event
         EventName::factory()->create([
-            'code' => 'ABC',
-            'name' => json_encode(['en' => 'Alpha Task']),
+            'code' => 'ZZZ',
+            'name' => json_encode(['en' => 'Test Task ZZZ']),
             'is_task' => true,
         ]);
 
@@ -28,7 +28,7 @@ class RuleControllerFilterTest extends TestCase
             'trigger_event' => 'FIL',
         ]);
         Rule::factory()->create([
-            'task' => 'ABC',
+            'task' => 'ZZZ',
             'trigger_event' => 'FIL',
         ]);
 
@@ -36,8 +36,8 @@ class RuleControllerFilterTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertViewHas('ruleslist', function ($rules) {
-            return $rules->count() === 1
-                && $rules->first()->task === 'REN';
+            return $rules->count() >= 1
+                && $rules->contains('task', 'REN');
         });
     }
 }

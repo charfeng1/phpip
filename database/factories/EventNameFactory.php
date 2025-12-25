@@ -24,7 +24,6 @@ class EventNameFactory extends Factory
             'default_responsible' => null,
             'use_matter_resp' => false,
             'unique' => false,
-            'uqtrigger' => null,
             'killer' => false,
             'notes' => null,
         ];

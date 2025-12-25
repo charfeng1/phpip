@@ -16,6 +16,30 @@ use Illuminate\Support\Carbon;
 class EventController extends Controller
 {
     use HandlesAuditFields;
+
+    /**
+     * Display a listing of events.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index()
+    {
+        $events = Event::with('info')->get();
+
+        return response()->json($events);
+    }
+
+    /**
+     * Display the specified event.
+     *
+     * @param Event $event The event to display.
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(Event $event)
+    {
+        return response()->json($event);
+    }
+
     /**
      * Store a new event in the database.
      *
