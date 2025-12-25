@@ -13,7 +13,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'ADV',
-                'name' => json_encode(['en' => 'Adversary', 'fr' => 'Adversaire', 'de' => 'Gegenpartei']),
+                'name' => json_encode(['en' => 'Adversary', 'fr' => 'Adversaire', 'de' => 'Gegenpartei', 'zh' => '对手']),
                 'display_order' => 127,
                 'shareable' => 0,
                 'show_ref' => 1,
@@ -29,7 +29,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'AGT',
-                'name' => json_encode(['en' => 'Primary Agent', 'fr' => 'Agent principal', 'de' => 'Hauptvertreter']),
+                'name' => json_encode(['en' => 'Primary Agent', 'fr' => 'Agent principal', 'de' => 'Hauptvertreter', 'zh' => '主代理人']),
                 'display_order' => 20,
                 'shareable' => 0,
                 'show_ref' => 1,
@@ -45,7 +45,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'AGT2',
-                'name' => json_encode(['en' => 'Secondary Agent', 'fr' => 'Agent secondaire', 'de' => 'Zweitvertreter']),
+                'name' => json_encode(['en' => 'Secondary Agent', 'fr' => 'Agent secondaire', 'de' => 'Zweitvertreter', 'zh' => '副代理人']),
                 'display_order' => 22,
                 'shareable' => 0,
                 'show_ref' => 1,
@@ -61,7 +61,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'ANN',
-                'name' => json_encode(['en' => 'Annuity Agent', 'fr' => 'Agent annuités', 'de' => 'Jahresgebührenvertreter']),
+                'name' => json_encode(['en' => 'Annuity Agent', 'fr' => 'Agent annuités', 'de' => 'Jahresgebührenvertreter', 'zh' => '年费代理人']),
                 'display_order' => 21,
                 'shareable' => 0,
                 'show_ref' => 1,
@@ -77,7 +77,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'APP',
-                'name' => json_encode(['en' => 'Applicant', 'fr' => 'Déposant', 'de' => 'Anmelder']),
+                'name' => json_encode(['en' => 'Applicant', 'fr' => 'Déposant', 'de' => 'Anmelder', 'zh' => '申请人']),
                 'display_order' => 10,
                 'shareable' => 1,
                 'show_ref' => 0,
@@ -93,7 +93,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'CLI',
-                'name' => json_encode(['en' => 'Client', 'fr' => 'Client', 'de' => 'Mandant']),
+                'name' => json_encode(['en' => 'Client', 'fr' => 'Client', 'de' => 'Mandant', 'zh' => '客户']),
                 'display_order' => 5,
                 'shareable' => 1,
                 'show_ref' => 0,
@@ -109,7 +109,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'CNT',
-                'name' => json_encode(['en' => 'Contact', 'fr' => 'Contact', 'de' => 'Kontakt']),
+                'name' => json_encode(['en' => 'Contact', 'fr' => 'Contact', 'de' => 'Kontakt', 'zh' => '联系人']),
                 'display_order' => 30,
                 'shareable' => 1,
                 'show_ref' => 0,
@@ -125,7 +125,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'DBA',
-                'name' => json_encode(['en' => 'DB Administrator', 'fr' => 'BDD Admin.', 'de' => 'DB-Administrator']),
+                'name' => json_encode(['en' => 'DB Administrator', 'fr' => 'BDD Admin.', 'de' => 'DB-Administrator', 'zh' => '数据库管理员']),
                 'display_order' => 127,
                 'shareable' => 0,
                 'show_ref' => 0,
@@ -141,7 +141,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'DBRO',
-                'name' => json_encode(['en' => 'DB Read-Only', 'fr' => 'BDD Lecture seule', 'de' => 'DB Nur-Lesezugriff']),
+                'name' => json_encode(['en' => 'DB Read-Only', 'fr' => 'BDD Lecture seule', 'de' => 'DB Nur-Lesezugriff', 'zh' => '数据库只读']),
                 'display_order' => 127,
                 'shareable' => 0,
                 'show_ref' => 0,
@@ -157,7 +157,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'DBRW',
-                'name' => json_encode(['en' => 'DB Read/Write', 'fr' => 'BDD Lecture/écriture', 'de' => 'DB Lese-/Schreibzugriff']),
+                'name' => json_encode(['en' => 'DB Read/Write', 'fr' => 'BDD Lecture/écriture', 'de' => 'DB Lese-/Schreibzugriff', 'zh' => '数据库读写']),
                 'display_order' => 127,
                 'shareable' => 0,
                 'show_ref' => 0,
@@ -173,7 +173,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'DEL',
-                'name' => json_encode(['en' => 'Delegate', 'fr' => 'Délégataire', 'de' => 'Bevollmächtigter']),
+                'name' => json_encode(['en' => 'Delegate', 'fr' => 'Délégataire', 'de' => 'Bevollmächtigter', 'zh' => '代表']),
                 'display_order' => 127,
                 'shareable' => 0,
                 'show_ref' => 0,
@@ -189,7 +189,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'FAGT',
-                'name' => json_encode(['en' => 'Former Agent', 'fr' => 'Ancien agent', 'de' => 'Ehemaliger Vertreter']),
+                'name' => json_encode(['en' => 'Former Agent', 'fr' => 'Ancien agent', 'de' => 'Ehemaliger Vertreter', 'zh' => '前任代理人']),
                 'display_order' => 127,
                 'shareable' => 0,
                 'show_ref' => 1,
@@ -205,7 +205,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'FOWN',
-                'name' => json_encode(['en' => 'Former Owner', 'fr' => 'Ancien titulairte', 'de' => 'Ehemaliger Inhaber']),
+                'name' => json_encode(['en' => 'Former Owner', 'fr' => 'Ancien titulairte', 'de' => 'Ehemaliger Inhaber', 'zh' => '前任所有人']),
                 'display_order' => 127,
                 'shareable' => 0,
                 'show_ref' => 0,
@@ -221,7 +221,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'INV',
-                'name' => json_encode(['en' => 'Inventor', 'fr' => 'Inventeur', 'de' => 'Erfinder']),
+                'name' => json_encode(['en' => 'Inventor', 'fr' => 'Inventeur', 'de' => 'Erfinder', 'zh' => '发明人']),
                 'display_order' => 15,
                 'shareable' => 1,
                 'show_ref' => 0,
@@ -237,7 +237,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'LCN',
-                'name' => json_encode(['en' => 'Licensee', 'fr' => 'Licencié', 'de' => 'Lizenznehmer']),
+                'name' => json_encode(['en' => 'Licensee', 'fr' => 'Licencié', 'de' => 'Lizenznehmer', 'zh' => '被许可人']),
                 'display_order' => 127,
                 'shareable' => 0,
                 'show_ref' => 0,
@@ -253,7 +253,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'OFF',
-                'name' => json_encode(['en' => 'Patent Office', 'fr' => 'Office des brevets', 'de' => 'Patentamt']),
+                'name' => json_encode(['en' => 'Patent Office', 'fr' => 'Office des brevets', 'de' => 'Patentamt', 'zh' => '专利局']),
                 'display_order' => 127,
                 'shareable' => 0,
                 'show_ref' => 0,
@@ -269,7 +269,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'OPP',
-                'name' => json_encode(['en' => 'Opponent', 'fr' => 'Opposant', 'de' => 'Einsprechender']),
+                'name' => json_encode(['en' => 'Opponent', 'fr' => 'Opposant', 'de' => 'Einsprechender', 'zh' => '异议人']),
                 'display_order' => 127,
                 'shareable' => 0,
                 'show_ref' => 0,
@@ -285,7 +285,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'OWN',
-                'name' => json_encode(['en' => 'Owner', 'fr' => 'Titulaire', 'de' => 'Inhaber']),
+                'name' => json_encode(['en' => 'Owner', 'fr' => 'Titulaire', 'de' => 'Inhaber', 'zh' => '所有人']),
                 'display_order' => 8,
                 'shareable' => 1,
                 'show_ref' => 0,
@@ -301,7 +301,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'PAY',
-                'name' => json_encode(['en' => 'Payor', 'fr' => 'Payeur', 'de' => 'Zahler']),
+                'name' => json_encode(['en' => 'Payor', 'fr' => 'Payeur', 'de' => 'Zahler', 'zh' => '付款人']),
                 'display_order' => 127,
                 'shareable' => 0,
                 'show_ref' => 0,
@@ -317,7 +317,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'PTNR',
-                'name' => json_encode(['en' => 'Partner', 'fr' => 'Partenaire', 'de' => 'Partner']),
+                'name' => json_encode(['en' => 'Partner', 'fr' => 'Partenaire', 'de' => 'Partner', 'zh' => '合伙人']),
                 'display_order' => 127,
                 'shareable' => 0,
                 'show_ref' => 0,
@@ -333,7 +333,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'TRA',
-                'name' => json_encode(['en' => 'Translator', 'fr' => 'Traducteur', 'de' => 'Übersetzer']),
+                'name' => json_encode(['en' => 'Translator', 'fr' => 'Traducteur', 'de' => 'Übersetzer', 'zh' => '翻译']),
                 'display_order' => 127,
                 'shareable' => 0,
                 'show_ref' => 0,
@@ -349,7 +349,7 @@ class ActorRoleTableSeeder extends Seeder
 
             [
                 'code' => 'WRI',
-                'name' => json_encode(['en' => 'Writer', 'fr' => 'Rédacteur', 'de' => 'Verfasser']),
+                'name' => json_encode(['en' => 'Writer', 'fr' => 'Rédacteur', 'de' => 'Verfasser', 'zh' => '撰稿人']),
                 'display_order' => 127,
                 'shareable' => 0,
                 'show_ref' => 0,

@@ -13,7 +13,7 @@ class MatterTypeTableSeeder extends Seeder
 
             [
                 'code' => 'CIP',
-                'type' => json_encode(['en' => 'Continuation in Part', 'fr' => 'Continuation partielle', 'de' => 'Teilfortsetzungsanmeldung']),
+                'type' => json_encode(['en' => 'Continuation in Part', 'fr' => 'Continuation partielle', 'de' => 'Teilfortsetzungsanmeldung', 'zh' => '部分延续']),
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
@@ -22,7 +22,7 @@ class MatterTypeTableSeeder extends Seeder
 
             [
                 'code' => 'CNT',
-                'type' => json_encode(['en' => 'Continuation', 'fr' => 'Continuation', 'de' => 'Fortsetzungsanmeldung']),
+                'type' => json_encode(['en' => 'Continuation', 'fr' => 'Continuation', 'de' => 'Fortsetzungsanmeldung', 'zh' => '延续案']),
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
@@ -31,7 +31,7 @@ class MatterTypeTableSeeder extends Seeder
 
             [
                 'code' => 'DIV',
-                'type' => json_encode(['en' => 'Divisional', 'fr' => 'Divisionnaire', 'de' => 'Teilanmeldung']),
+                'type' => json_encode(['en' => 'Divisional', 'fr' => 'Divisionnaire', 'de' => 'Teilanmeldung', 'zh' => '分案']),
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
@@ -40,7 +40,7 @@ class MatterTypeTableSeeder extends Seeder
 
             [
                 'code' => 'PRO',
-                'type' => json_encode(['en' => 'Provisional', 'fr' => 'Provisoire', 'de' => 'Vorläufige Anmeldung']),
+                'type' => json_encode(['en' => 'Provisional', 'fr' => 'Provisoire', 'de' => 'Vorläufige Anmeldung', 'zh' => '临时申请']),
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
@@ -49,7 +49,7 @@ class MatterTypeTableSeeder extends Seeder
 
             [
                 'code' => 'REI',
-                'type' => json_encode(['en' => 'Reissue', 'fr' => 'Redélivrance', 'de' => 'Neuerteilung']),
+                'type' => json_encode(['en' => 'Reissue', 'fr' => 'Redélivrance', 'de' => 'Neuerteilung', 'zh' => '重新颁发']),
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
@@ -58,7 +58,7 @@ class MatterTypeTableSeeder extends Seeder
 
             [
                 'code' => 'REX',
-                'type' => json_encode(['en' => 'Re-examination', 'fr' => 'Réexamen', 'de' => 'Neuprüfungsverfahren']),
+                'type' => json_encode(['en' => 'Re-examination', 'fr' => 'Réexamen', 'de' => 'Neuprüfungsverfahren', 'zh' => '复审']),
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),

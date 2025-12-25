@@ -13,7 +13,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'ABA',
-                'name' => json_encode(['en' => 'Abandoned', 'fr' => 'Abandonné', 'de' => 'Aufgegeben']),
+                'name' => json_encode(['en' => 'Abandoned', 'fr' => 'Abandonné', 'de' => 'Aufgegeben', 'zh' => '放弃']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -31,7 +31,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'ABO',
-                'name' => json_encode(['en' => 'Abandon Original', 'fr' => 'Abandon original', 'de' => 'Ursprüngliches aufgeben']),
+                'name' => json_encode(['en' => 'Abandon Original', 'fr' => 'Abandon original', 'de' => 'Ursprüngliches aufgeben', 'zh' => '放弃原案']),
                 'category' => 'PAT',
                 'country' => 'EP',
                 'is_task' => 1,
@@ -49,7 +49,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'ADV',
-                'name' => json_encode(['en' => 'Advisory Action', 'fr' => 'Advisory Action', 'de' => 'Advisory Action']),
+                'name' => json_encode(['en' => 'Advisory Action', 'fr' => 'Advisory Action', 'de' => 'Advisory Action', 'zh' => '咨询意见']),
                 'category' => 'PAT',
                 'country' => 'US',
                 'is_task' => 0,
@@ -67,7 +67,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'ALL',
-                'name' => json_encode(['en' => 'Allowance', 'fr' => 'Intention délivrance', 'de' => 'Zulassung']),
+                'name' => json_encode(['en' => 'Allowance', 'fr' => 'Intention délivrance', 'de' => 'Zulassung', 'zh' => '授权意向']),
                 'category' => 'PAT',
                 'country' => null,
                 'is_task' => 0,
@@ -85,7 +85,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'APL',
-                'name' => json_encode(['en' => 'Appeal', 'fr' => 'Recours', 'de' => 'Beschwerde']),
+                'name' => json_encode(['en' => 'Appeal', 'fr' => 'Recours', 'de' => 'Beschwerde', 'zh' => '上诉']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -103,7 +103,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'CAN',
-                'name' => json_encode(['en' => 'Cancelled', 'fr' => 'Annulé', 'de' => 'Storniert']),
+                'name' => json_encode(['en' => 'Cancelled', 'fr' => 'Annulé', 'de' => 'Storniert', 'zh' => '取消']),
                 'category' => 'TM',
                 'country' => null,
                 'is_task' => 0,
@@ -121,7 +121,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'CLO',
-                'name' => json_encode(['en' => 'Closed', 'fr' => 'Clôturé', 'de' => 'Geschlossen']),
+                'name' => json_encode(['en' => 'Closed', 'fr' => 'Clôturé', 'de' => 'Geschlossen', 'zh' => '关闭']),
                 'category' => 'LTG',
                 'country' => null,
                 'is_task' => 0,
@@ -139,7 +139,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'COM',
-                'name' => json_encode(['en' => 'Communication', 'fr' => 'Communication', 'de' => 'Mitteilung']),
+                'name' => json_encode(['en' => 'Communication', 'fr' => 'Communication', 'de' => 'Mitteilung', 'zh' => '通知']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -157,7 +157,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'CRE',
-                'name' => json_encode(['en' => 'Created', 'fr' => 'Création', 'de' => 'Erstellt']),
+                'name' => json_encode(['en' => 'Created', 'fr' => 'Création', 'de' => 'Erstellt', 'zh' => '创建']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -175,7 +175,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'DAPL',
-                'name' => json_encode(['en' => 'Decision on Appeal', 'fr' => 'Décision sur recours', 'de' => 'Beschwerdeentscheidung']),
+                'name' => json_encode(['en' => 'Decision on Appeal', 'fr' => 'Décision sur recours', 'de' => 'Beschwerdeentscheidung', 'zh' => '上诉决定']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -193,7 +193,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'DBY',
-                'name' => json_encode(['en' => 'Draft By', 'fr' => 'Rédiger avant le', 'de' => 'Entwurf bis']),
+                'name' => json_encode(['en' => 'Draft By', 'fr' => 'Rédiger avant le', 'de' => 'Entwurf bis', 'zh' => '起草截止']),
                 'category' => 'PAT',
                 'country' => null,
                 'is_task' => 1,
@@ -211,7 +211,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'DEX',
-                'name' => json_encode(['en' => 'Deadline Extended', 'fr' => 'Délai prolongé', 'de' => 'Frist verlängert']),
+                'name' => json_encode(['en' => 'Deadline Extended', 'fr' => 'Délai prolongé', 'de' => 'Frist verlängert', 'zh' => '期限延长']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -229,7 +229,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'DPAPL',
-                'name' => json_encode(['en' => 'Decision on Pre-Appeal', 'fr' => 'Décision pré-recours', 'de' => 'Vorentscheidung']),
+                'name' => json_encode(['en' => 'Decision on Pre-Appeal', 'fr' => 'Décision pré-recours', 'de' => 'Vorentscheidung', 'zh' => '预上诉决定']),
                 'category' => 'PAT',
                 'country' => 'US',
                 'is_task' => 0,
@@ -247,7 +247,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'DRA',
-                'name' => json_encode(['en' => 'Drafted', 'fr' => 'Rédigé', 'de' => 'Entworfen']),
+                'name' => json_encode(['en' => 'Drafted', 'fr' => 'Rédigé', 'de' => 'Entworfen', 'zh' => '已起草']),
                 'category' => 'PAT',
                 'country' => null,
                 'is_task' => 0,
@@ -265,7 +265,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'DW',
-                'name' => json_encode(['en' => 'Deemed withrawn', 'fr' => 'Réputé retiré', 'de' => 'Als zurückgenommen geltend']),
+                'name' => json_encode(['en' => 'Deemed withrawn', 'fr' => 'Réputé retiré', 'de' => 'Als zurückgenommen geltend', 'zh' => '视为撤回']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -283,7 +283,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'EHK',
-                'name' => json_encode(['en' => 'Extend to Hong Kong', 'fr' => 'Étendre à Hong Kong', 'de' => 'Erstreckung auf Hongkong']),
+                'name' => json_encode(['en' => 'Extend to Hong Kong', 'fr' => 'Étendre à Hong Kong', 'de' => 'Erstreckung auf Hongkong', 'zh' => '延伸至香港']),
                 'category' => 'PAT',
                 'country' => 'CN',
                 'is_task' => 1,
@@ -301,7 +301,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'ENT',
-                'name' => json_encode(['en' => 'Entered', 'fr' => 'Entrée', 'de' => 'Eingetreten']),
+                'name' => json_encode(['en' => 'Entered', 'fr' => 'Entrée', 'de' => 'Eingetreten', 'zh' => '进入']),
                 'category' => 'PAT',
                 'country' => null,
                 'is_task' => 0,
@@ -319,7 +319,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'EOP',
-                'name' => json_encode(['en' => 'End of Procedure', 'fr' => 'Fin de procédure', 'de' => 'Verfahrensende']),
+                'name' => json_encode(['en' => 'End of Procedure', 'fr' => 'Fin de procédure', 'de' => 'Verfahrensende', 'zh' => '程序结束']),
                 'category' => 'PAT',
                 'country' => null,
                 'is_task' => 0,
@@ -337,7 +337,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'EXA',
-                'name' => json_encode(['en' => 'Examiner Action', 'fr' => 'Notification d\'examen', 'de' => 'Prüferbescheid']),
+                'name' => json_encode(['en' => 'Examiner Action', 'fr' => 'Notification d\'examen', 'de' => 'Prüferbescheid', 'zh' => '审查意见']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -355,7 +355,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'EXAF',
-                'name' => json_encode(['en' => 'Examiner Action (Final)', 'fr' => 'Notif. Exa. (Finale)', 'de' => 'Schlussbescheid Prüfer']),
+                'name' => json_encode(['en' => 'Examiner Action (Final)', 'fr' => 'Notif. Exa. (Finale)', 'de' => 'Schlussbescheid Prüfer', 'zh' => '审查意见（终局）']),
                 'category' => 'PAT',
                 'country' => 'US',
                 'is_task' => 0,
@@ -373,7 +373,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'EXP',
-                'name' => json_encode(['en' => 'Expiry', 'fr' => 'Expiration', 'de' => 'Ablauf']),
+                'name' => json_encode(['en' => 'Expiry', 'fr' => 'Expiration', 'de' => 'Ablauf', 'zh' => '届满']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -391,7 +391,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'FAP',
-                'name' => json_encode(['en' => 'File Notice of Appeal', 'fr' => 'Déposer avis de recours', 'de' => 'Beschwerde einlegen']),
+                'name' => json_encode(['en' => 'File Notice of Appeal', 'fr' => 'Déposer avis de recours', 'de' => 'Beschwerde einlegen', 'zh' => '提交上诉通知']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 1,
@@ -409,7 +409,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'FBY',
-                'name' => json_encode(['en' => 'File by', 'fr' => 'Déposer avant le', 'de' => 'Einreichen bis']),
+                'name' => json_encode(['en' => 'File by', 'fr' => 'Déposer avant le', 'de' => 'Einreichen bis', 'zh' => '提交截止']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 1,
@@ -427,7 +427,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'FDIV',
-                'name' => json_encode(['en' => 'File Divisional', 'fr' => 'Déposer divisionnaire', 'de' => 'Teilanmeldung einreichen']),
+                'name' => json_encode(['en' => 'File Divisional', 'fr' => 'Déposer divisionnaire', 'de' => 'Teilanmeldung einreichen', 'zh' => '提交分案']),
                 'category' => 'PAT',
                 'country' => null,
                 'is_task' => 1,
@@ -445,7 +445,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'FIL',
-                'name' => json_encode(['en' => 'Filed', 'fr' => 'Déposé', 'de' => 'Eingereicht']),
+                'name' => json_encode(['en' => 'Filed', 'fr' => 'Déposé', 'de' => 'Eingereicht', 'zh' => '已提交']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -463,7 +463,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'FOP',
-                'name' => json_encode(['en' => 'File Opposition', 'fr' => 'Déposer opposition', 'de' => 'Einspruch einlegen']),
+                'name' => json_encode(['en' => 'File Opposition', 'fr' => 'Déposer opposition', 'de' => 'Einspruch einlegen', 'zh' => '提交异议']),
                 'category' => 'OP',
                 'country' => 'EP',
                 'is_task' => 1,
@@ -481,7 +481,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'FPR',
-                'name' => json_encode(['en' => 'Further Processing', 'fr' => 'Poursuite procédure', 'de' => 'Weiterbehandlung']),
+                'name' => json_encode(['en' => 'Further Processing', 'fr' => 'Poursuite procédure', 'de' => 'Weiterbehandlung', 'zh' => '继续处理']),
                 'category' => 'PAT',
                 'country' => null,
                 'is_task' => 1,
@@ -499,7 +499,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'FRCE',
-                'name' => json_encode(['en' => 'File RCE', 'fr' => 'Déposer RCE', 'de' => 'RCE einreichen']),
+                'name' => json_encode(['en' => 'File RCE', 'fr' => 'Déposer RCE', 'de' => 'RCE einreichen', 'zh' => '提交RCE']),
                 'category' => 'PAT',
                 'country' => 'US',
                 'is_task' => 1,
@@ -517,7 +517,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'GRT',
-                'name' => json_encode(['en' => 'Granted', 'fr' => 'Délivré', 'de' => 'Erteilt']),
+                'name' => json_encode(['en' => 'Granted', 'fr' => 'Délivré', 'de' => 'Erteilt', 'zh' => '已授权']),
                 'category' => 'PAT',
                 'country' => null,
                 'is_task' => 0,
@@ -535,7 +535,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'INV',
-                'name' => json_encode(['en' => 'Invalidated', 'fr' => 'Invalidé', 'de' => 'Für ungültig erklärt']),
+                'name' => json_encode(['en' => 'Invalidated', 'fr' => 'Invalidé', 'de' => 'Für ungültig erklärt', 'zh' => '无效']),
                 'category' => 'TM',
                 'country' => 'US',
                 'is_task' => 0,
@@ -553,7 +553,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'IPER',
-                'name' => json_encode(['en' => 'International Preliminary Examination Report', 'fr' => 'Rapport d\'examen préliminaire international', 'de' => 'Internationaler vorläufiger Prüfungsbericht']),
+                'name' => json_encode(['en' => 'International Preliminary Examination Report', 'fr' => 'Rapport d\'examen préliminaire international', 'de' => 'Internationaler vorläufiger Prüfungsbericht', 'zh' => '国际初步审查报告']),
                 'category' => 'PAT',
                 'country' => 'WO',
                 'is_task' => 0,
@@ -571,7 +571,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'LAP',
-                'name' => json_encode(['en' => 'Lapsed', 'fr' => 'Déchu', 'de' => 'Verfallen']),
+                'name' => json_encode(['en' => 'Lapsed', 'fr' => 'Déchu', 'de' => 'Verfallen', 'zh' => '失效']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -589,7 +589,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'NPH',
-                'name' => json_encode(['en' => 'National Phase', 'fr' => 'Phase nationale', 'de' => 'Nationale Phase']),
+                'name' => json_encode(['en' => 'National Phase', 'fr' => 'Phase nationale', 'de' => 'Nationale Phase', 'zh' => '国家阶段']),
                 'category' => 'PAT',
                 'country' => 'WO',
                 'is_task' => 1,
@@ -607,7 +607,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'OPP',
-                'name' => json_encode(['en' => 'Opposition', 'fr' => 'Opposition', 'de' => 'Einspruch']),
+                'name' => json_encode(['en' => 'Opposition', 'fr' => 'Opposition', 'de' => 'Einspruch', 'zh' => '异议']),
                 'category' => null,
                 'country' => 'EP',
                 'is_task' => 0,
@@ -625,7 +625,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'ORI',
-                'name' => json_encode(['en' => 'Original', 'fr' => 'Original', 'de' => 'Original']),
+                'name' => json_encode(['en' => 'Original', 'fr' => 'Original', 'de' => 'Original', 'zh' => '原始']),
                 'category' => 'PAT',
                 'country' => null,
                 'is_task' => 0,
@@ -643,7 +643,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'OPR',
-                'name' => json_encode(['en' => 'Oral Proceedings', 'fr' => 'Procédure orale', 'de' => 'Mündliche Verhandlung']),
+                'name' => json_encode(['en' => 'Oral Proceedings', 'fr' => 'Procédure orale', 'de' => 'Mündliche Verhandlung', 'zh' => '口头审理']),
                 'category' => 'PAT',
                 'country' => 'EP',
                 'is_task' => 1,
@@ -661,7 +661,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'ORE',
-                'name' => json_encode(['en' => 'Opposition rejected', 'fr' => 'Opposition rejetée', 'de' => 'Einspruch zurückgewiesen']),
+                'name' => json_encode(['en' => 'Opposition rejected', 'fr' => 'Opposition rejetée', 'de' => 'Einspruch zurückgewiesen', 'zh' => '异议被驳回']),
                 'category' => 'PAT',
                 'country' => 'EP',
                 'is_task' => 0,
@@ -679,7 +679,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'PAY',
-                'name' => json_encode(['en' => 'Pay', 'fr' => 'Payer', 'de' => 'Zahlen']),
+                'name' => json_encode(['en' => 'Pay', 'fr' => 'Payer', 'de' => 'Zahlen', 'zh' => '支付']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 1,
@@ -697,7 +697,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'PDES',
-                'name' => json_encode(['en' => 'Post designation', 'fr' => 'Désignation postérieure', 'de' => 'Nachträgliche Benennung']),
+                'name' => json_encode(['en' => 'Post designation', 'fr' => 'Désignation postérieure', 'de' => 'Nachträgliche Benennung', 'zh' => '后续指定']),
                 'category' => 'TM',
                 'country' => 'WO',
                 'is_task' => 0,
@@ -715,7 +715,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'PFIL',
-                'name' => json_encode(['en' => 'Parent Filed', 'fr' => 'Dépôt parent', 'de' => 'Stammanmeldung eingereicht']),
+                'name' => json_encode(['en' => 'Parent Filed', 'fr' => 'Dépôt parent', 'de' => 'Stammanmeldung eingereicht', 'zh' => '母案提交']),
                 'category' => 'PAT',
                 'country' => null,
                 'is_task' => 0,
@@ -733,7 +733,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'PR',
-                'name' => json_encode(['en' => 'Publication of Reg.', 'fr' => 'Publication enreg.', 'de' => 'Veröffentlichung Reg.']),
+                'name' => json_encode(['en' => 'Publication of Reg.', 'fr' => 'Publication enreg.', 'de' => 'Veröffentlichung Reg.', 'zh' => '注册公告']),
                 'category' => 'TM',
                 'country' => null,
                 'is_task' => 0,
@@ -751,7 +751,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'PREP',
-                'name' => json_encode(['en' => 'Prepare', 'fr' => 'Préparer', 'de' => 'Vorbereiten']),
+                'name' => json_encode(['en' => 'Prepare', 'fr' => 'Préparer', 'de' => 'Vorbereiten', 'zh' => '准备']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 1,
@@ -769,7 +769,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'PRI',
-                'name' => json_encode(['en' => 'Priority Claim', 'fr' => 'Revendication priorité', 'de' => 'Prioritätsanspruch']),
+                'name' => json_encode(['en' => 'Priority Claim', 'fr' => 'Revendication priorité', 'de' => 'Prioritätsanspruch', 'zh' => '优先权']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -787,7 +787,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'PRID',
-                'name' => json_encode(['en' => 'Priority Deadline', 'fr' => 'Délai priorité', 'de' => 'Prioritätsfrist']),
+                'name' => json_encode(['en' => 'Priority Deadline', 'fr' => 'Délai priorité', 'de' => 'Prioritätsfrist', 'zh' => '优先权期限']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 1,
@@ -805,7 +805,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'PROD',
-                'name' => json_encode(['en' => 'Produce', 'fr' => 'Produire', 'de' => 'Erstellen/Einreichen']),
+                'name' => json_encode(['en' => 'Produce', 'fr' => 'Produire', 'de' => 'Erstellen/Einreichen', 'zh' => '提供']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 1,
@@ -823,7 +823,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'PSR',
-                'name' => json_encode(['en' => 'Publication of SR', 'fr' => 'Publication rap. rech.', 'de' => 'Veröffentlichung Rech.ber.']),
+                'name' => json_encode(['en' => 'Publication of SR', 'fr' => 'Publication rap. rech.', 'de' => 'Veröffentlichung Rech.ber.', 'zh' => '检索报告公布']),
                 'category' => 'PAT',
                 'country' => 'EP',
                 'is_task' => 0,
@@ -841,7 +841,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'PUB',
-                'name' => json_encode(['en' => 'Published', 'fr' => 'Publié', 'de' => 'Veröffentlicht']),
+                'name' => json_encode(['en' => 'Published', 'fr' => 'Publié', 'de' => 'Veröffentlicht', 'zh' => '已公布']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -859,7 +859,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'RCE',
-                'name' => json_encode(['en' => 'Request Continued Examination', 'fr' => 'Requête RCE', 'de' => 'Antrag auf Fortsetzung Prüfung']),
+                'name' => json_encode(['en' => 'Request Continued Examination', 'fr' => 'Requête RCE', 'de' => 'Antrag auf Fortsetzung Prüfung', 'zh' => '请求继续审查']),
                 'category' => 'PAT',
                 'country' => 'US',
                 'is_task' => 0,
@@ -877,7 +877,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'REC',
-                'name' => json_encode(['en' => 'Received', 'fr' => 'Reçu', 'de' => 'Empfangen']),
+                'name' => json_encode(['en' => 'Received', 'fr' => 'Reçu', 'de' => 'Empfangen', 'zh' => '已收到']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -895,7 +895,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'REF',
-                'name' => json_encode(['en' => 'Refused', 'fr' => 'Refusé', 'de' => 'Zurückgewiesen']),
+                'name' => json_encode(['en' => 'Refused', 'fr' => 'Refusé', 'de' => 'Zurückgewiesen', 'zh' => '驳回']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -913,7 +913,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'REJF',
-                'name' => json_encode(['en' => 'Rejection Final', 'fr' => 'Rejet définitif', 'de' => 'Endgültige Ablehnung']),
+                'name' => json_encode(['en' => 'Rejection Final', 'fr' => 'Rejet définitif', 'de' => 'Endgültige Ablehnung', 'zh' => '最终驳回']),
                 'category' => 'PAT',
                 'country' => 'US',
                 'is_task' => 0,
@@ -931,7 +931,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'REG',
-                'name' => json_encode(['en' => 'Registration', 'fr' => 'Enregistrement', 'de' => 'Registrierung']),
+                'name' => json_encode(['en' => 'Registration', 'fr' => 'Enregistrement', 'de' => 'Registrierung', 'zh' => '注册']),
                 'category' => 'TM',
                 'country' => null,
                 'is_task' => 0,
@@ -949,7 +949,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'REM',
-                'name' => json_encode(['en' => 'Reminder', 'fr' => 'Rappel', 'de' => 'Erinnerung']),
+                'name' => json_encode(['en' => 'Reminder', 'fr' => 'Rappel', 'de' => 'Erinnerung', 'zh' => '提醒']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 1,
@@ -967,7 +967,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'REN',
-                'name' => json_encode(['en' => 'Renewal', 'fr' => 'Renouvellement', 'de' => 'Verlängerung']),
+                'name' => json_encode(['en' => 'Renewal', 'fr' => 'Renouvellement', 'de' => 'Verlängerung', 'zh' => '续展']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 1,
@@ -985,7 +985,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'REP',
-                'name' => json_encode(['en' => 'Respond', 'fr' => 'Répondre', 'de' => 'Erwidern']),
+                'name' => json_encode(['en' => 'Respond', 'fr' => 'Répondre', 'de' => 'Erwidern', 'zh' => '答复']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 1,
@@ -1003,7 +1003,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'REST',
-                'name' => json_encode(['en' => 'Restored', 'fr' => 'Restauré', 'de' => 'Wiederhergestellt']),
+                'name' => json_encode(['en' => 'Restored', 'fr' => 'Restauré', 'de' => 'Wiederhergestellt', 'zh' => '恢复']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -1021,7 +1021,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'REQ',
-                'name' => json_encode(['en' => 'Request', 'fr' => 'Requête', 'de' => 'Antrag']),
+                'name' => json_encode(['en' => 'Request', 'fr' => 'Requête', 'de' => 'Antrag', 'zh' => '请求']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 1,
@@ -1039,7 +1039,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'RSTR',
-                'name' => json_encode(['en' => 'Restriction Req.', 'fr' => 'Requête restriction', 'de' => 'Beschränkungsantrag']),
+                'name' => json_encode(['en' => 'Restriction Req.', 'fr' => 'Requête restriction', 'de' => 'Beschränkungsantrag', 'zh' => '限制请求']),
                 'category' => 'PAT',
                 'country' => 'US',
                 'is_task' => 0,
@@ -1057,7 +1057,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'SOL',
-                'name' => json_encode(['en' => 'Sold', 'fr' => 'Vendu', 'de' => 'Verkauft']),
+                'name' => json_encode(['en' => 'Sold', 'fr' => 'Vendu', 'de' => 'Verkauft', 'zh' => '已转让']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -1075,7 +1075,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'SOP',
-                'name' => json_encode(['en' => 'Summons to Oral Proc.', 'fr' => 'Citation proc. orale', 'de' => 'Ladung zur Mündl. Verh.']),
+                'name' => json_encode(['en' => 'Summons to Oral Proc.', 'fr' => 'Citation proc. orale', 'de' => 'Ladung zur Mündl. Verh.', 'zh' => '传唤口头审理']),
                 'category' => 'PAT',
                 'country' => 'EP',
                 'is_task' => 0,
@@ -1093,7 +1093,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'SR',
-                'name' => json_encode(['en' => 'Search Report', 'fr' => 'Rapport de recherche', 'de' => 'Recherchenbericht']),
+                'name' => json_encode(['en' => 'Search Report', 'fr' => 'Rapport de recherche', 'de' => 'Recherchenbericht', 'zh' => '检索报告']),
                 'category' => 'PAT',
                 'country' => null,
                 'is_task' => 0,
@@ -1111,7 +1111,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'SUS',
-                'name' => json_encode(['en' => 'Suspended', 'fr' => 'Suspendu', 'de' => 'Ausgesetzt']),
+                'name' => json_encode(['en' => 'Suspended', 'fr' => 'Suspendu', 'de' => 'Ausgesetzt', 'zh' => '中止']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -1129,7 +1129,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'SUO',
-                'name' => json_encode(['en' => 'Summons Oral', 'fr' => 'Convocation procédure orale', 'de' => 'Ladung mündliche Verhandlung']),
+                'name' => json_encode(['en' => 'Summons Oral', 'fr' => 'Convocation procédure orale', 'de' => 'Ladung mündliche Verhandlung', 'zh' => '传唤口头审理']),
                 'category' => 'PAT',
                 'country' => null,
                 'is_task' => 0,
@@ -1147,7 +1147,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'TRF',
-                'name' => json_encode(['en' => 'Transformation', 'fr' => 'Transformation', 'de' => 'Transformation']),
+                'name' => json_encode(['en' => 'Transformation', 'fr' => 'Transformation', 'de' => 'Transformation', 'zh' => '转化']),
                 'category' => 'PAT',
                 'country' => 'EP',
                 'is_task' => 1,
@@ -1165,7 +1165,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'TRS',
-                'name' => json_encode(['en' => 'Transfer', 'fr' => 'Transfert', 'de' => 'Übertragung']),
+                'name' => json_encode(['en' => 'Transfer', 'fr' => 'Transfert', 'de' => 'Übertragung', 'zh' => '转让']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -1183,7 +1183,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'VAL',
-                'name' => json_encode(['en' => 'Validate', 'fr' => 'Valider', 'de' => 'Validieren']),
+                'name' => json_encode(['en' => 'Validate', 'fr' => 'Valider', 'de' => 'Validieren', 'zh' => '验证']),
                 'category' => 'PAT',
                 'country' => 'EP',
                 'is_task' => 1,
@@ -1201,7 +1201,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'WAT',
-                'name' => json_encode(['en' => 'Watch', 'fr' => 'Surveiller', 'de' => 'Überwachen']),
+                'name' => json_encode(['en' => 'Watch', 'fr' => 'Surveiller', 'de' => 'Überwachen', 'zh' => '监视']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -1219,7 +1219,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'WIT',
-                'name' => json_encode(['en' => 'Withdrawal', 'fr' => 'Retrait', 'de' => 'Zurücknahme']),
+                'name' => json_encode(['en' => 'Withdrawal', 'fr' => 'Retrait', 'de' => 'Zurücknahme', 'zh' => '撤回']),
                 'category' => null,
                 'country' => null,
                 'is_task' => 0,
@@ -1237,7 +1237,7 @@ class EventNameTableSeeder extends Seeder
 
             [
                 'code' => 'WO',
-                'name' => json_encode(['en' => 'PCT', 'fr' => 'PCT', 'de' => 'PCT']),
+                'name' => json_encode(['en' => 'PCT', 'fr' => 'PCT', 'de' => 'PCT', 'zh' => 'PCT']),
                 'category' => 'PAT',
                 'country' => null,
                 'is_task' => 0,

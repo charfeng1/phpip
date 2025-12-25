@@ -14,7 +14,7 @@ class MatterCategoryTableSeeder extends Seeder
             [
                 'code' => 'AGR',
                 'ref_prefix' => 'AGR',
-                'category' => json_encode(['en' => 'Agreement', 'fr' => 'Accord', 'de' => 'Vereinbarung']),
+                'category' => json_encode(['en' => 'Agreement', 'fr' => 'Accord', 'de' => 'Vereinbarung', 'zh' => '协议']),
                 'display_with' => 'OTH',
                 'creator' => 'system',
                 'updater' => null,
@@ -25,7 +25,7 @@ class MatterCategoryTableSeeder extends Seeder
             [
                 'code' => 'DSG',
                 'ref_prefix' => 'DSG',
-                'category' => json_encode(['en' => 'Design', 'fr' => 'Dessin ou modèle', 'de' => 'Design']),
+                'category' => json_encode(['en' => 'Design', 'fr' => 'Dessin ou modèle', 'de' => 'Design', 'zh' => '外观设计']),
                 'display_with' => 'TM',
                 'creator' => 'system',
                 'updater' => null,
@@ -36,7 +36,7 @@ class MatterCategoryTableSeeder extends Seeder
             [
                 'code' => 'FTO',
                 'ref_prefix' => 'OPI',
-                'category' => json_encode(['en' => 'Freedom to Operate', 'fr' => 'Liberté d\'exploitation', 'de' => 'Freedom to Operate']),
+                'category' => json_encode(['en' => 'Freedom to Operate', 'fr' => 'Liberté d\'exploitation', 'de' => 'Freedom to Operate', 'zh' => '自由使用权']),
                 'display_with' => 'LTG',
                 'creator' => 'system',
                 'updater' => null,
@@ -47,7 +47,7 @@ class MatterCategoryTableSeeder extends Seeder
             [
                 'code' => 'LTG',
                 'ref_prefix' => 'LTG',
-                'category' => json_encode(['en' => 'Litigation', 'fr' => 'Contentieux', 'de' => 'Rechtsstreit']),
+                'category' => json_encode(['en' => 'Litigation', 'fr' => 'Contentieux', 'de' => 'Rechtsstreit', 'zh' => '诉讼']),
                 'display_with' => 'LTG',
                 'creator' => 'system',
                 'updater' => null,
@@ -91,7 +91,7 @@ class MatterCategoryTableSeeder extends Seeder
             [
                 'code' => 'PAT',
                 'ref_prefix' => 'PAT',
-                'category' => json_encode(['en' => 'Patent', 'fr' => 'Brevet', 'de' => 'Patent']),
+                'category' => json_encode(['en' => 'Patent', 'fr' => 'Brevet', 'de' => 'Patent', 'zh' => '专利']),
                 'display_with' => 'PAT',
                 'creator' => 'system',
                 'updater' => null,
@@ -124,7 +124,7 @@ class MatterCategoryTableSeeder extends Seeder
             [
                 'code' => 'TM',
                 'ref_prefix' => 'TM',
-                'category' => json_encode(['en' => 'Trademark', 'fr' => 'Marque', 'de' => 'Marke']),
+                'category' => json_encode(['en' => 'Trademark', 'fr' => 'Marque', 'de' => 'Marke', 'zh' => '商标']),
                 'display_with' => 'TM',
                 'creator' => 'system',
                 'updater' => null,
@@ -168,7 +168,7 @@ class MatterCategoryTableSeeder extends Seeder
             [
                 'code' => 'UM',
                 'ref_prefix' => 'UM',
-                'category' => json_encode(['en' => 'Utility Model', 'fr' => 'Modèle d\'utilité', 'de' => 'Gebrauchsmuster']),
+                'category' => json_encode(['en' => 'Utility Model', 'fr' => 'Modèle d\'utilité', 'de' => 'Gebrauchsmuster', 'zh' => '实用新型']),
                 'display_with' => 'PAT',
                 'creator' => 'system',
                 'updater' => null,
