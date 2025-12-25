@@ -41,10 +41,14 @@ class BaselineMigrationTest extends TestCase
     {
         $this->assertTrue(Schema::hasTable($table), "Table '{$table}' should exist");
 
-        foreach ($columns as $column) {
-            $this->assertTrue(
-                Schema::hasColumn($table, $column),
-                "Table '{$table}' should have column '{$column}'"
+        if (!empty($columns)) {
+            $actualColumns = Schema::getColumnListing($table);
+            sort($columns);
+            sort($actualColumns);
+            $this->assertEquals(
+                $columns,
+                $actualColumns,
+                "Table '{$table}' should have the exact specified columns."
             );
         }
     }
@@ -117,9 +121,13 @@ class BaselineMigrationTest extends TestCase
 
             $columnNames = array_map(fn ($c) => $c->column_name, $columns);
 
-            foreach ($expectedColumns as $column) {
-                $this->assertContains($column, $columnNames, "View '{$view}' should have column '{$column}'");
-            }
+            sort($expectedColumns);
+            sort($columnNames);
+            $this->assertEquals(
+                $expectedColumns,
+                $columnNames,
+                "View '{$view}' should have the exact specified columns."
+            );
         }
     }
 
