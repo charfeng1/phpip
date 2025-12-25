@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
  * for all subsequent migrations. It handles:
  * - 24 tables across 6 dependency tiers
  * - 5 views (including the critical 'users' view for Laravel auth)
- * - 6 stored procedures
+ * - 13 stored functions (6 business logic + 7 trigger functions)
  * - 7 triggers
  *
  * IMPORTANT: This migration must run BEFORE all other migrations.
@@ -39,6 +39,13 @@ return new class extends Migration
         }
 
         $schema = file_get_contents($schemaPath);
+
+        if ($schema === false) {
+            throw new RuntimeException(
+                "Failed to read schema file: {$schemaPath}. " .
+                'Please check file permissions.'
+            );
+        }
 
         // PostgreSQL requires executing statements separately for some operations
         // We'll use unprepared() which allows multiple statements
@@ -95,12 +102,14 @@ return new class extends Migration
     private function dropFunctions(): void
     {
         $functions = [
+            // Business logic functions
             'tcase(TEXT)',
             'actor_list(INTEGER, TEXT)',
             'matter_status(INTEGER)',
             'compute_matter_uid(VARCHAR, VARCHAR, VARCHAR, VARCHAR, SMALLINT)',
             'insert_recurring_renewals(INTEGER, INTEGER, DATE, VARCHAR, VARCHAR)',
             'update_expired()',
+            // Trigger functions
             'classifier_before_insert_func()',
             'event_before_insert_func()',
             'event_before_update_func()',
@@ -108,7 +117,6 @@ return new class extends Migration
             'matter_before_update_func()',
             'task_before_insert_func()',
             'task_before_update_func()',
-            'recreate_tasks(INTEGER, VARCHAR)',
         ];
 
         foreach ($functions as $function) {

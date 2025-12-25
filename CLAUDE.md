@@ -1,12 +1,22 @@
-# Database Schema Changes: Always Use Migrations
+# Database Schema Management
 
-When modifying the database schema (adding tables, columns, indexes, etc.), **always create a new Laravel migration**. Never modify `database/schema/postgres-schema.sql` directly.
+## Baseline Schema
+The file `database/schema/postgres-schema.sql` is the **authoritative baseline** for the database schema. A baseline migration (`0001_01_01_000001_create_baseline_schema.php`) loads this schema, enabling standard Laravel workflows like `php artisan migrate:fresh`.
+
+**When to modify `postgres-schema.sql`:**
+- Fixing bugs or omissions in the baseline (missing columns, wrong types)
+- Pre-production corrections to align schema with models/factories/seeders
+
+**When to create a new migration instead:**
+- Adding new features after the baseline is established
+- Any changes in a production environment
+- Changes that need to be tracked separately for review
 
 ```bash
 php artisan make:migration add_column_to_table_name
 ```
 
-**Why this matters:** The `postgres-schema.sql` file is a frozen snapshot from the MySQL-to-PostgreSQL migration. All subsequent changes must be migrations so they are:
+**Why migrations matter:**
 - Version controlled and reviewable in PRs
 - Automatically applied during deployment
 - Rollback-able if needed
@@ -25,6 +35,7 @@ phpIP is an intellectual property management system built with Laravel 12 and Po
 - PostgreSQL with JSONB for translatable fields
 - `users` is a VIEW on the `actor` table (not a standard Laravel users table)
 - Translations stored as JSON: `{"en": "English", "fr": "Français"}`
+- Baseline migration loads complete schema from `postgres-schema.sql`
 
 ### Authentication & Authorization
 - Role-based: DBA (admin), DBRW (read-write), DBRO (read-only), CLI (client)
@@ -37,15 +48,17 @@ phpIP is an intellectual property management system built with Laravel 12 and Po
 - Form requests in `app/Http/Requests/` for validation
 
 ## Testing
-- Tests require the PostgreSQL schema to be loaded first
-- Use `DatabaseTransactions` trait, not `RefreshDatabase`
+- Run `php artisan migrate:fresh --env=testing --seed` to set up test database
+- Use `DatabaseTransactions` trait for most tests (faster)
+- Use `RefreshDatabase` trait when testing migrations or needing clean slate
 - Run: `php artisan test`
 
 ## Common Commands
 ```bash
-php artisan serve          # Start dev server
-php artisan test           # Run tests
-php artisan migrate        # Apply new migrations
-npm run dev               # Vite dev server
-npm run build             # Production build
+php artisan serve                           # Start dev server
+php artisan test                            # Run tests
+php artisan migrate                         # Apply new migrations
+php artisan migrate:fresh --seed            # Reset database with seed data
+npm run dev                                 # Vite dev server
+npm run build                               # Production build
 ```

@@ -13,7 +13,7 @@ use Tests\TestCase;
  * These tests verify that migrate:fresh creates all required database objects:
  * - 24 tables across 6 dependency tiers
  * - 5 views (including critical 'users' view)
- * - 13 stored functions
+ * - 13 stored functions (6 business logic + 7 trigger functions)
  * - 7 triggers
  */
 class BaselineMigrationTest extends TestCase
@@ -432,6 +432,36 @@ class BaselineMigrationTest extends TestCase
         foreach ($expectedViews as $view) {
             $this->assertContains($view, $viewNames, "View '{$view}' should exist");
         }
+    }
+
+    public function test_all_expected_functions_exist(): void
+    {
+        $expectedFunctions = [
+            // Business logic functions (6)
+            'tcase',
+            'actor_list',
+            'matter_status',
+            'compute_matter_uid',
+            'insert_recurring_renewals',
+            'update_expired',
+            // Trigger functions (7)
+            'classifier_before_insert_func',
+            'event_before_insert_func',
+            'event_before_update_func',
+            'matter_before_insert_func',
+            'matter_before_update_func',
+            'task_before_insert_func',
+            'task_before_update_func',
+        ];
+
+        $functions = DB::select("SELECT proname FROM pg_proc JOIN pg_namespace ON pg_proc.pronamespace = pg_namespace.oid WHERE nspname = 'public'");
+        $functionNames = array_map(fn ($f) => $f->proname, $functions);
+
+        foreach ($expectedFunctions as $function) {
+            $this->assertContains($function, $functionNames, "Function '{$function}' should exist");
+        }
+
+        $this->assertCount(13, $expectedFunctions);
     }
 
     public function test_all_expected_triggers_exist(): void
