@@ -1,8 +1,10 @@
 <?php
 
+use Exception;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use RuntimeException;
 
 /**
  * Baseline migration that creates the complete phpIP database schema.
@@ -32,7 +34,7 @@ return new class extends Migration
         $schemaPath = database_path('schema/postgres-schema.sql');
 
         if (! file_exists($schemaPath)) {
-            throw new RuntimeException(
+            throw new \RuntimeException(
                 "Schema file not found: {$schemaPath}. " .
                 "Please ensure the postgres-schema.sql file exists."
             );
@@ -41,7 +43,7 @@ return new class extends Migration
         $schema = file_get_contents($schemaPath);
 
         if ($schema === false) {
-            throw new RuntimeException(
+            throw new \RuntimeException(
                 "Failed to read schema file: {$schemaPath}. " .
                 'Please check file permissions.'
             );
