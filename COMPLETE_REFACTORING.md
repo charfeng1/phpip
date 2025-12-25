@@ -5,13 +5,19 @@
 The seeder refactoring to use `TranslatedAttributesSeeder` as a single source of truth is **100% complete**.
 
 ### ✅ Completed:
-- `TranslatedAttributesSeeder.php` - Added 3 static getter methods:
+- `TranslatedAttributesSeeder.php` - Added 6 static getter methods:
   - `getClassifierTypes()` - 22 translations
   - `getEventNames()` - 69 translations
   - `getTaskRuleDetails()` - 80 translations
+  - `getActorRoles()` - 22 translations
+  - `getMatterCategories()` - 16 translations
+  - `getMatterTypes()` - 6 translations
 - `ClassifierTypeTableSeeder.php` - ✅ Fully refactored (22/22 entries)
 - `TaskRulesTableSeeder.php` - ✅ Fully refactored (80/80 entries)
 - `EventNameTableSeeder.php` - ✅ Fully refactored (69/69 entries)
+- `ActorRoleTableSeeder.php` - ✅ Fully refactored (22/22 entries)
+- `MatterCategoryTableSeeder.php` - ✅ Fully refactored (16/16 entries)
+- `MatterTypeTableSeeder.php` - ✅ Fully refactored (6/6 entries)
 
 ## What Was Refactored
 
@@ -31,9 +37,9 @@ $translations = TranslatedAttributesSeeder::getEventNames();
 
 ## Benefits of This Refactoring
 
-✅ **Single source of truth** - All translations centralized in `TranslatedAttributesSeeder`
+✅ **Single source of truth** - All 215 translations centralized in `TranslatedAttributesSeeder`
 ✅ **Easy language addition** - Add Korean, Japanese, etc. by updating only one file
-✅ **Eliminated 627+ lines of duplication**
+✅ **Eliminated 800+ lines of duplication** across all 6 seeders
 ✅ **Type-safe** - All static methods have PHPDoc annotations
 ✅ **Maintainable** - Clear separation of concerns
 

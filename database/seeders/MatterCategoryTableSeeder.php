@@ -9,184 +9,168 @@ class MatterCategoryTableSeeder extends Seeder
 {
     public function run()
     {
+        $translations = TranslatedAttributesSeeder::getMatterCategories();
         DB::table('matter_category')->insertOrIgnore([
-
             [
                 'code' => 'AGR',
                 'ref_prefix' => 'AGR',
-                'category' => json_encode(['en' => 'Agreement', 'fr' => 'Accord', 'de' => 'Vereinbarung', 'zh' => '协议']),
+                'category' => json_encode($translations['AGR']),
                 'display_with' => 'OTH',
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-
             [
                 'code' => 'DSG',
                 'ref_prefix' => 'DSG',
-                'category' => json_encode(['en' => 'Design', 'fr' => 'Dessin ou modèle', 'de' => 'Design', 'zh' => '外观设计']),
+                'category' => json_encode($translations['DSG']),
                 'display_with' => 'TM',
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-
             [
                 'code' => 'FTO',
                 'ref_prefix' => 'OPI',
-                'category' => json_encode(['en' => 'Freedom to Operate', 'fr' => 'Liberté d\'exploitation', 'de' => 'Freedom to Operate', 'zh' => '自由使用权']),
+                'category' => json_encode($translations['FTO']),
                 'display_with' => 'LTG',
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-
             [
                 'code' => 'LTG',
                 'ref_prefix' => 'LTG',
-                'category' => json_encode(['en' => 'Litigation', 'fr' => 'Contentieux', 'de' => 'Rechtsstreit', 'zh' => '诉讼']),
+                'category' => json_encode($translations['LTG']),
                 'display_with' => 'LTG',
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-
             [
                 'code' => 'OP',
                 'ref_prefix' => 'OP',
-                'category' => json_encode(['en' => 'Opposition (patent)', 'fr' => 'Opposition (brevet)', 'de' => 'Einspruch (Patent)']),
+                'category' => json_encode($translations['OP']),
                 'display_with' => 'LTG',
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-
             [
                 'code' => 'OPI',
                 'ref_prefix' => 'OPI',
-                'category' => json_encode(['en' => 'Opinion', 'fr' => 'Avis', 'de' => 'Gutachten']),
+                'category' => json_encode($translations['OPI']),
                 'display_with' => 'LTG',
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-
             [
                 'code' => 'OTH',
                 'ref_prefix' => 'OTH',
-                'category' => json_encode(['en' => 'Others', 'fr' => 'Autres', 'de' => 'Sonstige']),
+                'category' => json_encode($translations['OTH']),
                 'display_with' => 'OTH',
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-
             [
                 'code' => 'PAT',
                 'ref_prefix' => 'PAT',
-                'category' => json_encode(['en' => 'Patent', 'fr' => 'Brevet', 'de' => 'Patent', 'zh' => '专利']),
+                'category' => json_encode($translations['PAT']),
                 'display_with' => 'PAT',
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-
             [
                 'code' => 'SO',
                 'ref_prefix' => 'SO',
-                'category' => json_encode(['en' => 'Soleau Envelop', 'fr' => 'Enveloppe Soleau', 'de' => 'Soleau-Umschlag']),
+                'category' => json_encode($translations['SO']),
                 'display_with' => 'OTH',
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-
             [
                 'code' => 'SR',
                 'ref_prefix' => 'OPI',
-                'category' => json_encode(['en' => 'Search', 'fr' => 'Recherche', 'de' => 'Recherche']),
+                'category' => json_encode($translations['SR']),
                 'display_with' => 'LTG',
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-
             [
                 'code' => 'TM',
                 'ref_prefix' => 'TM',
-                'category' => json_encode(['en' => 'Trademark', 'fr' => 'Marque', 'de' => 'Marke', 'zh' => '商标']),
+                'category' => json_encode($translations['TM']),
                 'display_with' => 'TM',
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-
             [
                 'code' => 'TMOP',
                 'ref_prefix' => 'OP',
-                'category' => json_encode(['en' => 'Opposition (TM)', 'fr' => 'Opposition (Marque)', 'de' => 'Widerspruch (Marke)']),
+                'category' => json_encode($translations['TMOP']),
                 'display_with' => 'LTG',
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-
             [
                 'code' => 'TS',
                 'ref_prefix' => 'TS',
-                'category' => json_encode(['en' => 'Trade Secret', 'fr' => 'Secret de fabrique', 'de' => 'Geschäftsgeheimnis']),
+                'category' => json_encode($translations['TS']),
                 'display_with' => 'OTH',
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-
             [
                 'code' => 'UC',
                 'ref_prefix' => 'UC',
-                'category' => json_encode(['en' => 'Utility Certificate', 'fr' => 'Certificat d\'utilité', 'de' => 'Gebrauchszertifikat']),
+                'category' => json_encode($translations['UC']),
                 'display_with' => 'PAT',
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-
             [
                 'code' => 'UM',
                 'ref_prefix' => 'UM',
-                'category' => json_encode(['en' => 'Utility Model', 'fr' => 'Modèle d\'utilité', 'de' => 'Gebrauchsmuster', 'zh' => '实用新型']),
+                'category' => json_encode($translations['UM']),
                 'display_with' => 'PAT',
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-
             [
                 'code' => 'WAT',
                 'ref_prefix' => 'WAT',
-                'category' => json_encode(['en' => 'Watch', 'fr' => 'Surveillance', 'de' => 'Überwachung']),
+                'category' => json_encode($translations['WAT']),
                 'display_with' => 'OTH',
                 'creator' => 'system',
                 'updater' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-
         ]);
     }
 }

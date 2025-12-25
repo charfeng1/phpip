@@ -148,6 +148,83 @@ class TranslatedAttributesSeeder extends Seeder
     }
 
     /**
+     * Get matter category translations for MatterCategoryTableSeeder
+     *
+     * @return array<string, array<string, string>>
+     */
+    public static function getMatterCategories(): array
+    {
+        return [
+            'AGR' => ['en' => 'Agreement', 'fr' => 'Accord', 'de' => 'Vereinbarung', 'zh' => '协议'],
+            'DSG' => ['en' => 'Design', 'fr' => 'Dessin ou modèle', 'de' => 'Design', 'zh' => '外观设计'],
+            'FTO' => ['en' => 'Freedom to Operate', 'fr' => 'Liberté d\'exploitation', 'de' => 'Freedom to Operate', 'zh' => '自由实施'],
+            'LTG' => ['en' => 'Litigation', 'fr' => 'Contentieux', 'de' => 'Rechtsstreit', 'zh' => '诉讼'],
+            'OP' => ['en' => 'Opposition (patent)', 'fr' => 'Opposition (brevet)', 'de' => 'Einspruch (Patent)', 'zh' => '异议（专利）'],
+            'OPI' => ['en' => 'Opinion', 'fr' => 'Avis', 'de' => 'Gutachten', 'zh' => '意见书'],
+            'OTH' => ['en' => 'Others', 'fr' => 'Autres', 'de' => 'Sonstige', 'zh' => '其他'],
+            'PAT' => ['en' => 'Patent', 'fr' => 'Brevet', 'de' => 'Patent', 'zh' => '专利'],
+            'SO' => ['en' => 'Soleau Envelop', 'fr' => 'Enveloppe Soleau', 'de' => 'Soleau-Umschlag', 'zh' => 'Soleau信封'],
+            'SR' => ['en' => 'Search', 'fr' => 'Recherche', 'de' => 'Recherche', 'zh' => '检索'],
+            'TM' => ['en' => 'Trademark', 'fr' => 'Marque', 'de' => 'Marke', 'zh' => '商标'],
+            'TMOP' => ['en' => 'Opposition (TM)', 'fr' => 'Opposition (Marque)', 'de' => 'Widerspruch (Marke)', 'zh' => '异议（商标）'],
+            'TS' => ['en' => 'Trade Secret', 'fr' => 'Secret de fabrique', 'de' => 'Geschäftsgeheimnis', 'zh' => '商业秘密'],
+            'UC' => ['en' => 'Utility Certificate', 'fr' => 'Certificat d\'utilité', 'de' => 'Gebrauchszertifikat', 'zh' => '实用证书'],
+            'UM' => ['en' => 'Utility Model', 'fr' => 'Modèle d\'utilité', 'de' => 'Gebrauchsmuster', 'zh' => '实用新型'],
+            'WAT' => ['en' => 'Watch', 'fr' => 'Surveillance', 'de' => 'Überwachung', 'zh' => '监视'],
+        ];
+    }
+
+    /**
+     * Get matter type translations for MatterTypeTableSeeder
+     *
+     * @return array<string, array<string, string>>
+     */
+    public static function getMatterTypes(): array
+    {
+        return [
+            'CIP' => ['en' => 'Continuation in Part', 'fr' => 'Continuation partielle', 'de' => 'Teilfortsetzungsanmeldung', 'zh' => '部分延续案'],
+            'CNT' => ['en' => 'Continuation', 'fr' => 'Continuation', 'de' => 'Fortsetzungsanmeldung', 'zh' => '延续案'],
+            'DIV' => ['en' => 'Divisional', 'fr' => 'Divisionnaire', 'de' => 'Teilanmeldung', 'zh' => '分案'],
+            'PRO' => ['en' => 'Provisional', 'fr' => 'Provisoire', 'de' => 'Vorläufige Anmeldung', 'zh' => '临时申请'],
+            'REI' => ['en' => 'Reissue', 'fr' => 'Redélivrance', 'de' => 'Neuerteilung', 'zh' => '再颁发'],
+            'REX' => ['en' => 'Re-examination', 'fr' => 'Réexamen', 'de' => 'Neuprüfungsverfahren', 'zh' => '复审'],
+        ];
+    }
+
+    /**
+     * Get actor role translations for ActorRoleTableSeeder
+     *
+     * @return array<string, array<string, string>>
+     */
+    public static function getActorRoles(): array
+    {
+        return [
+            'ADV' => ['en' => 'Adversary', 'fr' => 'Adversaire', 'de' => 'Gegenpartei', 'zh' => '对手'],
+            'AGT' => ['en' => 'Primary Agent', 'fr' => 'Agent principal', 'de' => 'Hauptvertreter', 'zh' => '主代理人'],
+            'AGT2' => ['en' => 'Secondary Agent', 'fr' => 'Agent secondaire', 'de' => 'Zweitvertreter', 'zh' => '副代理人'],
+            'ANN' => ['en' => 'Annuity Agent', 'fr' => 'Agent annuités', 'de' => 'Jahresgebührenvertreter', 'zh' => '年费代理人'],
+            'APP' => ['en' => 'Applicant', 'fr' => 'Déposant', 'de' => 'Anmelder', 'zh' => '申请人'],
+            'CLI' => ['en' => 'Client', 'fr' => 'Client', 'de' => 'Mandant', 'zh' => '客户'],
+            'CNT' => ['en' => 'Contact', 'fr' => 'Contact', 'de' => 'Kontakt', 'zh' => '联系人'],
+            'DBA' => ['en' => 'DB Administrator', 'fr' => 'BDD Admin.', 'de' => 'DB-Administrator', 'zh' => '数据库管理员'],
+            'DBRO' => ['en' => 'DB Read-Only', 'fr' => 'BDD Lecture seule', 'de' => 'DB Nur-Lesezugriff', 'zh' => '数据库只读'],
+            'DBRW' => ['en' => 'DB Read/Write', 'fr' => 'BDD Lecture/écriture', 'de' => 'DB Lese-/Schreibzugriff', 'zh' => '数据库读写'],
+            'DEL' => ['en' => 'Delegate', 'fr' => 'Délégataire', 'de' => 'Bevollmächtigter', 'zh' => '代表'],
+            'FAGT' => ['en' => 'Former Agent', 'fr' => 'Ancien agent', 'de' => 'Ehemaliger Vertreter', 'zh' => '前任代理人'],
+            'FOWN' => ['en' => 'Former Owner', 'fr' => 'Ancien titulairte', 'de' => 'Ehemaliger Inhaber', 'zh' => '前任所有人'],
+            'INV' => ['en' => 'Inventor', 'fr' => 'Inventeur', 'de' => 'Erfinder', 'zh' => '发明人'],
+            'LCN' => ['en' => 'Licensee', 'fr' => 'Licencié', 'de' => 'Lizenznehmer', 'zh' => '被许可人'],
+            'OFF' => ['en' => 'Patent Office', 'fr' => 'Office des brevets', 'de' => 'Patentamt', 'zh' => '专利局'],
+            'OPP' => ['en' => 'Opponent', 'fr' => 'Opposant', 'de' => 'Einsprechender', 'zh' => '异议人'],
+            'OWN' => ['en' => 'Owner', 'fr' => 'Titulaire', 'de' => 'Inhaber', 'zh' => '所有人'],
+            'PAY' => ['en' => 'Payor', 'fr' => 'Payeur', 'de' => 'Zahler', 'zh' => '付款人'],
+            'PTNR' => ['en' => 'Partner', 'fr' => 'Partenaire', 'de' => 'Partner', 'zh' => '合伙人'],
+            'TRA' => ['en' => 'Translator', 'fr' => 'Traducteur', 'de' => 'Übersetzer', 'zh' => '翻译'],
+            'WRI' => ['en' => 'Writer', 'fr' => 'Rédacteur', 'de' => 'Verfasser', 'zh' => '撰稿人'],
+        ];
+    }
+
+    /**
      * Get task rule detail translations for TaskRulesTableSeeder
      *
      * @return array<int, array<string, string>>
