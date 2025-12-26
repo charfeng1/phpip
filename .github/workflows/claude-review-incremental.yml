@@ -1,4 +1,4 @@
-name: OpenCode Incremental Review
+name: Claude Incremental Review
 
 on:
   pull_request:
@@ -18,26 +18,27 @@ jobs:
           timeoutSeconds: 600
           intervalSeconds: 30
 
-  opencode-incremental-review:
+  claude-incremental-review:
     needs: wait-for-tests
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
       contents: read
       pull-requests: read
       issues: read
+      id-token: write
+      actions: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Fetch base branch for comparison
         run: |
           git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
 
-      - name: Get PR diff
+      - name: Get PR diff info
         id: diff
         run: |
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
@@ -46,12 +47,14 @@ jobs:
           echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
           echo "commit_range=${BASE_SHA}...${HEAD_SHA}" >> $GITHUB_OUTPUT
 
-      - name: Run OpenCode Incremental Review
-        uses: sst/opencode/github@latest
-        env:
-          ZHIPU_API_KEY: ${{ secrets.ZHIPU_API_KEY }}
+      - name: Run Claude Incremental Review
+        id: claude-review
+        uses: anthropics/claude-code-action@v1
         with:
-          model: zai-coding-plan/glm-4.7
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          allowed_bots: 'coderabbitai[bot]'
+          additional_permissions: |
+            actions: read
           prompt: |
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
@@ -60,9 +63,11 @@ jobs:
             This is an INCREMENTAL review. New commits have been pushed to this PR.
 
             Please:
-            1. Review the changes in this PR (use `git diff ${{ steps.diff.outputs.commit_range }}` to see them)
-            2. Check if the previous review comments on this PR have been addressed
-            3. Provide feedback on any remaining issues or new concerns
+            1. Use `gh pr view ${{ github.event.pull_request.number }} --comments` to see previous review comments
+            2. Use `gh pr diff ${{ github.event.pull_request.number }}` to see the current changes
+            3. Use `git log --oneline ${{ steps.diff.outputs.commit_range }}` to see recent commits
+            4. Check if previous review feedback has been addressed
+            5. Provide feedback on any remaining issues or new concerns
 
             Focus on:
             - Whether previous review feedback was addressed
@@ -70,3 +75,7 @@ jobs:
             - Code quality of the new changes only
 
             Do NOT repeat feedback that was already given. Only comment on new or unresolved issues.
+
+            Use `gh pr comment` with your Bash tool to leave your review as a comment on the PR.
+
+          claude_args: '--model claude-opus-4-5-20251101 --allowed-tools "Bash(gh issue view:*),Bash(gh search:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(git log:*),Bash(git diff:*)"'
