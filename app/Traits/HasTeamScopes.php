@@ -43,7 +43,7 @@ trait HasTeamScopes
      * Get team logins for the given user (including subordinates).
      *
      * @param  int|null  $userId  User ID (defaults to authenticated user)
-     * @return array Array of login strings
+     * @return array<string> Array of login strings
      */
     protected function getTeamLogins(?int $userId = null): array
     {
@@ -55,7 +55,7 @@ trait HasTeamScopes
 
         $teamService = app(TeamService::class);
 
-        return $teamService->getSubordinateLogins($userId, true);
+        return $teamService->getSubordinateLogins($userId, true)->toArray();
     }
 
     /**

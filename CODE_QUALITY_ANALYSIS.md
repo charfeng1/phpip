@@ -109,41 +109,33 @@ These services violate the Single Responsibility Principle and should be decompo
 - `app/Services/DocumentFilterService.php`
 - `app/Services/RenewalLogFilterService.php`
 
-These services have nearly identical implementations:
-- Same whitelist constant pattern
-- Same null/empty validation logic
-- Same `applyFilter()` method structure
-- Same `isValidFilterKey()` methods
+These services share common security and validation patterns:
+- Same whitelist constant pattern for allowed filter keys
+- Same null/empty value validation logic
+- Same `isValidFilterKey()` validation methods
 
-**Recommendation:** Create `BaseFilterService` abstract class:
+Note: While the validation patterns are similar, the services have different structures and return types. `DocumentFilterService` returns a complex array with view, event, and task context, while `RenewalLogFilterService` returns a simple query builder.
+
+**Implemented:** Created `FiltersWithWhitelist` trait with shared validation logic:
 
 ```php
-abstract class BaseFilterService
+trait FiltersWithWhitelist
 {
-    protected const ALLOWED_FILTER_KEYS = [];
-
-    public function filter(Builder $query, array $filters): Builder
+    protected function shouldSkipFilter(mixed $value): bool
     {
-        foreach ($filters as $key => $value) {
-            if ($this->isValidFilterKey($key) && $this->hasValue($value)) {
-                $this->applyFilter($query, $key, $value);
-            }
-        }
-        return $query;
-    }
-
-    protected function hasValue(mixed $value): bool
-    {
-        return $value !== '' && $value !== null &&
-               !(is_string($value) && trim($value) === '');
+        return $value === '' || $value === null ||
+               (is_string($value) && trim($value) === '');
     }
 
     public function isValidFilterKey(string $key): bool
     {
-        return in_array($key, static::ALLOWED_FILTER_KEYS);
+        return in_array($key, static::ALLOWED_FILTER_KEYS, true);
     }
 
-    abstract protected function applyFilter(Builder $query, string $key, mixed $value): Builder;
+    protected function shouldApplyFilter(string $key, mixed $value): bool
+    {
+        return !$this->shouldSkipFilter($value) && $this->isValidFilterKey($key);
+    }
 }
 ```
 
@@ -370,7 +362,7 @@ Should be moved to `config/phpip.php`:
 |----------|---------|-------|
 | `CURL_TIMEOUT` | DolibarrInvoiceService | 30 |
 | `PAYMENT_CONDITION_ID` | DolibarrInvoiceService | 1 |
-| `DEFAULT_VAT_RATE` | RenewalFeeCalculatorService | 0.2 |
+| `DEFAULT_VAT_RATE` | RenewalNotificationService | 0.2 |
 | `HISTORICAL_TASK_MONTH_THRESHOLD` | PatentFamilyCreationService | 4 |
 
 ---
@@ -406,8 +398,8 @@ return Auth::user()?->login ?? 'system';
 
 ## Refactoring Roadmap
 
-### Phase 1: Quick Wins (1-2 days) ✅ COMPLETED
-**Low Risk, High Impact**
+### Phase 1: Quick Wins ✅ COMPLETED
+#### Low Risk, High Impact
 
 - [x] Add `use Auditable;` to 8 missing models
 - [ ] Start using `JsonResponses` trait in controllers
@@ -417,8 +409,8 @@ return Auth::user()?->login ?? 'system';
 
 **Implemented in commit d52e97e**
 
-### Phase 2: Service Refactoring (3-5 days) - PARTIALLY COMPLETED
-**Medium Risk, High Impact**
+### Phase 2: Service Refactoring - PARTIALLY COMPLETED
+#### Medium Risk, High Impact
 
 - [x] Extract `FiltersWithWhitelist` trait from duplicate filters
 - [ ] Split `PatentFamilyCreationService` into 4 focused services
@@ -426,22 +418,16 @@ return Auth::user()?->login ?? 'system';
 - [x] Create `HasTeamScopes` trait for Matter/Task
 - [ ] Create `HasUserContext` trait
 
-**Estimated Lines Changed:** ~400
-**Risk Level:** Medium (ensure tests pass after each change)
-
-### Phase 3: Controller Cleanup (2-3 days) - PARTIALLY COMPLETED
-**Medium Risk, Medium Impact**
+### Phase 3: Controller Cleanup - PARTIALLY COMPLETED
+#### Medium Risk, Medium Impact
 
 - [x] Extract date parsing to `ParsesDates` trait
 - [ ] Create `CrudController` base class
 - [ ] Standardize response formatting with `JsonResponses`
 - [ ] Create `JsonQueryHelper` service
 
-**Estimated Lines Changed:** ~200
-**Risk Level:** Medium
-
-### Phase 4: Frontend Components (3-4 days)
-**Low Risk, Medium Impact**
+### Phase 4: Frontend Components
+#### Low Risk, Medium Impact
 
 - [ ] Create `<x-delete-button>` component
 - [ ] Create `<x-form-field>` with autocomplete support
@@ -449,19 +435,13 @@ return Auth::user()?->login ?? 'system';
 - [ ] Decompose `matter/show.blade.php` into sub-components
 - [ ] Extract `matter/index.blade.php` JavaScript to asset file
 
-**Estimated Lines Changed:** ~600
-**Risk Level:** Low
-
-### Phase 5: Model Cleanup (1-2 days)
-**Medium Risk, Medium Impact**
+### Phase 5: Model Cleanup
+#### Medium Risk, Medium Impact
 
 - [ ] Move `Event::publicUrl()` and `buildRegistryUrl()` to `PatentOfficeUrlService`
 - [ ] Move `Matter::getDescription()` to `MatterDescriptionService`
 - [ ] Create `ServiceResponse` DTO
 - [ ] Standardize error handling across services
-
-**Estimated Lines Changed:** ~300
-**Risk Level:** Medium
 
 ---
 

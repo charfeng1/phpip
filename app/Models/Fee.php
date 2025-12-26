@@ -32,6 +32,13 @@ class Fee extends Model
     use HasTableComments;
 
     /**
+     * Attributes to exclude from audit logging.
+     *
+     * @var array<string>
+     */
+    protected $auditExclude = ['created_at', 'updated_at'];
+
+    /**
      * Attributes that should be hidden from serialization.
      *
      * @var array<string>

@@ -33,6 +33,14 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 class ActorPivot extends Pivot
 {
     use Auditable;
+
+    /**
+     * Attributes to exclude from audit logging.
+     *
+     * @var array<string>
+     */
+    protected $auditExclude = ['created_at', 'updated_at'];
+
     /**
      * The database table associated with the pivot model.
      *

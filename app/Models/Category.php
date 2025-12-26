@@ -37,6 +37,13 @@ class Category extends Model
     use HasTranslationsExtended;
 
     /**
+     * Attributes to exclude from audit logging.
+     *
+     * @var array<string>
+     */
+    protected $auditExclude = ['created_at', 'updated_at'];
+
+    /**
      * The database table associated with the model.
      *
      * @var string
