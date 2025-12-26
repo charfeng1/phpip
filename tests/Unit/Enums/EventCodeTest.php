@@ -22,6 +22,13 @@ class EventCodeTest extends TestCase
     }
 
     /** @test */
+    public function enum_has_expected_end_of_life_values()
+    {
+        $this->assertEquals('ABA', EventCode::ABANDONED->value);
+        $this->assertEquals('LAP', EventCode::LAPSED->value);
+    }
+
+    /** @test */
     public function enum_has_expected_task_related_values()
     {
         $this->assertEquals('REN', EventCode::RENEWAL->value);
@@ -125,10 +132,36 @@ class EventCodeTest extends TestCase
     }
 
     /** @test */
+    public function end_of_life_events_includes_abandoned_and_lapsed()
+    {
+        $events = EventCode::endOfLifeEvents();
+
+        $this->assertContains(EventCode::ABANDONED, $events);
+        $this->assertContains(EventCode::LAPSED, $events);
+        $this->assertCount(2, $events);
+    }
+
+    /** @test */
+    public function is_end_of_life_returns_true_for_end_of_life_events()
+    {
+        $this->assertTrue(EventCode::ABANDONED->isEndOfLife());
+        $this->assertTrue(EventCode::LAPSED->isEndOfLife());
+        $this->assertFalse(EventCode::FILING->isEndOfLife());
+        $this->assertFalse(EventCode::GRANT->isEndOfLife());
+    }
+
+    /** @test */
+    public function end_of_life_label_returns_human_readable_string()
+    {
+        $this->assertEquals('Abandoned', EventCode::ABANDONED->label());
+        $this->assertEquals('Lapsed', EventCode::LAPSED->label());
+    }
+
+    /** @test */
     public function all_cases_can_be_enumerated()
     {
         $cases = EventCode::cases();
 
-        $this->assertCount(18, $cases);
+        $this->assertCount(20, $cases);
     }
 }

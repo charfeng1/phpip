@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use App\Traits\HasTableComments;
 use Illuminate\Database\Eloquent\Model;
 
@@ -27,7 +28,15 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Fee extends Model
 {
+    use Auditable;
     use HasTableComments;
+
+    /**
+     * Attributes to exclude from audit logging.
+     *
+     * @var array<string>
+     */
+    protected $auditExclude = ['created_at', 'updated_at'];
 
     /**
      * Attributes that should be hidden from serialization.

@@ -20,6 +20,10 @@ enum EventCode: string
     case RECEIVED = 'REC';
     case ALLOWANCE = 'ALL';
 
+    // End-of-life events
+    case ABANDONED = 'ABA';
+    case LAPSED = 'LAP';
+
     // Task-related events
     case RENEWAL = 'REN';
     case PRIORITY_CLAIM = 'PR';
@@ -48,6 +52,8 @@ enum EventCode: string
             self::ENTRY => 'National/Regional Entry',
             self::RECEIVED => 'Received',
             self::ALLOWANCE => 'Allowance',
+            self::ABANDONED => 'Abandoned',
+            self::LAPSED => 'Lapsed',
             self::RENEWAL => 'Renewal',
             self::PRIORITY_CLAIM => 'Priority Claim',
             self::EXAMINATION => 'Examination',
@@ -124,5 +130,23 @@ enum EventCode: string
     public function isRenewalTrigger(): bool
     {
         return in_array($this, self::renewalTriggerEvents(), true);
+    }
+
+    /**
+     * Events that indicate end of IP right lifecycle.
+     *
+     * @return array<EventCode>
+     */
+    public static function endOfLifeEvents(): array
+    {
+        return [self::ABANDONED, self::LAPSED];
+    }
+
+    /**
+     * Check if this event indicates end of life for an IP right.
+     */
+    public function isEndOfLife(): bool
+    {
+        return in_array($this, self::endOfLifeEvents(), true);
     }
 }
