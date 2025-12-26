@@ -34,7 +34,7 @@ class ClassifierControllerTest extends TestCase
             'value' => 'Test Title for Controller',
         ]);
 
-        $response->assertRedirect();
+        $response->assertStatus(200);
         $this->assertDatabaseHas('classifier', [
             'matter_id' => $matter->id,
             'value' => 'Test Title for Controller',
@@ -57,7 +57,7 @@ class ClassifierControllerTest extends TestCase
             'value' => 'RW User Title',
         ]);
 
-        $response->assertRedirect();
+        $response->assertStatus(200);
     }
 
     /** @test */
@@ -99,7 +99,7 @@ class ClassifierControllerTest extends TestCase
             ['value' => 'Updated Title']
         );
 
-        $response->assertRedirect();
+        $response->assertStatus(200);
     }
 
     /** @test */
@@ -121,7 +121,7 @@ class ClassifierControllerTest extends TestCase
             route('classifier.destroy', $classifier)
         );
 
-        $response->assertRedirect();
+        $response->assertStatus(200);
     }
 
     /** @test */
@@ -144,7 +144,7 @@ class ClassifierControllerTest extends TestCase
     }
 
     /** @test */
-    public function classifier_requires_value()
+    public function classifier_requires_value_or_image_or_link()
     {
         $user = User::factory()->admin()->create();
         $matter = Matter::factory()->create();
@@ -153,12 +153,14 @@ class ClassifierControllerTest extends TestCase
             'type' => ['en' => 'Title'],
         ]);
 
-        $response = $this->actingAs($user)->post(route('classifier.store'), [
+        // Value is required unless image or lnk_matter_id is provided
+        $response = $this->actingAs($user)->postJson(route('classifier.store'), [
             'matter_id' => $matter->id,
             'type_code' => $classifierType->code,
-            'value' => '', // Empty value
+            // No value, image, or lnk_matter_id
         ]);
 
-        $response->assertSessionHasErrors('value');
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('value');
     }
 }

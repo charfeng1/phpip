@@ -30,21 +30,16 @@ use Illuminate\Database\Eloquent\Model;
 class RenewalsLog extends Model
 {
     /**
+     * The table doesn't have updated_at, only created_at.
+     */
+    const UPDATED_AT = null;
+
+    /**
      * Attributes that are not mass assignable.
      *
      * @var array<string>
      */
     protected $guarded = [];
-
-    /**
-     * Get the matter this log entry relates to.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function matter()
-    {
-        return $this->belongsTo(Matter::class);
-    }
 
     /**
      * Get the user who created this log entry.

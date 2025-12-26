@@ -188,8 +188,8 @@ class RenewalLogService
                 'job_id' => $jobId,
                 'from_step' => $renewal->step,
                 'to_step' => $toStep,
-                'from_invoice' => $renewal->invoice_step ?? 0,
-                'to_invoice' => $toInvoiceStep,
+                'from_invoice_step' => $renewal->invoice_step ?? 0,
+                'to_invoice_step' => $toInvoiceStep,
                 'creator' => $creator,
                 'created_at' => $now,
             ];

@@ -15,45 +15,36 @@ class RenewalsLogTest extends TestCase
     public function it_can_create_a_renewals_log()
     {
         $matter = Matter::factory()->create();
+        $event = Event::factory()->filing()->forMatter($matter)->create();
+        $task = Task::factory()->renewal()->forEvent($event)->create();
         $user = User::factory()->create();
 
         $log = RenewalsLog::create([
-            'matter_id' => $matter->id,
+            'task_id' => $task->id,
             'creator' => $user->login,
-            'job_id' => 'JOB-001',
+            'job_id' => 1,
+            'from_step' => 0,
+            'to_step' => 2,
         ]);
 
         $this->assertDatabaseHas('renewals_logs', [
-            'matter_id' => $matter->id,
-            'job_id' => 'JOB-001',
+            'task_id' => $task->id,
+            'job_id' => 1,
         ]);
     }
 
     /** @test */
-    public function it_belongs_to_a_matter()
-    {
-        $matter = Matter::factory()->create();
-
-        $log = RenewalsLog::create([
-            'matter_id' => $matter->id,
-            'job_id' => 'JOB-002',
-        ]);
-
-        $this->assertInstanceOf(Matter::class, $log->matter);
-        $this->assertEquals($matter->id, $log->matter->id);
-    }
-
-    /** @test */
-    public function it_can_belong_to_a_task()
+    public function it_belongs_to_a_task()
     {
         $matter = Matter::factory()->create();
         $event = Event::factory()->filing()->forMatter($matter)->create();
         $task = Task::factory()->renewal()->forEvent($event)->create();
 
         $log = RenewalsLog::create([
-            'matter_id' => $matter->id,
             'task_id' => $task->id,
-            'job_id' => 'JOB-003',
+            'job_id' => 2,
+            'from_step' => 0,
+            'to_step' => 2,
         ]);
 
         $this->assertInstanceOf(Task::class, $log->task);
@@ -65,11 +56,15 @@ class RenewalsLogTest extends TestCase
     {
         $user = User::factory()->create(['login' => 'renewal.user']);
         $matter = Matter::factory()->create();
+        $event = Event::factory()->filing()->forMatter($matter)->create();
+        $task = Task::factory()->renewal()->forEvent($event)->create();
 
         $log = RenewalsLog::create([
-            'matter_id' => $matter->id,
+            'task_id' => $task->id,
             'creator' => 'renewal.user',
-            'job_id' => 'JOB-004',
+            'job_id' => 3,
+            'from_step' => 0,
+            'to_step' => 2,
         ]);
 
         $creatorInfo = $log->creatorInfo;
@@ -90,52 +85,56 @@ class RenewalsLogTest extends TestCase
     public function it_can_store_job_id()
     {
         $matter = Matter::factory()->create();
+        $event = Event::factory()->filing()->forMatter($matter)->create();
+        $task = Task::factory()->renewal()->forEvent($event)->create();
 
         $log = RenewalsLog::create([
-            'matter_id' => $matter->id,
-            'job_id' => 'UNIQUE-JOB-ID-12345',
+            'task_id' => $task->id,
+            'job_id' => 12345,
+            'from_step' => 0,
+            'to_step' => 2,
         ]);
 
-        $this->assertEquals('UNIQUE-JOB-ID-12345', $log->job_id);
+        $this->assertEquals(12345, $log->job_id);
     }
 
     /** @test */
-    public function it_can_store_step_information()
+    public function it_can_store_step_transitions()
     {
         $matter = Matter::factory()->create();
+        $event = Event::factory()->filing()->forMatter($matter)->create();
+        $task = Task::factory()->renewal()->forEvent($event)->create();
 
         $log = RenewalsLog::create([
-            'matter_id' => $matter->id,
-            'job_id' => 'JOB-005',
-            'step' => 'invoice_sent',
+            'task_id' => $task->id,
+            'job_id' => 4,
+            'from_step' => 2,
+            'to_step' => 4,
+            'from_invoice_step' => 0,
+            'to_invoice_step' => 1,
         ]);
 
-        $this->assertEquals('invoice_sent', $log->step);
+        $this->assertEquals(2, $log->from_step);
+        $this->assertEquals(4, $log->to_step);
+        $this->assertEquals(0, $log->from_invoice_step);
+        $this->assertEquals(1, $log->to_invoice_step);
     }
 
     /** @test */
-    public function it_has_timestamps()
+    public function it_has_created_at_timestamp()
     {
         $matter = Matter::factory()->create();
+        $event = Event::factory()->filing()->forMatter($matter)->create();
+        $task = Task::factory()->renewal()->forEvent($event)->create();
 
         $log = RenewalsLog::create([
-            'matter_id' => $matter->id,
-            'job_id' => 'JOB-006',
+            'task_id' => $task->id,
+            'job_id' => 5,
+            'from_step' => 0,
+            'to_step' => 2,
         ]);
 
         $this->assertNotNull($log->created_at);
-        $this->assertNotNull($log->updated_at);
-    }
-
-    /** @test */
-    public function matter_relationship_is_belongs_to()
-    {
-        $log = new RenewalsLog();
-
-        $this->assertInstanceOf(
-            \Illuminate\Database\Eloquent\Relations\BelongsTo::class,
-            $log->matter()
-        );
     }
 
     /** @test */

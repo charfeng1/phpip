@@ -43,7 +43,7 @@ class TemplateMemberControllerTest extends TestCase
         return TemplateMember::create(array_merge([
             'summary' => 'Test Template',
             'language' => 'en',
-            'template_class_id' => $this->templateClass->id,
+            'class_id' => $this->templateClass->id,
             'format' => 'odt',
         ], $attributes));
     }
@@ -172,7 +172,7 @@ class TemplateMemberControllerTest extends TestCase
         $response = $this->actingAs($this->adminUser)->post(route('template-member.store'), [
             'summary' => 'New Stored Template',
             'language' => 'en',
-            'template_class_id' => $this->templateClass->id,
+            'class_id' => $this->templateClass->id,
             'format' => 'odt',
         ]);
 

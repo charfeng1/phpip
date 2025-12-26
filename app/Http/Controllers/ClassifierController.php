@@ -98,6 +98,8 @@ class ClassifierController extends Controller
             $request->replace([]);
 
             return response($classifierId, 200)->header('Content-Type', 'text/plain');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;  // Let validation exceptions bubble up for proper JSON response
         } catch (\Exception $e) {
             \Log::error('Classifier store failed: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
 
