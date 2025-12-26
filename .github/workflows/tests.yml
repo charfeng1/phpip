@@ -64,7 +64,7 @@ jobs:
 
       - name: Configure test environment
         run: |
-          cat > .env.testing << 'EOF'
+          cat > .env << 'EOF'
           APP_NAME=phpIP
           APP_ENV=testing
           APP_KEY=
@@ -83,7 +83,6 @@ jobs:
           QUEUE_CONNECTION=sync
           MAIL_MAILER=array
           EOF
-          cp .env.testing .env
 
       - name: Generate application key
         run: php artisan key:generate
