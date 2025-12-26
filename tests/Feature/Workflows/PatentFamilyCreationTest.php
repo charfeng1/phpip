@@ -23,14 +23,16 @@ class PatentFamilyCreationTest extends TestCase
         $country = Country::first() ?? Country::factory()->create(['iso' => 'WO']);
         $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
 
-        $response = $this->actingAs($user)->post(route('matter.store'), [
+        $response = $this->actingAs($user)->postJson(route('matter.store'), [
             'category_code' => $category->code,
             'country' => $country->iso,
             'caseref' => 'FAMILY001',
             'responsible' => $user->login,
         ]);
 
-        $response->assertRedirect();
+        $response->assertStatus(200)
+            ->assertJsonStructure(['redirect']);
+
         $this->assertDatabaseHas('matter', ['caseref' => 'FAMILY001']);
     }
 
@@ -51,7 +53,7 @@ class PatentFamilyCreationTest extends TestCase
         ]);
 
         // Create national phase (US) matter linked to container
-        $response = $this->actingAs($user)->post(route('matter.store'), [
+        $response = $this->actingAs($user)->postJson(route('matter.store'), [
             'category_code' => $category->code,
             'country' => $usCountry->iso,
             'caseref' => 'CONTAINER001',
@@ -59,7 +61,9 @@ class PatentFamilyCreationTest extends TestCase
             'responsible' => $user->login,
         ]);
 
-        $response->assertRedirect();
+        $response->assertStatus(200)
+            ->assertJsonStructure(['redirect']);
+
         $this->assertDatabaseHas('matter', [
             'caseref' => 'CONTAINER001',
             'country' => $usCountry->iso,
@@ -88,7 +92,7 @@ class PatentFamilyCreationTest extends TestCase
         $countries = [$usCountry, $epCountry, $jpCountry];
 
         foreach ($countries as $npCountry) {
-            $this->actingAs($user)->post(route('matter.store'), [
+            $this->actingAs($user)->postJson(route('matter.store'), [
                 'category_code' => $category->code,
                 'country' => $npCountry->iso,
                 'caseref' => 'MULTINP001',
@@ -116,7 +120,7 @@ class PatentFamilyCreationTest extends TestCase
             'caseref' => 'INHERIT001',
         ]);
 
-        $response = $this->actingAs($user)->post(route('matter.store'), [
+        $response = $this->actingAs($user)->postJson(route('matter.store'), [
             'category_code' => $category->code,
             'country' => $usCountry->iso,
             'caseref' => 'INHERIT001',
@@ -124,7 +128,8 @@ class PatentFamilyCreationTest extends TestCase
             'responsible' => $user->login,
         ]);
 
-        $response->assertRedirect();
+        $response->assertStatus(200)
+            ->assertJsonStructure(['redirect']);
 
         $child = Matter::where('container_id', $container->id)->first();
         $this->assertEquals($container->caseref, $child->caseref);
@@ -156,7 +161,7 @@ class PatentFamilyCreationTest extends TestCase
         ]);
 
         // EP validation from PCT
-        $response = $this->actingAs($user)->post(route('matter.store'), [
+        $response = $this->actingAs($user)->postJson(route('matter.store'), [
             'category_code' => $category->code,
             'country' => $epCountry->iso,
             'caseref' => 'ORIGIN001',
@@ -165,7 +170,9 @@ class PatentFamilyCreationTest extends TestCase
             'responsible' => $user->login,
         ]);
 
-        $response->assertRedirect();
+        $response->assertStatus(200)
+            ->assertJsonStructure(['redirect']);
+
         $this->assertDatabaseHas('matter', [
             'caseref' => 'ORIGIN001',
             'country' => $epCountry->iso,
@@ -188,21 +195,23 @@ class PatentFamilyCreationTest extends TestCase
             'caseref' => 'PARENT001',
         ]);
 
-        // Create divisional linked to parent
-        $response = $this->actingAs($user)->post(route('matter.store'), [
+        // Create divisional linked to parent using descendant operation
+        $response = $this->actingAs($user)->postJson(route('matter.store'), [
             'category_code' => $category->code,
             'country' => $usCountry->iso,
-            'caseref' => 'PARENT001',
+            'caseref' => 'PARENT001DIV',
+            'operation' => 'descendant',
             'parent_id' => $parent->id,
-            'idx' => 1, // Divisional index
             'responsible' => $user->login,
         ]);
 
-        $response->assertRedirect();
+        $response->assertStatus(200)
+            ->assertJsonStructure(['redirect']);
+
+        // Verify the divisional was created with parent container link
         $this->assertDatabaseHas('matter', [
-            'caseref' => 'PARENT001',
-            'parent_id' => $parent->id,
-            'idx' => 1,
+            'caseref' => 'PARENT001DIV',
+            'container_id' => $parent->id,
         ]);
     }
 
@@ -215,7 +224,7 @@ class PatentFamilyCreationTest extends TestCase
         $category = Category::first() ?? Category::factory()->create(['code' => 'PAT']);
 
         // Regular patent application
-        $this->actingAs($user)->post(route('matter.store'), [
+        $this->actingAs($user)->postJson(route('matter.store'), [
             'category_code' => $category->code,
             'country' => $country->iso,
             'caseref' => 'TYPES001',

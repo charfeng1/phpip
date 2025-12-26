@@ -507,6 +507,8 @@ class MatterController extends Controller
      */
     public function events(Matter $matter)
     {
+        $this->authorize('view', $matter);
+
         $events = $matter->events->load('info');
 
         return view('matter.events', compact('events', 'matter'));

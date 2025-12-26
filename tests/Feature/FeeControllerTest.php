@@ -51,18 +51,23 @@ class FeeControllerTest extends TestCase
     {
         $user = User::factory()->admin()->create();
 
-        $response = $this->actingAs($user)->post(route('fee.store'), [
+        // Use unique qt value to avoid conflicts with seed data
+        $uniqueQt = 999;
+
+        $response = $this->actingAs($user)->postJson(route('fee.store'), [
             'for_country' => 'US',
             'for_category' => 'PAT',
-            'qt' => 10,
+            'from_qt' => $uniqueQt,  // Controller expects from_qt, not qt
             'cost' => 200.00,
             'fee' => 1000.00,
         ]);
 
-        $response->assertRedirect();
+        $response->assertStatus(200)
+            ->assertJson(['success' => 'Fee created']);
+
         $this->assertDatabaseHas('fees', [
             'for_country' => 'US',
-            'qt' => 10,
+            'qt' => $uniqueQt,
         ]);
     }
 
@@ -71,10 +76,10 @@ class FeeControllerTest extends TestCase
     {
         $user = User::factory()->readWrite()->create();
 
-        $response = $this->actingAs($user)->post(route('fee.store'), [
+        $response = $this->actingAs($user)->postJson(route('fee.store'), [
             'for_country' => 'EP',
             'for_category' => 'PAT',
-            'qt' => 11,
+            'from_qt' => 998,
             'cost' => 300.00,
             'fee' => 1500.00,
         ]);
@@ -86,35 +91,42 @@ class FeeControllerTest extends TestCase
     public function admin_can_update_fee()
     {
         $user = User::factory()->admin()->create();
+
+        // Use unique qt value to avoid unique constraint violation
+        $uniqueQt = 997;
         $fee = Fee::create([
             'for_country' => 'DE',
             'for_category' => 'PAT',
-            'qt' => 12,
+            'qt' => $uniqueQt,
             'cost' => 400.00,
             'fee' => 2000.00,
         ]);
 
-        $response = $this->actingAs($user)->put(route('fee.update', $fee), [
+        $response = $this->actingAs($user)->putJson(route('fee.update', $fee), [
             'cost' => 450.00,
             'fee' => 2250.00,
         ]);
 
-        $response->assertRedirect();
+        $response->assertStatus(200)
+            ->assertJson(['success' => 'Fee updated']);
     }
 
     /** @test */
     public function read_write_user_cannot_update_fee()
     {
         $user = User::factory()->readWrite()->create();
+
+        // Use unique qt value to avoid unique constraint violation
+        $uniqueQt = 996;
         $fee = Fee::create([
             'for_country' => 'FR',
             'for_category' => 'PAT',
-            'qt' => 13,
+            'qt' => $uniqueQt,
             'cost' => 500.00,
             'fee' => 2500.00,
         ]);
 
-        $response = $this->actingAs($user)->put(route('fee.update', $fee), [
+        $response = $this->actingAs($user)->putJson(route('fee.update', $fee), [
             'cost' => 550.00,
         ]);
 
@@ -125,17 +137,21 @@ class FeeControllerTest extends TestCase
     public function admin_can_delete_fee()
     {
         $user = User::factory()->admin()->create();
+
+        // Use unique qt value to avoid unique constraint violation
+        $uniqueQt = 995;
         $fee = Fee::create([
             'for_country' => 'GB',
             'for_category' => 'PAT',
-            'qt' => 14,
+            'qt' => $uniqueQt,
             'cost' => 600.00,
             'fee' => 3000.00,
         ]);
 
-        $response = $this->actingAs($user)->delete(route('fee.destroy', $fee));
+        $response = $this->actingAs($user)->deleteJson(route('fee.destroy', $fee));
 
-        $response->assertRedirect();
+        $response->assertStatus(200)
+            ->assertJson(['success' => 'Fee deleted']);
     }
 
     /** @test */

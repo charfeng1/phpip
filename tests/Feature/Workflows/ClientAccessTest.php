@@ -224,7 +224,7 @@ class ClientAccessTest extends TestCase
     /** @test */
     public function client_cannot_access_autocomplete_endpoints()
     {
-        $response = $this->actingAs($this->clientUser)->getJson(route('user.autocomplete', ['term' => 'test']));
+        $response = $this->actingAs($this->clientUser)->getJson('/user/autocomplete?term=test');
 
         $response->assertStatus(403);
     }

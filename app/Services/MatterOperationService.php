@@ -83,7 +83,8 @@ class MatterOperationService
                 ]);
             } else {
                 // Copy filing event (without detail) from parent, if it exists
-                if ($parentMatter->filing) {
+                // Note: filing() uses withDefault(), so we check for existing id
+                if ($parentMatter->filing && $parentMatter->filing->exists) {
                     $newMatter->filing()->save($parentMatter->filing->replicate(['detail']));
                 }
 

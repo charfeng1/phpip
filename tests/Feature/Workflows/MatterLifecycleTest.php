@@ -33,14 +33,16 @@ class MatterLifecycleTest extends TestCase
         $country = Country::first() ?? Country::factory()->create(['iso' => 'US']);
         $category = Category::first() ?? Category::factory()->create(['code' => CategoryCode::PATENT->value]);
 
-        $response = $this->actingAs($user)->post(route('matter.store'), [
+        $response = $this->actingAs($user)->postJson(route('matter.store'), [
             'category_code' => $category->code,
             'country' => $country->iso,
             'caseref' => 'LIFECYCLE001',
             'responsible' => $user->login,
         ]);
 
-        $response->assertRedirect();
+        $response->assertStatus(200)
+            ->assertJsonStructure(['redirect']);
+
         $this->assertDatabaseHas('matter', ['caseref' => 'LIFECYCLE001']);
     }
 
@@ -70,7 +72,8 @@ class MatterLifecycleTest extends TestCase
         $response = $this->actingAs($user)->postJson(route('event.store'), [
             'matter_id' => $matter->id,
             'code' => $eventName->code,
-            'event_date' => now()->format('Y-m-d'),
+            'eventName' => $eventName->code,  // Controller requires both code and eventName
+            'event_date' => now()->isoFormat('L'),  // Controller expects locale date format (Y/m/d)
             'detail' => 'TEST/2024/001',
         ]);
 
