@@ -32,6 +32,6 @@ class MatterSearchController extends Controller
             }
         }
 
-        return redirect("/matter?{$request->search_field}={$request->matter_search}");
+        return redirect()->route('matter.index', [$request->search_field => $request->matter_search]);
     }
 }

@@ -91,6 +91,10 @@ class OPSService
 
         $members = data_get($ops_response, 'ops:world-patent-data.ops:patent-family.ops:family-member');
 
+        if ($members === null) {
+            return ['errors' => ['docnum' => ['No family members found']], 'message' => 'No family members found in OPS'];
+        }
+
         if (Arr::isList($members)) {
             // Sort members by increasing filing date and doc-id, so that the first is the priority application
             $members = collect($members)->sortBy(

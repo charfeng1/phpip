@@ -8,6 +8,7 @@ use App\Models\Actor;
 use App\Models\ActorPivot;
 use App\Traits\HandlesAuditFields;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 /**
  * Manages actor-matter relationships (pivot table).
@@ -81,6 +82,8 @@ class ActorPivotController extends Controller
      */
     public function destroy(ActorPivot $actorPivot)
     {
+        Gate::authorize('delete', $actorPivot);
+
         $matter_id = $actorPivot->matter_id;
         $role = $actorPivot->role;
 

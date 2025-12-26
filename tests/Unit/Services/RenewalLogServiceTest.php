@@ -96,8 +96,8 @@ class RenewalLogServiceTest extends TestCase
 
         $this->assertEquals(8, $logs[0]['from_step']);
         $this->assertEquals(14, $logs[0]['to_step']);
-        $this->assertEquals(2, $logs[0]['from_invoice']);
-        $this->assertEquals(3, $logs[0]['to_invoice']);
+        $this->assertEquals(2, $logs[0]['from_invoice_step']);
+        $this->assertEquals(3, $logs[0]['to_invoice_step']);
     }
 
     public function test_build_closing_logs_handles_null_invoice_step(): void
@@ -108,7 +108,7 @@ class RenewalLogServiceTest extends TestCase
 
         $logs = $this->service->buildClosingLogs($renewals, 1, 14, 3);
 
-        $this->assertEquals(0, $logs[0]['from_invoice']);
+        $this->assertEquals(0, $logs[0]['from_invoice_step']);
     }
 
     public function test_build_notification_logs_empty_collection(): void

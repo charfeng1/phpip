@@ -77,7 +77,7 @@ class RenewalWorkflowService
             $renewals,
             $jobId,
             self::STEP_TO_PAY,
-            ['from_invoice' => self::INVOICE_NONE, 'to_invoice' => self::INVOICE_TO_INVOICE]
+            ['from_invoice_step' => self::INVOICE_NONE, 'to_invoice_step' => self::INVOICE_TO_INVOICE]
         );
 
         // Update tasks
@@ -156,6 +156,7 @@ class RenewalWorkflowService
                 'created_at' => now(),
             ];
 
+            $task->done = true;
             $task->done_date = now();
             $task->step = self::STEP_CLEARED;
 

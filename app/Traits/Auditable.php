@@ -222,7 +222,7 @@ trait Auditable
      */
     public function getLatestAuditLog(): ?AuditLog
     {
-        return $this->auditLogs()->latest('created_at')->first();
+        return $this->auditLogs()->latest('id')->first();
     }
 
     /**

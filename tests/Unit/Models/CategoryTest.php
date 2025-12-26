@@ -36,8 +36,9 @@ class CategoryTest extends TestCase
     /** @test */
     public function it_has_translatable_category_name()
     {
-        $category = Category::factory()->create([
-            'code' => 'PAT',
+        // Use existing PAT category from seeds instead of creating new one
+        $category = Category::find('PAT') ?? Category::factory()->create([
+            'code' => 'TRANS',
         ]);
 
         $this->assertIsArray($category->translatable);

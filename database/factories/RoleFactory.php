@@ -9,15 +9,24 @@ class RoleFactory extends Factory
 {
     protected $model = Role::class;
 
+    /**
+     * Counter for generating unique test role codes.
+     */
+    protected static int $testCodeCounter = 0;
+
     public function definition(): array
     {
+        // Use TST prefix to avoid collision with real role codes
+        $counter = static::$testCodeCounter++;
+        $code = sprintf('T%02d', $counter);
+
         return [
-            'code' => strtoupper($this->faker->unique()->lexify('???')),
+            'code' => $code,
             'name' => json_encode([
-                'en' => $this->faker->jobTitle,
-                'fr' => $this->faker->jobTitle,
+                'en' => 'Test Role '.$counter,
+                'fr' => 'Rôle Test '.$counter,
             ]),
-            'display_order' => $this->faker->numberBetween(1, 100),
+            'display_order' => $this->faker->numberBetween(100, 200),
             'shareable' => $this->faker->boolean,
             'show_ref' => $this->faker->boolean,
             'show_company' => $this->faker->boolean,

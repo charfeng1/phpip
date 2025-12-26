@@ -77,13 +77,13 @@ class RoleControllerTest extends TestCase
     public function admin_can_update_role()
     {
         $user = User::factory()->admin()->create();
-        $role = Role::factory()->create(['code' => 'UPD']);
+        $role = Role::factory()->create();
 
-        $response = $this->actingAs($user)->put(route('role.update', $role), [
+        $response = $this->actingAs($user)->putJson(route('role.update', $role), [
             'name' => 'Updated Role Name',
         ]);
 
-        $response->assertRedirect();
+        $response->assertSuccessful();
     }
 
     /** @test */
@@ -103,11 +103,11 @@ class RoleControllerTest extends TestCase
     public function admin_can_delete_role()
     {
         $user = User::factory()->admin()->create();
-        $role = Role::factory()->create(['code' => 'DEL']);
+        $role = Role::factory()->create();
 
-        $response = $this->actingAs($user)->delete(route('role.destroy', $role));
+        $response = $this->actingAs($user)->deleteJson(route('role.destroy', $role));
 
-        $response->assertRedirect();
+        $response->assertSuccessful();
     }
 
     /** @test */

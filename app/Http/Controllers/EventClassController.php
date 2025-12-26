@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\EventClassLnk;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 /**
  * Manages links between event names and template classes.
@@ -21,6 +22,8 @@ class EventClassController extends Controller
      */
     public function store(Request $request)
     {
+        Gate::authorize('readwrite');
+
         return EventClassLnk::create($request->except(['_token', '_method', 'className']));
     }
 
@@ -32,6 +35,8 @@ class EventClassController extends Controller
      */
     public function destroy(int $lnk)
     {
+        Gate::authorize('readwrite');
+
         if (EventClassLnk::destroy($lnk) == 1) {
             return response()->json(['success' => 'Link deleted']);
         } else {

@@ -13,8 +13,8 @@ class OPSServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        // Prevent any real HTTP requests
-        Http::fake();
+        // Prevent any real HTTP requests - empty fake returns 200 with empty body
+        Http::preventStrayRequests();
         $this->opsService = new OPSService();
     }
 

@@ -39,6 +39,13 @@ class ActorPivot extends Pivot
     protected $table = 'matter_actor_lnk';
 
     /**
+     * Indicates if the IDs are auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = true;
+
+    /**
      * Attributes that should be hidden from serialization.
      *
      * @var array<string>

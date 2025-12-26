@@ -8,6 +8,7 @@ use App\Models\ClassifierType;
 use App\Traits\Filterable;
 use App\Traits\HandlesAuditFields;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 /**
  * Manages classifier type definitions.
@@ -110,6 +111,8 @@ class ClassifierTypeController extends Controller
      */
     public function destroy(ClassifierType $classifierType)
     {
+        Gate::authorize('admin');
+
         $classifierType->delete();
 
         return $classifierType;

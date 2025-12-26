@@ -252,10 +252,20 @@ class RenewalController extends Controller
             return $ren->getAttributes();
         });
 
-        $captions = config('renewal.invoice.captions');
         $export_csv = fopen('php://memory', 'w');
-        fputcsv($export_csv, $captions, ';');
-        foreach ($export->toArray() as $row) {
+
+        // Use configured captions or derive from first row's keys
+        $exportArray = $export->toArray();
+        $captions = config('renewal.invoice.captions');
+        if (empty($captions) && ! empty($exportArray)) {
+            $captions = array_keys($exportArray[0]);
+        }
+
+        if (! empty($captions)) {
+            fputcsv($export_csv, $captions, ';');
+        }
+
+        foreach ($exportArray as $row) {
             fputcsv($export_csv, array_map('utf8_decode', $row), ';');
         }
         rewind($export_csv);

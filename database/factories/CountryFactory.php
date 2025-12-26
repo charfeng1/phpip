@@ -9,20 +9,28 @@ class CountryFactory extends Factory
 {
     protected $model = Country::class;
 
+    /**
+     * Counter for generating unique test country codes.
+     */
+    protected static int $testCodeCounter = 0;
+
     public function definition(): array
     {
-        $iso = strtoupper($this->faker->unique()->lexify('??'));
+        // Use X prefix with counter to avoid collision with real ISO codes
+        // XA, XB, XC... XZ, then X0, X1... X9, then YA, YB...
+        $counter = static::$testCodeCounter++;
+        $iso = $this->generateTestIsoCode($counter);
 
         return [
             'iso' => $iso,
-            'iso3' => strtoupper($this->faker->lexify('???')),
-            'numcode' => $this->faker->numberBetween(1, 999),
+            'iso3' => 'T'.strtoupper($this->faker->lexify('??')),
+            'numcode' => $this->faker->numberBetween(900, 999),
             'name' => json_encode([
-                'en' => $this->faker->country,
-                'fr' => $this->faker->country,
+                'en' => 'Test Country '.$counter,
+                'fr' => 'Pays Test '.$counter,
             ]),
-            'name_DE' => $this->faker->country,
-            'name_FR' => $this->faker->country,
+            'name_DE' => 'Testland '.$counter,
+            'name_FR' => 'Pays Test '.$counter,
             'ep' => $this->faker->boolean(20),
             'wo' => $this->faker->boolean(30),
             'em' => $this->faker->boolean(20),
@@ -31,12 +39,40 @@ class CountryFactory extends Factory
     }
 
     /**
-     * Create a country that is a regional office (EP, WO, etc.)
+     * Generate a unique test ISO code that won't conflict with seed data.
+     * Uses digit prefixes (0-9) which are not used in real ISO-3166 alpha-2 codes.
+     */
+    private function generateTestIsoCode(int $counter): string
+    {
+        $letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $prefixes = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+        $prefixIndex = intdiv($counter, 26);
+        $suffixIndex = $counter % 26;
+
+        $prefix = $prefixes[$prefixIndex % 10];
+        $suffix = $letters[$suffixIndex];
+
+        return $prefix.$suffix;
+    }
+
+    /**
+     * Get an existing regional office (EP, WO, EM, OA) from seeds.
+     * Note: Use Country::firstOrCreate() directly if you need a regional office,
+     * as this state may conflict with seed data.
      */
     public function regional(): static
     {
+        $iso = $this->faker->randomElement(['EP', 'WO', 'EM', 'OA']);
+
         return $this->state(fn (array $attributes) => [
-            'iso' => $this->faker->randomElement(['EP', 'WO', 'EM', 'OA']),
+            'iso' => $iso,
+            'name' => json_encode(['en' => match ($iso) {
+                'EP' => 'European Patent Office',
+                'WO' => 'World Intellectual Property Organization',
+                'EM' => 'European Union Intellectual Property Office',
+                'OA' => 'African Intellectual Property Organization',
+            }]),
         ]);
     }
 }

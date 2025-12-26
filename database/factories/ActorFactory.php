@@ -96,7 +96,7 @@ class ActorFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'default_role' => 'DBA',
-            'login' => $this->faker->unique()->userName,
+            'login' => substr($this->faker->unique()->userName, 0, 16),
         ]);
     }
 
@@ -106,7 +106,7 @@ class ActorFactory extends Factory
     public function withLogin(): static
     {
         return $this->state(fn (array $attributes) => [
-            'login' => $this->faker->unique()->userName,
+            'login' => substr($this->faker->unique()->userName, 0, 16),
             'password' => bcrypt('password'),
         ]);
     }

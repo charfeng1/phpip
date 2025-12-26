@@ -9,16 +9,25 @@ class CategoryFactory extends Factory
 {
     protected $model = Category::class;
 
+    /**
+     * Counter for generating unique test category codes.
+     */
+    protected static int $testCodeCounter = 0;
+
     public function definition(): array
     {
+        // Use TC prefix to avoid collision with real category codes
+        $counter = static::$testCodeCounter++;
+        $code = sprintf('TC%d', $counter);
+
         return [
-            'code' => strtoupper($this->faker->unique()->lexify('???')),
+            'code' => $code,
             'category' => json_encode([
-                'en' => $this->faker->word,
-                'fr' => $this->faker->word,
+                'en' => 'Test Category '.$counter,
+                'fr' => 'Catégorie Test '.$counter,
             ]),
             'display_with' => null,
-            'ref_prefix' => strtoupper($this->faker->lexify('?')),
+            'ref_prefix' => 'X',
         ];
     }
 

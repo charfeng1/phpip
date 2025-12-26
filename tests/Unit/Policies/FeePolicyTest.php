@@ -116,7 +116,7 @@ class FeePolicyTest extends TestCase
         $fee = Fee::create([
             'for_country' => 'EP',
             'for_category' => 'PAT',
-            'qt' => 4,
+            'qt' => 984,  // Use high unique value to avoid seed conflicts
             'cost' => 100.00,
             'fee' => 500.00,
         ]);
@@ -133,7 +133,7 @@ class FeePolicyTest extends TestCase
         $fee = Fee::create([
             'for_country' => 'DE',
             'for_category' => 'PAT',
-            'qt' => 5,
+            'qt' => 985,  // Use high unique value to avoid seed conflicts
             'cost' => 100.00,
             'fee' => 500.00,
         ]);
@@ -149,7 +149,7 @@ class FeePolicyTest extends TestCase
         $fee = Fee::create([
             'for_country' => 'FR',
             'for_category' => 'PAT',
-            'qt' => 6,
+            'qt' => 986,  // Use high unique value to avoid seed conflicts
             'cost' => 100.00,
             'fee' => 500.00,
         ]);

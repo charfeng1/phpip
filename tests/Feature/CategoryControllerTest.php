@@ -54,6 +54,7 @@ class CategoryControllerTest extends TestCase
         $response = $this->actingAs($user)->post(route('category.store'), [
             'code' => 'TST',
             'category' => 'Test Category',
+            'display_with' => 0,
         ]);
 
         $response->assertRedirect();
@@ -68,6 +69,7 @@ class CategoryControllerTest extends TestCase
         $response = $this->actingAs($user)->post(route('category.store'), [
             'code' => 'NEW',
             'category' => 'New Category',
+            'display_with' => 0,
         ]);
 
         $response->assertStatus(403);
@@ -77,20 +79,20 @@ class CategoryControllerTest extends TestCase
     public function admin_can_update_category()
     {
         $user = User::factory()->admin()->create();
-        $category = Category::factory()->create(['code' => 'UPD']);
+        $category = Category::factory()->create();
 
         $response = $this->actingAs($user)->put(route('category.update', $category), [
             'category' => 'Updated Category',
         ]);
 
-        $response->assertRedirect();
+        $response->assertStatus(200);
     }
 
     /** @test */
     public function read_write_user_cannot_update_category()
     {
         $user = User::factory()->readWrite()->create();
-        $category = Category::find('PAT') ?? Category::factory()->create(['code' => 'PAT']);
+        $category = Category::first() ?? Category::factory()->create();
 
         $response = $this->actingAs($user)->put(route('category.update', $category), [
             'category' => 'Changed Category',
@@ -103,11 +105,12 @@ class CategoryControllerTest extends TestCase
     public function admin_can_delete_category()
     {
         $user = User::factory()->admin()->create();
-        $category = Category::factory()->create(['code' => 'DEL']);
+        $category = Category::factory()->create();
 
         $response = $this->actingAs($user)->delete(route('category.destroy', $category));
 
-        $response->assertRedirect();
+        $response->assertStatus(200);
+        $this->assertDatabaseMissing('matter_category', ['code' => $category->code]);
     }
 
     /** @test */

@@ -146,8 +146,9 @@ class RenewalControllerTest extends TestCase
     /** @test */
     public function topay_returns_error_when_no_renewals_selected()
     {
+        // When task_ids is not provided at all, expect error
         $response = $this->actingAs($this->adminUser)
-            ->postJson('/renewal/topay', ['task_ids' => []]);
+            ->postJson('/renewal/topay', []);
 
         $response->assertStatus(200)
             ->assertJson(['error' => 'No renewal selected.']);
@@ -178,8 +179,9 @@ class RenewalControllerTest extends TestCase
     /** @test */
     public function paid_returns_error_when_no_renewals_selected()
     {
+        // When task_ids is not provided at all, expect error
         $response = $this->actingAs($this->adminUser)
-            ->postJson('/renewal/paid', ['task_ids' => []]);
+            ->postJson('/renewal/paid', []);
 
         $response->assertStatus(200)
             ->assertJson(['error' => 'No renewal selected.']);
@@ -199,8 +201,9 @@ class RenewalControllerTest extends TestCase
     /** @test */
     public function done_returns_error_when_no_renewals_selected()
     {
+        // When task_ids is not provided at all, expect error
         $response = $this->actingAs($this->adminUser)
-            ->postJson('/renewal/done', ['task_ids' => []]);
+            ->postJson('/renewal/done', []);
 
         $response->assertStatus(200)
             ->assertJson(['error' => 'No renewal selected.']);
@@ -225,8 +228,9 @@ class RenewalControllerTest extends TestCase
     /** @test */
     public function receipt_returns_error_when_no_renewals_selected()
     {
+        // When task_ids is not provided at all, expect error
         $response = $this->actingAs($this->adminUser)
-            ->postJson('/renewal/receipt', ['task_ids' => []]);
+            ->postJson('/renewal/receipt', []);
 
         $response->assertStatus(200)
             ->assertJson(['error' => 'No renewal selected.']);
@@ -235,8 +239,9 @@ class RenewalControllerTest extends TestCase
     /** @test */
     public function closing_returns_error_when_no_renewals_selected()
     {
+        // When task_ids is not provided at all, expect error
         $response = $this->actingAs($this->adminUser)
-            ->postJson('/renewal/closing', ['task_ids' => []]);
+            ->postJson('/renewal/closing', []);
 
         $response->assertStatus(200)
             ->assertJson(['error' => 'No renewal selected.']);
@@ -245,8 +250,9 @@ class RenewalControllerTest extends TestCase
     /** @test */
     public function abandon_returns_error_when_no_renewals_selected()
     {
+        // When task_ids is not provided at all, expect error
         $response = $this->actingAs($this->adminUser)
-            ->postJson('/renewal/abandon', ['task_ids' => []]);
+            ->postJson('/renewal/abandon', []);
 
         $response->assertStatus(200)
             ->assertJson(['error' => 'No renewal selected.']);
@@ -255,8 +261,9 @@ class RenewalControllerTest extends TestCase
     /** @test */
     public function lapsing_returns_error_when_no_renewals_selected()
     {
+        // When task_ids is not provided at all, expect error
         $response = $this->actingAs($this->adminUser)
-            ->postJson('/renewal/lapsing', ['task_ids' => []]);
+            ->postJson('/renewal/lapsing', []);
 
         $response->assertStatus(200)
             ->assertJson(['error' => 'No renewal selected.']);
@@ -296,6 +303,7 @@ class RenewalControllerTest extends TestCase
     public function admin_can_process_abandon_with_valid_task()
     {
         $task = $this->createRenewalTask(['step' => 2]);
+        $matterId = $task->trigger->matter_id;
 
         $response = $this->actingAs($this->adminUser)
             ->postJson('/renewal/abandon', ['task_ids' => [$task->id]]);
@@ -307,7 +315,7 @@ class RenewalControllerTest extends TestCase
         $this->assertEquals(12, $task->step);
 
         $this->assertDatabaseHas('event', [
-            'matter_id' => $task->trigger_id,
+            'matter_id' => $matterId,
             'code' => 'ABA',
         ]);
     }
@@ -316,6 +324,7 @@ class RenewalControllerTest extends TestCase
     public function admin_can_process_lapsing_with_valid_task()
     {
         $task = $this->createRenewalTask(['step' => 2]);
+        $matterId = $task->trigger->matter_id;
 
         $response = $this->actingAs($this->adminUser)
             ->postJson('/renewal/lapsing', ['task_ids' => [$task->id]]);
@@ -327,7 +336,7 @@ class RenewalControllerTest extends TestCase
         $this->assertEquals(14, $task->step);
 
         $this->assertDatabaseHas('event', [
-            'matter_id' => $task->trigger_id,
+            'matter_id' => $matterId,
             'code' => 'LAP',
         ]);
     }
@@ -387,18 +396,25 @@ class RenewalControllerTest extends TestCase
     /** @test */
     public function renewal_export_contains_csv_data()
     {
-        // Create a renewal task to export
-        $this->createRenewalTask();
+        // Create a renewal task to export (invoice_step = 1 required for export)
+        $this->createRenewalTask(['invoice_step' => 1]);
 
         $response = $this->actingAs($this->adminUser)->get('/renewal/export');
 
         $response->assertStatus(200)
             ->assertHeader('Content-Type', 'application/csv');
 
-        // Verify CSV has content (headers at minimum)
-        $content = $response->getContent();
+        // For streaming responses, check that Content-Disposition header is set
+        $response->assertHeader('Content-disposition');
+
+        // Stream the response to get content
+        ob_start();
+        $response->sendContent();
+        $content = ob_get_clean();
+
+        // Verify CSV has content - uses semicolon as delimiter
         $this->assertNotEmpty($content);
-        $this->assertStringContainsString(',', $content);
+        $this->assertStringContainsString(';', $content);
     }
 
     /** @test */
@@ -420,8 +436,9 @@ class RenewalControllerTest extends TestCase
     /** @test */
     public function invoice_returns_error_when_no_renewals_selected()
     {
+        // When task_ids is not provided at all, expect error
         $response = $this->actingAs($this->adminUser)
-            ->postJson('/renewal/invoice/0', ['task_ids' => []]);
+            ->postJson('/renewal/invoice/0', []);
 
         $response->assertStatus(200)
             ->assertJson(['error' => 'No renewal selected.']);

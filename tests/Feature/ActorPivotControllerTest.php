@@ -38,10 +38,14 @@ class ActorPivotControllerTest extends TestCase
         $this->readOnlyUser = User::factory()->readOnly()->create();
         $this->clientUser = User::factory()->client()->create();
 
-        // Create required reference data
+        // Create required reference data - use factory for new data, existing seed data for roles
         $this->country = Country::factory()->create();
         $this->category = Category::factory()->create();
-        $this->role = Role::factory()->create(['code' => ActorRole::CLIENT->value]);
+        // Use existing role from seed data or create new one if not present
+        $this->role = Role::firstOrCreate(
+            ['code' => ActorRole::CLIENT->value],
+            ['name' => json_encode(['en' => 'Client', 'fr' => 'Client']), 'shareable' => true]
+        );
     }
 
     /**
@@ -56,13 +60,21 @@ class ActorPivotControllerTest extends TestCase
 
         $actor = Actor::factory()->create(['country' => $this->country->iso]);
 
-        return ActorPivot::create(array_merge([
+        $pivotData = array_merge([
             'matter_id' => $matter->id,
             'actor_id' => $actor->id,
             'role' => $this->role->code,
             'shared' => 0,
             'display_order' => 1,
-        ], $attributes));
+        ], $attributes);
+
+        ActorPivot::create($pivotData);
+
+        // Fetch the created pivot to get the ID (since incrementing is false)
+        return ActorPivot::where('matter_id', $pivotData['matter_id'])
+            ->where('actor_id', $pivotData['actor_id'])
+            ->where('role', $pivotData['role'])
+            ->firstOrFail();
     }
 
     /** @test */
@@ -115,7 +127,10 @@ class ActorPivotControllerTest extends TestCase
         ]);
 
         $actor = Actor::factory()->create(['country' => $this->country->iso]);
-        $applicantRole = Role::factory()->create(['code' => ActorRole::APPLICANT->value]);
+        $applicantRole = Role::firstOrCreate(
+            ['code' => ActorRole::APPLICANT->value],
+            ['name' => json_encode(['en' => 'Applicant', 'fr' => 'Demandeur']), 'shareable' => true]
+        );
 
         $response = $this->actingAs($this->adminUser)->postJson(route('actor-pivot.store'), [
             'matter_id' => $matter->id,
@@ -198,7 +213,7 @@ class ActorPivotControllerTest extends TestCase
     {
         $actor = Actor::factory()->create(['country' => $this->country->iso]);
 
-        $response = $this->actingAs($this->adminUser)->get(route('actor.usedin', $actor));
+        $response = $this->actingAs($this->adminUser)->get("/actor/{$actor->id}/usedin");
 
         $response->assertStatus(200);
         $response->assertViewIs('actor.usedin');
@@ -209,7 +224,7 @@ class ActorPivotControllerTest extends TestCase
     {
         $actor = Actor::factory()->create(['country' => $this->country->iso]);
 
-        $response = $this->actingAs($this->readWriteUser)->get(route('actor.usedin', $actor));
+        $response = $this->actingAs($this->readWriteUser)->get("/actor/{$actor->id}/usedin");
 
         $response->assertStatus(200);
     }
@@ -219,7 +234,7 @@ class ActorPivotControllerTest extends TestCase
     {
         $actor = Actor::factory()->create(['country' => $this->country->iso]);
 
-        $response = $this->actingAs($this->clientUser)->get(route('actor.usedin', $actor));
+        $response = $this->actingAs($this->clientUser)->get("/actor/{$actor->id}/usedin");
 
         $response->assertStatus(403);
     }

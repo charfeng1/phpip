@@ -131,13 +131,18 @@ class ActorManagementTest extends TestCase
 
         $actor = Actor::factory()->create(['country' => $country->iso]);
 
-        $actorPivot = ActorPivot::create([
+        ActorPivot::create([
             'matter_id' => $matter->id,
             'actor_id' => $actor->id,
             'role' => $role->code,
             'shared' => 0,
             'display_order' => 1,
         ]);
+        // Refetch to get the auto-generated ID
+        $actorPivot = ActorPivot::where('matter_id', $matter->id)
+            ->where('actor_id', $actor->id)
+            ->where('role', $role->code)
+            ->firstOrFail();
 
         $response = $this->actingAs($user)->putJson(route('actor-pivot.update', $actorPivot), [
             'shared' => 1,
@@ -162,13 +167,18 @@ class ActorManagementTest extends TestCase
 
         $actor = Actor::factory()->create(['country' => $country->iso]);
 
-        $actorPivot = ActorPivot::create([
+        ActorPivot::create([
             'matter_id' => $matter->id,
             'actor_id' => $actor->id,
             'role' => $role->code,
             'shared' => 0,
             'display_order' => 1,
         ]);
+        // Refetch to get the auto-generated ID
+        $actorPivot = ActorPivot::where('matter_id', $matter->id)
+            ->where('actor_id', $actor->id)
+            ->where('role', $role->code)
+            ->firstOrFail();
 
         $response = $this->actingAs($user)->deleteJson(route('actor-pivot.destroy', $actorPivot));
 
@@ -201,11 +211,15 @@ class ActorManagementTest extends TestCase
             'country' => 'US',
         ]);
 
-        $response = $this->actingAs($user)->put(route('actor.update', $actor), [
+        $response = $this->actingAs($user)->putJson(route('actor.update', $actor), [
             'name' => 'Updated Name',
         ]);
 
-        $response->assertRedirect();
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('actor', [
+            'id' => $actor->id,
+            'name' => 'Updated Name',
+        ]);
     }
 
     /** @test */

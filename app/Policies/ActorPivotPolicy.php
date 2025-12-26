@@ -32,16 +32,16 @@ class ActorPivotPolicy
 
     public function create(User $user): bool
     {
-        return $this->canReadWrite($user);
+        return $this->canWrite($user);
     }
 
     public function update(User $user, ActorPivot $actorPivot): bool
     {
-        return $this->canReadWrite($user);
+        return $this->canWrite($user);
     }
 
     public function delete(User $user, ActorPivot $actorPivot): bool
     {
-        return $this->canReadWrite($user);
+        return $this->canWrite($user);
     }
 }

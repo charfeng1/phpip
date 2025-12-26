@@ -13,9 +13,7 @@ class ClassifierControllerTest extends TestCase
     /** @test */
     public function guest_cannot_access_classifiers()
     {
-        $matter = Matter::factory()->create();
-
-        $response = $this->get(route('matter.classifiers.index', $matter));
+        $response = $this->get(route('classifier.index'));
 
         $response->assertRedirect(route('login'));
     }
@@ -30,12 +28,13 @@ class ClassifierControllerTest extends TestCase
             'type' => ['en' => 'Title'],
         ]);
 
-        $response = $this->actingAs($user)->post(route('matter.classifiers.store', $matter), [
+        $response = $this->actingAs($user)->post(route('classifier.store'), [
+            'matter_id' => $matter->id,
             'type_code' => $classifierType->code,
             'value' => 'Test Title for Controller',
         ]);
 
-        $response->assertRedirect();
+        $response->assertStatus(200);
         $this->assertDatabaseHas('classifier', [
             'matter_id' => $matter->id,
             'value' => 'Test Title for Controller',
@@ -52,12 +51,13 @@ class ClassifierControllerTest extends TestCase
             'type' => ['en' => 'Title'],
         ]);
 
-        $response = $this->actingAs($user)->post(route('matter.classifiers.store', $matter), [
+        $response = $this->actingAs($user)->post(route('classifier.store'), [
+            'matter_id' => $matter->id,
             'type_code' => $classifierType->code,
             'value' => 'RW User Title',
         ]);
 
-        $response->assertRedirect();
+        $response->assertStatus(200);
     }
 
     /** @test */
@@ -70,7 +70,8 @@ class ClassifierControllerTest extends TestCase
             'type' => ['en' => 'Title'],
         ]);
 
-        $response = $this->actingAs($user)->post(route('matter.classifiers.store', $matter), [
+        $response = $this->actingAs($user)->post(route('classifier.store'), [
+            'matter_id' => $matter->id,
             'type_code' => $classifierType->code,
             'value' => 'Should Not Create',
         ]);
@@ -94,11 +95,11 @@ class ClassifierControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->put(
-            route('matter.classifiers.update', [$matter, $classifier]),
+            route('classifier.update', $classifier),
             ['value' => 'Updated Title']
         );
 
-        $response->assertRedirect();
+        $response->assertStatus(200);
     }
 
     /** @test */
@@ -117,10 +118,10 @@ class ClassifierControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->delete(
-            route('matter.classifiers.destroy', [$matter, $classifier])
+            route('classifier.destroy', $classifier)
         );
 
-        $response->assertRedirect();
+        $response->assertStatus(200);
     }
 
     /** @test */
@@ -133,7 +134,8 @@ class ClassifierControllerTest extends TestCase
             'type' => ['en' => 'Title'],
         ]);
 
-        $response = $this->actingAs($user)->post(route('matter.classifiers.store', $matter), [
+        $response = $this->actingAs($user)->post(route('classifier.store'), [
+            'matter_id' => $matter->id,
             'type_code' => $classifierType->code,
             'value' => 'Client Title',
         ]);
@@ -142,7 +144,7 @@ class ClassifierControllerTest extends TestCase
     }
 
     /** @test */
-    public function classifier_requires_value()
+    public function classifier_requires_value_or_image_or_link()
     {
         $user = User::factory()->admin()->create();
         $matter = Matter::factory()->create();
@@ -151,11 +153,14 @@ class ClassifierControllerTest extends TestCase
             'type' => ['en' => 'Title'],
         ]);
 
-        $response = $this->actingAs($user)->post(route('matter.classifiers.store', $matter), [
+        // Value is required unless image or lnk_matter_id is provided
+        $response = $this->actingAs($user)->postJson(route('classifier.store'), [
+            'matter_id' => $matter->id,
             'type_code' => $classifierType->code,
-            'value' => '', // Empty value
+            // No value, image, or lnk_matter_id
         ]);
 
-        $response->assertSessionHasErrors('value');
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('value');
     }
 }

@@ -125,7 +125,7 @@ class AutocompleteController extends Controller
      */
     public function user(Request $request): JsonResponse
     {
-        $results = User::select('name as value', 'login as key')
+        $results = User::select('name as value', DB::raw('TRIM(login) as key'))
             ->whereLike('name', "{$request->term}%")
             ->orWhereLike('login', "{$request->term}%")
             ->take(10)
