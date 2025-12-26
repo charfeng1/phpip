@@ -1,0 +1,58 @@
+name: OpenCode Incremental Review
+
+on:
+  pull_request:
+    types: [synchronize]
+
+jobs:
+  opencode-incremental-review:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: read
+      issues: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Fetch base branch for comparison
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
+
+      - name: Get PR diff
+        id: diff
+        run: |
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          echo "base_sha=$BASE_SHA" >> $GITHUB_OUTPUT
+          echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
+          echo "commit_range=${BASE_SHA}...${HEAD_SHA}" >> $GITHUB_OUTPUT
+
+      - name: Run OpenCode Incremental Review
+        uses: sst/opencode/github@latest
+        env:
+          ZHIPU_API_KEY: ${{ secrets.ZHIPU_API_KEY }}
+        with:
+          model: zai-coding-plan/glm-4.7
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+            COMMIT RANGE: ${{ steps.diff.outputs.commit_range }}
+
+            This is an INCREMENTAL review. New commits have been pushed to this PR.
+
+            Please:
+            1. Review the changes in this PR (use `git diff ${{ steps.diff.outputs.commit_range }}` to see them)
+            2. Check if the previous review comments on this PR have been addressed
+            3. Provide feedback on any remaining issues or new concerns
+
+            Focus on:
+            - Whether previous review feedback was addressed
+            - Any new issues introduced in the latest changes
+            - Code quality of the new changes only
+
+            Do NOT repeat feedback that was already given. Only comment on new or unresolved issues.
