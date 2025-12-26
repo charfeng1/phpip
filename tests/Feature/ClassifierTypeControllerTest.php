@@ -188,15 +188,16 @@ class ClassifierTypeControllerTest extends TestCase
     /** @test */
     public function classifier_type_index_can_be_filtered_by_code()
     {
-        $match = $this->createClassifierType('TIT', 'Title Type');
-        $noMatch = $this->createClassifierType('AUT', 'Author Type');
+        // Use existing TIT from seeds, create unique AUT2 for filter test
+        $match = ClassifierType::find('TIT') ?? $this->createClassifierType('TIT', 'Title Type');
+        $noMatch = $this->createClassifierType('AUT2', 'Author Type Unique');
 
         $response = $this->actingAs($this->adminUser)
             ->getJson(route('classifier_type.index', ['Code' => 'TIT']));
 
         $response->assertStatus(200)
             ->assertJsonFragment(['code' => 'TIT'])
-            ->assertJsonMissing(['code' => 'AUT']);
+            ->assertJsonMissing(['code' => 'AUT2']);
     }
 
     /** @test */
