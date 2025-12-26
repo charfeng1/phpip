@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\RenewalsLog;
+use App\Traits\FiltersWithWhitelist;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class RenewalLogFilterService
 {
+    use FiltersWithWhitelist;
     /**
      * Allowed filter keys for security (whitelist approach).
      */
@@ -39,13 +41,8 @@ class RenewalLogFilterService
     public function filterLogs(mixed $query, array $filters): mixed
     {
         foreach ($filters as $key => $value) {
-            // Skip null, empty, or whitespace-only values
-            if ($value === '' || $value === null || (is_string($value) && trim($value) === '')) {
-                continue;
-            }
-
-            // Skip unknown filter keys for security
-            if (! in_array($key, self::ALLOWED_FILTER_KEYS, true)) {
+            // Skip empty values and unknown filter keys
+            if (! $this->shouldApplyFilter($key, $value)) {
                 continue;
             }
 
@@ -74,16 +71,5 @@ class RenewalLogFilterService
             'Untildate' => $query->where('created_at', '<=', $value),
             default => $query, // Unreachable due to whitelist check, but required for match exhaustiveness
         };
-    }
-
-    /**
-     * Validate if a filter key is allowed.
-     *
-     * @param string $key The filter key to validate
-     * @return bool True if filter is allowed, false otherwise
-     */
-    public function isValidFilterKey(string $key): bool
-    {
-        return in_array($key, self::ALLOWED_FILTER_KEYS, true);
     }
 }

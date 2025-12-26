@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use App\Traits\HasTableComments;
 use App\Traits\HasTranslationsExtended;
 use Illuminate\Database\Eloquent\Model;
@@ -32,6 +33,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ClassifierType extends Model
 {
+    use Auditable;
     use HasTableComments;
     use HasTranslationsExtended;
 

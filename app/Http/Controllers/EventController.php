@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Traits\HandlesAuditFields;
+use App\Traits\ParsesDates;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 
 /**
  * Controller for managing events in matters.
@@ -16,6 +16,7 @@ use Illuminate\Support\Carbon;
 class EventController extends Controller
 {
     use HandlesAuditFields;
+    use ParsesDates;
 
     /**
      * Display a listing of events.
@@ -60,12 +61,8 @@ class EventController extends Controller
             'matter_id' => 'required|numeric',
             'event_date' => 'required_without:alt_matter_id',
         ]);
-        if ($request->filled('event_date')) {
-            try {
-                $request->merge(['event_date' => Carbon::createFromLocaleIsoFormat('L', app()->getLocale(), $request->event_date)]);
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid date format'], 422);
-            }
+        if ($error = $this->parseDateOrFail($request, 'event_date')) {
+            return $error;
         }
         $this->mergeCreator($request);
 
@@ -89,12 +86,8 @@ class EventController extends Controller
             'alt_matter_id' => 'nullable|numeric',
             'event_date' => 'sometimes|required_without:alt_matter_id',
         ]);
-        if ($request->filled('event_date')) {
-            try {
-                $request->merge(['event_date' => Carbon::createFromLocaleIsoFormat('L', app()->getLocale(), $request->event_date)]);
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid date format'], 422);
-            }
+        if ($error = $this->parseDateOrFail($request, 'event_date')) {
+            return $error;
         }
         $this->mergeUpdater($request);
         $event->update($this->getFilteredData($request));

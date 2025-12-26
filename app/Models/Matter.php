@@ -4,10 +4,10 @@ namespace App\Models;
 
 use App\Enums\CategoryCode;
 use App\Enums\ClassifierType;
-use App\Services\TeamService;
 use App\Traits\Auditable;
 use App\Traits\DatabaseJsonHelper;
 use App\Traits\HasActorsFromRole;
+use App\Traits\HasTeamScopes;
 use App\Traits\Matter\HasActors;
 use App\Traits\Matter\HasClassifiers;
 use App\Traits\Matter\HasEvents;
@@ -17,7 +17,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Matter Model
@@ -48,6 +47,7 @@ class Matter extends Model
     use DatabaseJsonHelper;
     use HasActors;
     use HasActorsFromRole;
+    use HasTeamScopes;
     use HasClassifiers;
     use HasEvents;
     use HasFactory;
@@ -331,41 +331,5 @@ class Matter extends Model
         }
 
         return $this->applicantsFromLnk()->pluck('name')->unique()->implode("\n");
-    }
-
-    /**
-     * Scope to filter matters by team membership.
-     *
-     * Filters matters to show only those where the responsible user is
-     * the authenticated user or one of their direct/indirect reports.
-     *
-     * @param  Builder  $query
-     * @param  int|null  $userId  Optional user ID (defaults to authenticated user)
-     * @return Builder
-     */
-    public function scopeForTeam(Builder $query, ?int $userId = null): Builder
-    {
-        $userId = $userId ?? Auth::id();
-
-        if (! $userId) {
-            return $query;
-        }
-
-        $teamService = app(TeamService::class);
-        $teamLogins = $teamService->getSubordinateLogins($userId, true);
-
-        return $query->whereIn('responsible', $teamLogins);
-    }
-
-    /**
-     * Scope to filter matters by a specific user (responsible).
-     *
-     * @param  Builder  $query
-     * @param  string  $login  The user login to filter by
-     * @return Builder
-     */
-    public function scopeForUser(Builder $query, string $login): Builder
-    {
-        return $query->where('responsible', $login);
     }
 }

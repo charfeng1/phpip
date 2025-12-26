@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\EventCode;
 use App\Models\Task;
 use App\Repositories\TaskRepository;
 use Illuminate\Support\Collection;
@@ -72,8 +73,8 @@ class RenewalWorkflowService
         $renewals = $this->getRenewals($taskIds);
         $jobId = $this->logService->createJobId();
 
-        // Build logs with invoice step transition
-        $logs = $this->buildTransitionLogs(
+        // Build logs with invoice step transition (delegating to log service)
+        $logs = $this->logService->buildTransitionLogs(
             $renewals,
             $jobId,
             self::STEP_TO_PAY,
@@ -307,9 +308,9 @@ class RenewalWorkflowService
             $task->step = self::STEP_ABANDONED;
 
             if ($task->save()) {
-                // Create ABA event on the matter
+                // Create abandoned event on the matter
                 $task->matter->events()->create([
-                    'code' => 'ABA',
+                    'code' => EventCode::ABANDONED->value,
                     'event_date' => now(),
                 ]);
                 $updated++;
@@ -360,9 +361,9 @@ class RenewalWorkflowService
             $task->step = self::STEP_LAPSED;
 
             if ($task->save()) {
-                // Create LAP event on the matter
+                // Create lapsed event on the matter
                 $task->matter->events()->create([
-                    'code' => 'LAP',
+                    'code' => EventCode::LAPSED->value,
                     'event_date' => now(),
                 ]);
                 $updated++;
@@ -419,38 +420,5 @@ class RenewalWorkflowService
     protected function getRenewals(array $taskIds): Collection
     {
         return $this->taskRepository->renewalsByIds($taskIds)->get();
-    }
-
-    /**
-     * Build transition log entries.
-     *
-     * @param Collection $renewals The renewals being transitioned
-     * @param int $jobId The job ID for grouping
-     * @param int $toStep The target step
-     * @param array $extra Additional log fields
-     * @return array Log entries ready for batch insert
-     */
-    protected function buildTransitionLogs(
-        Collection $renewals,
-        int $jobId,
-        int $toStep,
-        array $extra = []
-    ): array {
-        $logs = [];
-        $creator = $this->logService->getUserLogin();
-        $now = now();
-
-        foreach ($renewals as $renewal) {
-            $logs[] = array_merge([
-                'task_id' => $renewal->id,
-                'job_id' => $jobId,
-                'from_step' => $renewal->step,
-                'to_step' => $toStep,
-                'creator' => $creator,
-                'created_at' => $now,
-            ], $extra);
-        }
-
-        return $logs;
     }
 }

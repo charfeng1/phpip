@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
@@ -31,6 +32,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  */
 class ActorPivot extends Pivot
 {
+    use Auditable;
     /**
      * The database table associated with the pivot model.
      *

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use App\Traits\HasTableComments;
 use App\Traits\HasTranslationsExtended;
 use Illuminate\Database\Eloquent\Model;
@@ -28,6 +29,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class MatterType extends Model
 {
+    use Auditable;
     use HasTableComments;
     use HasTranslationsExtended;
 

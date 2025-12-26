@@ -9,9 +9,9 @@ use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
 use App\Services\TeamService;
 use App\Traits\HandlesAuditFields;
+use App\Traits\ParsesDates;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Gate;
 class TaskController extends Controller
 {
     use HandlesAuditFields;
+    use ParsesDates;
     /**
      * Display a paginated list of open tasks with optional filtering.
      *
@@ -104,10 +105,7 @@ class TaskController extends Controller
      */
     public function store(StoreTaskRequest $request)
     {
-        $request->merge(['due_date' => Carbon::createFromLocaleIsoFormat('L', app()->getLocale(), $request->due_date)]);
-        if ($request->filled('done_date')) {
-            $request->merge(['done_date' => Carbon::createFromLocaleIsoFormat('L', app()->getLocale(), $request->done_date)]);
-        }
+        $this->mergeParsedDates($request, ['due_date', 'done_date']);
         $this->mergeCreator($request);
 
         return Task::create($this->getFilteredData($request));
@@ -137,9 +135,7 @@ class TaskController extends Controller
     public function update(UpdateTaskRequest $request, Task $task)
     {
         $this->mergeUpdater($request);
-        if ($request->filled('done_date')) {
-            $request->merge(['done_date' => Carbon::createFromLocaleIsoFormat('L', app()->getLocale(), $request->done_date)]);
-        }
+        $this->mergeParsedDate($request, 'done_date');
 
         // Handle detail field
         if ($request->has('detail')) {
@@ -151,7 +147,7 @@ class TaskController extends Controller
         }
         // Remove task rule when due date is manually changed
         if ($request->filled('due_date')) {
-            $request->merge(['due_date' => Carbon::createFromLocaleIsoFormat('L', app()->getLocale(), $request->due_date)]);
+            $this->mergeParsedDate($request, 'due_date');
             $request->merge(['rule_used' => null]);
         }
         // Remove renewal from renewal management pipeline

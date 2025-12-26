@@ -6,9 +6,9 @@ use App\Enums\ActorRole;
 use App\Enums\ClassifierType;
 use App\Enums\EventCode;
 use App\Enums\UserRole;
-use App\Services\TeamService;
 use App\Traits\Auditable;
 use App\Traits\DatabaseJsonHelper;
+use App\Traits\HasTeamScopes;
 use App\Traits\HasTranslationsExtended;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -43,6 +43,7 @@ class Task extends Model
     use Auditable;
     use DatabaseJsonHelper;
     use HasFactory;
+    use HasTeamScopes;
     use HasTranslationsExtended;
 
     /**
@@ -244,27 +245,18 @@ class Task extends Model
     }
 
     /**
-     * Scope to filter tasks by team membership.
+     * Apply team filter for tasks.
      *
-     * Filters tasks to show only those where:
-     * - The task is assigned to the user or their subordinates, OR
-     * - The matter is assigned to the user or their subordinates
+     * Overrides the trait's default to check both:
+     * - The task's assigned_to field, AND
+     * - The matter's responsible field
      *
      * @param  Builder  $query
-     * @param  int|null  $userId  Optional user ID (defaults to authenticated user)
+     * @param  array  $teamLogins  Array of login strings to filter by
      * @return Builder
      */
-    public function scopeForTeam(Builder $query, ?int $userId = null): Builder
+    protected function applyTeamFilter(Builder $query, array $teamLogins): Builder
     {
-        $userId = $userId ?? Auth::id();
-
-        if (! $userId) {
-            return $query;
-        }
-
-        $teamService = app(TeamService::class);
-        $teamLogins = $teamService->getSubordinateLogins($userId, true);
-
         return $query->where(function ($q) use ($teamLogins) {
             $q->whereIn('assigned_to', $teamLogins)
                 ->orWhereHas('matter', function ($mq) use ($teamLogins) {
@@ -274,13 +266,17 @@ class Task extends Model
     }
 
     /**
-     * Scope to filter tasks by a specific user.
+     * Apply user filter for tasks.
+     *
+     * Overrides the trait's default to check both:
+     * - The task's assigned_to field, AND
+     * - The matter's responsible field
      *
      * @param  Builder  $query
      * @param  string  $login  The user login to filter by
      * @return Builder
      */
-    public function scopeForUser(Builder $query, string $login): Builder
+    protected function applyUserFilter(Builder $query, string $login): Builder
     {
         return $query->where(function ($q) use ($login) {
             $q->where('assigned_to', $login)

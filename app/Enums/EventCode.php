@@ -27,6 +27,10 @@ enum EventCode: string
     case REPLY = 'REP';
     case PAYMENT = 'PAY';
 
+    // Status events
+    case ABANDONED = 'ABA';
+    case LAPSED = 'LAP';
+
     // Procedure step events (from OPS integration)
     case EXAM_REPORT = 'EXRE';
     case RENEWAL_FEE = 'RFEE';
@@ -53,6 +57,8 @@ enum EventCode: string
             self::EXAMINATION => 'Examination',
             self::REPLY => 'Reply',
             self::PAYMENT => 'Payment',
+            self::ABANDONED => 'Abandoned',
+            self::LAPSED => 'Lapsed',
             self::EXAM_REPORT => 'Examination Report',
             self::RENEWAL_FEE => 'Renewal Fee',
             self::INTENTION_TO_GRANT => 'Intention to Grant',

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Event;
 use App\Models\Task;
 use App\Models\TemplateMember;
+use App\Traits\FiltersWithWhitelist;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\DB;
  */
 class DocumentFilterService
 {
+    use FiltersWithWhitelist;
     /**
      * Allowed filter keys for security (whitelist approach).
      */
@@ -45,13 +47,8 @@ class DocumentFilterService
         $task = null;
 
         foreach ($filters as $key => $value) {
-            // Skip null, empty, or whitespace-only values
-            if ($value === '' || $value === null || (is_string($value) && trim($value) === '')) {
-                continue;
-            }
-
-            // Skip unknown filter keys for security
-            if (! in_array($key, self::ALLOWED_FILTER_KEYS, true)) {
+            // Skip empty values and unknown filter keys
+            if (! $this->shouldApplyFilter($key, $value)) {
                 continue;
             }
 
