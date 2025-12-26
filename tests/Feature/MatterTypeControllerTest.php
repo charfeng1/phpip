@@ -11,7 +11,7 @@ class MatterTypeControllerTest extends TestCase
     /** @test */
     public function guest_cannot_access_matter_types()
     {
-        $response = $this->get(route('matter-type.index'));
+        $response = $this->get(route('type.index'));
 
         $response->assertRedirect(route('login'));
     }
@@ -21,7 +21,7 @@ class MatterTypeControllerTest extends TestCase
     {
         $user = User::factory()->admin()->create();
 
-        $response = $this->actingAs($user)->get(route('matter-type.index'));
+        $response = $this->actingAs($user)->get(route('type.index'));
 
         $response->assertStatus(200);
     }
@@ -31,7 +31,7 @@ class MatterTypeControllerTest extends TestCase
     {
         $user = User::factory()->readOnly()->create();
 
-        $response = $this->actingAs($user)->get(route('matter-type.index'));
+        $response = $this->actingAs($user)->get(route('type.index'));
 
         $response->assertStatus(200);
     }
@@ -41,7 +41,7 @@ class MatterTypeControllerTest extends TestCase
     {
         $user = User::factory()->client()->create();
 
-        $response = $this->actingAs($user)->get(route('matter-type.index'));
+        $response = $this->actingAs($user)->get(route('type.index'));
 
         $response->assertStatus(403);
     }
@@ -51,7 +51,7 @@ class MatterTypeControllerTest extends TestCase
     {
         $user = User::factory()->admin()->create();
 
-        $response = $this->actingAs($user)->post(route('matter-type.store'), [
+        $response = $this->actingAs($user)->post(route('type.store'), [
             'code' => 'NEW',
             'type' => 'New Matter Type',
         ]);
@@ -65,7 +65,7 @@ class MatterTypeControllerTest extends TestCase
     {
         $user = User::factory()->readWrite()->create();
 
-        $response = $this->actingAs($user)->post(route('matter-type.store'), [
+        $response = $this->actingAs($user)->post(route('type.store'), [
             'code' => 'RW',
             'type' => 'RW Type',
         ]);
@@ -82,7 +82,7 @@ class MatterTypeControllerTest extends TestCase
             'type' => ['en' => 'To Update'],
         ]);
 
-        $response = $this->actingAs($user)->put(route('matter-type.update', $matterType), [
+        $response = $this->actingAs($user)->put(route('type.update', $matterType), [
             'type' => 'Updated Type',
         ]);
 
@@ -98,7 +98,7 @@ class MatterTypeControllerTest extends TestCase
             'type' => ['en' => 'Provisional'],
         ]);
 
-        $response = $this->actingAs($user)->put(route('matter-type.update', $matterType), [
+        $response = $this->actingAs($user)->put(route('type.update', $matterType), [
             'type' => 'Changed Type',
         ]);
 
@@ -114,7 +114,7 @@ class MatterTypeControllerTest extends TestCase
             'type' => ['en' => 'To Delete'],
         ]);
 
-        $response = $this->actingAs($user)->delete(route('matter-type.destroy', $matterType));
+        $response = $this->actingAs($user)->delete(route('type.destroy', $matterType));
 
         $response->assertRedirect();
     }
@@ -124,8 +124,8 @@ class MatterTypeControllerTest extends TestCase
     {
         $user = User::factory()->admin()->create();
 
-        $response = $this->actingAs($user)->get(route('matter-type.index'));
+        $response = $this->actingAs($user)->get(route('type.index'));
 
-        $response->assertViewIs('matter-type.index');
+        $response->assertViewIs('type.index');
     }
 }

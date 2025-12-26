@@ -37,7 +37,11 @@ class ClientAccessTest extends TestCase
         // Create required reference data
         $this->country = Country::factory()->create();
         $this->category = Category::factory()->create();
-        $this->clientRole = Role::factory()->create(['code' => ActorRole::CLIENT->value]);
+        // Use existing role from seed data or create new one if not present
+        $this->clientRole = Role::firstOrCreate(
+            ['code' => ActorRole::CLIENT->value],
+            ['name' => json_encode(['en' => 'Client', 'fr' => 'Client']), 'shareable' => true]
+        );
     }
 
     /**

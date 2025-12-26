@@ -9,13 +9,22 @@ class EventNameFactory extends Factory
 {
     protected $model = EventName::class;
 
+    /**
+     * Counter for generating unique test event name codes.
+     */
+    protected static int $testCodeCounter = 0;
+
     public function definition(): array
     {
+        // Use TE prefix to avoid collision with real event codes
+        $counter = static::$testCodeCounter++;
+        $code = sprintf('TE%02d', $counter % 100);
+
         return [
-            'code' => strtoupper($this->faker->unique()->lexify('????')),
+            'code' => $code,
             'name' => json_encode([
-                'en' => $this->faker->sentence(3),
-                'fr' => $this->faker->sentence(3),
+                'en' => 'Test Event '.$counter,
+                'fr' => 'Événement Test '.$counter,
             ]),
             'category' => null,
             'country' => null,

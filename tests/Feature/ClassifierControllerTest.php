@@ -13,9 +13,7 @@ class ClassifierControllerTest extends TestCase
     /** @test */
     public function guest_cannot_access_classifiers()
     {
-        $matter = Matter::factory()->create();
-
-        $response = $this->get(route('matter.classifiers.index', $matter));
+        $response = $this->get(route('classifier.index'));
 
         $response->assertRedirect(route('login'));
     }
@@ -30,7 +28,8 @@ class ClassifierControllerTest extends TestCase
             'type' => ['en' => 'Title'],
         ]);
 
-        $response = $this->actingAs($user)->post(route('matter.classifiers.store', $matter), [
+        $response = $this->actingAs($user)->post(route('classifier.store'), [
+            'matter_id' => $matter->id,
             'type_code' => $classifierType->code,
             'value' => 'Test Title for Controller',
         ]);
@@ -52,7 +51,8 @@ class ClassifierControllerTest extends TestCase
             'type' => ['en' => 'Title'],
         ]);
 
-        $response = $this->actingAs($user)->post(route('matter.classifiers.store', $matter), [
+        $response = $this->actingAs($user)->post(route('classifier.store'), [
+            'matter_id' => $matter->id,
             'type_code' => $classifierType->code,
             'value' => 'RW User Title',
         ]);
@@ -70,7 +70,8 @@ class ClassifierControllerTest extends TestCase
             'type' => ['en' => 'Title'],
         ]);
 
-        $response = $this->actingAs($user)->post(route('matter.classifiers.store', $matter), [
+        $response = $this->actingAs($user)->post(route('classifier.store'), [
+            'matter_id' => $matter->id,
             'type_code' => $classifierType->code,
             'value' => 'Should Not Create',
         ]);
@@ -94,7 +95,7 @@ class ClassifierControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->put(
-            route('matter.classifiers.update', [$matter, $classifier]),
+            route('classifier.update', $classifier),
             ['value' => 'Updated Title']
         );
 
@@ -117,7 +118,7 @@ class ClassifierControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->delete(
-            route('matter.classifiers.destroy', [$matter, $classifier])
+            route('classifier.destroy', $classifier)
         );
 
         $response->assertRedirect();
@@ -133,7 +134,8 @@ class ClassifierControllerTest extends TestCase
             'type' => ['en' => 'Title'],
         ]);
 
-        $response = $this->actingAs($user)->post(route('matter.classifiers.store', $matter), [
+        $response = $this->actingAs($user)->post(route('classifier.store'), [
+            'matter_id' => $matter->id,
             'type_code' => $classifierType->code,
             'value' => 'Client Title',
         ]);
@@ -151,7 +153,8 @@ class ClassifierControllerTest extends TestCase
             'type' => ['en' => 'Title'],
         ]);
 
-        $response = $this->actingAs($user)->post(route('matter.classifiers.store', $matter), [
+        $response = $this->actingAs($user)->post(route('classifier.store'), [
+            'matter_id' => $matter->id,
             'type_code' => $classifierType->code,
             'value' => '', // Empty value
         ]);
