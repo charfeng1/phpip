@@ -83,6 +83,7 @@ jobs:
           QUEUE_CONNECTION=sync
           MAIL_MAILER=array
           EOF
+          cp .env .env.testing
 
       - name: Generate application key
         run: php artisan key:generate
