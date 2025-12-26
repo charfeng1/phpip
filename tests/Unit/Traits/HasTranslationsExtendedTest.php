@@ -115,7 +115,7 @@ class HasTranslationsExtendedTest extends TestCase
     public function translatable_attribute_is_accessible()
     {
         $category = Category::factory()->create([
-            'code' => 'ACCESS',
+            'code' => 'ACCS',
             'category' => ['en' => 'Accessible Category'],
         ]);
 

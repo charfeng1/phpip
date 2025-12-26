@@ -45,7 +45,7 @@ class TemplateMemberTest extends TestCase
         $model = new TemplateMember();
         $relation = $model->class();
 
-        $this->assertEquals('template_class_id', $relation->getForeignKeyName());
+        $this->assertEquals('class_id', $relation->getForeignKeyName());
     }
 
     /** @test */
@@ -76,7 +76,7 @@ class TemplateMemberTest extends TestCase
         $this->assertTrue($model->isFillable('category'));
         $this->assertTrue($model->isFillable('style'));
         $this->assertTrue($model->isFillable('format'));
-        $this->assertTrue($model->isFillable('template_class_id'));
+        $this->assertTrue($model->isFillable('class_id'));
     }
 
     /** @test */

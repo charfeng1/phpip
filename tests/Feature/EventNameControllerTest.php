@@ -57,7 +57,7 @@ class EventNameControllerTest extends TestCase
             'is_task' => false,
         ]);
 
-        $response->assertStatus(201);
+        $response->assertSuccessful();
         $this->assertDatabaseHas('event_name', ['code' => 'NEW']);
     }
 

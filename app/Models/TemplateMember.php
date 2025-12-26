@@ -42,6 +42,6 @@ class TemplateMember extends Model
      */
     public function class()
     {
-        return $this->belongsTo(TemplateClass::class);
+        return $this->belongsTo(TemplateClass::class, 'class_id');
     }
 }

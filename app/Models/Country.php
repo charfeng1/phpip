@@ -112,7 +112,7 @@ class Country extends Model
     public function getNatcountriesAttribute()
     {
         if ($this->goesnational) {
-            return $this->where("$this->iso", 1)->pluck('name', 'iso');
+            return Country::where(strtolower($this->iso), 1)->pluck('name', 'iso');
         } else {
             return null;
         }

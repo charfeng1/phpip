@@ -33,24 +33,14 @@ class MatterFactory extends Factory
     }
 
     /**
-     * Generate the unique identifier (uid) after creation
+     * Refresh model after creation to get trigger-computed uid
      */
     public function configure(): static
     {
         return $this->afterCreating(function (Matter $matter) {
-            // Generate uid based on caseref and country
-            $uid = $matter->caseref . '/' . $matter->country;
-            if ($matter->origin) {
-                $uid .= '-' . $matter->origin;
-            }
-            if ($matter->type_code) {
-                $uid .= '/' . $matter->type_code;
-            }
-            if ($matter->idx) {
-                $uid .= '-' . $matter->idx;
-            }
-            $matter->uid = $uid;
-            $matter->saveQuietly();
+            // Refresh to get the uid computed by database trigger
+            // Format: caseref || country || origin || type_code || idx
+            $matter->refresh();
         });
     }
 

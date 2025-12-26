@@ -40,18 +40,18 @@ class CountryFactory extends Factory
 
     /**
      * Generate a unique test ISO code that won't conflict with seed data.
-     * Uses X and Y prefixes which are reserved/not used in real ISO codes.
+     * Uses digit prefixes (0-9) which are not used in real ISO-3166 alpha-2 codes.
      */
     private function generateTestIsoCode(int $counter): string
     {
-        $letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        $prefixes = ['X', 'Y', 'Z'];
+        $letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $prefixes = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
-        $prefixIndex = intdiv($counter, 36);
-        $suffixIndex = $counter % 36;
+        $prefixIndex = intdiv($counter, 26);
+        $suffixIndex = $counter % 26;
 
-        $prefix = $prefixes[$prefixIndex % 3] ?? 'X';
-        $suffix = $letters[$suffixIndex] ?? 'A';
+        $prefix = $prefixes[$prefixIndex % 10];
+        $suffix = $letters[$suffixIndex];
 
         return $prefix.$suffix;
     }
