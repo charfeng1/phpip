@@ -297,7 +297,7 @@ class MatterRepository
         if ($isPostgres) {
             return [
                 'status' => "STRING_AGG(DISTINCT event_name.name ->> '{$baseLocale}', '|') AS Status",
-                'client' => "STRING_AGG(DISTINCT COALESCE(cli.display_name, clic.display_name, cli.name, clic.name), '; ') AS Client",
+                'client' => "STRING_AGG(DISTINCT COALESCE(cli.display_name, clic.display_name, cli.name, clic.name), '; ') AS ClientName",
                 'clRef' => "STRING_AGG(DISTINCT COALESCE(clilnk.actor_ref, cliclnk.actor_ref), '; ') AS ClRef",
                 'applicant' => "STRING_AGG(DISTINCT COALESCE(app.display_name, app.name), '; ') AS Applicant",
                 'agent' => "STRING_AGG(DISTINCT COALESCE(agt.display_name, agtc.display_name, agt.name, agtc.name), '; ') AS AgentName",
@@ -307,7 +307,7 @@ class MatterRepository
 
         return [
             'status' => "GROUP_CONCAT(DISTINCT JSON_UNQUOTE(JSON_EXTRACT(event_name.name, '$.\"$baseLocale\"')) SEPARATOR '|') AS Status",
-            'client' => "GROUP_CONCAT(DISTINCT COALESCE(cli.display_name, clic.display_name, cli.name, clic.name) SEPARATOR '; ') AS Client",
+            'client' => "GROUP_CONCAT(DISTINCT COALESCE(cli.display_name, clic.display_name, cli.name, clic.name) SEPARATOR '; ') AS ClientName",
             'clRef' => "GROUP_CONCAT(DISTINCT COALESCE(clilnk.actor_ref, cliclnk.actor_ref) SEPARATOR '; ') AS ClRef",
             'applicant' => "GROUP_CONCAT(DISTINCT COALESCE(app.display_name, app.name) SEPARATOR '; ') AS Applicant",
             'agent' => "GROUP_CONCAT(DISTINCT COALESCE(agt.display_name, agtc.display_name, agt.name, agtc.name) SEPARATOR '; ') AS AgentName",
