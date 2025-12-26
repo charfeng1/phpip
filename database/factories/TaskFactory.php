@@ -91,7 +91,7 @@ class TaskFactory extends Factory
     public function dueSoon(): static
     {
         return $this->state(fn (array $attributes) => [
-            'due_date' => $this->faker->dateTimeBetween('now', '+30 days')->format('Y-m-d'),
+            'due_date' => $this->faker->dateTimeBetween('+1 day', '+30 days')->format('Y-m-d'),
             'done' => false,
         ]);
     }
