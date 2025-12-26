@@ -57,12 +57,22 @@ class CountryFactory extends Factory
     }
 
     /**
-     * Create a country that is a regional office (EP, WO, etc.)
+     * Get an existing regional office (EP, WO, EM, OA) from seeds.
+     * Note: Use Country::firstOrCreate() directly if you need a regional office,
+     * as this state may conflict with seed data.
      */
     public function regional(): static
     {
+        $iso = $this->faker->randomElement(['EP', 'WO', 'EM', 'OA']);
+
         return $this->state(fn (array $attributes) => [
-            'iso' => $this->faker->randomElement(['EP', 'WO', 'EM', 'OA']),
+            'iso' => $iso,
+            'name' => json_encode(['en' => match ($iso) {
+                'EP' => 'European Patent Office',
+                'WO' => 'World Intellectual Property Organization',
+                'EM' => 'European Union Intellectual Property Office',
+                'OA' => 'African Intellectual Property Organization',
+            }]),
         ]);
     }
 }

@@ -18,7 +18,7 @@ class CategoryFactory extends Factory
     {
         // Use TC prefix to avoid collision with real category codes
         $counter = static::$testCodeCounter++;
-        $code = sprintf('TC%d', $counter % 100);
+        $code = sprintf('TC%d', $counter);
 
         return [
             'code' => $code,

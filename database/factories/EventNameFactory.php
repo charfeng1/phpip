@@ -18,7 +18,7 @@ class EventNameFactory extends Factory
     {
         // Use TE prefix to avoid collision with real event codes
         $counter = static::$testCodeCounter++;
-        $code = sprintf('TE%02d', $counter % 100);
+        $code = sprintf('TE%d', $counter);
 
         return [
             'code' => $code,

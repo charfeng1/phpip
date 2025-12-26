@@ -138,7 +138,7 @@ class ActorManagementTest extends TestCase
             'shared' => 0,
             'display_order' => 1,
         ]);
-        // Refetch to get the ID (incrementing=false on pivot models)
+        // Refetch to get the auto-generated ID
         $actorPivot = ActorPivot::where('matter_id', $matter->id)
             ->where('actor_id', $actor->id)
             ->where('role', $role->code)
@@ -174,7 +174,7 @@ class ActorManagementTest extends TestCase
             'shared' => 0,
             'display_order' => 1,
         ]);
-        // Refetch to get the ID (incrementing=false on pivot models)
+        // Refetch to get the auto-generated ID
         $actorPivot = ActorPivot::where('matter_id', $matter->id)
             ->where('actor_id', $actor->id)
             ->where('role', $role->code)

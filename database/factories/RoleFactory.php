@@ -18,7 +18,7 @@ class RoleFactory extends Factory
     {
         // Use TST prefix to avoid collision with real role codes
         $counter = static::$testCodeCounter++;
-        $code = sprintf('T%02d', $counter % 100);
+        $code = sprintf('T%02d', $counter);
 
         return [
             'code' => $code,
