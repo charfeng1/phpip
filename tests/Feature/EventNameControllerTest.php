@@ -57,7 +57,7 @@ class EventNameControllerTest extends TestCase
             'is_task' => false,
         ]);
 
-        $response->assertRedirect();
+        $response->assertStatus(201);
         $this->assertDatabaseHas('event_name', ['code' => 'NEW']);
     }
 
@@ -78,20 +78,20 @@ class EventNameControllerTest extends TestCase
     public function admin_can_update_event_name()
     {
         $user = User::factory()->admin()->create();
-        $eventName = EventName::factory()->create(['code' => 'UPD']);
+        $eventName = EventName::factory()->create();
 
         $response = $this->actingAs($user)->put(route('eventname.update', $eventName), [
             'name' => 'Updated Event Name',
         ]);
 
-        $response->assertRedirect();
+        $response->assertStatus(200);
     }
 
     /** @test */
     public function read_write_user_cannot_update_event_name()
     {
         $user = User::factory()->readWrite()->create();
-        $eventName = EventName::find('FIL') ?? EventName::factory()->create(['code' => 'FIL']);
+        $eventName = EventName::first() ?? EventName::factory()->create();
 
         $response = $this->actingAs($user)->put(route('eventname.update', $eventName), [
             'name' => 'Changed Name',
@@ -104,11 +104,11 @@ class EventNameControllerTest extends TestCase
     public function admin_can_delete_event_name()
     {
         $user = User::factory()->admin()->create();
-        $eventName = EventName::factory()->create(['code' => 'DEL']);
+        $eventName = EventName::factory()->create();
 
         $response = $this->actingAs($user)->delete(route('eventname.destroy', $eventName));
 
-        $response->assertRedirect();
+        $response->assertStatus(200);
     }
 
     /** @test */

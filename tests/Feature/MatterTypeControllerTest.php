@@ -78,7 +78,7 @@ class MatterTypeControllerTest extends TestCase
     {
         $user = User::factory()->admin()->create();
         $matterType = MatterType::create([
-            'code' => 'UPD',
+            'code' => 'TU'.rand(10, 99),
             'type' => ['en' => 'To Update'],
         ]);
 
@@ -86,7 +86,7 @@ class MatterTypeControllerTest extends TestCase
             'type' => 'Updated Type',
         ]);
 
-        $response->assertRedirect();
+        $response->assertStatus(200);
     }
 
     /** @test */
@@ -94,7 +94,7 @@ class MatterTypeControllerTest extends TestCase
     {
         $user = User::factory()->readWrite()->create();
         $matterType = MatterType::first() ?? MatterType::create([
-            'code' => 'PRV',
+            'code' => 'TP'.rand(10, 99),
             'type' => ['en' => 'Provisional'],
         ]);
 
@@ -110,13 +110,13 @@ class MatterTypeControllerTest extends TestCase
     {
         $user = User::factory()->admin()->create();
         $matterType = MatterType::create([
-            'code' => 'DEL',
+            'code' => 'TD'.rand(10, 99),
             'type' => ['en' => 'To Delete'],
         ]);
 
         $response = $this->actingAs($user)->delete(route('type.destroy', $matterType));
 
-        $response->assertRedirect();
+        $response->assertStatus(200);
     }
 
     /** @test */
