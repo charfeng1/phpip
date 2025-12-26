@@ -99,7 +99,7 @@ class MatterController extends Controller
             $request->input('sortdir', 'desc'),
             $filters,
             $request->display_with ?? false,
-            (bool) $request->include_dead
+            filter_var($request->include_dead, FILTER_VALIDATE_BOOLEAN)
         );
 
         if ($request->wantsJson()) {
@@ -462,7 +462,7 @@ class MatterController extends Controller
             $request->input('sortdir', 'asc'),
             $filters,
             $request->input('display_with', false),
-            (bool) $request->input('include_dead', false)
+            filter_var($request->input('include_dead', false), FILTER_VALIDATE_BOOLEAN)
         )->get()->toArray();
 
         // Export the matters array to a CSV file and return the streamed response.
