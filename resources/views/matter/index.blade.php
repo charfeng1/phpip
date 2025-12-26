@@ -22,7 +22,7 @@
         </svg>
         {{ __('Matter Management') }}
       </h1>
-      <p class="text-tertiary mb-0">{{ count($matters) }} {{ __('cases found') }}</p>
+      <p class="text-tertiary mb-0">{{ $matters->total() }} {{ __('cases found') }}</p>
     </div>
     @can('readwrite')
       <a href="/matter/create?operation=new" data-bs-target="#ajaxModal" data-bs-toggle="modal" data-size="modal-sm"
@@ -255,7 +255,7 @@
             </td>
             @can('readonly')
             <td class="tab0" :class="{ 'd-none': tab == 1 }">
-              <span class="text-truncate d-block">{{ $matter->Client }}</span>
+              <span class="text-truncate d-block">{{ $matter->clientname }}</span>
             </td>
             @endcan
             <td class="tab0" :class="{ 'd-none': tab == 1 }">

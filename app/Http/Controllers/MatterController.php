@@ -108,8 +108,8 @@ class MatterController extends Controller
             return response()->json($matters);
         }
 
-        $matters = $query->simplePaginate(config('pagination.matters'));
-        $matters->withQueryString()->links();  // Keep URL parameters in the paginator links
+        $matters = $query->paginate(config('pagination.matters'));
+        $matters->withQueryString();  // Keep URL parameters in the paginator links
 
         return view('matter.index', compact('matters'));
     }
@@ -461,8 +461,8 @@ class MatterController extends Controller
             $request->input('sortkey', 'caseref'),
             $request->input('sortdir', 'asc'),
             $filters,
-            $request->display_with,
-            $request->include_dead
+            $request->input('display_with', false),
+            (bool) $request->input('include_dead', false)
         )->get()->toArray();
 
         // Export the matters array to a CSV file and return the streamed response.
