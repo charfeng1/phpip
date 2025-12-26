@@ -51,8 +51,9 @@ class AuditLogControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewHas('auditLogs', function ($auditLogs) use ($actorOne) {
             // Check that all returned logs match the filtered record_id
+            // Use loose comparison since auditable_id is now stored as string
             return $auditLogs->count() >= 1
-                && $auditLogs->every(fn ($log) => $log->auditable_id === $actorOne->id);
+                && $auditLogs->every(fn ($log) => $log->auditable_id == $actorOne->id);
         });
     }
 }
