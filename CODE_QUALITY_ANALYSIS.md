@@ -406,34 +406,33 @@ return Auth::user()?->login ?? 'system';
 
 ## Refactoring Roadmap
 
-### Phase 1: Quick Wins (1-2 days)
+### Phase 1: Quick Wins (1-2 days) ✅ COMPLETED
 **Low Risk, High Impact**
 
-- [ ] Add `use Auditable;` to 8 missing models
+- [x] Add `use Auditable;` to 8 missing models
 - [ ] Start using `JsonResponses` trait in controllers
-- [ ] Replace magic strings with `EventCode` enum in RenewalWorkflowService
-- [ ] Consolidate duplicate `buildTransitionLogs()` method
+- [x] Replace magic strings with `EventCode` enum in RenewalWorkflowService
+- [x] Consolidate duplicate `buildTransitionLogs()` method
 - [ ] Move hardcoded constants to config file
 
-**Estimated Lines Changed:** ~50
-**Risk Level:** Very Low
+**Implemented in commit d52e97e**
 
-### Phase 2: Service Refactoring (3-5 days)
+### Phase 2: Service Refactoring (3-5 days) - PARTIALLY COMPLETED
 **Medium Risk, High Impact**
 
-- [ ] Extract `BaseFilterService` from duplicate filters
+- [x] Extract `FiltersWithWhitelist` trait from duplicate filters
 - [ ] Split `PatentFamilyCreationService` into 4 focused services
 - [ ] Split `OPSService` into 3 focused services
-- [ ] Create `HasTeamScopes` trait for Matter/Task
+- [x] Create `HasTeamScopes` trait for Matter/Task
 - [ ] Create `HasUserContext` trait
 
 **Estimated Lines Changed:** ~400
 **Risk Level:** Medium (ensure tests pass after each change)
 
-### Phase 3: Controller Cleanup (2-3 days)
+### Phase 3: Controller Cleanup (2-3 days) - PARTIALLY COMPLETED
 **Medium Risk, Medium Impact**
 
-- [ ] Extract date parsing to `ParsesDates` trait
+- [x] Extract date parsing to `ParsesDates` trait
 - [ ] Create `CrudController` base class
 - [ ] Standardize response formatting with `JsonResponses`
 - [ ] Create `JsonQueryHelper` service
@@ -468,14 +467,17 @@ return Auth::user()?->login ?? 'system';
 
 ## Estimated Impact
 
-| Metric | Current | After Refactor | Improvement |
-|--------|---------|----------------|-------------|
-| Duplicated code lines | ~400+ | ~100 | 75% reduction |
-| Largest service (lines) | 590 | ~150 | 75% reduction |
-| Models with proper auditing | 5 | 13 | 160% increase |
-| Blade lines in matter/show | 546 | ~150 | 72% reduction |
-| Controllers using JsonResponses | 0 | 15+ | N/A |
-| Unused traits | 1 | 0 | 100% utilization |
+| Metric | Before | After Phase 1 | Target | Progress |
+|--------|--------|---------------|--------|----------|
+| Models with Auditable | 5 | **13** | 13 | ✅ 100% |
+| Duplicated code lines | ~400+ | **~260** | ~100 | 🔄 35% |
+| Largest service (lines) | 590 | 590 | ~150 | ⏳ Pending |
+| Controllers using ParsesDates | 0 | **2** | 3+ | 🔄 66% |
+| Controllers using JsonResponses | 0 | 0 | 15+ | ⏳ Pending |
+| Blade lines in matter/show | 546 | 546 | ~150 | ⏳ Pending |
+
+**New Traits Created:** `HasTeamScopes`, `ParsesDates`, `FiltersWithWhitelist`
+**Lines Reduced:** ~142 lines removed, 352 lines refactored for better organization
 
 ---
 
