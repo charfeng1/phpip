@@ -306,7 +306,7 @@ class RenewalControllerTest extends TestCase
         $task->refresh();
         $this->assertEquals(12, $task->step);
 
-        $this->assertDatabaseHas('events', [
+        $this->assertDatabaseHas('event', [
             'matter_id' => $task->trigger_id,
             'code' => 'ABA',
         ]);
@@ -326,7 +326,7 @@ class RenewalControllerTest extends TestCase
         $task->refresh();
         $this->assertEquals(14, $task->step);
 
-        $this->assertDatabaseHas('events', [
+        $this->assertDatabaseHas('event', [
             'matter_id' => $task->trigger_id,
             'code' => 'LAP',
         ]);

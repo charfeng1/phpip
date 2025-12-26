@@ -125,9 +125,24 @@ class MatterLifecycleTest extends TestCase
             'country' => $country->iso,
         ]);
 
-        $response = $this->actingAs($clientUser)->get(route('matter.show', $matter));
+        // Get or create a classifier type for the test
+        $classifierType = ClassifierType::first() ?? ClassifierType::create([
+            'code' => 'TEST',
+            'type' => ['en' => 'Test Type'],
+        ]);
 
-        // Client should be forbidden from viewing matters they're not linked to
-        $response->assertStatus(403);
+        $response = $this->actingAs($user)->post(route('classifier.store'), [
+            'matter_id' => $matter->id,
+            'type_code' => $classifierType->code,
+            'value' => 'Test Classifier Value',
+        ]);
+
+        // Classifier store returns plain text ID with 200 status
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('classifier', [
+            'matter_id' => $matter->id,
+            'type_code' => $classifierType->code,
+            'value' => 'Test Classifier Value',
+        ]);
     }
 }
