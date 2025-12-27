@@ -25,13 +25,17 @@ class UpdateUserRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
+     * Only admins can modify sensitive fields like default_role, company_id, parent_id.
+     * Non-admin users can only update their own basic profile fields.
+     *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         $userId = $this->route('user')?->id;
+        $isAdmin = $this->user()?->isAdmin();
 
-        return [
+        $rules = [
             'name' => 'sometimes|required|max:100',
             'login' => [
                 'sometimes',
@@ -47,9 +51,17 @@ class UpdateUserRequest extends FormRequest
                 Rule::unique('users')->ignore($userId),
             ],
             'password' => $this->optionalPasswordRules(),
-            'default_role' => 'sometimes|required|max:5|exists:actor_role,code',
-            'company_id' => 'nullable|integer|exists:actor,id',
+            'language' => 'sometimes|required|string|max:5',
         ];
+
+        // Only admins can modify sensitive/privileged fields
+        if ($isAdmin) {
+            $rules['default_role'] = 'sometimes|required|max:5|exists:actor_role,code';
+            $rules['company_id'] = 'nullable|integer|exists:actor,id';
+            $rules['parent_id'] = 'nullable|exists:users,id';
+        }
+
+        return $rules;
     }
 
     /**

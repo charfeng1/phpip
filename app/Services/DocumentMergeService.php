@@ -130,10 +130,10 @@ class DocumentMergeService
             'Title' => $this->matter->titles->where('type_code', ClassifierType::TITLE->value)
                 ->first()
                 ?->value,
-            'Trademark' => $this->matter->titles->where('type_code', 'TM')
+            'Trademark' => $this->matter->titles->where('type_code', ClassifierType::TRADEMARK_NAME->value)
                 ->first()
                 ?->value,
-            'Classes' => $this->matter->titles->where('type_code', 'TMCL')
+            'Classes' => $this->matter->titles->where('type_code', ClassifierType::TRADEMARK_CLASS->value)
                 ->map(fn ($class) => $class->value)
                 ->implode('.'),
             'Inventors' => $this->matter->inventors

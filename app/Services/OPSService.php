@@ -369,7 +369,7 @@ class OPSService
                 return [];
             }
 
-            // Get renewals. Code RFEE for FR and MAFP for US
+            // Get renewals. Code PLFP for FR and MAFP for US
             $steps = $xml->xpath('//ops:legal[@code="PLFP"] | //ops:legal[@code="MAFP"]');
             $proc = [];
 

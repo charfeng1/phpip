@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserRole;
 use App\Traits\TrimsCharColumns;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -150,6 +151,16 @@ class User extends Authenticatable
     public function isSupervisor(): bool
     {
         return $this->directReports()->exists();
+    }
+
+    /**
+     * Check if this user is an admin (DBA role).
+     *
+     * @return bool
+     */
+    public function isAdmin(): bool
+    {
+        return $this->default_role === UserRole::ADMIN->value;
     }
 
     /**

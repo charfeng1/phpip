@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\Actor;
 use App\Models\User;
@@ -158,13 +159,7 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        // Additional validation for fields not in form request
-        $request->validate([
-            'language' => 'sometimes|required|string|max:5',
-            'parent_id' => 'nullable|exists:users,id',
-        ]);
-
-        // Prevent self-reference
+        // Prevent self-reference for parent_id (admin-only field)
         if ($request->filled('parent_id') && (int) $request->input('parent_id') === (int) $user->id) {
             return back()->withErrors(['parent_id' => 'A user cannot be their own supervisor.'])->withInput();
         }
@@ -226,18 +221,12 @@ class UserController extends Controller
      *
      * Allows users to update their own email, password, and language preferences.
      *
-     * @param Request $request Updated profile data
+     * @param UpdateProfileRequest $request Validated profile data
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function updateProfile(Request $request)
+    public function updateProfile(UpdateProfileRequest $request)
     {
         $user = Auth::user();
-
-        $request->validate([
-            'password' => 'nullable|confirmed|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/|regex:/[^a-zA-Z0-9]/',
-            'email' => 'required|email',
-            'language' => 'required|string|max:5',
-        ]);
 
         $request->merge(['updater' => $user->login]);
 

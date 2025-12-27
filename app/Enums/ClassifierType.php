@@ -18,6 +18,8 @@ enum ClassifierType: string
     case KEYWORD = 'KW';
     case IMAGE = 'IMG';
     case ABSTRACT = 'ABS';
+    case TRADEMARK_NAME = 'TM';
+    case TRADEMARK_CLASS = 'TMCL';
 
     /**
      * Get a human-readable label for this classifier type.
@@ -34,6 +36,8 @@ enum ClassifierType: string
             self::KEYWORD => 'Keyword',
             self::IMAGE => 'Image',
             self::ABSTRACT => 'Abstract',
+            self::TRADEMARK_NAME => 'Trademark Name',
+            self::TRADEMARK_CLASS => 'Trademark Class',
         };
     }
 
