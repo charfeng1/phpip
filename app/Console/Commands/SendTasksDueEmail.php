@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\EventCode;
 use App\Models\Task;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
@@ -18,7 +19,7 @@ class SendTasksDueEmail extends Command
             ->whereHas('matter', function ($query) {
                 $query->where('dead', 0);
             })
-            ->where('code', '!=', 'REN')
+            ->where('code', '!=', EventCode::RENEWAL->value)
             ->where('due_date', '<', now()->addDays(30))
             ->where('done', 0)
             ->with('matter', 'info', 'matter.client')

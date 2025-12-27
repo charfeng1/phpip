@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\Actor;
 use App\Models\User;
 use App\Services\TeamService;
@@ -11,7 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 
 /**
  * Manages user accounts and authentication profiles.
@@ -86,19 +87,11 @@ class UserController extends Controller
     /**
      * Store a newly created user.
      *
-     * @param Request $request User data including login, password, email, and default_role
+     * @param StoreUserRequest $request Validated user data including login, password, email, and default_role
      * @return User The created user
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        Gate::authorize('admin');
-        $request->validate([
-            'name' => 'required|unique:actor|max:100',
-            'login' => 'required|unique:users',
-            'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
-            'email' => 'required|email',
-            'default_role' => 'required',
-        ]);
         $this->mergeCreator($request);
 
         return User::create($this->getFilteredData($request, ['password_confirmation']));
@@ -159,18 +152,14 @@ class UserController extends Controller
      * if current user is editing their own profile. Clears team hierarchy cache when
      * parent_id (supervisor) changes.
      *
-     * @param Request $request Updated user data
+     * @param UpdateUserRequest $request Validated updated user data
      * @param User $user The user to update
      * @return User The updated user
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        Gate::authorize('admin');
+        // Additional validation for fields not in form request
         $request->validate([
-            'login' => 'sometimes|required|unique:users',
-            'password' => 'sometimes|confirmed|required|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/|regex:/[^a-zA-Z0-9]/',
-            'email' => 'sometimes|required|email',
-            'default_role' => 'sometimes|required',
             'language' => 'sometimes|required|string|max:5',
             'parent_id' => 'nullable|exists:users,id',
         ]);

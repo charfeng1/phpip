@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\EventCode;
 use App\Models\Actor;
 use App\Models\Country;
 use App\Models\Matter;
@@ -231,7 +232,7 @@ class RenewrSync extends Command
                 : "CAST(JSON_UNQUOTE(JSON_EXTRACT(task.detail, '$.\"en\"')) AS UNSIGNED) = ?";
 
             $task = $matter->tasks()
-                ->where('task.code', 'REN')
+                ->where('task.code', EventCode::RENEWAL->value)
                 ->whereRaw($jsonExtractExpr, [$renewal->renewalYearNumber])
                 ->first();
 
@@ -294,7 +295,7 @@ class RenewrSync extends Command
     private function insertNewRenewal($matter, $renewal, $renewrPatent)
     {
         // Find trigger event
-        $triggerEvent = Country::where('renewal_start', 'FIL')
+        $triggerEvent = Country::where('renewal_start', EventCode::FILING->value)
             ->where('iso', $renewrPatent->country)->exists()
             ? $matter->filing->id
             : $matter->grant->id;
@@ -310,7 +311,7 @@ class RenewrSync extends Command
         $fee = $this->calculateFee($cost, $serviceProviderFee);
 
         $task = Task::create([
-            'code' => 'REN',
+            'code' => EventCode::RENEWAL->value,
             'detail' => ['en' => $renewal->renewalYearNumber],
             'due_date' => $renewal->renewalDate,
             'currency' => $renewal->fees->invoiceCurrency ?? 'EUR',

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\EventCode;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use SimpleXMLElement;
@@ -374,7 +375,7 @@ class OPSService
 
             foreach ($steps as $k => $step) {
                 // Code compatible with EP procedural steps
-                $proc[$k]['code'] = 'RFEE';
+                $proc[$k]['code'] = EventCode::RENEWAL_FEE->value;
                 if ($date = $step->xpath('ops:L007EP')) {
                     $proc[$k]['ren_paid'] = date('Y-m-d', strtotime($date[0]));
                 }

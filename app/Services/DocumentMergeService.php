@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Enums\ClassifierType;
+use App\Enums\EventCode;
 use App\Models\Matter;
 use App\Models\MatterActors;
 use Illuminate\Support\Str;
@@ -70,39 +72,39 @@ class DocumentMergeService
             'Alt_Ref' => $this->matter->alt_ref,
             'Country' => $this->matter->country,
             'File_Category' => $this->matter->category_code,
-            'Filing_Date' => $this->matter->events->where('code', 'FIL')
+            'Filing_Date' => $this->matter->events->where('code', EventCode::FILING->value)
                 ->first()
                 ?->event_date->isoFormat('L'),
-            'Filing_Number' => $this->matter->events->where('code', 'FIL')
+            'Filing_Number' => $this->matter->events->where('code', EventCode::FILING->value)
                 ->first()
                 ?->detail,
-            'Pub_Date' => $this->matter->events->where('code', 'PUB')
+            'Pub_Date' => $this->matter->events->where('code', EventCode::PUBLICATION->value)
                 ->first()
                 ?->event_date->isoFormat('L'),
-            'Pub_Number' => $this->matter->events->where('code', 'PUB')
+            'Pub_Number' => $this->matter->events->where('code', EventCode::PUBLICATION->value)
                 ->first()
                 ?->detail,
             'Priority' => $this->matter->prioritiesFromView
                 ->map(fn ($priority) => $priority->country.$priority->detail.' - '.$priority->event_date->isoFormat('L'))->implode("\n"),
-            'Grant_Date' => $this->matter->events->where('code', 'GRT')
+            'Grant_Date' => $this->matter->events->where('code', EventCode::GRANT->value)
                 ->first()
                 ?->event_date->isoFormat('L'),
-            'Grant_Number' => $this->matter->events->where('code', 'GRT')
+            'Grant_Number' => $this->matter->events->where('code', EventCode::GRANT->value)
                 ->first()
                 ?->detail,
-            'Registration_Date' => $this->matter->events->where('code', 'REG')
+            'Registration_Date' => $this->matter->events->where('code', EventCode::REGISTRATION->value)
                 ->first()
                 ?->event_date->isoFormat('L'),
-            'Registration_Number' => $this->matter->events->where('code', 'REG')
+            'Registration_Number' => $this->matter->events->where('code', EventCode::REGISTRATION->value)
                 ->first()
                 ?->detail,
-            'Pub_Reg_Date' => $this->matter->events->where('code', 'PR')
+            'Pub_Reg_Date' => $this->matter->events->where('code', EventCode::PRIORITY_CLAIM->value)
                 ->first()
                 ?->event_date->isoFormat('L'),
-            'Pub_Reg_Number' => $this->matter->events->where('code', 'PR')
+            'Pub_Reg_Number' => $this->matter->events->where('code', EventCode::PRIORITY_CLAIM->value)
                 ->first()
                 ?->detail,
-            'Allowance_Date' => $this->matter->events->where('code', 'ALL')
+            'Allowance_Date' => $this->matter->events->where('code', EventCode::ALLOWANCE->value)
                 ->first()
                 ?->event_date->isoFormat('L'),
             'Expiration_Date' => $this->matter->expire_date,
@@ -113,21 +115,21 @@ class DocumentMergeService
             'Client_Ref' => $this->matter->client->actor_ref,
             'Email' => $this->matter->client->email,
             'VAT' => $this->matter->client->VAT_number,
-            'Official_Title' => $this->matter->titles->where('type_code', 'TITOF')
+            'Official_Title' => $this->matter->titles->where('type_code', ClassifierType::TITLE_OFFICIAL->value)
                 ->first()
                 ?->value ??
-                $this->matter->titles->where('type_code', 'TIT')
+                $this->matter->titles->where('type_code', ClassifierType::TITLE->value)
                     ->first()
                     ?->value,
-            'English_Title' => $this->matter->titles->where('type_code', 'TITEN')
+            'English_Title' => $this->matter->titles->where('type_code', ClassifierType::TITLE_EN->value)
                 ->first()
                 ?->value ??
-                $this->matter->titles->where('type_code', 'TITOF')
+                $this->matter->titles->where('type_code', ClassifierType::TITLE_OFFICIAL->value)
                     ->first()
                     ?->value,
-            'Title' => $this->matter->titles->where('type_code', 'TIT')
+            'Title' => $this->matter->titles->where('type_code', ClassifierType::TITLE->value)
                 ->first()
-                ?->value, // Changer TATA par le code de la classification
+                ?->value,
             'Trademark' => $this->matter->titles->where('type_code', 'TM')
                 ->first()
                 ?->value,

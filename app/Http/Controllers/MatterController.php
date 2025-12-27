@@ -36,43 +36,17 @@ class MatterController extends Controller
 {
     use HandlesAuditFields;
 
-    protected DocumentMergeService $documentMergeService;
-
-    protected MatterExportService $matterExportService;
-
-    protected MatterRepository $matterRepository;
-
-    protected OPSService $opsService;
-
-    protected PatentFamilyCreationService $patentFamilyService;
-
-    protected MatterOperationService $matterOperationService;
-
     /**
-     * Initialize the controller with required services.
-     *
-     * @param DocumentMergeService $documentMergeService Service for merging matter data into documents.
-     * @param MatterExportService $matterExportService Service for exporting matters to CSV.
-     * @param MatterRepository $matterRepository Repository for matter queries.
-     * @param OPSService $opsService Service for interacting with EPO OPS API.
-     * @param PatentFamilyCreationService $patentFamilyService Service for creating patent families from OPS.
-     * @param MatterOperationService $matterOperationService Service for handling special matter creation operations.
+     * Initialize the controller with required services using PHP 8 constructor property promotion.
      */
     public function __construct(
-        DocumentMergeService $documentMergeService,
-        MatterExportService $matterExportService,
-        MatterRepository $matterRepository,
-        OPSService $opsService,
-        PatentFamilyCreationService $patentFamilyService,
-        MatterOperationService $matterOperationService
-    ) {
-        $this->documentMergeService = $documentMergeService;
-        $this->matterExportService = $matterExportService;
-        $this->matterRepository = $matterRepository;
-        $this->opsService = $opsService;
-        $this->patentFamilyService = $patentFamilyService;
-        $this->matterOperationService = $matterOperationService;
-    }
+        protected DocumentMergeService $documentMergeService,
+        protected MatterExportService $matterExportService,
+        protected MatterRepository $matterRepository,
+        protected OPSService $opsService,
+        protected PatentFamilyCreationService $patentFamilyService,
+        protected MatterOperationService $matterOperationService,
+    ) {}
 
     /**
      * Display a paginated list of matters with optional filtering and sorting.

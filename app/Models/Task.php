@@ -6,9 +6,9 @@ use App\Enums\ActorRole;
 use App\Enums\ClassifierType;
 use App\Enums\EventCode;
 use App\Enums\UserRole;
-use App\Services\TeamService;
 use App\Traits\Auditable;
 use App\Traits\DatabaseJsonHelper;
+use App\Traits\HasTeamScopes;
 use App\Traits\HasTranslationsExtended;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -43,7 +43,33 @@ class Task extends Model
     use Auditable;
     use DatabaseJsonHelper;
     use HasFactory;
+    use HasTeamScopes;
     use HasTranslationsExtended;
+
+    /**
+     * Get the column name used for user assignment.
+     *
+     * Tasks use 'assigned_to' instead of 'responsible'.
+     *
+     * @return string
+     */
+    protected function getTeamScopeColumn(): string
+    {
+        return 'assigned_to';
+    }
+
+    /**
+     * Include matter relationship in team filtering.
+     *
+     * Tasks should also check if the related matter's responsible
+     * is within the team hierarchy.
+     *
+     * @return bool
+     */
+    protected function shouldIncludeMatterInTeamScope(): bool
+    {
+        return true;
+    }
 
     /**
      * Attributes to exclude from audit logging.
@@ -241,52 +267,5 @@ class Task extends Model
     public static function renewals()
     {
         return app(\App\Repositories\TaskRepository::class)->renewals();
-    }
-
-    /**
-     * Scope to filter tasks by team membership.
-     *
-     * Filters tasks to show only those where:
-     * - The task is assigned to the user or their subordinates, OR
-     * - The matter is assigned to the user or their subordinates
-     *
-     * @param  Builder  $query
-     * @param  int|null  $userId  Optional user ID (defaults to authenticated user)
-     * @return Builder
-     */
-    public function scopeForTeam(Builder $query, ?int $userId = null): Builder
-    {
-        $userId = $userId ?? Auth::id();
-
-        if (! $userId) {
-            return $query;
-        }
-
-        $teamService = app(TeamService::class);
-        $teamLogins = $teamService->getSubordinateLogins($userId, true);
-
-        return $query->where(function ($q) use ($teamLogins) {
-            $q->whereIn('assigned_to', $teamLogins)
-                ->orWhereHas('matter', function ($mq) use ($teamLogins) {
-                    $mq->whereIn('responsible', $teamLogins);
-                });
-        });
-    }
-
-    /**
-     * Scope to filter tasks by a specific user.
-     *
-     * @param  Builder  $query
-     * @param  string  $login  The user login to filter by
-     * @return Builder
-     */
-    public function scopeForUser(Builder $query, string $login): Builder
-    {
-        return $query->where(function ($q) use ($login) {
-            $q->where('assigned_to', $login)
-                ->orWhereHas('matter', function ($mq) use ($login) {
-                    $mq->where('responsible', $login);
-                });
-        });
     }
 }

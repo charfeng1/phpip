@@ -2,12 +2,15 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Traits\ValidatesPassword;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class UpdateUserRequest extends FormRequest
 {
+    use ValidatesPassword;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -43,25 +46,9 @@ class UpdateUserRequest extends FormRequest
                 'max:45',
                 Rule::unique('users')->ignore($userId),
             ],
-            'password' => $this->passwordRules(),
+            'password' => $this->optionalPasswordRules(),
             'default_role' => 'sometimes|required|max:5|exists:actor_role,code',
             'company_id' => 'nullable|integer|exists:actor,id',
-        ];
-    }
-
-    /**
-     * Get password validation rules (optional for updates).
-     */
-    protected function passwordRules(): array
-    {
-        return [
-            'sometimes',
-            'confirmed',
-            'min:8',
-            'regex:/[a-z]/',      // at least one lowercase letter
-            'regex:/[A-Z]/',      // at least one uppercase letter
-            'regex:/[0-9]/',      // at least one digit
-            'regex:/[^a-zA-Z0-9]/', // at least one special character
         ];
     }
 
@@ -70,8 +57,6 @@ class UpdateUserRequest extends FormRequest
      */
     public function messages(): array
     {
-        return [
-            'password.regex' => 'Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character.',
-        ];
+        return $this->passwordMessages();
     }
 }
