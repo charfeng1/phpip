@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Traits\Auditable;
 use App\Traits\HasTableComments;
 use App\Traits\HasTranslationsExtended;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -31,17 +30,9 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Category extends Model
 {
-    use Auditable;
     use HasFactory;
     use HasTableComments;
     use HasTranslationsExtended;
-
-    /**
-     * Attributes to exclude from audit logging.
-     *
-     * @var array<string>
-     */
-    protected $auditExclude = ['created_at', 'updated_at'];
 
     /**
      * The database table associated with the model.
