@@ -1,0 +1,315 @@
+// Bootstrap CSS compatibility layer
+// Provides essential Bootstrap classes using CSS variables for DaisyUI compatibility
+
+// Form Controls
+.form-control {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: var(--font-size-sm);
+  border: 1px solid oklch(var(--bc) / 0.2);
+  border-radius: var(--radius-md);
+  background-color: oklch(var(--b1));
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+
+  &:focus {
+    outline: none;
+    border-color: oklch(var(--p));
+    box-shadow: 0 0 0 3px oklch(var(--p) / 0.2);
+  }
+
+  &.noformat {
+    border-color: transparent;
+    background-color: transparent;
+    padding: 0.125rem 0.25rem;
+
+    &:hover, &:focus {
+      border-color: oklch(var(--bc) / 0.2);
+      background-color: oklch(var(--b1));
+    }
+  }
+}
+
+.form-control-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: var(--font-size-xs);
+}
+
+// Input Groups
+.input-group {
+  display: flex;
+  align-items: stretch;
+
+  > .form-control {
+    flex: 1;
+    min-width: 0;
+
+    &:not(:first-child) {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      border-left: 0;
+    }
+
+    &:not(:last-child) {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+
+  > .btn {
+    border-radius: 0;
+
+    &:first-child {
+      border-top-left-radius: var(--rounded-btn, 0.5rem);
+      border-bottom-left-radius: var(--rounded-btn, 0.5rem);
+    }
+
+    &:last-child {
+      border-top-right-radius: var(--rounded-btn, 0.5rem);
+      border-bottom-right-radius: var(--rounded-btn, 0.5rem);
+    }
+  }
+}
+
+// Table styles
+.table-light {
+  background-color: oklch(var(--b2));
+}
+
+.table-hover tbody tr:hover {
+  background-color: oklch(var(--b2) / 0.5);
+}
+
+// Navigation styles
+.nav-item {
+  display: inline-block;
+}
+
+.nav-link {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  color: oklch(var(--bc) / 0.7);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+
+  &:hover {
+    color: oklch(var(--bc));
+  }
+
+  &.active {
+    color: oklch(var(--p));
+    font-weight: 500;
+  }
+}
+
+.nav-pills {
+  display: flex;
+  gap: 0.25rem;
+
+  .nav-link {
+    border-radius: var(--radius-md);
+
+    &.active {
+      background-color: oklch(var(--p));
+      color: oklch(var(--pc));
+    }
+  }
+}
+
+.nav-fill {
+  .nav-item, .nav-link {
+    flex: 1;
+    text-align: center;
+  }
+}
+
+// Tab content (for pages still using Bootstrap tab structure)
+.tab-content {
+  > .tab-pane {
+    display: none;
+
+    &.show, &.active {
+      display: block;
+    }
+  }
+}
+
+// Alert styles
+.alert-danger {
+  background-color: oklch(var(--er) / 0.1);
+  color: oklch(var(--er));
+  border: 1px solid oklch(var(--er) / 0.2);
+}
+
+.alert-success {
+  background-color: oklch(var(--su) / 0.1);
+  color: oklch(var(--su));
+  border: 1px solid oklch(var(--su) / 0.2);
+}
+
+.alert-info {
+  background-color: oklch(var(--in) / 0.1);
+  color: oklch(var(--in));
+  border: 1px solid oklch(var(--in) / 0.2);
+}
+
+.alert-warning {
+  background-color: oklch(var(--wa) / 0.1);
+  color: oklch(var(--wa));
+  border: 1px solid oklch(var(--wa) / 0.2);
+}
+
+.alert-dark {
+  background-color: oklch(var(--b3));
+  color: oklch(var(--bc));
+}
+
+// Grid helpers
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -0.5rem;
+  margin-right: -0.5rem;
+}
+
+.col {
+  flex: 1;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.col-2 {
+  width: 16.666667%;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+// Button group
+.btn-group {
+  display: inline-flex;
+
+  > .btn {
+    border-radius: 0;
+
+    &:first-child {
+      border-top-left-radius: var(--rounded-btn, 0.5rem);
+      border-bottom-left-radius: var(--rounded-btn, 0.5rem);
+    }
+
+    &:last-child {
+      border-top-right-radius: var(--rounded-btn, 0.5rem);
+      border-bottom-right-radius: var(--rounded-btn, 0.5rem);
+    }
+  }
+}
+
+.btn-group-sm > .btn {
+  height: 2rem;
+  min-height: 2rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  font-size: 0.875rem;
+}
+
+// Text utilities
+.text-bg-primary {
+  background-color: oklch(var(--p));
+  color: oklch(var(--pc));
+}
+
+.text-info {
+  color: oklch(var(--in));
+}
+
+.text-danger {
+  color: oklch(var(--er));
+}
+
+// Spacing utilities (Bootstrap to Tailwind mapping)
+.ms-2 {
+  margin-left: 0.5rem;
+}
+
+.me-1 {
+  margin-right: 0.25rem;
+}
+
+.ps-2 {
+  padding-left: 0.5rem;
+}
+
+// Float utilities
+.float-end {
+  float: right;
+}
+
+.float-center {
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
+// Display utilities
+.d-flex {
+  display: flex;
+}
+
+.justify-content-between {
+  justify-content: space-between;
+}
+
+// Border utilities
+.border-top-0 {
+  border-top: 0;
+}
+
+// Position utilities
+.position-relative {
+  position: relative;
+}
+
+.position-absolute {
+  position: absolute;
+}
+
+// Forms
+.form-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+// Card overrides for Bootstrap-style usage
+.card.reload-part {
+  background-color: oklch(var(--b1));
+}
+
+// Reveal hidden action
+.reveal-hidden {
+  .hidden-action {
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+  }
+
+  &:hover .hidden-action {
+    opacity: 1;
+  }
+}
+
+// Table borderless
+.table-borderless {
+  td, th {
+    border: 0;
+  }
+}
+
+// Sortable placeholder
+.sortable-ghost {
+  opacity: 0.4;
+  background-color: oklch(var(--p) / 0.1);
+}
+
+// Required field indicator
+.required-field::after {
+  content: " *";
+  color: oklch(var(--er));
+}

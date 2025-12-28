@@ -7,7 +7,7 @@
   :create-label="__('Create Event Name')"
   :create-title="__('Event name')"
   create-resource="/eventname/"
-  :create-attributes="['data-bs-toggle' => 'modal', 'data-bs-target' => '#ajaxModal']"
+  :create-attributes="['data-modal-target' => '#ajaxModal']"
   :panel-title="__('Event name information')"
   :panel-message="__('Click on event name to view and edit details')"
   list-card-style="max-height: 640px; overflow: auto;">

@@ -20,7 +20,7 @@
       <th class="border-top-0">{{ __('Link to matter') }}</th>
       <th class="border-top-0">
         @can('readwrite')
-        <a href="#addClassifierRow" data-bs-toggle="collapse">
+        <a href="javascript:void(0)" onclick="document.getElementById('addClassifierRow').classList.toggle('hidden')">
           <span class="float-end" title="{{ __('Add classifier') }}">
             <svg width="14" height="14" fill="currentColor" style="pointer-events: none"><use xlink:href="#plus-circle-fill"/></svg>
           </span>
@@ -66,7 +66,7 @@
   </tbody>
   @endforeach
   <tbody>
-    <tr id="addClassifierRow" class="collapse">
+    <tr id="addClassifierRow" class="hidden">
       <td colspan="4">
         <form id="addClassifierForm">
           <input type="hidden" name="matter_id" value="{{ $matter->container_id ?? $matter->id }}">

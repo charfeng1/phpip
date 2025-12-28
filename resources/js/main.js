@@ -208,23 +208,36 @@ export const processSubmitErrors = (errors, Form) => {
  * @returns {void}
  */
 export function initMain() {
-  // Ajax fill the opened modal
+  // Ajax fill the opened modal (DaisyUI dialog)
   /**
-   * Event handler for Bootstrap modal show event.
-   * Fetches content via AJAX when modal is triggered.
-   * @param {Event} event - Bootstrap modal show event
+   * Event handler for modal trigger clicks.
+   * Opens the dialog and fetches content via AJAX.
+   * @param {Event} event - Click event on modal trigger
    */
-  ajaxModal.addEventListener("show.bs.modal", (event) => {
-    var modalTrigger = event.relatedTarget;
-    contentSrc = modalTrigger.href;
-    window.contentSrc = contentSrc;
-    ajaxModal.querySelector(".modal-title").innerHTML = modalTrigger.title;
-    if (modalTrigger.hasAttribute("data-size")) {
-      ajaxModal
-        .querySelector(".modal-dialog")
-        .classList.add(modalTrigger.dataset.size);
+  app.addEventListener("click", (e) => {
+    const modalTrigger = e.target.closest('[data-modal-target="#ajaxModal"]');
+    if (modalTrigger) {
+      e.preventDefault();
+      contentSrc = modalTrigger.href;
+      window.contentSrc = contentSrc;
+      ajaxModal.querySelector(".modal-title").innerHTML = modalTrigger.title || "Loading...";
+      // Handle modal size
+      const modalBox = ajaxModal.querySelector(".modal-box");
+      modalBox.classList.remove("max-w-sm", "max-w-md", "max-w-lg", "max-w-xl", "max-w-2xl", "max-w-4xl");
+      if (modalTrigger.hasAttribute("data-size")) {
+        const sizeMap = {
+          "modal-sm": "max-w-sm",
+          "modal-md": "max-w-md",
+          "modal-lg": "max-w-2xl",
+          "modal-xl": "max-w-4xl"
+        };
+        modalBox.classList.add(sizeMap[modalTrigger.dataset.size] || "max-w-2xl");
+      } else {
+        modalBox.classList.add("max-w-2xl");
+      }
+      fetchInto(contentSrc, ajaxModal.querySelector(".modal-body"));
+      ajaxModal.showModal();
     }
-    fetchInto(contentSrc, ajaxModal.querySelector(".modal-body"));
   });
 
   // Display actor dependencies in corresponding tab
@@ -655,15 +668,18 @@ export function initMain() {
     // Classifier form image type toggle now handled by Alpine.js
   });
 
-  // Reset ajaxModal to default when it is closed
-  ajaxModal.addEventListener("hidden.bs.modal", (event) => {
+  // Reset ajaxModal to default when it is closed (DaisyUI dialog)
+  ajaxModal.addEventListener("close", (event) => {
     ajaxModal.querySelector(".modal-body").innerHTML =
-      '<div class="spinner-border" role="status"></div>';
+      '<span class="loading loading-spinner loading-lg text-primary"></span>';
     ajaxModal.querySelector(".modal-title").innerHTML =
       "Ajax title placeholder";
-    ajaxModal.querySelector(".modal-dialog").className = "modal-dialog";
+    // Reset modal size
+    const modalBox = ajaxModal.querySelector(".modal-box");
+    modalBox.classList.remove("max-w-sm", "max-w-md", "max-w-lg", "max-w-xl", "max-w-4xl");
+    modalBox.classList.add("max-w-2xl");
     footerAlert.innerHTML = "";
-    footerAlert.classList.remove("alert-danger");
+    footerAlert.classList.remove("text-error");
   });
 
   // Process modified input fields
@@ -970,10 +986,17 @@ export function initMain() {
       const current = findOptionByCode(select.value);
       if (current) {
         input.value = current.label;
+        input.classList.remove("text-base-content/50");
       } else if (!select.value) {
         input.value = "";
       }
     };
+
+    // Clear input on focus to allow typing search
+    input.addEventListener("focus", () => {
+      // Select all text so user can start typing immediately
+      input.select();
+    });
 
     input.addEventListener("input", (event) => {
       const option = findOptionByLabel(event.target.value);

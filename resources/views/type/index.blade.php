@@ -7,7 +7,7 @@
   :create-label="__('Create Matter Type')"
   :create-title="__('Type')"
   create-resource="/type/"
-  :create-attributes="['data-bs-toggle' => 'modal', 'data-bs-target' => '#ajaxModal']"
+  :create-attributes="['data-modal-target' => '#ajaxModal']"
   :panel-title="__('Type Information')"
   :panel-message="__('Click on type to view and edit details')"
   list-card-style="max-height: 640px; overflow: auto;">

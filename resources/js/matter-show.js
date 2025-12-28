@@ -133,21 +133,13 @@ export function registerImageUpload() {
  * @returns {void}
  */
 export function initMatterShow() {
-  // Actor processing
+  // Actor processing using DaisyUI dropdown/popover
 
   /**
-   * Current popover instance.
-   * @type {bootstrap.Popover|null}
+   * Popover element for adding actors.
+   * @type {HTMLElement|null}
    */
-  let popover = null;
-  let popoverList = new bootstrap.Popover(document.body, {
-    selector: '[data-bs-toggle="popover"]',
-    boundary: "viewport",
-    content: actorPopoverTemplate.content.firstElementChild,
-    container: "body",
-    html: true,
-    sanitize: false,
-  });
+  let actorPopover = null;
 
   /**
    * Current actor autocomplete event handler.
@@ -162,55 +154,94 @@ export function initMatterShow() {
   let currentRoleHandler = null;
 
   /**
+   * Creates or returns the actor popover element.
+   * @returns {HTMLElement}
+   */
+  function getActorPopover() {
+    if (!actorPopover) {
+      actorPopover = document.createElement("div");
+      actorPopover.id = "actorPopover";
+      actorPopover.className =
+        "absolute z-50 bg-base-100 border border-base-300 rounded-lg shadow-lg p-2 w-72";
+      actorPopover.innerHTML =
+        actorPopoverTemplate.content.firstElementChild.outerHTML;
+      actorPopover.style.display = "none";
+      document.body.appendChild(actorPopover);
+    }
+    return actorPopover;
+  }
+
+  /**
    * Removes event listeners to prevent memory leaks when popover changes.
    * @returns {void}
    */
   function cleanupListeners() {
-    if (currentActorHandler) {
-      actorName.removeEventListener("acCompleted", currentActorHandler);
+    const popover = getActorPopover();
+    const actorNameEl = popover.querySelector("#actorName");
+    const roleNameEl = popover.querySelector("#roleName");
+    if (currentActorHandler && actorNameEl) {
+      actorNameEl.removeEventListener("acCompleted", currentActorHandler);
       currentActorHandler = null;
     }
-    if (currentRoleHandler) {
-      roleName.removeEventListener("acCompleted", currentRoleHandler);
+    if (currentRoleHandler && roleNameEl) {
+      roleNameEl.removeEventListener("acCompleted", currentRoleHandler);
       currentRoleHandler = null;
     }
   }
 
-  // Process actor addition popovers
-  app.addEventListener("shown.bs.popover", (e) => {
-    // First destroy existing popover when a new popover is opened
-    if (popover) {
-      addActorForm.reset();
-      popover.hide();
-      cleanupListeners();
-    }
-    popover = bootstrap.Popover.getInstance(e.target);
+  /**
+   * Hides the actor popover.
+   */
+  function hideActorPopover() {
+    const popover = getActorPopover();
+    popover.style.display = "none";
+    const form = popover.querySelector("#addActorForm");
+    if (form) form.reset();
+    cleanupListeners();
+  }
 
-    if (e.target.hasAttribute("data-role_code")) {
-      // Change form based on role information
-      addActorForm["role"].value = e.target.dataset.role_code;
-      roleName.setAttribute("placeholder", e.target.dataset.role_name);
-      addActorForm["shared"].value = e.target.dataset.shareable;
-      if (e.target.dataset.shareable === "1") {
-        actorShared.checked = true;
+  /**
+   * Shows the actor popover near the trigger element.
+   * @param {HTMLElement} trigger - The element that triggered the popover
+   */
+  function showActorPopover(trigger) {
+    const popover = getActorPopover();
+    const form = popover.querySelector("#addActorForm");
+    const roleNameEl = popover.querySelector("#roleName");
+    const actorNameEl = popover.querySelector("#actorName");
+    const actorSharedEl = popover.querySelector("#actorShared");
+    const actorNotSharedEl = popover.querySelector("#actorNotShared");
+
+    // Position the popover near the trigger
+    const rect = trigger.getBoundingClientRect();
+    popover.style.position = "fixed";
+    popover.style.top = rect.bottom + 5 + "px";
+    popover.style.left = Math.max(10, rect.left - 100) + "px";
+    popover.style.display = "block";
+
+    // Configure form based on trigger data
+    if (trigger.hasAttribute("data-role_code")) {
+      form["role"].value = trigger.dataset.role_code;
+      roleNameEl.setAttribute("placeholder", trigger.dataset.role_name);
+      form["shared"].value = trigger.dataset.shareable;
+      if (trigger.dataset.shareable === "1") {
+        actorSharedEl.checked = true;
       } else {
-        actorNotShared.checked = true;
+        actorNotSharedEl.checked = true;
       }
-      actorName.focus();
+      actorNameEl.focus();
     } else {
-      // Reset form to defaults
-      addActorForm["role"].value = "";
-      roleName.setAttribute("placeholder", "Role");
-      addActorForm["shared"].value = "1";
-      actorShared.checked = true;
-      roleName.focus();
+      form["role"].value = "";
+      roleNameEl.setAttribute("placeholder", "Role");
+      form["shared"].value = "1";
+      actorSharedEl.checked = true;
+      roleNameEl.focus();
     }
 
     // Attach listener for actorName's "acCompleted"
     currentActorHandler = (event) => {
       const selectedItem = event.detail;
       if (selectedItem.key === "create") {
-        // Creates actor on the fly
         fetchREST(
           "/actor",
           "POST",
@@ -218,89 +249,114 @@ export function initMatterShow() {
             "name=" +
               selectedItem.value.toUpperCase() +
               "&default_role=" +
-              addActorForm.role.value,
+              form.role.value,
           ),
         ).then((response) => {
-          addActorForm.actor_id.value = response.id;
-          actorName.classList.add("is-valid");
-          actorName.value = response.name;
+          form.actor_id.value = response.id;
+          actorNameEl.classList.add("input-success");
+          actorNameEl.value = response.name;
         });
       } else {
-        addActorForm.actor_id.value = selectedItem.key;
+        form.actor_id.value = selectedItem.key;
       }
     };
-    actorName.addEventListener("acCompleted", currentActorHandler);
+    actorNameEl.addEventListener("acCompleted", currentActorHandler);
 
     // Attach listener for roleName's "acCompleted"
     currentRoleHandler = (event) => {
       const selectedItem = event.detail;
-      addActorForm.shared.value = selectedItem.shareable;
+      form.shared.value = selectedItem.shareable;
       if (selectedItem.shareable) {
-        actorShared.checked = true;
+        actorSharedEl.checked = true;
       } else {
-        actorNotShared.checked = true;
+        actorNotSharedEl.checked = true;
       }
     };
-    roleName.addEventListener("acCompleted", currentRoleHandler);
+    roleNameEl.addEventListener("acCompleted", currentRoleHandler);
 
-    actorShared.onclick = () => {
-      addActorForm["shared"].value = "1";
+    // Handle shared radio buttons
+    actorSharedEl.onclick = () => {
+      form["shared"].value = "1";
+    };
+    actorNotSharedEl.onclick = () => {
+      form["shared"].value = "0";
     };
 
-    actorNotShared.onclick = () => {
-      addActorForm["shared"].value = "0";
-    };
-
-    addActorSubmit.onclick = () => {
-      const formData = new FormData(addActorForm);
+    // Handle submit
+    const submitBtn = popover.querySelector("#addActorSubmit");
+    submitBtn.onclick = () => {
+      const formData = new FormData(form);
       const params = new URLSearchParams(formData);
       fetchREST("/actor-pivot", "POST", params).then((data) => {
         if (data.errors) {
-          processSubmitErrors(data.errors, addActorForm);
+          processSubmitErrors(data.errors, form);
         } else {
-          addActorForm.reset();
-          popover.hide();
-          cleanupListeners();
-          popover = null; // Allow immediate re-opening
+          hideActorPopover();
           reloadPart(window.location.href, "actorPanel");
         }
       });
     };
 
-    // Close popover by clicking the cancel button
-    popoverCancel.onclick = () => {
-      addActorForm.reset();
-      popover.hide();
-      cleanupListeners();
-      popover = null; // Allow immediate re-opening
+    // Handle cancel
+    const cancelBtn = popover.querySelector("#popoverCancel");
+    cancelBtn.onclick = () => {
+      hideActorPopover();
     };
-  }); // End popover processing
+  }
+
+  // Handle clicks on add actor buttons
+  document.addEventListener("click", (e) => {
+    const addActorBtn = e.target.closest(".add-actor-btn");
+    if (addActorBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const popover = getActorPopover();
+      if (popover.style.display === "block") {
+        hideActorPopover();
+      }
+      showActorPopover(addActorBtn);
+      return;
+    }
+
+    // Close popover when clicking outside
+    if (actorPopover && actorPopover.style.display === "block") {
+      if (!actorPopover.contains(e.target)) {
+        hideActorPopover();
+      }
+    }
+  }); // End actor popover processing
 
   // Titles processing
 
   // Show the title creation form when the title panel is empty
-  if (!titlePanel.querySelector("dt")) {
-    titlePanel.querySelector('[href="#addTitleCollapse"]').click();
+  if (titlePanel && !titlePanel.querySelector("dt")) {
+    // Trigger Alpine.js to show the add title form
+    const addTitleBtn = titlePanel.querySelector('[role="button"]');
+    if (addTitleBtn) addTitleBtn.click();
   }
 
-  titlePanel.onclick = (e) => {
-    if (e.target.id == "addTitleSubmit") {
-      const formData = new FormData(addTitleForm);
-      const params = new URLSearchParams(formData);
-      fetchREST("/classifier", "POST", params).then((data) => {
-        if (data.errors) {
-          processSubmitErrors(data.errors, addTitleForm);
-          footerAlert.innerHTML = data.message;
-          footerAlert.classList.add("alert-danger");
-        } else {
-          reloadPart(window.location.href, "titlePanel");
-        }
-      });
-    }
-  };
+  if (titlePanel) {
+    titlePanel.onclick = (e) => {
+      if (e.target.id == "addTitleSubmit") {
+        const formData = new FormData(addTitleForm);
+        const params = new URLSearchParams(formData);
+        fetchREST("/classifier", "POST", params).then((data) => {
+          if (data.errors) {
+            processSubmitErrors(data.errors, addTitleForm);
+            if (footerAlert) {
+              footerAlert.innerHTML = data.message;
+              footerAlert.classList.add("alert-error");
+            }
+          } else {
+            reloadPart(window.location.href, "titlePanel");
+          }
+        });
+      }
+    };
+  }
 
-  // Ajax refresh various panels when a modal is closed
-  ajaxModal.addEventListener("hide.bs.modal", (e) => {
+  // Ajax refresh various panels when a modal is closed (using native dialog close event)
+  ajaxModal.addEventListener("close", (e) => {
     const contentSrc = getContentSrc();
     switch (contentSrc.split("/")[5]) {
       case "roleActors":

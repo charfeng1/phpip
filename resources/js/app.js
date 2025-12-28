@@ -11,10 +11,9 @@
  * Automatically detects which page is loaded and initializes appropriate modules.
  */
 
-import "./bootstrap";
-import "../sass/app.scss";
-// Tailwind CSS + DaisyUI (parallel with Bootstrap during migration)
+// Styles: Tailwind CSS + DaisyUI + SCSS compatibility layer
 import "../css/app.css";
+import "../sass/app.scss";
 
 // Import Alpine.js
 import Alpine from "alpinejs";

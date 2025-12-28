@@ -3,224 +3,247 @@
 @section('body-class', 'renewals-page')
 
 @section('content')
+<div class="card bg-base-100 shadow-sm border border-base-300">
+  {{-- Header --}}
+  <div class="card-title bg-base-200/50 px-4 py-3 border-b border-base-300 flex flex-wrap items-center justify-between gap-2">
+    <div class="flex items-center gap-2">
+      <h2 class="text-lg font-semibold">{{ __('Manage renewals') }}</h2>
+      <a href="https://github.com/jjdejong/phpip/wiki/Renewal-Management" class="text-primary hover:text-primary-focus" target="_blank" title="{{ __('Help') }}">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </a>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="/logs" class="btn btn-info btn-sm">{{ __('View logs') }}</a>
+      <button id="clearFilters" type="button" class="btn btn-ghost btn-sm">&larrpl; {{ __('Clear filters') }}</button>
+    </div>
+  </div>
 
-<div class="card">
-    <div class="card-header py-1">
-        <legend>
-            {{ __('Manage renewals') }}
-            <a href="https://github.com/jjdejong/phpip/wiki/Renewal-Management" class="text-primary" target="_blank" title="{{ __('Help') }}">
-                <svg width="16" height="16" fill="currentColor"><use xlink:href="#question-circle-fill"/></svg>
-            </a>
-            <a href="/logs" class="btn btn-info">{{ __('View logs') }}</a>
-            <button id="clearFilters" type="button" class="btn btn-info float-right">&larrpl; {{ __('Clear filters') }}</button>
-        </legend>
-        <div class="tab-content">
-            <div class="tab-pane {{ !$step && !$invoice_step ? 'active' : '' }}" id="p1">
-                <div class="container text-end">
-                    <div class="btn-group">
-                        <button class="btn btn-info" type="button" id="callRenewals">{{ __('Send call email') }}</button>
-                        <button class="btn btn-info" type="button" id="renewalsSent">{{ __('Call sent manually') }}</button>
-                    </div>
-                </div>
-            </div>
-            <div class="tab-pane {{ $step == 2 ? 'active' : '' }}" id="p2">
-                <div class="container text-end">
-                    <div class="btn-group">
-                        <button class="btn btn-outline-info" type="button" id="reminderRenewals">{{ __('Send reminder email') }}</button>
-                        <button class="btn btn-outline-info" type="button" id="lastReminderRenewals" title="{{ __('Send reminder and enter grace period') }}">{{ __('Send last reminder email') }}</button>
-                        <button class="btn btn-info" type="button" id="instructedRenewals" title="{{ __('Instructions received to pay') }}">{{ __('Payment order received') }}</button>
-                        <button class="btn btn-info" type="button" id="abandonRenewals" title="{{ __('Abandon instructions received') }}">{{ __('Abandon') }}</button>
-                        <button class="btn btn-info" type="button" id="lapsedRenewals" title="{{ __('Office lapse communication received') }}">{{ __('Lapsed') }}</button>
-                    </div>
-                </div>
-            </div>
-            <div class="tab-pane {{ $step == 4 ? 'active' : ''}}" id="p3">
-                <div class="container text-end">
-                    <div class="btn-group">
-                        <button class="btn btn-outline-info" type="button" id="xmlRenewals" title="{{ __('Generate xml files for EP or FR') }}">{{ __('Download XML order to pay') }}</button>
-                        <button class="btn btn-info" type="button" id='doneRenewals'>{{ __('Paid') }}</button>
-                    </div>
-                </div>
-            </div>
-            @if (config('renewal.general.receipt_tabs'))
-            <div class="tab-pane {{ $step == 6 ? 'active' : ''}}" id="p4">
-                <div class="container text-end">
-                    <button class="btn btn-info" type="button" id="receiptRenewals">{{ __('Official receipts received') }}</button>
-                </div>
-            </div>
-            <div class="tab-pane {{ $step == 8 ? 'active' : ''}}" id="p5">
-                <div class="container text-end">
-                    <button class="btn btn-info" type="button" id="sendReceiptsRenewals">{{ __('Receipts sent') }}</button>
-                </div>
-            </div>
-            @endif
-            <div class="tab-pane {{ $step == 12 ? 'active' : ''}}" id="p6">
-                <div class="container text-end">
-                    <button class="btn btn-info" type="button" id="lapsingRenewals">{{ __('Lapse') }}</button>
-                </div>
-            </div>
-            <div class="tab-pane {{ $invoice_step == 1 ? 'active' : ''}}" id="p7">
-                <div class="container text-end">
-                    <div class="btn-group">
-                        @if (config('renewal.invoice.backend') == 'dolibarr')
-                        <button class="btn btn-info" type="button" id="invoiceRenewals">{{ __('Generate invoice') }}</button>
-                        @endif
-                        <button class="btn btn-outline-info" type="button" id="renewalsExport">{{ __('Export all') }}</button>
-                        <button class="btn btn-info" type="button" id="renewalsInvoiced">{{ __('Invoiced') }}</button>
-                    </div>
-                </div>
-            </div>
-            <div class="tab-pane {{ $invoice_step == 2 ? 'active' : ''}}" id="p8">
-                <div class="container text-end">
-                    <button class="btn btn-info" type="button" id="invoicesPaid">{{ __('Paid') }}</button>
-                </div>
-            </div>
-            <div class="tab-pane {{ $step == 14 ? 'active' : ''}}" id="p9">
-                <div class="container text-end">
-                    <button class="btn btn-info" type="button" id="sendLapsedRenewals">{{ __('Lapse communication sent') }}</button>
-                </div>
-            </div>
-            <div class="tab-pane {{ $step == 10 ? 'active' : ''}}" id="p10">
-                <div class="container text-end">
-                    <button class="btn btn-secondary" type="button" disabled>{{ __('Closed renewals') }}</button>
-                </div>
-            </div>
-            <div class="tab-pane lead {{ $invoice_step == 3 ? 'active' : ''}}" id="p11">
-                <div class="container text-end">
-                    <button class="btn btn-secondary" type="button" disabled>{{ __('Paid invoices') }}</button>
-                </div>
-            </div>
-        </div>
-        <nav class="mt-1">
-            <div class="nav nav-tabs nav-fill" id="tabsGroup">
-                <a class="nav-item nav-link {{ !$step && !$invoice_step ? 'active' : '' }}" href="#p1" data-bs-toggle="tab" data-step="0">{{ __('First call') }}</a>
-                <a class="nav-item nav-link {{ $step == 2 ? 'active' : '' }}" href="#p2" data-bs-toggle="tab" data-step="2">{{ __('Reminder') }}</a>
-                <a class="nav-item nav-link {{ $step == 4 ? 'active' : '' }}" href="#p3" data-bs-toggle="tab" data-step="4">{{ __('Payment') }}</a>
-                @if (config('renewal.general.receipt_tabs'))
-                <a class="nav-item nav-link {{ $step == 6 ? 'active' : '' }}" href="#p4" data-bs-toggle="tab" data-step="6">{{ __('Receipts') }}</a>
-                <a class="nav-item nav-link {{ $step == 8 ? 'active' : '' }}" href="#p5" data-bs-toggle="tab" data-step="8">{{ __('Receipts received') }}</a>
-                @endif
-                <a class="nav-item nav-link {{ $step == 12 ? 'active' : '' }}" href="#p6" data-bs-toggle="tab" data-step="12">{{ __('Abandoned') }}</a>
-                <a class="nav-item nav-link {{ $step == 14 ? 'active' : '' }}" href="#p9" data-bs-toggle="tab" data-step="14">{{ __('Lapsed') }}</a>
-                <a class="nav-item nav-link {{ $step == 10 ? 'active' : '' }}" href="#p10" data-bs-toggle="tab" data-step="10">{{ __('Closed') }}</a>
-                <a class="nav-item nav-link {{ $invoice_step == 1 ? 'active' : '' }}" href="#p7" data-bs-toggle="tab" data-invoice_step="1">{{ __('Invoicing') }}</a>
-                <a class="nav-item nav-link {{ $invoice_step == 2 ? 'active' : '' }}" href="#p8" data-bs-toggle="tab" data-invoice_step="2">{{ __('Invoiced') }}</a>
-                <a class="nav-item nav-link {{ $invoice_step == 3 ? 'active' : '' }}" href="#p11" data-bs-toggle="tab" data-invoice_step="3">{{ __('Invoices paid') }}</a>
-            </div>
-        </nav>
+  {{-- Tabs --}}
+  <div role="tablist" class="tabs tabs-boxed bg-base-200 m-2 rounded-lg" id="tabsGroup">
+    <a role="tab" class="tab {{ !$step && !$invoice_step ? 'tab-active' : '' }}" href="#p1" data-step="0">{{ __('First call') }}</a>
+    <a role="tab" class="tab {{ $step == 2 ? 'tab-active' : '' }}" href="#p2" data-step="2">{{ __('Reminder') }}</a>
+    <a role="tab" class="tab {{ $step == 4 ? 'tab-active' : '' }}" href="#p3" data-step="4">{{ __('Payment') }}</a>
+    @if (config('renewal.general.receipt_tabs'))
+    <a role="tab" class="tab {{ $step == 6 ? 'tab-active' : '' }}" href="#p4" data-step="6">{{ __('Receipts') }}</a>
+    <a role="tab" class="tab {{ $step == 8 ? 'tab-active' : '' }}" href="#p5" data-step="8">{{ __('Receipts received') }}</a>
+    @endif
+    <a role="tab" class="tab {{ $step == 12 ? 'tab-active' : '' }}" href="#p6" data-step="12">{{ __('Abandoned') }}</a>
+    <a role="tab" class="tab {{ $step == 14 ? 'tab-active' : '' }}" href="#p9" data-step="14">{{ __('Lapsed') }}</a>
+    <a role="tab" class="tab {{ $step == 10 ? 'tab-active' : '' }}" href="#p10" data-step="10">{{ __('Closed') }}</a>
+    <a role="tab" class="tab {{ $invoice_step == 1 ? 'tab-active' : '' }}" href="#p7" data-invoice_step="1">{{ __('Invoicing') }}</a>
+    <a role="tab" class="tab {{ $invoice_step == 2 ? 'tab-active' : '' }}" href="#p8" data-invoice_step="2">{{ __('Invoiced') }}</a>
+    <a role="tab" class="tab {{ $invoice_step == 3 ? 'tab-active' : '' }}" href="#p11" data-invoice_step="3">{{ __('Invoices paid') }}</a>
+  </div>
+
+  {{-- Tab Content Panels with Action Buttons --}}
+  <div class="px-4 py-2">
+    {{-- First Call --}}
+    <div class="tab-pane {{ !$step && !$invoice_step ? '' : 'hidden' }}" id="p1">
+      <div class="flex justify-end gap-2">
+        <button class="btn btn-info btn-sm" type="button" id="callRenewals">{{ __('Send call email') }}</button>
+        <button class="btn btn-info btn-sm" type="button" id="renewalsSent">{{ __('Call sent manually') }}</button>
+      </div>
     </div>
-    <div class="card-body pt-0">
-        <table class="table table-striped table-sm">
-            <thead>
-                <tr class="row table-primary" id="filterFields">
-                    <td class="col-2">
-                        <input class="form-control form-control-sm" name="Name" value="{{ Request::get('Name') }}" placeholder="{{ __('Client') }}">
-                    </td>
-                    <td class="col-3">
-                        <input class="form-control form-control-sm" name="Title" value="{{ Request::get('Title') }}" placeholder="{{ __('Title') }}">
-                    </td>
-                    <td class="col-1">
-                        <input class="form-control form-control-sm" name="Case" value="{{ Request::get('Case') }}" placeholder="{{ __('Matter') }}">
-                    </td>
-                    <th class="col-3 text-center">
-                        <div class="row">
-                            <div class="col-2">
-                                <input class="form-control form-control-sm px-0" name="Country" value="{{ Request::get('Country') }}" placeholder="{{ __('Ctry') }}">
-                            </div>
-                            <div class="col-2">
-                                <input class="form-control form-control-sm px-0" name="Qt" value="{{ Request::get('Qt') }}" placeholder="{{ __('Qt') }}">
-                            </div>
-                            <div class="col-2">
-                                <input id="grace" name="grace_period" type="checkbox" class="btn-check">
-                                <label class="btn btn-outline-primary btn-sm" title="{{ __('In grace period') }}" for="grace">{{ __('Grace') }}</label>
-                            </div>
-                            <div class="col-3 p-1">
-                                {{ __('Cost') }}
-                            </div>
-                            <div class="col-3 p-1">
-                                {{ __('Fee') }}
-                            </div>
-                        </div>
-                    </th>
-                    <td class="col-2">
-                        <div class="input-group">
-                            <input type="date" class="form-control form-control-sm px-0" name="Fromdate" id="Fromdate" title="{{ __('From selected date') }}" value="{{ Request::get('Fromdate') }}">
-                            <input type="date" class="form-control form-control-sm px-0" name="Untildate" id="Untildate" title="{{ __('Until selected date') }}" value="{{ Request::get('Untildate') }}">
-                        </div>
-                    </td>
-                    <td class="col-1 text-center">
-                        <input id="selectAll" type="checkbox" class="btn-check">
-                        <label class="btn btn-outline-primary btn-sm" title="{{ __('Select/unselect all') }}" for="selectAll">&check;</label>
-                    </td>
-                </tr>
-            </thead>
-            <tbody id="renewalList">
-                @if (count($renewals) == 0)
-                <tr class="row text-danger">
-                    {{ __('The list is empty') }}
-                </tr>
-                @else
-                @foreach ($renewals as $task)
-                    <tr class="row" data-resource="/task/{{ $task->id }}">
-                        <td class="col-2">
-                            {{ $task->client_name }}
-                        </td>
-                        <td class="col-3" nowrap>
-                            {{ $task->short_title }}
-                        </td>
-                        <td class="col-1">
-                            <a href="/matter/{{ $task->matter_id }}">
-                                {{ $task->uid }}
-                            </a>
-                        </td>
-                        <td class="col-3">
-                            <div class="row">
-                                <div class="col-2 text-center">
-                                    {{ $task->country }}
-                                </div>
-                                <div class="col-2 text-center">
-                                    {{ $task->detail }}
-                                </div>
-                                <div class="col-2 text-center">
-                                    @if ($task->grace_period)
-                                    <svg width="12" height="12" fill="currentColor"><use xlink:href="#hourglass-split"/></svg>
-                                    @endif
-                                </div>
-                                <div class="col-3 text-end">
-                                    {{ $task->cost }}
-                                </div>
-                                <div class="col-3 text-end">
-                                    {{ $task->fee }}
-                                </div>
-                            </div>
-                        </td>
-                        <td class="col-2 text-center">
-                            {{ \Carbon\Carbon::parse($task->due_date)->isoFormat('L') }}
-                            @if ($task->done)
-                            <span class="text-success" title="Done">
-                                <svg width="14" height="14" fill="currentColor"><use xlink:href="#check-circle-fill"/></svg>
-                            </span>
-                            @elseif ($task->due_date < now())
-                            <span class="text-danger" title="Overdue">
-                                <svg width="14" height="14" fill="currentColor"><use xlink:href="#exclamation-triangle-fill"/></svg>
-                            </span>
-                            @elseif ($task->due_date < now()->addWeeks(1))
-                            <span class="text-warning" title="Urgent">
-                                <svg width="14" height="14" fill="currentColor"><use xlink:href="#exclamation-triangle-fill"/></svg>
-                            </span>
-                            @endif
-                        </td>
-                        <td class="col-1 text-center">
-                            <input id="{{ $task->id }}" class="clear-ren-task" type="checkbox">
-                        </td>
-                    </tr>
-                @endforeach
-                <tr>
-                    <td>{{ $renewals->links() }}</td>
-                </tr>
-                @endif
-            </tbody>
-        </table>
+
+    {{-- Reminder --}}
+    <div class="tab-pane {{ $step == 2 ? '' : 'hidden' }}" id="p2">
+      <div class="flex justify-end gap-2 flex-wrap">
+        <button class="btn btn-outline btn-info btn-sm" type="button" id="reminderRenewals">{{ __('Send reminder email') }}</button>
+        <button class="btn btn-outline btn-info btn-sm" type="button" id="lastReminderRenewals" title="{{ __('Send reminder and enter grace period') }}">{{ __('Send last reminder email') }}</button>
+        <button class="btn btn-info btn-sm" type="button" id="instructedRenewals" title="{{ __('Instructions received to pay') }}">{{ __('Payment order received') }}</button>
+        <button class="btn btn-info btn-sm" type="button" id="abandonRenewals" title="{{ __('Abandon instructions received') }}">{{ __('Abandon') }}</button>
+        <button class="btn btn-info btn-sm" type="button" id="lapsedRenewals" title="{{ __('Office lapse communication received') }}">{{ __('Lapsed') }}</button>
+      </div>
     </div>
+
+    {{-- Payment --}}
+    <div class="tab-pane {{ $step == 4 ? '' : 'hidden' }}" id="p3">
+      <div class="flex justify-end gap-2">
+        <button class="btn btn-outline btn-info btn-sm" type="button" id="xmlRenewals" title="{{ __('Generate xml files for EP or FR') }}">{{ __('Download XML order to pay') }}</button>
+        <button class="btn btn-info btn-sm" type="button" id='doneRenewals'>{{ __('Paid') }}</button>
+      </div>
+    </div>
+
+    @if (config('renewal.general.receipt_tabs'))
+    {{-- Receipts --}}
+    <div class="tab-pane {{ $step == 6 ? '' : 'hidden' }}" id="p4">
+      <div class="flex justify-end">
+        <button class="btn btn-info btn-sm" type="button" id="receiptRenewals">{{ __('Official receipts received') }}</button>
+      </div>
+    </div>
+
+    {{-- Receipts received --}}
+    <div class="tab-pane {{ $step == 8 ? '' : 'hidden' }}" id="p5">
+      <div class="flex justify-end">
+        <button class="btn btn-info btn-sm" type="button" id="sendReceiptsRenewals">{{ __('Receipts sent') }}</button>
+      </div>
+    </div>
+    @endif
+
+    {{-- Abandoned --}}
+    <div class="tab-pane {{ $step == 12 ? '' : 'hidden' }}" id="p6">
+      <div class="flex justify-end">
+        <button class="btn btn-info btn-sm" type="button" id="lapsingRenewals">{{ __('Lapse') }}</button>
+      </div>
+    </div>
+
+    {{-- Lapsed --}}
+    <div class="tab-pane {{ $step == 14 ? '' : 'hidden' }}" id="p9">
+      <div class="flex justify-end">
+        <button class="btn btn-info btn-sm" type="button" id="sendLapsedRenewals">{{ __('Lapse communication sent') }}</button>
+      </div>
+    </div>
+
+    {{-- Closed --}}
+    <div class="tab-pane {{ $step == 10 ? '' : 'hidden' }}" id="p10">
+      <div class="flex justify-end">
+        <button class="btn btn-ghost btn-sm" type="button" disabled>{{ __('Closed renewals') }}</button>
+      </div>
+    </div>
+
+    {{-- Invoicing --}}
+    <div class="tab-pane {{ $invoice_step == 1 ? '' : 'hidden' }}" id="p7">
+      <div class="flex justify-end gap-2">
+        @if (config('renewal.invoice.backend') == 'dolibarr')
+        <button class="btn btn-info btn-sm" type="button" id="invoiceRenewals">{{ __('Generate invoice') }}</button>
+        @endif
+        <button class="btn btn-outline btn-info btn-sm" type="button" id="renewalsExport">{{ __('Export all') }}</button>
+        <button class="btn btn-info btn-sm" type="button" id="renewalsInvoiced">{{ __('Invoiced') }}</button>
+      </div>
+    </div>
+
+    {{-- Invoiced --}}
+    <div class="tab-pane {{ $invoice_step == 2 ? '' : 'hidden' }}" id="p8">
+      <div class="flex justify-end">
+        <button class="btn btn-info btn-sm" type="button" id="invoicesPaid">{{ __('Paid') }}</button>
+      </div>
+    </div>
+
+    {{-- Invoices paid --}}
+    <div class="tab-pane {{ $invoice_step == 3 ? '' : 'hidden' }}" id="p11">
+      <div class="flex justify-end">
+        <button class="btn btn-ghost btn-sm" type="button" disabled>{{ __('Paid invoices') }}</button>
+      </div>
+    </div>
+  </div>
+
+  {{-- Table --}}
+  <div class="card-body p-0">
+    <div class="overflow-x-auto">
+      <table class="table table-sm">
+        <thead>
+          <tr class="bg-primary/10" id="filterFields">
+            <th class="w-1/6">
+              <input class="input input-bordered input-sm w-full" name="Name" value="{{ Request::get('Name') }}" placeholder="{{ __('Client') }}">
+            </th>
+            <th class="w-1/4">
+              <input class="input input-bordered input-sm w-full" name="Title" value="{{ Request::get('Title') }}" placeholder="{{ __('Title') }}">
+            </th>
+            <th class="w-16">
+              <input class="input input-bordered input-sm w-full" name="Case" value="{{ Request::get('Case') }}" placeholder="{{ __('Matter') }}">
+            </th>
+            <th class="w-1/4">
+              <div class="grid grid-cols-6 gap-1 items-center text-center">
+                <input class="input input-bordered input-sm" name="Country" value="{{ Request::get('Country') }}" placeholder="{{ __('Ctry') }}">
+                <input class="input input-bordered input-sm" name="Qt" value="{{ Request::get('Qt') }}" placeholder="{{ __('Qt') }}">
+                <label class="btn btn-sm btn-outline btn-primary swap">
+                  <input id="grace" name="grace_period" type="checkbox">
+                  <span class="swap-on">{{ __('Grace') }}</span>
+                  <span class="swap-off">{{ __('Grace') }}</span>
+                </label>
+                <span class="text-xs font-medium">{{ __('Cost') }}</span>
+                <span class="text-xs font-medium">{{ __('Fee') }}</span>
+                <span></span>
+              </div>
+            </th>
+            <th class="w-1/6">
+              <div class="join w-full">
+                <input type="date" class="input input-bordered input-sm join-item w-1/2" name="Fromdate" id="Fromdate" title="{{ __('From selected date') }}" value="{{ Request::get('Fromdate') }}">
+                <input type="date" class="input input-bordered input-sm join-item w-1/2" name="Untildate" id="Untildate" title="{{ __('Until selected date') }}" value="{{ Request::get('Untildate') }}">
+              </div>
+            </th>
+            <th class="w-12 text-center">
+              <label class="btn btn-sm btn-outline btn-primary swap">
+                <input id="selectAll" type="checkbox">
+                <span class="swap-on">&check;</span>
+                <span class="swap-off">&check;</span>
+              </label>
+            </th>
+          </tr>
+        </thead>
+        <tbody id="renewalList">
+          @if (count($renewals) == 0)
+          <tr>
+            <td colspan="6" class="text-center text-error py-8">
+              {{ __('The list is empty') }}
+            </td>
+          </tr>
+          @else
+          @foreach ($renewals as $task)
+          <tr class="hover:bg-base-200/50" data-resource="/task/{{ $task->id }}">
+            <td>{{ $task->client_name }}</td>
+            <td class="truncate max-w-xs">{{ $task->short_title }}</td>
+            <td>
+              <a href="/matter/{{ $task->matter_id }}" class="link link-primary">{{ $task->uid }}</a>
+            </td>
+            <td>
+              <div class="grid grid-cols-6 gap-1 items-center text-center text-sm">
+                <span>{{ $task->country }}</span>
+                <span>{{ $task->detail }}</span>
+                <span>
+                  @if ($task->grace_period)
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-auto text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  @endif
+                </span>
+                <span class="text-right">{{ $task->cost }}</span>
+                <span class="text-right">{{ $task->fee }}</span>
+                <span></span>
+              </div>
+            </td>
+            <td class="text-center">
+              <div class="flex items-center justify-center gap-1">
+                <span>{{ \Carbon\Carbon::parse($task->due_date)->isoFormat('L') }}</span>
+                @if ($task->done)
+                <span class="text-success" title="Done">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </span>
+                @elseif ($task->due_date < now())
+                <span class="text-error" title="Overdue">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </span>
+                @elseif ($task->due_date < now()->addWeeks(1))
+                <span class="text-warning" title="Urgent">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </span>
+                @endif
+              </div>
+            </td>
+            <td class="text-center">
+              <input id="{{ $task->id }}" class="checkbox checkbox-primary checkbox-sm clear-ren-task" type="checkbox">
+            </td>
+          </tr>
+          @endforeach
+          @endif
+        </tbody>
+      </table>
+    </div>
+
+    {{-- Pagination --}}
+    @if (count($renewals) > 0)
+    <div class="px-4 py-3 border-t border-base-300">
+      {{ $renewals->links() }}
+    </div>
+    @endif
+  </div>
 </div>
 @endsection

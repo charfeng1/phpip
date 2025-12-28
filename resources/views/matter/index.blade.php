@@ -1,7 +1,7 @@
 @php
     $tab = Request::get('tab') == 1 ? 1 : 0;
-    $hideTab0 = $tab == 1 ? 'd-none' : '';
-    $hideTab1 = $tab == 0 ? 'd-none' : '';
+    $hideTab0 = $tab == 1 ? 'hidden' : '';
+    $hideTab1 = $tab == 0 ? 'hidden' : '';
 @endphp
 
 @extends('layouts.app')
@@ -13,29 +13,28 @@
 
 <div>
   <!-- Header Section -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="flex items-center justify-between bg-base-200 px-4 py-3 rounded-lg mb-4 shadow-sm">
     <div>
-      <h1 class="h2 mb-1 d-flex align-items-center">
-        <svg width="28" height="28" fill="var(--color-primary)" viewBox="0 0 24 24" class="me-3">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
-          <path d="M14 2v6h6"/>
+      <h1 class="text-xl font-semibold text-base-content flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
         {{ __('Matter Management') }}
       </h1>
-      <p class="text-tertiary mb-0">{{ $matters->total() }} {{ __('cases found') }}</p>
+      <p class="text-sm text-base-content/60 mt-1">{{ $matters->total() }} {{ __('cases found') }}</p>
     </div>
     @can('readwrite')
-      <a href="/matter/create?operation=new" data-bs-target="#ajaxModal" data-bs-toggle="modal" data-size="modal-sm"
-         class="btn btn-primary">
-        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="me-2">
-          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+      <a href="/matter/create?operation=new" data-modal-target="#ajaxModal" data-size="modal-sm"
+         class="btn btn-primary btn-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
         {{ __('New Matter') }}
       </a>
     @endcan
   </div>
 
-  <div class="dashboard-card" x-data="{
+  <div class="card bg-base-100 shadow-sm border border-base-300" x-data="{
     tab: {{ $tab }},
     showContainers: {{ Request::get('Ctnr') ? 'true' : 'false' }},
     showMine: {{ Request::has('responsible') ? 'true' : 'false' }},
@@ -43,78 +42,81 @@
     includeDead: {{ Request::get('include_dead') ? 'true' : 'false' }}
   }">
     <!-- Filter Section -->
-    <div class="card-header bg-gradient">
-      <div class="filter-btn-group">
-        <div class="btn-group" role="group">
-                    <input type="checkbox" class="btn-check" name="Ctnr" x-model="showContainers" id="btnshowctnr">
-          <label class="filter-btn" :class="{ 'active': showContainers }" for="btnshowctnr">
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="me-1">
-              <path d="M10 4H4c-1.11 0-2 .89-2 2v3h2V6h4V4zM20 6h-4V4h4c1.11 0 2 .89 2 2v3h-2V6zM4 16h4v4H4c-1.11 0-2-.89-2-2v-3h2v3zm16 0v3c0 1.11-.89 2-2 2h-4v-2h4v-3h2z"/>
-            </svg>
-            {{ __('Containers') }}
-          </label>
-        </div>
+    <div class="bg-base-200/50 px-4 py-3 border-b border-base-300">
+      <div class="flex flex-wrap items-center gap-2 mb-3">
+        {{-- Containers Toggle --}}
+        <label class="btn btn-sm" :class="showContainers ? 'btn-primary' : 'btn-ghost'">
+          <input type="checkbox" class="hidden" name="Ctnr" x-model="showContainers" id="btnshowctnr">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+          {{ __('Containers') }}
+        </label>
 
-        <div class="btn-group" role="group">
-          <input type="radio" class="btn-check" name="tab" value="0" x-model="tab" id="btnactorview">
-          <label class="filter-btn" :class="{ 'active': tab == 0 }" for="btnactorview">
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="me-1">
-              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+        <div class="divider divider-horizontal mx-0"></div>
+
+        {{-- View Toggle --}}
+        <div class="join">
+          <label class="btn btn-sm join-item" :class="tab == 0 ? 'btn-primary' : 'btn-ghost'">
+            <input type="radio" class="hidden" name="tab" value="0" x-model="tab" id="btnactorview">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
             {{ __('Actor View') }}
           </label>
-          <input type="radio" class="btn-check" name="tab" value="1" x-model="tab" id="btnstatusview">
-          <label class="filter-btn" :class="{ 'active': tab == 1 }" for="btnstatusview">
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="me-1">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          <label class="btn btn-sm join-item" :class="tab == 1 ? 'btn-primary' : 'btn-ghost'">
+            <input type="radio" class="hidden" name="tab" value="1" x-model="tab" id="btnstatusview">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
             {{ __('Status View') }}
           </label>
         </div>
 
         @can('readonly')
-        <div class="btn-group" role="group">
-          <input type="checkbox" class="btn-check" name="responsible" x-model="showMine" id="btnshowmine">
-          <label class="filter-btn" :class="{ 'active': showMine }" for="btnshowmine">
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="me-1">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-            </svg>
-            {{ __('Mine') }}
-          </label>
-        </div>
-        <div class="btn-group" role="group">
-          <input type="checkbox" class="btn-check" name="team" x-model="showTeam" id="btnshowteam">
-          <label class="filter-btn" :class="{ 'active': showTeam }" for="btnshowteam">
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="me-1">
-              <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-            </svg>
-            {{ __('My Team') }}
-          </label>
-        </div>
+        <div class="divider divider-horizontal mx-0"></div>
+
+        {{-- Mine / Team Filters --}}
+        <label class="btn btn-sm" :class="showMine ? 'btn-secondary' : 'btn-ghost'">
+          <input type="checkbox" class="hidden" name="responsible" x-model="showMine" id="btnshowmine">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {{ __('Mine') }}
+        </label>
+        <label class="btn btn-sm" :class="showTeam ? 'btn-secondary' : 'btn-ghost'">
+          <input type="checkbox" class="hidden" name="team" x-model="showTeam" id="btnshowteam">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          {{ __('My Team') }}
+        </label>
         @endcan
 
-        <div class="btn-group" role="group">
-          <input type="checkbox" class="btn-check" name="include_dead" x-model="includeDead" id="btnincludedead">
-          <label class="filter-btn" :class="{ 'active': includeDead }" for="btnincludedead">
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="me-1">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-            </svg>
-            {{ __('Include Dead') }}
-          </label>
-        </div>
-      </div>
+        <div class="divider divider-horizontal mx-0"></div>
 
-      <!-- Action Buttons -->
-      <div class="action-buttons">
-        <button id="exportList" type="button" class="export-btn">
-          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="me-2">
-            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+        {{-- Include Dead --}}
+        <label class="btn btn-sm" :class="includeDead ? 'btn-warning' : 'btn-ghost'">
+          <input type="checkbox" class="hidden" name="include_dead" x-model="includeDead" id="btnincludedead">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+          </svg>
+          {{ __('Include Dead') }}
+        </label>
+
+        {{-- Spacer --}}
+        <div class="flex-1"></div>
+
+        {{-- Action Buttons --}}
+        <button id="exportList" type="button" class="btn btn-sm btn-outline btn-info">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
           {{ __('Export') }}
         </button>
-        <button id="clearFilters" type="button" class="clear-btn" onclick="window.location.href = '/matter'">
-          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="me-2">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+        <button id="clearFilters" type="button" class="btn btn-sm btn-ghost" onclick="window.location.href = '/matter'">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
           {{ __('Clear filters') }}
         </button>
@@ -124,87 +126,87 @@
     </div>
 
     <!-- Table with Filters -->
-    <div class="card-body p-0">
-      <table class="matter-table w-100">
+    <div class="overflow-x-auto">
+      <table class="table table-zebra table-sm w-full">
         <thead>
-          <tr id="filterFields">
-            <th width="10%">
-              <div class="d-flex align-items-center">
-                <input class="filter-input flex-grow-1" name="Ref" placeholder="{{ __('Ref') }}" value="{{ Request::get('Ref') }}">
-                <button class="sort-btn {{ Request::get('sortkey') == 'caseref' ? 'active' : '' }}"
+          <tr id="filterFields" class="bg-primary/5">
+            <th class="w-[10%]">
+              <div class="flex items-center gap-1">
+                <input class="input input-bordered input-xs flex-1" name="Ref" placeholder="{{ __('Ref') }}" value="{{ Request::get('Ref') }}">
+                <button class="btn btn-xs btn-ghost {{ Request::get('sortkey') == 'caseref' ? 'btn-active' : '' }}"
                         type="button" data-sortkey="caseref" data-sortdir="desc" title="Sort">
-                  <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M7 10l5 5 5-5z"/>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
               </div>
             </th>
-            <th width="5%">
-              <input class="filter-input text-center" name="Cat" placeholder="{{ __('Cat') }}" value="{{ Request::get('Cat') }}">
+            <th class="w-[5%]">
+              <input class="input input-bordered input-xs text-center w-full" name="Cat" placeholder="{{ __('Cat') }}" value="{{ Request::get('Cat') }}">
             </th>
-            <th width="12%">
-              <div class="d-flex align-items-center">
-                <input class="filter-input flex-grow-1" name="Status" placeholder="{{ __('Status') }}" value="{{ Request::get('Status') }}">
-                <button class="sort-btn {{ Request::get('sortkey') == 'event_name.name' ? 'active' : '' }}"
+            <th class="w-[12%]">
+              <div class="flex items-center gap-1">
+                <input class="input input-bordered input-xs flex-1" name="Status" placeholder="{{ __('Status') }}" value="{{ Request::get('Status') }}">
+                <button class="btn btn-xs btn-ghost {{ Request::get('sortkey') == 'event_name.name' ? 'btn-active' : '' }}"
                         type="button" data-sortkey="event_name.name" data-sortdir="asc" title="Sort">
-                  <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M7 10l5 5 5-5z"/>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
               </div>
             </th>
             @can('readonly')
-            <th width="15%" class="tab0" :class="{ 'd-none': tab == 1 }">
-              <div class="d-flex align-items-center">
-                <input class="filter-input flex-grow-1" name="Client" placeholder="{{ __('Client') }}" value="{{ Request::get('Client') }}">
-                <button class="sort-btn {{ Request::get('sortkey') == 'cli.name' ? 'active' : '' }}"
+            <th class="w-[15%] tab0" :class="{ 'hidden': tab == 1 }">
+              <div class="flex items-center gap-1">
+                <input class="input input-bordered input-xs flex-1" name="Client" placeholder="{{ __('Client') }}" value="{{ Request::get('Client') }}">
+                <button class="btn btn-xs btn-ghost {{ Request::get('sortkey') == 'cli.name' ? 'btn-active' : '' }}"
                         type="button" data-sortkey="cli.name" data-sortdir="asc" title="Sort">
-                  <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M7 10l5 5 5-5z"/>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
               </div>
             </th>
             @endcan
-            <th width="8%" class="tab0" :class="{ 'd-none': tab == 1 }">
-              <input class="filter-input text-center" name="ClRef" placeholder="{{ __('Cl. Ref') }}" value="{{ Request::get('ClRef') }}">
+            <th class="w-[8%] tab0" :class="{ 'hidden': tab == 1 }">
+              <input class="input input-bordered input-xs text-center w-full" name="ClRef" placeholder="{{ __('Cl. Ref') }}" value="{{ Request::get('ClRef') }}">
             </th>
-            <th width="12%" class="tab0" :class="{ 'd-none': tab == 1 }">
-              <div class="d-flex align-items-center">
-                <input class="filter-input flex-grow-1" name="Applicant" placeholder="{{ __('Applicant') }}" value="{{ Request::get('Applicant') }}">
-                <button class="sort-btn {{ Request::get('sortkey') == 'app.name' ? 'active' : '' }}"
+            <th class="w-[12%] tab0" :class="{ 'hidden': tab == 1 }">
+              <div class="flex items-center gap-1">
+                <input class="input input-bordered input-xs flex-1" name="Applicant" placeholder="{{ __('Applicant') }}" value="{{ Request::get('Applicant') }}">
+                <button class="btn btn-xs btn-ghost {{ Request::get('sortkey') == 'app.name' ? 'btn-active' : '' }}"
                         type="button" data-sortkey="app.name" data-sortdir="asc" title="Sort">
-                  <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M7 10l5 5 5-5z"/>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
               </div>
             </th>
-            <th width="10%" class="tab0" :class="{ 'd-none': tab == 1 }">
-              <input class="filter-input" name="Agent" placeholder="{{ __('Agent') }}" value="{{ Request::get('Agent') }}">
+            <th class="w-[10%] tab0" :class="{ 'hidden': tab == 1 }">
+              <input class="input input-bordered input-xs w-full" name="Agent" placeholder="{{ __('Agent') }}" value="{{ Request::get('Agent') }}">
             </th>
-            <th width="30%" class="tab0" :class="{ 'd-none': tab == 1 }">
-              <input class="filter-input" name="Title" placeholder="{{ __('Title') }}" value="{{ Request::get('Title') }}">
+            <th class="w-[30%] tab0" :class="{ 'hidden': tab == 1 }">
+              <input class="input input-bordered input-xs w-full" name="Title" placeholder="{{ __('Title') }}" value="{{ Request::get('Title') }}">
             </th>
-            <th width="10%" class="tab1" :class="{ 'd-none': tab == 0 }">
-              <div class="d-flex align-items-center">
-                <input class="filter-input flex-grow-1" name="Status_date" placeholder="{{ __('Date') }}" value="{{ Request::get('Status_date') }}">
-                <button class="sort-btn {{ Request::get('sortkey') == 'status.event_date' ? 'active' : '' }}"
+            <th class="w-[10%] tab1" :class="{ 'hidden': tab == 0 }">
+              <div class="flex items-center gap-1">
+                <input class="input input-bordered input-xs flex-1" name="Status_date" placeholder="{{ __('Date') }}" value="{{ Request::get('Status_date') }}">
+                <button class="btn btn-xs btn-ghost {{ Request::get('sortkey') == 'status.event_date' ? 'btn-active' : '' }}"
                         type="button" data-sortkey="status.event_date" data-sortdir="asc" title="Sort">
-                  <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M7 10l5 5 5-5z"/>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
               </div>
             </th>
-            <th width="8%" class="tab1" :class="{ 'd-none': tab == 0 }">
-              <input class="filter-input text-center" name="Filed" placeholder="{{ __('Filed') }}" value="{{ Request::get('Filed') }}">
+            <th class="w-[8%] tab1" :class="{ 'hidden': tab == 0 }">
+              <input class="input input-bordered input-xs text-center w-full" name="Filed" placeholder="{{ __('Filed') }}" value="{{ Request::get('Filed') }}">
             </th>
-            <th width="8%" class="tab1" :class="{ 'd-none': tab == 0 }">
-              <input class="filter-input text-center" name="Published" placeholder="{{ __('Published') }}" value="{{ Request::get('Published') }}">
+            <th class="w-[8%] tab1" :class="{ 'hidden': tab == 0 }">
+              <input class="input input-bordered input-xs text-center w-full" name="Published" placeholder="{{ __('Published') }}" value="{{ Request::get('Published') }}">
             </th>
-            <th width="8%" class="tab1" :class="{ 'd-none': tab == 0 }">
-              <input class="filter-input text-center" name="Granted" placeholder="{{ __('Granted') }}" value="{{ Request::get('Granted') }}">
+            <th class="w-[8%] tab1" :class="{ 'hidden': tab == 0 }">
+              <input class="input input-bordered input-xs text-center w-full" name="Granted" placeholder="{{ __('Granted') }}" value="{{ Request::get('Granted') }}">
             </th>
           </tr>
         </thead>
@@ -229,64 +231,64 @@
             }
           }
           @endphp
-          <tr {!! $matter->dead ? 'class="dead-matter"' : ($matter->container_id ? '' : 'class="table-info"') !!}>
+          <tr class="hover:bg-base-200/50 cursor-pointer transition-colors {{ $matter->dead ? 'opacity-50' : '' }} {{ !$matter->container_id ? 'bg-info/5' : '' }}">
             <td>
-              <div class="d-flex align-items-center">
-                <a href="/matter/{{ $matter->id }}" target="_blank" class="matter-link">
+              <div class="flex items-center gap-2">
+                <a href="/matter/{{ $matter->id }}" target="_blank" class="link link-primary link-hover font-medium">
                   {{ $matter->Ref }}
                 </a>
                 @if ($matter->container_id)
-                  <span class="container-indicator">{{ __('Container') }}</span>
+                  <span class="badge badge-outline badge-xs">{{ __('Container') }}</span>
                 @endif
               </div>
             </td>
             <td>
-              <span class="status-badge status-active">{{ $matter->Cat }}</span>
+              <span class="badge badge-primary badge-sm">{{ $matter->Cat }}</span>
             </td>
             <td>
               @if ($published)
                 <a href="http://worldwide.espacenet.com/publicationDetails/biblio?DB=EPODOC&CC={{ $CC }}&NR={{ $pubno }}"
-                   target="_blank" class="matter-link" title="Open in Espacenet">
+                   target="_blank" class="link link-hover text-sm" title="Open in Espacenet">
                   {{ $matter->Status }}
                 </a>
               @else
-                <span class="status-badge status-pending">{{ $matter->Status }}</span>
+                <span class="badge badge-ghost badge-sm">{{ $matter->Status }}</span>
               @endif
             </td>
             @can('readonly')
-            <td class="tab0" :class="{ 'd-none': tab == 1 }">
-              <span class="text-truncate d-block">{{ $matter->clientname }}</span>
+            <td class="tab0" :class="{ 'hidden': tab == 1 }">
+              <span class="truncate block max-w-[200px] text-base-content/80">{{ $matter->clientname }}</span>
             </td>
             @endcan
-            <td class="tab0" :class="{ 'd-none': tab == 1 }">
-              <small class="text-tertiary">{{ $matter->ClRef }}</small>
+            <td class="tab0" :class="{ 'hidden': tab == 1 }">
+              <span class="text-xs text-base-content/60 font-mono">{{ $matter->ClRef }}</span>
             </td>
-            <td class="tab0" :class="{ 'd-none': tab == 1 }">
-              <span class="text-truncate d-block">{{ $matter->Applicant }}</span>
+            <td class="tab0" :class="{ 'hidden': tab == 1 }">
+              <span class="truncate block max-w-[200px] text-base-content/80">{{ $matter->Applicant }}</span>
             </td>
-            <td class="tab0" :class="{ 'd-none': tab == 1 }">
-              <small class="text-tertiary">{{ $matter->AgentName }}</small>
+            <td class="tab0" :class="{ 'hidden': tab == 1 }">
+              <span class="text-xs text-base-content/60">{{ $matter->AgentName }}</span>
             </td>
-            <td class="tab0" :class="{ 'd-none': tab == 1 }">
-              <div class="text-truncate" title="{{ $matter->container_id && $matter->Title2 ? $matter->Title2 : $matter->Title }}">
+            <td class="tab0" :class="{ 'hidden': tab == 1 }">
+              <div class="truncate max-w-[300px] text-sm" title="{{ $matter->container_id && $matter->Title2 ? $matter->Title2 : $matter->Title }}">
                 {{ $matter->container_id && $matter->Title2 ? $matter->Title2 : $matter->Title }}
               </div>
             </td>
-            <td class="tab1" :class="{ 'd-none': tab == 0 }">
-              <span class="status-badge {{ $matter->Status_date ? 'status-active' : 'status-pending' }}">
+            <td class="tab1" :class="{ 'hidden': tab == 0 }">
+              <span class="badge {{ $matter->Status_date ? 'badge-success' : 'badge-ghost' }} badge-sm">
                 {{ $matter->Status_date }}
               </span>
             </td>
-            <td class="tab1" :class="{ 'd-none': tab == 0 }">
-              <span class="status-badge status-active">{{ $matter->Filed }}</span>
+            <td class="tab1" :class="{ 'hidden': tab == 0 }">
+              <span class="badge badge-info badge-sm">{{ $matter->Filed }}</span>
             </td>
-            <td class="tab1" :class="{ 'd-none': tab == 0 }">
-              <span class="status-badge {{ $matter->Published ? 'status-active' : 'status-pending' }}">
+            <td class="tab1" :class="{ 'hidden': tab == 0 }">
+              <span class="badge {{ $matter->Published ? 'badge-success' : 'badge-ghost' }} badge-sm">
                 {{ $matter->Published }}
               </span>
             </td>
-            <td class="tab1" :class="{ 'd-none': tab == 0 }">
-              <span class="status-badge {{ $matter->Granted ? 'status-active' : 'status-inactive' }}">
+            <td class="tab1" :class="{ 'hidden': tab == 0 }">
+              <span class="badge {{ $matter->Granted ? 'badge-success' : 'badge-warning' }} badge-sm">
                 {{ $matter->Granted }}
               </span>
             </td>
@@ -294,11 +296,11 @@
           @endforeach
         </tbody>
       </table>
+    </div>
 
-      <!-- Pagination -->
-      <div class="p-4 border-top">
-        {{ $matters->links() }}
-      </div>
+    <!-- Pagination -->
+    <div class="px-4 py-3 border-t border-base-300">
+      {{ $matters->links() }}
     </div>
   </div>
 </div>

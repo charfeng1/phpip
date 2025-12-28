@@ -7,7 +7,7 @@
   :create-label="__('Create Default Actor')"
   :create-title="__('Default actors')"
   create-resource="/default_actor/"
-  :create-attributes="['data-bs-toggle' => 'modal', 'data-bs-target' => '#ajaxModal']"
+  :create-attributes="['data-modal-target' => '#ajaxModal']"
   :panel-title="__('Default actor information')"
   :panel-message="__('Click on line to view and edit details')"
   list-card-style="max-height: 640px; overflow: auto;">

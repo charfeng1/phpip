@@ -1,8 +1,10 @@
 @use "sass:math";
 
-// Design tokens and Bootstrap overrides
+// Design tokens (CSS custom properties)
 @import "abstracts/variables";
-@import "bootstrap/scss/bootstrap";
+
+// Bootstrap CSS compatibility layer (provides Bootstrap classes without Bootstrap)
+@import "utilities/bootstrap-compat";
 
 // Base layers
 @import "base/typography";

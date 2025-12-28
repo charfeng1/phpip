@@ -137,7 +137,7 @@ export default function modal() {
       e.preventDefault();
 
       const form = e.target;
-      const url = form.action;
+      let url = form.action;
       const method = form.method.toUpperCase();
 
       this.loading = true;

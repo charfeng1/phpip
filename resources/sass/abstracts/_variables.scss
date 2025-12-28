@@ -1,16 +1,16 @@
-// Bootstrap variable overrides and design tokens inspired by modern work management tools
+// Design tokens inspired by Linear - muted, professional, minimal
 
-// Core palette
-$primary: #0f62fe;
-$secondary: #6c5ce7;
-$success: #0fbf7e;
-$info: #33a0ff;
-$warning: #f1c21b;
-$danger: #ff5c5c;
+// Core palette - muted Linear-inspired colors
+$primary: #7c6aef;       // Muted violet
+$secondary: #6b7280;     // Warm gray
+$success: #4aba7a;       // Muted green
+$info: #6b8aae;          // Muted blue-gray
+$warning: #d4a72c;       // Muted amber
+$danger: #dc6b6b;        // Muted red
 
 // Body
-$body-bg: #f4f5f7;
-$body-color: #1d2636;
+$body-bg: #fafafb;       // Near white
+$body-color: #374151;    // Dark gray (not black)
 $card-bg: #ffffff;
 $dropdown-link-hover-bg: rgba($primary, 0.08);
 
@@ -32,42 +32,42 @@ $min-contrast-ratio: 3;
 // Popovers / overlays
 $popover-header-bg: rgba($primary, 0.06);
 
-// Design tokens exposed as CSS custom properties
+// Design tokens exposed as CSS custom properties - Linear-inspired
 :root {
-  --color-primary: #0f62fe;
-  --color-primary-hover: #0053d0;
-  --color-secondary: #6c5ce7;
-  --color-success: #0fbf7e;
-  --color-warning: #f1c21b;
-  --color-danger: #ff5c5c;
-  --color-info: #33a0ff;
+  --color-primary: #7c6aef;
+  --color-primary-hover: #6b5ad9;
+  --color-secondary: #6b7280;
+  --color-success: #4aba7a;
+  --color-warning: #d4a72c;
+  --color-danger: #dc6b6b;
+  --color-info: #6b8aae;
 
-  --color-gray-50: #f8f9fc;
+  --color-gray-50: #fafafb;
   --color-gray-100: #f4f5f7;
-  --color-gray-200: #e4e6ed;
-  --color-gray-300: #cfd4e0;
-  --color-gray-400: #a9b0c2;
-  --color-gray-500: #7b849b;
-  --color-gray-600: #56607a;
-  --color-gray-700: #414a62;
-  --color-gray-800: #2b344a;
-  --color-gray-900: #1d2636;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
 
   --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fc;
-  --bg-tertiary: #eef1f7;
-  --bg-surface: #f4f5f7;
-  --bg-hero: linear-gradient(135deg, #f4f5f7 0%, #eef1f7 100%);
+  --bg-secondary: #fafafb;
+  --bg-tertiary: #f4f5f7;
+  --bg-surface: #f9fafb;
+  --bg-hero: linear-gradient(135deg, #fafafb 0%, #f4f5f7 100%);
 
-  --text-primary: #1d2636;
-  --text-secondary: #4f5a73;
-  --text-tertiary: #7b849b;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-tertiary: #6b7280;
   --text-inverse: #ffffff;
-  --text-link: #0f62fe;
+  --text-link: #7c6aef;
 
-  --border-light: rgba(15, 98, 254, 0.08);
-  --border-medium: rgba(15, 98, 254, 0.16);
-  --border-strong: rgba(15, 98, 254, 0.28);
+  --border-light: rgba(107, 114, 128, 0.1);
+  --border-medium: rgba(107, 114, 128, 0.2);
+  --border-strong: rgba(107, 114, 128, 0.3);
 
   --shadow-xs: 0 1px 2px rgba(12, 32, 60, 0.08);
   --shadow-sm: 0 4px 12px rgba(12, 32, 60, 0.08);

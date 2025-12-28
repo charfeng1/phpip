@@ -10,7 +10,7 @@
 
 /* ============================================
    LIGHT THEME - "phpip"
-   Clean, bright, professional
+   Linear-inspired: muted colors, high contrast text, minimal
    ============================================ */
 @plugin "daisyui/theme" {
   name: "phpip";
@@ -18,61 +18,61 @@
   prefersdark: false;
   color-scheme: light;
 
-  /* Base surfaces - subtle warmth to avoid clinical feel */
-  --color-base-100: oklch(100% 0 0);           /* Pure white - cards, modals */
-  --color-base-200: oklch(98.5% 0.004 250);    /* Off-white - page background */
-  --color-base-300: oklch(96% 0.008 250);      /* Light gray - borders, dividers */
-  --color-base-content: oklch(22% 0.02 250);   /* Near-black - primary text */
+  /* Base surfaces - clean whites and warm grays */
+  --color-base-100: oklch(100% 0 0);           /* Pure white - cards, inputs */
+  --color-base-200: oklch(98.5% 0.002 250);    /* Warm off-white - page background */
+  --color-base-300: oklch(92% 0.004 250);      /* Light gray - borders */
+  --color-base-content: oklch(25% 0.01 250);   /* Dark gray - primary text */
 
-  /* Primary - IBM Blue refined */
-  --color-primary: oklch(52% 0.22 264);
+  /* Primary - Muted violet (#7c6aef) */
+  --color-primary: oklch(58% 0.16 285);
   --color-primary-content: oklch(100% 0 0);
 
-  /* Secondary - Subtle purple for accents */
-  --color-secondary: oklch(54% 0.18 285);
+  /* Secondary - Warm gray (#6b7280) */
+  --color-secondary: oklch(50% 0.02 250);
   --color-secondary-content: oklch(100% 0 0);
 
-  /* Accent - Vibrant for highlights */
-  --color-accent: oklch(65% 0.20 285);
+  /* Accent - Soft violet */
+  --color-accent: oklch(62% 0.14 285);
   --color-accent-content: oklch(100% 0 0);
 
-  /* Neutral - For muted UI elements */
-  --color-neutral: oklch(35% 0.02 250);
-  --color-neutral-content: oklch(98% 0.005 250);
+  /* Neutral - Cool dark gray */
+  --color-neutral: oklch(30% 0.01 250);
+  --color-neutral-content: oklch(98% 0 0);
 
-  /* Semantic colors */
-  --color-info: oklch(68% 0.15 245);
-  --color-info-content: oklch(20% 0.02 245);
+  /* Semantic colors - muted but clear */
+  --color-info: oklch(52% 0.06 240);
+  --color-info-content: oklch(100% 0 0);
 
-  --color-success: oklch(68% 0.16 162);
-  --color-success-content: oklch(20% 0.02 162);
+  --color-success: oklch(55% 0.12 155);
+  --color-success-content: oklch(100% 0 0);
 
-  --color-warning: oklch(82% 0.15 89);
-  --color-warning-content: oklch(25% 0.04 89);
+  --color-warning: oklch(72% 0.12 85);
+  --color-warning-content: oklch(25% 0.02 85);
 
-  --color-error: oklch(62% 0.20 25);
+  --color-error: oklch(58% 0.14 25);
   --color-error-content: oklch(100% 0 0);
 
-  /* Geometry - Linear-style soft corners */
-  --radius-selector: 0.375rem;
-  --radius-field: 0.5rem;
-  --radius-box: 0.75rem;
+  /* Geometry - subtle corners */
+  --radius-selector: 0.25rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.5rem;
 
-  /* Sizing - Comfortable density */
+  /* Sizing */
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
 
-  /* Borders - Subtle and refined */
+  /* Borders */
   --border: 1px;
 
-  /* Effects - Subtle depth, no noise */
-  --depth: 1;
+  /* Effects - minimal */
+  --depth: 0;
   --noise: 0;
 }
 
 /* ============================================
    DARK THEME - "phpip-dark"
-   True dark mode like Linear/Notion
+   Linear-inspired dark mode - muted, subtle
    ============================================ */
 @plugin "daisyui/theme" {
   name: "phpip-dark";
@@ -80,45 +80,45 @@
   prefersdark: true;
   color-scheme: dark;
 
-  /* Base surfaces - deep, not gray */
-  --color-base-100: oklch(18% 0.015 250);      /* Deep blue-black - cards */
-  --color-base-200: oklch(14% 0.012 250);      /* Darker - page background */
-  --color-base-300: oklch(22% 0.018 250);      /* Elevated surfaces */
+  /* Base surfaces - deep cool grays */
+  --color-base-100: oklch(22% 0.01 250);       /* Cards, inputs */
+  --color-base-200: oklch(18% 0.008 250);      /* Page background */
+  --color-base-300: oklch(28% 0.012 250);      /* Borders, elevated */
   --color-base-content: oklch(92% 0.005 250);  /* Off-white text */
 
-  /* Primary - Brighter in dark mode for visibility */
-  --color-primary: oklch(62% 0.20 264);
+  /* Primary - Muted violet, slightly brighter for dark */
+  --color-primary: oklch(68% 0.16 285);
   --color-primary-content: oklch(100% 0 0);
 
-  /* Secondary */
-  --color-secondary: oklch(62% 0.16 285);
+  /* Secondary - Muted gray */
+  --color-secondary: oklch(62% 0.02 250);
   --color-secondary-content: oklch(100% 0 0);
 
-  /* Accent */
-  --color-accent: oklch(70% 0.18 285);
-  --color-accent-content: oklch(15% 0.02 285);
+  /* Accent - Soft violet */
+  --color-accent: oklch(70% 0.14 285);
+  --color-accent-content: oklch(18% 0.01 285);
 
   /* Neutral */
-  --color-neutral: oklch(28% 0.015 250);
+  --color-neutral: oklch(32% 0.01 250);
   --color-neutral-content: oklch(90% 0.005 250);
 
-  /* Semantic colors - adjusted for dark backgrounds */
-  --color-info: oklch(72% 0.14 245);
-  --color-info-content: oklch(15% 0.02 245);
+  /* Semantic colors - muted for dark mode */
+  --color-info: oklch(60% 0.06 240);
+  --color-info-content: oklch(18% 0.01 250);
 
-  --color-success: oklch(72% 0.15 162);
-  --color-success-content: oklch(15% 0.02 162);
+  --color-success: oklch(62% 0.12 155);
+  --color-success-content: oklch(18% 0.01 155);
 
-  --color-warning: oklch(80% 0.14 89);
-  --color-warning-content: oklch(20% 0.03 89);
+  --color-warning: oklch(75% 0.12 85);
+  --color-warning-content: oklch(22% 0.02 85);
 
-  --color-error: oklch(68% 0.18 25);
+  --color-error: oklch(65% 0.14 25);
   --color-error-content: oklch(100% 0 0);
 
   /* Geometry - same as light */
-  --radius-selector: 0.375rem;
-  --radius-field: 0.5rem;
-  --radius-box: 0.75rem;
+  --radius-selector: 0.25rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.5rem;
 
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
@@ -155,7 +155,7 @@
     0 16px 32px oklch(0% 0 0 / 0.12);
 
   /* Focus ring */
-  --ring-focus: 0 0 0 2px oklch(52% 0.22 264 / 0.25);
+  --ring-focus: 0 0 0 2px oklch(55% 0.12 285 / 0.3);
 
   /* Transitions - snappy but smooth */
   --transition-fast: 100ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -187,7 +187,7 @@
     0 0 0 1px oklch(100% 0 0 / 0.05),
     0 4px 8px oklch(0% 0 0 / 0.2),
     0 16px 32px oklch(0% 0 0 / 0.4);
-  --ring-focus: 0 0 0 2px oklch(62% 0.20 264 / 0.35);
+  --ring-focus: 0 0 0 2px oklch(65% 0.12 285 / 0.35);
 }
 
 /* ============================================
@@ -211,6 +211,35 @@
 
 .btn:active:not(:disabled) {
   transform: translateY(0);
+}
+
+/* Ensure button text contrast - explicit white text on colored backgrounds */
+.btn-primary,
+.btn-secondary,
+.btn-accent,
+.btn-info,
+.btn-success,
+.btn-warning,
+.btn-error {
+  color: white !important;
+  text-shadow: 0 1px 1px oklch(0% 0 0 / 0.15);
+}
+
+/* Warning button needs dark text for readability */
+.btn-warning {
+  color: oklch(25% 0.02 85) !important;
+  text-shadow: none;
+}
+
+/* Ghost and outline buttons use base content color */
+.btn-ghost,
+.btn-outline {
+  color: oklch(var(--bc)) !important;
+  text-shadow: none;
+}
+
+.btn-outline:hover {
+  color: white !important;
 }
 
 /* Ghost buttons - very subtle */
@@ -297,10 +326,24 @@
   background-color: oklch(100% 0 0 / 0.06);
 }
 
-/* Badges - slightly smaller, refined */
+/* Badges - slightly smaller, refined with contrast */
 .badge {
   font-weight: 500;
   letter-spacing: 0.01em;
+}
+
+/* Ensure badge text contrast */
+.badge-primary,
+.badge-secondary,
+.badge-accent,
+.badge-info,
+.badge-success,
+.badge-error {
+  color: white !important;
+}
+
+.badge-warning {
+  color: oklch(25% 0.02 85) !important;
 }
 
 /* Tabs - Linear-style underline variant */
@@ -310,11 +353,11 @@
 }
 
 .tabs-bordered .tab-active {
-  border-bottom-color: oklch(52% 0.22 264);
+  border-bottom-color: oklch(55% 0.12 285);
 }
 
 [data-theme="phpip-dark"] .tabs-bordered .tab-active {
-  border-bottom-color: oklch(62% 0.20 264);
+  border-bottom-color: oklch(65% 0.12 285);
 }
 
 /* Alerts - refined with left accent border */
@@ -338,11 +381,11 @@
 
 /* Text colors matching design tokens */
 .text-muted {
-  color: oklch(55% 0.02 250);
+  color: oklch(50% 0.01 250);
 }
 
 [data-theme="phpip-dark"] .text-muted {
-  color: oklch(65% 0.02 250);
+  color: oklch(70% 0.01 250);
 }
 
 /* Smooth scrolling */
@@ -359,19 +402,19 @@ body {
 
 /* Focus visible for accessibility */
 :focus-visible {
-  outline: 2px solid oklch(52% 0.22 264);
+  outline: 2px solid oklch(55% 0.12 285);
   outline-offset: 2px;
 }
 
 [data-theme="phpip-dark"] :focus-visible {
-  outline-color: oklch(62% 0.20 264);
+  outline-color: oklch(65% 0.12 285);
 }
 
 /* Selection color */
 ::selection {
-  background-color: oklch(52% 0.22 264 / 0.2);
+  background-color: oklch(55% 0.12 285 / 0.25);
 }
 
 [data-theme="phpip-dark"] ::selection {
-  background-color: oklch(62% 0.20 264 / 0.3);
+  background-color: oklch(65% 0.12 285 / 0.35);
 }

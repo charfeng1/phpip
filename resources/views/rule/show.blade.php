@@ -1,11 +1,11 @@
-<div class="card reload-part position-relative" style="height: 480px;">
-  <div class="nav nav-pills nav-fill" role="tablist">
-    <a class="nav-item nav-link active p-2" data-bs-toggle="tab" href="#ruleMain" role="tab">{{ __('Main') }}</a>
-    <a class="nav-item nav-link p-2" data-bs-toggle="tab" href="#ruleConditions" role="tab">{{ __('Conditions') }}</a>
-    <a class="nav-item nav-link p-2" data-bs-toggle="tab" href="#ruleCost" role="tab">{{ __('Cost') }}</a>
+<div class="card bg-base-100 shadow-sm reload-part relative" style="height: 480px;" x-data="{ activeTab: 'main' }">
+  <div class="tabs tabs-bordered tabs-lg w-full">
+    <button type="button" class="tab flex-1" :class="activeTab === 'main' && 'tab-active'" @click="activeTab = 'main'">{{ __('Main') }}</button>
+    <button type="button" class="tab flex-1" :class="activeTab === 'conditions' && 'tab-active'" @click="activeTab = 'conditions'">{{ __('Conditions') }}</button>
+    <button type="button" class="tab flex-1" :class="activeTab === 'cost' && 'tab-active'" @click="activeTab = 'cost'">{{ __('Cost') }}</button>
   </div>
-  <div class="tab-content" data-resource="/rule/{{ $ruleInfo->id }}">
-    <fieldset class="tab-pane fade show active" id="ruleMain">
+  <div class="p-2 overflow-y-auto flex-1" data-resource="/rule/{{ $ruleInfo->id }}">
+    <fieldset x-show="activeTab === 'main'" x-cloak>
       <table class="table">
         <tr>
           <th><label class="required-field" title="{{ $ruleComments['task'] }}">{{ __('Task') }}</label></th>
@@ -55,7 +55,7 @@
         </tr>
       </table>
     </fieldset>
-    <fieldset class="tab-pane fade" id="ruleConditions">
+    <fieldset x-show="activeTab === 'conditions'" x-cloak>
       <table class="table">
         <tr>
           <th colspan="2"><label title="{{ $ruleComments['trigger_event'] }}">{{ __('Triggered by') }}</label></th>
@@ -101,7 +101,7 @@
         </tr>
       </table>
     </fieldset>
-    <fieldset class="tab-pane fade" id="ruleCost">
+    <fieldset x-show="activeTab === 'cost'" x-cloak>
       <table class="table">
         <tr>
           <th><label title="{{ $ruleComments['cost'] }}">{{ __('Cost') }}</label></th>
@@ -117,7 +117,7 @@
         </tr>
       </table>
     </fieldset>
-    <fieldset class="tab-pane fade" id="ruleTemplate">
+    <fieldset x-show="activeTab === 'template'" x-cloak>
       <table class="table">
         <tr>
           <td colspan="4">
@@ -135,9 +135,9 @@
       </table>
     </fieldset>
   </div>
-  <button type="button" class="btn btn-outline-danger btn-sm position-absolute" id="deleteRule" title="{{ __('Delete rule') }}" data-url='/rule/{{ $ruleInfo->id }}' data-message="{{ __('the rule') }} {{ $ruleInfo->taskInfo->name }}" style="bottom: 10px; right: 10px;">
-    <svg width="16" height="16" fill="currentColor" class="me-1">
-      <use xlink:href="#trash"/>
+  <button type="button" class="btn btn-outline btn-error btn-sm absolute bottom-2 right-2" id="deleteRule" title="{{ __('Delete rule') }}" data-url='/rule/{{ $ruleInfo->id }}' data-message="{{ __('the rule') }} {{ $ruleInfo->taskInfo->name }}">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
     </svg>
     {{ __('Delete') }}
   </button>

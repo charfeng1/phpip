@@ -36,12 +36,12 @@
 		<tr>
 			<th colspan="3">{{ __('Linked templates') }}</th>
 			<td>
-				<a data-bs-toggle="collapse" class="text-info ms-2" href="#addEventRow" id="addEventTempalte" title="{{ __('Add template') }}">
+				<a class="text-info ms-2 cursor-pointer" href="javascript:void(0)" onclick="document.getElementById('addEventRow').classList.toggle('hidden')" id="addEventTempalte" title="{{ __('Add template') }}">
 					<svg width="14" height="14" fill="currentColor" style="pointer-events: none"><use xlink:href="#plus-circle-fill"/></svg>
 				</a>
 			</td>
 		</tr>
-    <tr id="addEventRow" class="collapse">
+    <tr id="addEventRow" class="hidden">
       <td colspan="4">
         <form id="addTemplateForm" class="form-inline">
           <input type="hidden" name="event_name_code" value="{{ $eventname->code }}">

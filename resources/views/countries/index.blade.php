@@ -7,7 +7,7 @@
   :create-label="__('Create Country')"
   :create-title="__('Country')"
   create-resource="/countries/"
-  :create-attributes="['data-bs-toggle' => 'modal', 'data-bs-target' => '#ajaxModal']"
+  :create-attributes="['data-modal-target' => '#ajaxModal']"
   :panel-title="__('Country information')"
   :panel-message="__('Click on country to view and edit details')"
   list-card-style="max-height: 640px;">

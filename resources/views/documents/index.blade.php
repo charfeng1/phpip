@@ -7,7 +7,7 @@
   :create-label="__('Create Email Template Class')"
   :create-title="__('Document class')"
   create-resource="/document/create/"
-  :create-attributes="['data-bs-toggle' => 'modal', 'data-bs-target' => '#ajaxModal', 'data-source' => '/document']"
+  :create-attributes="['data-modal-target' => '#ajaxModal', 'data-source' => '/document']"
   :panel-title="__('Class information')"
   :panel-message="__('Click on class to view and edit details')"
   panel-column-class="col-4"

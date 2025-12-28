@@ -3,7 +3,7 @@
 @section('content')
 <legend class="alert alert-dark d-flex justify-content-between py-2 mb-1">
   {{ __('Email Templates') }}
-  <a href="template-member/create" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ajaxModal" title="{{ __('Document member') }}" data-source="/template-member" data-resource="/template-member/create/">{{ __('Create a new member of templates') }}</a>
+  <a href="template-member/create" class="btn btn-primary" data-modal-target="#ajaxModal" title="{{ __('Document member') }}" data-source="/template-member" data-resource="/template-member/create/">{{ __('Create a new member of templates') }}</a>
 </legend>
 <div class="row">
   <div class="col">

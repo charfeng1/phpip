@@ -7,7 +7,7 @@
   :create-label="__('Create Category')"
   :create-title="__('Category')"
   create-resource="/category/"
-  :create-attributes="['data-bs-toggle' => 'modal', 'data-bs-target' => '#ajaxModal']"
+  :create-attributes="['data-modal-target' => '#ajaxModal']"
   :panel-title="__('Category information')"
   :panel-message="__('Click on category to view and edit details')"
   list-card-style="max-height: 640px;">
