@@ -43,7 +43,7 @@ class CommonFilters
         return function (Builder $query, $value) use ($column) {
             $escaped = self::escapeLikeWildcards($value);
 
-            return $query->whereLike($column, "{$escaped}%");
+            return $query->where($column, 'like', "{$escaped}%");
         };
     }
 
@@ -57,7 +57,7 @@ class CommonFilters
         return function (Builder $query, $value) use ($column) {
             $escaped = self::escapeLikeWildcards($value);
 
-            return $query->whereLike($column, "%{$escaped}%");
+            return $query->where($column, 'like', "%{$escaped}%");
         };
     }
 
@@ -74,7 +74,7 @@ class CommonFilters
     /**
      * Create a JSON "like" filter for translatable fields.
      *
-     * Uses whereJsonLike for searching within JSON/JSONB columns.
+     * Casts JSON column to text and searches with LIKE for JSONB compatibility.
      *
      * @param  string  $column  The JSON column to filter
      */
@@ -83,7 +83,7 @@ class CommonFilters
         return function (Builder $query, $value) use ($column) {
             $escaped = self::escapeLikeWildcards($value);
 
-            return $query->whereJsonLike($column, $escaped);
+            return $query->whereRaw("{$column}::text ILIKE ?", ["%{$escaped}%"]);
         };
     }
 
@@ -98,7 +98,7 @@ class CommonFilters
         return function (Builder $query, $value) use ($relation, $column) {
             $escaped = self::escapeLikeWildcards($value);
 
-            return $query->whereHas($relation, fn ($q) => $q->whereLike($column, "{$escaped}%"));
+            return $query->whereHas($relation, fn ($q) => $q->where($column, 'like', "{$escaped}%"));
         };
     }
 
@@ -115,7 +115,7 @@ class CommonFilters
         return function (Builder $query, $value) use ($relation, $column) {
             $escaped = self::escapeLikeWildcards($value);
 
-            return $query->whereHas($relation, fn ($q) => $q->whereJsonLike($column, $escaped));
+            return $query->whereHas($relation, fn ($q) => $q->whereRaw("{$column}::text ILIKE ?", ["%{$escaped}%"]));
         };
     }
 

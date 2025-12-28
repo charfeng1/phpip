@@ -304,12 +304,16 @@ export const api = {
 /**
  * Fetch HTML content and inject into an element.
  *
+ * Uses centralized headers for CSRF token and standard error handling.
+ *
  * @param {string} url - The URL to fetch
  * @param {HTMLElement} element - The element to populate
  * @returns {Promise<void>}
  */
 export async function fetchHtml(url, element) {
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    headers: buildHeaders({ Accept: "text/html" }),
+  });
   if (!response.ok) {
     throw new ApiError("Failed to load content", response.status);
   }
@@ -319,12 +323,16 @@ export async function fetchHtml(url, element) {
 /**
  * Fetch HTML and update a specific element by ID.
  *
+ * Uses centralized headers for CSRF token and standard error handling.
+ *
  * @param {string} url - The URL to fetch
  * @param {string} elementId - The ID of the element to update
  * @returns {Promise<void>}
  */
 export async function refreshElement(url, elementId) {
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    headers: buildHeaders({ Accept: "text/html" }),
+  });
   if (!response.ok) {
     throw new ApiError("Failed to refresh content", response.status);
   }

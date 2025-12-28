@@ -45,14 +45,20 @@
 
 @php
     use Carbon\Carbon;
+    use Carbon\Exceptions\InvalidFormatException;
 
     $displayValue = '';
     $nativeValue = '';
 
     if ($value) {
-        $dateObj = $value instanceof Carbon ? $value : Carbon::parse($value);
-        $displayValue = $dateObj->isoFormat($format);
-        $nativeValue = $dateObj->format('Y-m-d');
+        try {
+            $dateObj = $value instanceof Carbon ? $value : Carbon::parse($value);
+            $displayValue = $dateObj->isoFormat($format);
+            $nativeValue = $dateObj->format('Y-m-d');
+        } catch (InvalidFormatException $e) {
+            // Invalid date format - leave values empty, let validation handle it
+            $displayValue = is_string($value) ? $value : '';
+        }
     }
 
     $baseClass = 'form-control';

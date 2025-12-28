@@ -32,7 +32,12 @@
     $errorBag = [];
     if (isset($errors) && $errors->any()) {
         if ($fields) {
-            $errorBag = $errors->only($fields);
+            // Collect errors only for specified fields
+            foreach ($fields as $field) {
+                if ($errors->has($field)) {
+                    $errorBag = array_merge($errorBag, $errors->get($field));
+                }
+            }
         } else {
             $errorBag = $errors->all();
         }

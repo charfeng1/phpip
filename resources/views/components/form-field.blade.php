@@ -59,11 +59,20 @@
 ])
 
 @php
+    $hasError = isset($errors) && $errors->has($name);
+
+    // Build input class (for text, textarea, etc.)
     $baseInputClass = 'form-control';
     $fullInputClass = trim($baseInputClass . ' ' . $inputClass);
-    $hasError = isset($errors) && $errors->has($name);
     if ($hasError) {
         $fullInputClass .= ' is-invalid';
+    }
+
+    // Build select class (uses form-select instead of form-control)
+    $baseSelectClass = 'form-select';
+    $fullSelectClass = trim($baseSelectClass . ' ' . $inputClass);
+    if ($hasError) {
+        $fullSelectClass .= ' is-invalid';
     }
 @endphp
 
@@ -83,7 +92,7 @@
                 {{ $attributes->except(['class', 'name', 'id', 'placeholder', 'required']) }}>{{ old($name, $value) }}</textarea>
         @elseif($type === 'select')
             <select
-                class="form-select @if($hasError) is-invalid @endif {{ $inputClass }}"
+                class="{{ $fullSelectClass }}"
                 name="{{ $name }}"
                 id="{{ $name }}"
                 @if($required) required @endif
