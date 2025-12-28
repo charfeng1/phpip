@@ -28,11 +28,14 @@
 @php
     $displayTitle = $title ?? __('Please fix the following errors:');
 
-    // Get errors - either all or filtered by fields
-    if ($fields) {
-        $errorBag = $errors->only($fields);
-    } else {
-        $errorBag = $errors->all();
+    // Ensure $errors is available (it's auto-injected by ShareErrorsFromSession middleware)
+    $errorBag = [];
+    if (isset($errors) && $errors->any()) {
+        if ($fields) {
+            $errorBag = $errors->only($fields);
+        } else {
+            $errorBag = $errors->all();
+        }
     }
 @endphp
 
@@ -47,7 +50,7 @@
                     @enderror
                 @endforeach
             @else
-                @foreach($errors->all() as $error)
+                @foreach($errorBag as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             @endif
