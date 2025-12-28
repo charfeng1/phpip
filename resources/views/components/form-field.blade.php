@@ -61,7 +61,7 @@
 @php
     $baseInputClass = 'form-control';
     $fullInputClass = trim($baseInputClass . ' ' . $inputClass);
-    $hasError = $errors->has($name);
+    $hasError = isset($errors) && $errors->has($name);
     if ($hasError) {
         $fullInputClass .= ' is-invalid';
     }

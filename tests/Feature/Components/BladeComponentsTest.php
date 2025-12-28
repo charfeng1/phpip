@@ -556,14 +556,11 @@ class BladeComponentsTest extends TestCase
      */
     public function test_form_errors_renders_when_errors_exist(): void
     {
-        // Create a view with errors in the error bag
-        $view = $this->withViewErrors(['name' => 'The name field is required.'])
-            ->view('components.form-errors');
-
-        $html = $view->render();
-
-        $this->assertStringContainsString('alert-danger', $html);
-        $this->assertStringContainsString('The name field is required.', $html);
+        // Create a view with errors in the error bag using TestView assertions
+        $this->withViewErrors(['name' => 'The name field is required.'])
+            ->view('components.form-errors')
+            ->assertSee('alert-danger', false)
+            ->assertSee('The name field is required.');
     }
 
     /**
@@ -571,9 +568,8 @@ class BladeComponentsTest extends TestCase
      */
     public function test_form_errors_does_not_render_when_no_errors(): void
     {
-        $view = view('components.form-errors');
-
-        $html = $view->render();
+        // Use View facade directly for rendering without errors
+        $html = \Illuminate\Support\Facades\View::make('components.form-errors')->render();
 
         $this->assertStringNotContainsString('alert-danger', $html);
     }
