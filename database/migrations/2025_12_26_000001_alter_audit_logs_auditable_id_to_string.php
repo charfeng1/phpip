@@ -1,9 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 /**
  * Change auditable_id from bigint to string to support models with string primary keys.
@@ -33,14 +31,24 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
+     *
+     * @throws \LogicException if non-numeric auditable_id values exist
      */
     public function down(): void
     {
+        // Check for non-numeric values before attempting rollback
+        // This prevents a failed migration that would leave the database in an inconsistent state
+        if (DB::table('audit_logs')->whereRaw("auditable_id ~ '[^0-9]'")->exists()) {
+            throw new \LogicException(
+                'Cannot reverse migration: non-numeric auditable_id values exist in audit_logs table. '.
+                'Delete or migrate these records before rolling back.'
+            );
+        }
+
         // Drop the index
         DB::statement('DROP INDEX IF EXISTS audit_logs_auditable_index');
 
-        // Note: This will fail if there are non-numeric values in the column
-        // Only run down() on empty table or with numeric-only values
+        // Safe to convert since we verified all values are numeric
         DB::statement('ALTER TABLE audit_logs ALTER COLUMN auditable_id TYPE BIGINT USING auditable_id::BIGINT');
 
         // Recreate the index
