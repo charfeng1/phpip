@@ -273,4 +273,95 @@ class AuditableTest extends TestCase
 
         $this->assertLessThanOrEqual(2, $history->count());
     }
+
+    /** @test */
+    public function it_logs_updates_for_string_pk_models()
+    {
+        // Test that Auditable works with models using string primary keys
+        // This verifies the audit_logs.auditable_id VARCHAR(255) column works
+        $user = User::factory()->admin()->create();
+        $this->actingAs($user);
+
+        // ClassifierType uses string 'code' as primary key (max 5 chars)
+        $code = 'AT'.substr(time(), -2); // e.g., AT45
+        $classifierType = ClassifierType::create([
+            'code' => $code,
+            'type' => ['en' => 'Audit Test Type'],
+        ]);
+
+        // Update the model to trigger audit logging
+        $classifierType->update(['type' => ['en' => 'Updated Audit Test Type']]);
+
+        // Verify audit log was created with string PK
+        $auditLog = AuditLog::where('auditable_type', ClassifierType::class)
+            ->where('auditable_id', $classifierType->code) // String PK
+            ->where('action', 'updated')
+            ->first();
+
+        $this->assertNotNull($auditLog, 'Audit log should be created for string PK model');
+        $this->assertEquals($classifierType->code, $auditLog->auditable_id);
+        $this->assertEquals('updated', $auditLog->action);
+
+        // Cleanup
+        $classifierType->delete();
+    }
+
+    /** @test */
+    public function it_stores_string_pk_correctly_in_audit_log()
+    {
+        $user = User::factory()->admin()->create();
+        $this->actingAs($user);
+
+        // Create a ClassifierType with a known string code (max 5 chars)
+        $code = 'SPKT';
+        $classifierType = ClassifierType::create([
+            'code' => $code,
+            'type' => ['en' => 'String PK Test'],
+        ]);
+
+        // Verify the audit log stores the string PK correctly
+        $auditLog = AuditLog::where('auditable_type', ClassifierType::class)
+            ->where('action', 'created')
+            ->orderByDesc('id')
+            ->first();
+
+        $this->assertNotNull($auditLog);
+        // The auditable_id should be exactly the string code, not cast to integer
+        $this->assertIsString($auditLog->auditable_id);
+        $this->assertEquals($code, $auditLog->auditable_id);
+
+        // Cleanup
+        $classifierType->delete();
+    }
+
+    /** @test */
+    public function it_excludes_configured_attributes_from_audit()
+    {
+        $user = User::factory()->admin()->create();
+        $this->actingAs($user);
+
+        $matter = Matter::factory()->create();
+        $classifierType = ClassifierType::first() ?? ClassifierType::create([
+            'code' => 'TIT',
+            'type' => ['en' => 'Title'],
+        ]);
+
+        // Classifier excludes created_at and updated_at via $auditExclude
+        $classifier = Classifier::create([
+            'matter_id' => $matter->id,
+            'type_code' => $classifierType->code,
+            'value' => 'Exclusion Test',
+        ]);
+
+        $auditLog = AuditLog::where('auditable_type', Classifier::class)
+            ->where('auditable_id', $classifier->id)
+            ->where('action', 'created')
+            ->first();
+
+        $this->assertNotNull($auditLog);
+        // Timestamps should be excluded from new_values
+        $newValues = $auditLog->new_values;
+        $this->assertArrayNotHasKey('created_at', $newValues);
+        $this->assertArrayNotHasKey('updated_at', $newValues);
+    }
 }
