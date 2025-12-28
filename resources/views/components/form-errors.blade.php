@@ -45,9 +45,9 @@
         <ul class="mb-0 mt-2">
             @if($fields)
                 @foreach($fields as $field)
-                    @error($field)
-                        <li>{{ $message }}</li>
-                    @enderror
+                    @if(isset($errors) && $errors->has($field))
+                        <li>{{ $errors->first($field) }}</li>
+                    @endif
                 @endforeach
             @else
                 @foreach($errorBag as $error)

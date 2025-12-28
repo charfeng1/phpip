@@ -118,8 +118,8 @@
             <small class="form-text text-muted">{{ $helper }}</small>
         @endif
 
-        @error($name)
-            <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
+        @if(isset($errors) && $errors->has($name))
+            <div class="invalid-feedback">{{ $errors->first($name) }}</div>
+        @endif
     </div>
 </div>
