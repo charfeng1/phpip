@@ -37,23 +37,36 @@ export default function contextMenu() {
         this.show(e.detail.event, e.detail.items, e.detail.target);
       });
 
-      // Close on escape or click outside
-      document.addEventListener('keydown', (e) => {
+      // Store bound handlers for cleanup
+      this._handleKeydown = (e) => {
         if (this.open) {
           this.handleKeydown(e);
         }
-      });
+      };
 
-      document.addEventListener('click', (e) => {
+      this._handleClick = (e) => {
         if (this.open && !this.$refs.menu?.contains(e.target)) {
           this.close();
         }
-      });
+      };
 
-      // Close on scroll
-      document.addEventListener('scroll', () => {
+      this._handleScroll = () => {
         if (this.open) this.close();
-      }, true);
+      };
+
+      // Close on escape or click outside
+      document.addEventListener('keydown', this._handleKeydown);
+      document.addEventListener('click', this._handleClick);
+      document.addEventListener('scroll', this._handleScroll, true);
+    },
+
+    /**
+     * Cleanup event listeners when component is destroyed
+     */
+    destroy() {
+      document.removeEventListener('keydown', this._handleKeydown);
+      document.removeEventListener('click', this._handleClick);
+      document.removeEventListener('scroll', this._handleScroll, true);
     },
 
     /**

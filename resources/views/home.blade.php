@@ -114,12 +114,14 @@
                     <span class="badge badge-primary badge-sm">{{ $group->no_of_tasks }}</span>
                   </td>
                   <td class="text-center">
-                    @if ($group->urgent_date < now())
+                    @if ($group->urgent_date && $group->urgent_date < now())
                       <span class="badge badge-error badge-sm">{{ __('Overdue') }}</span>
-                    @elseif ($group->urgent_date < now()->addWeeks(2))
+                    @elseif ($group->urgent_date && $group->urgent_date < now()->addWeeks(2))
                       <span class="badge badge-warning badge-sm">{{ __('Soon') }}</span>
-                    @else
+                    @elseif ($group->urgent_date)
                       <span class="badge badge-success badge-sm">{{ \Carbon\Carbon::parse($group->urgent_date)->isoFormat('L') }}</span>
+                    @else
+                      <span class="badge badge-ghost badge-sm">{{ __('N/A') }}</span>
                     @endif
                   </td>
                 </tr>

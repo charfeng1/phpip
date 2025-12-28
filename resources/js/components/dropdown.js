@@ -26,26 +26,43 @@ export default function dropdown() {
      * Initialize
      */
     init() {
-      // Close on click outside
-      document.addEventListener('click', (e) => {
+      // Store bound handlers for cleanup
+      this._handleClick = (e) => {
         if (this.open && !this.$el.contains(e.target)) {
           this.close();
         }
-      });
+      };
 
-      // Close on escape
-      document.addEventListener('keydown', (e) => {
+      this._handleKeydown = (e) => {
         if (e.key === 'Escape' && this.open) {
           this.close();
         }
-      });
+      };
 
-      // Close when another dropdown opens
-      window.addEventListener('dropdown-opened', (e) => {
+      this._handleDropdownOpened = (e) => {
         if (e.detail.id !== this.$el.id && this.open) {
           this.close();
         }
-      });
+      };
+
+      // Close on click outside
+      document.addEventListener('click', this._handleClick);
+
+      // Close on escape
+      document.addEventListener('keydown', this._handleKeydown);
+
+      // Close when another dropdown opens
+      window.addEventListener('dropdown-opened', this._handleDropdownOpened);
+    },
+
+    /**
+     * Cleanup event listeners when component is destroyed
+     */
+    destroy() {
+      document.removeEventListener('click', this._handleClick);
+      document.removeEventListener('keydown', this._handleKeydown);
+      window.removeEventListener('dropdown-opened', this._handleDropdownOpened);
+      clearTimeout(this.searchTimeout);
     },
 
     /**

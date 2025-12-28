@@ -57,6 +57,4 @@ export function registerAllComponents(Alpine) {
   Alpine.data('inlineSelect', inlineSelect);
   Alpine.data('inlineDate', inlineDate);
   Alpine.data('batchInlineEdit', batchInlineEdit);
-
-  console.log('[phpIP] Alpine components registered');
 }

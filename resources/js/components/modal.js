@@ -166,7 +166,16 @@ export default function modal() {
         }
 
         const response = await fetch(url, options);
-        const data = await response.json();
+
+        // Handle non-JSON responses (e.g., HTML error pages)
+        let data;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          data = await response.json();
+        } else {
+          const text = await response.text();
+          throw new Error(response.ok ? 'Unexpected response format' : `Server error: ${response.status}`);
+        }
 
         if (!response.ok) {
           // Handle validation errors
@@ -227,9 +236,12 @@ export default function modal() {
       for (const [field, messages] of Object.entries(errors)) {
         const input = form.querySelector(`[name="${field}"]`);
         if (input) {
-          // Add error class
+          // Add error class based on element type
           const inputType = input.tagName.toLowerCase();
-          input.classList.add(`${inputType === 'select' ? 'select' : 'input'}-error`);
+          const errorClass = inputType === 'select' ? 'select-error'
+            : inputType === 'textarea' ? 'textarea-error'
+            : 'input-error';
+          input.classList.add(errorClass);
 
           // Add error message
           const errorEl = document.createElement('p');

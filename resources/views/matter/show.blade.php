@@ -14,7 +14,7 @@ $actors = $matter->actors->groupBy('role_name');
       <div class="card-title bg-primary text-primary-content px-2 py-1.5 text-sm flex justify-between items-center group">
         <div class="flex items-center gap-2">
           <a class="text-primary-content font-semibold {{ $matter->dead ? 'line-through' : '' }}"
-             href="/matter?Ref= {{ $matter->caseref }}"
+             href="/matter?Ref={{ $matter->caseref }}"
              title="{{ __('See family') }}"
              target="_blank"
              id="uid">

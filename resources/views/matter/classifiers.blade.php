@@ -12,7 +12,7 @@
       return $group->first()?->classifierType?->display_order ?? 127;
   });
 @endphp
-<table class="table table-sm table-borderless">
+<table class="table table-sm table-borderless" x-data="{ showAddClassifier: false }">
   <thead class="table-light">
     <tr>
       <th class="border-top-0">{{ __('Type/Value') }}</th>
@@ -20,11 +20,11 @@
       <th class="border-top-0">{{ __('Link to matter') }}</th>
       <th class="border-top-0">
         @can('readwrite')
-        <a href="javascript:void(0)" onclick="document.getElementById('addClassifierRow').classList.toggle('hidden')">
+        <button type="button" class="border-0 bg-transparent p-0 cursor-pointer" @click="showAddClassifier = !showAddClassifier">
           <span class="float-end" title="{{ __('Add classifier') }}">
             <svg width="14" height="14" fill="currentColor" style="pointer-events: none"><use xlink:href="#plus-circle-fill"/></svg>
           </span>
-        </a>
+        </button>
         @endcan
       </th>
     </tr>
@@ -66,7 +66,7 @@
   </tbody>
   @endforeach
   <tbody>
-    <tr id="addClassifierRow" class="hidden">
+    <tr id="addClassifierRow" x-show="showAddClassifier" x-cloak>
       <td colspan="4">
         <form id="addClassifierForm">
           <input type="hidden" name="matter_id" value="{{ $matter->container_id ?? $matter->id }}">

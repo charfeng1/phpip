@@ -339,20 +339,21 @@ export default function autocomplete(config = {}) {
  * Combobox variant - combines select with search
  */
 export function combobox(config = {}) {
+  const base = autocomplete(config);
+
   return {
-    ...autocomplete(config),
+    ...base,
 
     options: config.options || [],
     filteredOptions: [],
 
     init() {
-      this.filteredOptions = this.options;
+      // Call parent init for common setup (click-outside listener, etc.)
+      if (base.init) {
+        base.init.call(this);
+      }
 
-      document.addEventListener('click', (e) => {
-        if (this.open && !this.$el.contains(e.target)) {
-          this.close();
-        }
-      });
+      this.filteredOptions = this.options;
     },
 
     /**
@@ -393,8 +394,10 @@ export function combobox(config = {}) {
  * Multi-select autocomplete variant
  */
 export function multiAutocomplete(config = {}) {
+  const base = autocomplete(config);
+
   return {
-    ...autocomplete(config),
+    ...base,
 
     selectedItems: config.initialItems || [],
 

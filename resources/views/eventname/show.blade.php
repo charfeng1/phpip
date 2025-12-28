@@ -1,4 +1,4 @@
-<div data-resource="/eventname/{{ $eventname->code }}" class="reload-part position-relative" style="padding-bottom: 50px;">
+<div data-resource="/eventname/{{ $eventname->code }}" class="reload-part position-relative" style="padding-bottom: 50px;" x-data="{ showAddEvent: false }">
 	<table class="table table-hover table-sm">
 		<tr>
 			<th width="20%">{{ __('Code') }}</th>
@@ -36,12 +36,12 @@
 		<tr>
 			<th colspan="3">{{ __('Linked templates') }}</th>
 			<td>
-				<a class="text-info ms-2 cursor-pointer" href="javascript:void(0)" onclick="document.getElementById('addEventRow').classList.toggle('hidden')" id="addEventTempalte" title="{{ __('Add template') }}">
+				<button type="button" class="text-info ms-2 cursor-pointer border-0 bg-transparent p-0" @click="showAddEvent = !showAddEvent" id="addEventTemplate" title="{{ __('Add template') }}">
 					<svg width="14" height="14" fill="currentColor" style="pointer-events: none"><use xlink:href="#plus-circle-fill"/></svg>
-				</a>
+				</button>
 			</td>
 		</tr>
-    <tr id="addEventRow" class="hidden">
+    <tr id="addEventRow" x-show="showAddEvent" x-cloak>
       <td colspan="4">
         <form id="addTemplateForm" class="form-inline">
           <input type="hidden" name="event_name_code" value="{{ $eventname->code }}">

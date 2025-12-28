@@ -177,8 +177,10 @@ export default function inlineEdit(config = {}) {
  * Content-editable variant for rich text
  */
 export function contentEditable(config = {}) {
+  const base = inlineEdit(config);
+
   return {
-    ...inlineEdit(config),
+    ...base,
 
     /**
      * Start editing - enable contenteditable
@@ -223,8 +225,8 @@ export function contentEditable(config = {}) {
         el.contentEditable = 'false';
       }
 
-      // Call parent save
-      await inlineEdit(config).save.call(this);
+      // Call base save - use captured base instance
+      await base.save.call(this);
     }
   };
 }
