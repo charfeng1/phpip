@@ -3,7 +3,6 @@
 namespace Tests\Unit\Traits;
 
 use App\Traits\HasTeamScopes;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use PHPUnit\Framework\TestCase;
 

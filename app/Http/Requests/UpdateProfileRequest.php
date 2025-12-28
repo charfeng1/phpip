@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Traits\ValidatesPassword;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateProfileRequest extends FormRequest
 {
@@ -27,7 +28,12 @@ class UpdateProfileRequest extends FormRequest
     {
         return [
             'password' => $this->nullablePasswordRules(),
-            'email' => 'required|email',
+            'email' => [
+                'required',
+                'email',
+                'max:45',
+                Rule::unique('actor', 'email')->ignore($this->user()->id),
+            ],
             'language' => 'required|string|max:5',
         ];
     }

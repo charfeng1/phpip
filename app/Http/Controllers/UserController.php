@@ -188,7 +188,7 @@ class UserController extends Controller
         $newParentId = $request->input('parent_id');
         $parentChanged = $request->has('parent_id') && $oldParentId !== $newParentId;
 
-        $user->update($this->getFilteredData($request));
+        $user->update($request->validated());
 
         // Clear team hierarchy cache if parent_id changed
         if ($parentChanged) {
