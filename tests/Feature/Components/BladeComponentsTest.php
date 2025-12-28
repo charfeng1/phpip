@@ -217,12 +217,10 @@ class BladeComponentsTest extends TestCase
      */
     public function test_form_field_renders_text_input(): void
     {
-        $view = view('components.form-field', [
+        $html = \Illuminate\Support\Facades\View::make('components.form-field', [
             'name' => 'test_field',
             'label' => 'Test Label',
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         $this->assertStringContainsString('Test Label', $html);
         $this->assertStringContainsString('name="test_field"', $html);
@@ -234,13 +232,11 @@ class BladeComponentsTest extends TestCase
      */
     public function test_form_field_renders_required_indicator(): void
     {
-        $view = view('components.form-field', [
+        $html = \Illuminate\Support\Facades\View::make('components.form-field', [
             'name' => 'test',
             'label' => 'Required Field',
             'required' => true,
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         $this->assertStringContainsString('Required Field *', $html);
         $this->assertStringContainsString('required', $html);
@@ -252,14 +248,12 @@ class BladeComponentsTest extends TestCase
      */
     public function test_form_field_renders_textarea(): void
     {
-        $view = view('components.form-field', [
+        $html = \Illuminate\Support\Facades\View::make('components.form-field', [
             'name' => 'notes',
             'label' => 'Notes',
             'type' => 'textarea',
             'value' => 'Initial text',
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         $this->assertStringContainsString('<textarea', $html);
         $this->assertStringContainsString('name="notes"', $html);
@@ -271,15 +265,13 @@ class BladeComponentsTest extends TestCase
      */
     public function test_form_field_renders_select_with_options(): void
     {
-        $view = view('components.form-field', [
+        $html = \Illuminate\Support\Facades\View::make('components.form-field', [
             'name' => 'status',
             'label' => 'Status',
             'type' => 'select',
             'options' => ['active' => 'Active', 'inactive' => 'Inactive'],
             'value' => 'active',
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         $this->assertStringContainsString('<select', $html);
         $this->assertStringContainsString('name="status"', $html);
@@ -293,13 +285,11 @@ class BladeComponentsTest extends TestCase
      */
     public function test_form_field_renders_helper_text(): void
     {
-        $view = view('components.form-field', [
+        $html = \Illuminate\Support\Facades\View::make('components.form-field', [
             'name' => 'email',
             'label' => 'Email',
             'helper' => 'Enter your email address',
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         $this->assertStringContainsString('form-text text-muted', $html);
         $this->assertStringContainsString('Enter your email address', $html);
@@ -312,11 +302,9 @@ class BladeComponentsTest extends TestCase
     {
         $pastDate = now()->subDay()->toDateString();
 
-        $view = view('components.status-badge', [
+        $html = \Illuminate\Support\Facades\View::make('components.status-badge', [
             'date' => $pastDate,
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         $this->assertStringContainsString('bg-danger', $html);
         $this->assertStringContainsString('Overdue', $html);
@@ -329,11 +317,9 @@ class BladeComponentsTest extends TestCase
     {
         $soonDate = now()->addDays(7)->toDateString();
 
-        $view = view('components.status-badge', [
+        $html = \Illuminate\Support\Facades\View::make('components.status-badge', [
             'date' => $soonDate,
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         $this->assertStringContainsString('bg-warning', $html);
     }
@@ -345,11 +331,9 @@ class BladeComponentsTest extends TestCase
     {
         $futureDate = now()->addDays(30)->toDateString();
 
-        $view = view('components.status-badge', [
+        $html = \Illuminate\Support\Facades\View::make('components.status-badge', [
             'date' => $futureDate,
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         $this->assertStringContainsString('bg-success', $html);
     }
@@ -359,13 +343,11 @@ class BladeComponentsTest extends TestCase
      */
     public function test_status_badge_renders_custom_label(): void
     {
-        $view = view('components.status-badge', [
+        $html = \Illuminate\Support\Facades\View::make('components.status-badge', [
             'type' => 'status',
             'status' => 'info',
             'label' => 'Custom Label',
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         $this->assertStringContainsString('bg-info', $html);
         $this->assertStringContainsString('Custom Label', $html);
@@ -376,12 +358,10 @@ class BladeComponentsTest extends TestCase
      */
     public function test_modal_button_renders_with_correct_attributes(): void
     {
-        $view = view('components.modal-button', [
+        $html = \Illuminate\Support\Facades\View::make('components.modal-button', [
             'href' => '/create',
             'label' => 'Create Item',
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         $this->assertStringContainsString('href="/create"', $html);
         $this->assertStringContainsString('Create Item', $html);
@@ -394,13 +374,11 @@ class BladeComponentsTest extends TestCase
      */
     public function test_modal_button_renders_with_icon(): void
     {
-        $view = view('components.modal-button', [
+        $html = \Illuminate\Support\Facades\View::make('components.modal-button', [
             'href' => '/create',
             'label' => 'Add',
             'icon' => 'plus',
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         $this->assertStringContainsString('<svg', $html);
     }
@@ -410,13 +388,11 @@ class BladeComponentsTest extends TestCase
      */
     public function test_modal_button_renders_with_modal_size(): void
     {
-        $view = view('components.modal-button', [
+        $html = \Illuminate\Support\Facades\View::make('components.modal-button', [
             'href' => '/create',
             'label' => 'Open',
             'modalSize' => 'modal-lg',
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         $this->assertStringContainsString('data-size="modal-lg"', $html);
     }
@@ -426,13 +402,11 @@ class BladeComponentsTest extends TestCase
      */
     public function test_modal_button_renders_outline_variant(): void
     {
-        $view = view('components.modal-button', [
+        $html = \Illuminate\Support\Facades\View::make('components.modal-button', [
             'href' => '/create',
             'label' => 'Open',
             'outline' => true,
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         $this->assertStringContainsString('btn-outline-primary', $html);
     }
@@ -442,12 +416,10 @@ class BladeComponentsTest extends TestCase
      */
     public function test_date_input_renders_basic_input(): void
     {
-        $view = view('components.date-input', [
+        $html = \Illuminate\Support\Facades\View::make('components.date-input', [
             'name' => 'event_date',
             'label' => 'Event Date',
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         $this->assertStringContainsString('Event Date', $html);
         $this->assertStringContainsString('name="event_date"', $html);
@@ -458,13 +430,11 @@ class BladeComponentsTest extends TestCase
      */
     public function test_date_input_renders_native_type(): void
     {
-        $view = view('components.date-input', [
+        $html = \Illuminate\Support\Facades\View::make('components.date-input', [
             'name' => 'event_date',
             'useNative' => true,
             'label' => 'Event Date',
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         $this->assertStringContainsString('type="date"', $html);
     }
@@ -474,12 +444,10 @@ class BladeComponentsTest extends TestCase
      */
     public function test_date_input_renders_inline_mode(): void
     {
-        $view = view('components.date-input', [
+        $html = \Illuminate\Support\Facades\View::make('components.date-input', [
             'name' => 'filter_date',
             'inline' => true,
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         // Inline mode should not have the row wrapper with the label column layout
         $this->assertStringNotContainsString('col-form-label', $html);
@@ -490,12 +458,10 @@ class BladeComponentsTest extends TestCase
      */
     public function test_table_filter_renders_basic_input(): void
     {
-        $view = view('components.table-filter', [
+        $html = \Illuminate\Support\Facades\View::make('components.table-filter', [
             'name' => 'Name',
             'placeholder' => 'Filter by name',
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         $this->assertStringContainsString('name="Name"', $html);
         $this->assertStringContainsString('placeholder="Filter by name"', $html);
@@ -507,13 +473,11 @@ class BladeComponentsTest extends TestCase
      */
     public function test_table_filter_renders_with_sort_button(): void
     {
-        $view = view('components.table-filter', [
+        $html = \Illuminate\Support\Facades\View::make('components.table-filter', [
             'name' => 'Ref',
             'sortable' => true,
             'sortKey' => 'caseref',
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         $this->assertStringContainsString('sort-btn', $html);
         $this->assertStringContainsString('data-sortkey="caseref"', $html);
@@ -524,12 +488,10 @@ class BladeComponentsTest extends TestCase
      */
     public function test_table_filter_renders_clear_button_when_has_value(): void
     {
-        $view = view('components.table-filter', [
+        $html = \Illuminate\Support\Facades\View::make('components.table-filter', [
             'name' => 'Name',
             'value' => 'test',
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         $this->assertStringContainsString('clear-filter', $html);
         $this->assertStringContainsString('data-target="Name"', $html);
@@ -540,13 +502,11 @@ class BladeComponentsTest extends TestCase
      */
     public function test_table_filter_hides_clear_button_when_empty(): void
     {
-        $view = view('components.table-filter', [
+        $html = \Illuminate\Support\Facades\View::make('components.table-filter', [
             'name' => 'Name',
             'value' => '',
             'clearable' => true,
-        ]);
-
-        $html = $view->render();
+        ])->render();
 
         $this->assertStringNotContainsString('clear-filter', $html);
     }
