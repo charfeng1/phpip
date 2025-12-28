@@ -13,12 +13,18 @@
 
 import "./bootstrap";
 import "../sass/app.scss";
+// Tailwind CSS + DaisyUI (parallel with Bootstrap during migration)
+import "../css/app.css";
 
 // Import Alpine.js
 import Alpine from "alpinejs";
 window.Alpine = Alpine;
 
-// Import main functionality
+// Import and register new Alpine components
+import { registerAllComponents } from "./components/index.js";
+registerAllComponents(Alpine);
+
+// Import main functionality (legacy - will be removed after migration)
 import {
   initMain,
   fetchInto,
