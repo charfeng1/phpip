@@ -207,4 +207,374 @@ class BladeComponentsTest extends TestCase
         $this->assertStringContainsString('fw-bold text-primary', $html);
         $this->assertStringContainsString('custom-input-class', $html);
     }
+
+    // =====================================================
+    // Tests for new Phase 2 components
+    // =====================================================
+
+    /**
+     * Test form-field component renders text input.
+     */
+    public function test_form_field_renders_text_input(): void
+    {
+        $view = view('components.form-field', [
+            'name' => 'test_field',
+            'label' => 'Test Label',
+        ]);
+
+        $html = $view->render();
+
+        $this->assertStringContainsString('Test Label', $html);
+        $this->assertStringContainsString('name="test_field"', $html);
+        $this->assertStringContainsString('type="text"', $html);
+    }
+
+    /**
+     * Test form-field component renders required indicator.
+     */
+    public function test_form_field_renders_required_indicator(): void
+    {
+        $view = view('components.form-field', [
+            'name' => 'test',
+            'label' => 'Required Field',
+            'required' => true,
+        ]);
+
+        $html = $view->render();
+
+        $this->assertStringContainsString('Required Field *', $html);
+        $this->assertStringContainsString('required', $html);
+        $this->assertStringContainsString('fw-bold', $html);
+    }
+
+    /**
+     * Test form-field component renders textarea.
+     */
+    public function test_form_field_renders_textarea(): void
+    {
+        $view = view('components.form-field', [
+            'name' => 'notes',
+            'label' => 'Notes',
+            'type' => 'textarea',
+            'value' => 'Initial text',
+        ]);
+
+        $html = $view->render();
+
+        $this->assertStringContainsString('<textarea', $html);
+        $this->assertStringContainsString('name="notes"', $html);
+        $this->assertStringContainsString('Initial text', $html);
+    }
+
+    /**
+     * Test form-field component renders select with options.
+     */
+    public function test_form_field_renders_select_with_options(): void
+    {
+        $view = view('components.form-field', [
+            'name' => 'status',
+            'label' => 'Status',
+            'type' => 'select',
+            'options' => ['active' => 'Active', 'inactive' => 'Inactive'],
+            'value' => 'active',
+        ]);
+
+        $html = $view->render();
+
+        $this->assertStringContainsString('<select', $html);
+        $this->assertStringContainsString('name="status"', $html);
+        $this->assertStringContainsString('Active', $html);
+        $this->assertStringContainsString('Inactive', $html);
+        $this->assertStringContainsString('selected', $html);
+    }
+
+    /**
+     * Test form-field component renders helper text.
+     */
+    public function test_form_field_renders_helper_text(): void
+    {
+        $view = view('components.form-field', [
+            'name' => 'email',
+            'label' => 'Email',
+            'helper' => 'Enter your email address',
+        ]);
+
+        $html = $view->render();
+
+        $this->assertStringContainsString('form-text text-muted', $html);
+        $this->assertStringContainsString('Enter your email address', $html);
+    }
+
+    /**
+     * Test status-badge component renders overdue state.
+     */
+    public function test_status_badge_renders_overdue_state(): void
+    {
+        $pastDate = now()->subDay()->toDateString();
+
+        $view = view('components.status-badge', [
+            'date' => $pastDate,
+        ]);
+
+        $html = $view->render();
+
+        $this->assertStringContainsString('bg-danger', $html);
+        $this->assertStringContainsString('Overdue', $html);
+    }
+
+    /**
+     * Test status-badge component renders warning state.
+     */
+    public function test_status_badge_renders_warning_state(): void
+    {
+        $soonDate = now()->addDays(7)->toDateString();
+
+        $view = view('components.status-badge', [
+            'date' => $soonDate,
+        ]);
+
+        $html = $view->render();
+
+        $this->assertStringContainsString('bg-warning', $html);
+    }
+
+    /**
+     * Test status-badge component renders success state.
+     */
+    public function test_status_badge_renders_success_state(): void
+    {
+        $futureDate = now()->addDays(30)->toDateString();
+
+        $view = view('components.status-badge', [
+            'date' => $futureDate,
+        ]);
+
+        $html = $view->render();
+
+        $this->assertStringContainsString('bg-success', $html);
+    }
+
+    /**
+     * Test status-badge component renders custom label.
+     */
+    public function test_status_badge_renders_custom_label(): void
+    {
+        $view = view('components.status-badge', [
+            'type' => 'status',
+            'status' => 'info',
+            'label' => 'Custom Label',
+        ]);
+
+        $html = $view->render();
+
+        $this->assertStringContainsString('bg-info', $html);
+        $this->assertStringContainsString('Custom Label', $html);
+    }
+
+    /**
+     * Test modal-button component renders with correct attributes.
+     */
+    public function test_modal_button_renders_with_correct_attributes(): void
+    {
+        $view = view('components.modal-button', [
+            'href' => '/create',
+            'label' => 'Create Item',
+        ]);
+
+        $html = $view->render();
+
+        $this->assertStringContainsString('href="/create"', $html);
+        $this->assertStringContainsString('Create Item', $html);
+        $this->assertStringContainsString('data-bs-toggle="modal"', $html);
+        $this->assertStringContainsString('data-bs-target="#ajaxModal"', $html);
+    }
+
+    /**
+     * Test modal-button component renders with icon.
+     */
+    public function test_modal_button_renders_with_icon(): void
+    {
+        $view = view('components.modal-button', [
+            'href' => '/create',
+            'label' => 'Add',
+            'icon' => 'plus',
+        ]);
+
+        $html = $view->render();
+
+        $this->assertStringContainsString('<svg', $html);
+    }
+
+    /**
+     * Test modal-button component renders with modal size.
+     */
+    public function test_modal_button_renders_with_modal_size(): void
+    {
+        $view = view('components.modal-button', [
+            'href' => '/create',
+            'label' => 'Open',
+            'modalSize' => 'modal-lg',
+        ]);
+
+        $html = $view->render();
+
+        $this->assertStringContainsString('data-size="modal-lg"', $html);
+    }
+
+    /**
+     * Test modal-button component renders outline variant.
+     */
+    public function test_modal_button_renders_outline_variant(): void
+    {
+        $view = view('components.modal-button', [
+            'href' => '/create',
+            'label' => 'Open',
+            'outline' => true,
+        ]);
+
+        $html = $view->render();
+
+        $this->assertStringContainsString('btn-outline-primary', $html);
+    }
+
+    /**
+     * Test date-input component renders basic input.
+     */
+    public function test_date_input_renders_basic_input(): void
+    {
+        $view = view('components.date-input', [
+            'name' => 'event_date',
+            'label' => 'Event Date',
+        ]);
+
+        $html = $view->render();
+
+        $this->assertStringContainsString('Event Date', $html);
+        $this->assertStringContainsString('name="event_date"', $html);
+    }
+
+    /**
+     * Test date-input component renders native type.
+     */
+    public function test_date_input_renders_native_type(): void
+    {
+        $view = view('components.date-input', [
+            'name' => 'event_date',
+            'useNative' => true,
+            'label' => 'Event Date',
+        ]);
+
+        $html = $view->render();
+
+        $this->assertStringContainsString('type="date"', $html);
+    }
+
+    /**
+     * Test date-input component renders inline mode.
+     */
+    public function test_date_input_renders_inline_mode(): void
+    {
+        $view = view('components.date-input', [
+            'name' => 'filter_date',
+            'inline' => true,
+        ]);
+
+        $html = $view->render();
+
+        // Inline mode should not have the row wrapper with the label column layout
+        $this->assertStringNotContainsString('col-form-label', $html);
+    }
+
+    /**
+     * Test table-filter component renders basic input.
+     */
+    public function test_table_filter_renders_basic_input(): void
+    {
+        $view = view('components.table-filter', [
+            'name' => 'Name',
+            'placeholder' => 'Filter by name',
+        ]);
+
+        $html = $view->render();
+
+        $this->assertStringContainsString('name="Name"', $html);
+        $this->assertStringContainsString('placeholder="Filter by name"', $html);
+        $this->assertStringContainsString('filter-input', $html);
+    }
+
+    /**
+     * Test table-filter component renders with sort button.
+     */
+    public function test_table_filter_renders_with_sort_button(): void
+    {
+        $view = view('components.table-filter', [
+            'name' => 'Ref',
+            'sortable' => true,
+            'sortKey' => 'caseref',
+        ]);
+
+        $html = $view->render();
+
+        $this->assertStringContainsString('sort-btn', $html);
+        $this->assertStringContainsString('data-sortkey="caseref"', $html);
+    }
+
+    /**
+     * Test table-filter component renders clear button when has value.
+     */
+    public function test_table_filter_renders_clear_button_when_has_value(): void
+    {
+        $view = view('components.table-filter', [
+            'name' => 'Name',
+            'value' => 'test',
+        ]);
+
+        $html = $view->render();
+
+        $this->assertStringContainsString('clear-filter', $html);
+        $this->assertStringContainsString('data-target="Name"', $html);
+    }
+
+    /**
+     * Test table-filter component hides clear button when empty.
+     */
+    public function test_table_filter_hides_clear_button_when_empty(): void
+    {
+        $view = view('components.table-filter', [
+            'name' => 'Name',
+            'value' => '',
+            'clearable' => true,
+        ]);
+
+        $html = $view->render();
+
+        $this->assertStringNotContainsString('clear-filter', $html);
+    }
+
+    /**
+     * Test form-errors component renders when errors exist.
+     */
+    public function test_form_errors_renders_when_errors_exist(): void
+    {
+        // Create a view with errors in the error bag
+        $view = $this->withViewErrors(['name' => 'The name field is required.'])
+            ->view('components.form-errors');
+
+        $html = $view->render();
+
+        $this->assertStringContainsString('alert-danger', $html);
+        $this->assertStringContainsString('The name field is required.', $html);
+    }
+
+    /**
+     * Test form-errors component does not render when no errors.
+     */
+    public function test_form_errors_does_not_render_when_no_errors(): void
+    {
+        $view = view('components.form-errors');
+
+        $html = $view->render();
+
+        $this->assertStringNotContainsString('alert-danger', $html);
+    }
 }
