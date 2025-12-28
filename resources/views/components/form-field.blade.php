@@ -112,7 +112,7 @@
         @endif
 
         {{-- Slot for additional content like autocomplete --}}
-        {{ $slot }}
+        {{ $slot ?? '' }}
 
         @if($helper)
             <small class="form-text text-muted">{{ $helper }}</small>

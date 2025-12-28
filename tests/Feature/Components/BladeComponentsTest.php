@@ -307,7 +307,7 @@ class BladeComponentsTest extends TestCase
         ])->render();
 
         $this->assertStringContainsString('bg-danger', $html);
-        $this->assertStringContainsString('Overdue', $html);
+        $this->assertStringContainsString(__('Overdue'), $html);
     }
 
     /**
