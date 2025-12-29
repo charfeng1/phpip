@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run OpenCode
-        uses: sst/opencode/github@latest
+        uses: sst/opencode/github@v1.0.207
         env:
           ZHIPU_API_KEY: ${{ secrets.ZHIPU_API_KEY }}
         with:
