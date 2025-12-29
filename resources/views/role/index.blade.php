@@ -7,7 +7,7 @@
   :create-label="__('Create Role')"
   :create-title="__('Role')"
   create-resource="/role/"
-  :create-attributes="['data-bs-toggle' => 'modal', 'data-bs-target' => '#ajaxModal']"
+  :create-attributes="['data-modal-target' => '#ajaxModal']"
   :panel-title="__('Role information')"
   :panel-message="__('Click on role to view and edit details')"
   list-card-style="max-height: 640px; overflow: auto;">

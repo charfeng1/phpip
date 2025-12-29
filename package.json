@@ -8,13 +8,16 @@
     },
     "devDependencies": {
         "@popperjs/core": "^2.11.8",
+        "@tailwindcss/forms": "^0.5.11",
+        "@tailwindcss/vite": "^4.1.18",
+        "autoprefixer": "^10.4.23",
         "blade-formatter": "^1.44.2",
-        "bootstrap": "^5.3.6",
-        "bootstrap-icons": "^1.13.1",
+        "daisyui": "^5.5.14",
         "laravel-vite-plugin": "^1.2.0",
         "lodash.debounce": "^4.0.8",
         "postcss": "^8.5.4",
         "sass": "^1.89.1",
+        "tailwindcss": "^4.1.18",
         "vite": "^6.3.5"
     },
     "type": "module",

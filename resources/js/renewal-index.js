@@ -260,7 +260,7 @@ export function initRenewalIndex() {
     // Active spinner
     button.insertAdjacentHTML(
       "afterbegin",
-      '<i class="spinner-border spinner-border-sm" role="status" />',
+      '<span class="loading loading-spinner loading-sm"></span>',
     );
     const tids = getSelected();
     let string;
@@ -269,9 +269,8 @@ export function initRenewalIndex() {
       if (!end) {
         alert("No renewals selected for " + msgAction);
         // withdraw spinner and restore button
-        button.removeChild(
-          document.getElementsByClassName("spinner-border")[0],
-        );
+        const spinner = button.querySelector(".loading");
+        if (spinner) spinner.remove();
         return;
       }
       const begin = document.getElementById("Fromdate").value;
@@ -289,7 +288,8 @@ export function initRenewalIndex() {
     window.history.pushState("", "phpIP", context_url);
     reloadPart(context_url, "renewalList");
     // withdraw spinner
-    button.removeChild(document.getElementsByClassName("spinner-border")[0]);
+    const spinner = button.querySelector(".loading");
+    if (spinner) spinner.remove();
   }
 
   /**

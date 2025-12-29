@@ -6,7 +6,7 @@
       <th>
         {{ __('Event') }}
         @can('readwrite')
-        <a data-bs-toggle="collapse" class="text-info ms-2" href="#addEventRow" id="addEvent" title="{{ __('Add event') }}">
+        <a class="text-info ms-2 cursor-pointer" href="javascript:void(0)" onclick="document.getElementById('addEventRow').classList.toggle('hidden')" id="addEvent" title="{{ __('Add event') }}">
           <svg width="14" height="14" fill="currentColor" style="pointer-events: none"><use xlink:href="#plus-circle-fill"/></svg>
         </a>
         @endcan
@@ -19,7 +19,7 @@
       <th>{{ __('Email') }}</th>
       @endcan
     </tr>
-    <tr id="addEventRow" class="collapse">
+    <tr id="addEventRow" class="hidden">
       <td colspan="5">
         <form id="addEventForm">
           <input type="hidden" name="matter_id" value="{{ $matter->id }}">

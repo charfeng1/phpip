@@ -1,33 +1,41 @@
-<table class="table table-striped table-sm mb-1" style="width: 100%; table-layout: fixed;">
-  @foreach ($tasks as $task)
-  <tr class="row g-0">
-    <td class="col text-truncate py-0">
-      <a href="/matter/{{ $task->matter->id }}/{{ $isrenewals ? 'renewals' : 'tasks' }}" data-bs-toggle="modal" data-bs-target="#ajaxModal" data-size="modal-lg" data-resource="/task/" title="{{ __('All tasks') }}">
-        {{ $task->info->name }} {{ $task->detail }}
-      </a>
-    </td>
-    <td class="col-2 py-0">
-      <a href="/matter/{{ $task->matter->id }}">
-        {{ $task->matter->uid }}
-      </a>
-    </td>
-    <td class="col text-truncate py-0">
-      {{ optional($task->matter->titles->first())->value ?? "NO TITLE" }}
-    </td>
-    <td class="col-2 py-0 px-2">
-      {{ \Carbon\Carbon::parse($task->due_date)->isoFormat('L') }}
-      @if ($task->due_date < now())
-      <div class="badge rounded-pill text-bg-danger" title="{{ __('Overdue') }}">&nbsp;</div>
-      @elseif ($task->due_date < now()->addWeeks(2))
-      <div class="badge rounded-pill text-bg-warning" title="{{ __('Urgent') }}">&nbsp;</div>
-      @endif
-    </td>
-    @can('readwrite')
-    <td class="col-1 py-0 px-3">
-      <input id="{{ $task->id }}" class="clear-open-task" type="checkbox">
-    </td>
-    @endcan
-  </tr>
-  @endforeach
-</table>
-{{ $tasks->links() }}
+<div class="overflow-x-auto">
+  <table class="table table-sm">
+    <tbody>
+      @foreach ($tasks as $task)
+      <tr class="hover:bg-base-200/50 transition-colors">
+        <td class="truncate py-1">
+          <a href="/matter/{{ $task->matter->id }}/{{ $isrenewals ? 'renewals' : 'tasks' }}" data-modal-target="#ajaxModal" data-size="modal-lg" data-resource="/task/" title="{{ __('All tasks') }}" class="link link-hover">
+            {{ $task->info->name }} {{ $task->detail }}
+          </a>
+        </td>
+        <td class="w-24 py-1">
+          <a href="/matter/{{ $task->matter->id }}" class="link link-primary">
+            {{ $task->matter->uid }}
+          </a>
+        </td>
+        <td class="truncate py-1 text-base-content/70">
+          {{ optional($task->matter->titles->first())->value ?? "NO TITLE" }}
+        </td>
+        <td class="w-28 py-1 px-2">
+          <div class="flex items-center gap-1">
+            <span>{{ \Carbon\Carbon::parse($task->due_date)->isoFormat('L') }}</span>
+            @if ($task->due_date < now())
+            <span class="badge badge-error badge-xs" title="{{ __('Overdue') }}">&nbsp;</span>
+            @elseif ($task->due_date < now()->addWeeks(2))
+            <span class="badge badge-warning badge-xs" title="{{ __('Urgent') }}">&nbsp;</span>
+            @endif
+          </div>
+        </td>
+        @can('readwrite')
+        <td class="w-12 py-1 px-3 text-center">
+          <input id="{{ $task->id }}" class="checkbox checkbox-primary checkbox-sm clear-open-task" type="checkbox">
+        </td>
+        @endcan
+      </tr>
+      @endforeach
+    </tbody>
+  </table>
+</div>
+<div class="px-4 py-2 border-t border-base-300">
+  {{ $tasks->links() }}
+</div>

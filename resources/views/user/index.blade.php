@@ -6,40 +6,56 @@
   create-url="user/create"
   :create-label="__('Create user')"
   :create-title="__('Create User')"
-  :create-attributes="['data-bs-toggle' => 'modal', 'data-bs-target' => '#ajaxModal']"
+  :create-attributes="['data-modal-target' => '#ajaxModal']"
   :panel-title="__('User information')"
   :panel-message="__('Click on user name to view and edit details')"
-  panel-column-class="col-4">
+  panel-column-class="w-80 lg:w-96">
   <x-slot name="list">
-    <table class="table table-striped table-hover table-sm">
-      <thead class="card-header">
-        <tr id="filter" class="table-primary align-middle">
-          <th><input class="form-control" name="Name" placeholder="{{ __('Name') }}" value="{{ Request::get('Name') }}"></th>
-          <th>{{ __('Role') }}</th>
-          <th>{{ __('User name') }}</th>
-          <th>{{ __('Company') }}</th>
-        </tr>
-      </thead>
-      <tbody id="tableList" class="card-body">
-        @foreach ($userslist as $user)
-        <tr class="reveal-hidden" data-id="{{ $user->id }}">
-          <td>
-            <a @if($user->warn) class="text-danger text-decoration-none" @endif href="/user/{{ $user->id }}" data-panel="ajaxPanel" title="{{ __('User data') }}">
-              {{ $user->name }}
-            </a>
-          </td>
-          <td>{{ $user->default_role }}</td>
-          <td>{{ $user->login }}</td>
-          <td>{{ empty($user->company) ? '' : $user->company->name }}</td>
-        </tr>
-        @endforeach
-        <tr>
-          <td colspan="5">
-            {{ $userslist->links() }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="overflow-x-auto">
+      <table class="table table-zebra table-sm">
+        <thead>
+          <tr id="filter" class="bg-primary/5">
+            <th class="font-medium">
+              <input
+                type="text"
+                class="input input-bordered input-sm w-full"
+                name="Name"
+                placeholder="{{ __('Name') }}"
+                value="{{ Request::get('Name') }}"
+              >
+            </th>
+            <th class="font-medium text-base-content/70">{{ __('Role') }}</th>
+            <th class="font-medium text-base-content/70">{{ __('User name') }}</th>
+            <th class="font-medium text-base-content/70">{{ __('Company') }}</th>
+          </tr>
+        </thead>
+        <tbody id="tableList">
+          @foreach ($userslist as $user)
+          <tr class="hover:bg-base-200/50 cursor-pointer transition-colors" data-id="{{ $user->id }}">
+            <td>
+              <a
+                href="/user/{{ $user->id }}"
+                data-panel="ajaxPanel"
+                title="{{ __('User data') }}"
+                class="link link-hover font-medium {{ $user->warn ? 'text-error' : 'text-primary' }}"
+              >
+                {{ $user->name }}
+              </a>
+            </td>
+            <td class="text-base-content/70">
+              <span class="badge badge-ghost badge-sm">{{ $user->default_role }}</span>
+            </td>
+            <td class="font-mono text-sm text-base-content/70">{{ $user->login }}</td>
+            <td class="text-base-content/70">{{ empty($user->company) ? '' : $user->company->name }}</td>
+          </tr>
+          @endforeach
+        </tbody>
+      </table>
+    </div>
+    {{-- Pagination --}}
+    <div class="px-4 py-3 border-t border-base-300">
+      {{ $userslist->links() }}
+    </div>
   </x-slot>
 </x-list-with-panel>
 @endsection

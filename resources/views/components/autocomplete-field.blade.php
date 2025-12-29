@@ -16,10 +16,10 @@
     @props bool $required - Whether the field is required (default: false)
     @props string|null $noneLabel - Label for empty option, if provided (default: null)
     @props string|null $placeholder - Placeholder text for search input (default: 'Filter options...')
-    @props string $rowClass - CSS class for field wrapper (default: 'row mb-2')
-    @props string $labelClass - CSS class for label (default: 'col-4 col-form-label')
-    @props string $inputClass - CSS class for search input (default: 'form-control form-control-sm combobox-input')
-    @props string $selectClass - CSS class for hidden select (default: 'form-select d-none combobox-select')
+    @props string $rowClass - CSS class for field wrapper (default: 'flex items-center gap-2 mb-2')
+    @props string $labelClass - CSS class for label (default: 'w-1/3 font-semibold text-sm')
+    @props string $inputClass - CSS class for search input (default: 'input input-bordered input-sm w-full combobox-input')
+    @props string $selectClass - CSS class for hidden select (default: 'hidden combobox-select')
 
     @example
     <x-autocomplete-field
@@ -45,36 +45,46 @@
     'required' => false,
     'noneLabel' => null,
     'placeholder' => null,
-    'rowClass' => 'row mb-2',
-    'labelClass' => 'col-4 col-form-label',
-    'inputClass' => 'form-control form-control-sm combobox-input',
-    'selectClass' => 'form-select d-none combobox-select',
+    'rowClass' => 'flex items-center gap-2 mb-2',
+    'labelClass' => 'w-1/3 font-semibold text-sm',
+    'inputClass' => 'input input-bordered input-sm w-full combobox-input',
+    'selectClass' => 'hidden combobox-select',
 ])
 
 @php
     $inputId = $id.'Input';
     $listId = $id.'Options';
     $selectId = $id.'Select';
-    $placeholder = $placeholder ?? __('Filter options...');
+    // Determine placeholder based on context
+    $placeholder = $placeholder ?? __('Select an option');
+    // Display value: show selected label, or placeholder text if empty and has noneLabel
+    $displayValue = $selectedLabel ?: '';
 @endphp
 
 <div class="{{ $rowClass }}">
   <label for="{{ $inputId }}" class="{{ $labelClass }}">{{ $label }}</label>
-  <div class="col-8">
-    <div class="combobox">
+  <div class="flex-1 relative">
+    <div class="combobox relative">
       <input type="search"
-             class="{{ $inputClass }}"
+             class="{{ $inputClass }} pr-8"
              placeholder="{{ $placeholder }}"
              list="{{ $listId }}"
              data-combobox-target="#{{ $selectId }}"
+             data-empty-text="{{ $noneLabel ?? __('Select an option') }}"
              id="{{ $inputId }}"
-             value="{{ $selectedLabel ?? '' }}"
+             value="{{ $displayValue }}"
              autocomplete="off">
       <datalist id="{{ $listId }}">
         @foreach ($options as $option)
           <option value="{{ data_get($option, $optionLabel) }}" data-code="{{ data_get($option, $optionValue) }}"></option>
         @endforeach
       </datalist>
+      {{-- Dropdown indicator --}}
+      <span class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-base-content/40">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </span>
     </div>
     <select class="{{ $selectClass }}"
             id="{{ $selectId }}"

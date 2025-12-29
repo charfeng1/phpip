@@ -1,4 +1,4 @@
-<form id="createMatterForm" autocomplete="off">
+<form id="createMatterForm" autocomplete="off" class="space-y-3">
   @php
     $selectedCategoryCode = old('category_code', $parent_matter->category_code ?? ($category['code'] ?? ''));
     $categoriesCollection = collect($categoriesList);
@@ -38,26 +38,23 @@
     option-label="category"
     :selected-value="$selectedCategoryCode"
     :selected-label="$selectedCategoryName"
-    :required="true"
-    label-class="col-4 col-form-label fw-bold" />
+    :required="true" />
   @if ( $operation == 'ops' )
-  <div class="row mb-2">
-    <label for="docnum" class="col-4 col-form-label fw-bold">Pub Number</label>
-    <div class="col-8">
-      <input type="text" name="docnum" class="form-control" placeholder="CCNNNNNN">
+  <div class="flex items-center gap-2 mb-2">
+    <label for="docnum" class="w-1/3 font-semibold text-sm">Pub Number</label>
+    <div class="flex-1">
+      <input type="text" name="docnum" class="input input-bordered input-sm w-full" placeholder="CCNNNNNN">
+      <div class="text-xs text-base-content/60 mt-1">
+        Publication number prefixed with the country code and optionally suffixed with the kind code.
+        No spaces nor non-alphanumeric characters.
+      </div>
     </div>
-    <small class="form-text text-muted">
-      Publication number prefixed with the country code and optionally suffixed with the kind code. 
-      No spaces nor non-alphanumeric characters. 
-      {{-- Application number in DOCDB format: country code followed by the number (only digits, no spaces and without the ending ".n"). 
-      For numbers without a two-digit year (like the US), insert YY. For PCTs: CCYYYY012345W. --}}
-    </small>
   </div>
-  <div class="row mb-2">
-    <label for="client_id" class="col-4 col-form-label fw-bold">{{ __('Client') }}</label>
-    <div class="col-8">
+  <div class="flex items-center gap-2 mb-2">
+    <label for="client_id" class="w-1/3 font-semibold text-sm">{{ __('Client') }}</label>
+    <div class="flex-1">
       <input type="hidden" name="client_id">
-      <input type="text" class="form-control" data-ac="/actor/autocomplete" data-actarget="client_id" autocomplete="off">
+      <input type="text" class="input input-bordered input-sm w-full" data-ac="/actor/autocomplete" data-actarget="client_id" autocomplete="off">
     </div>
   </div>
   @else
@@ -71,8 +68,7 @@
     option-label="name"
     :selected-value="$selectedCountryCode"
     :selected-label="$selectedCountryName"
-    :required="true"
-    label-class="col-4 col-form-label fw-bold" />
+    :required="true" />
   <x-autocomplete-field
     id="origin"
     name="origin"
@@ -94,13 +90,13 @@
     :selected-label="$selectedTypeName"
     :required="true" />
   @endif
-  <div class="row mb-2">
-    <label for="caseref" class="col-4 col-form-label fw-bold">{{ __('Caseref') }}</label>
-    <div class="col-8">
+  <div class="flex items-center gap-2 mb-2">
+    <label for="caseref" class="w-1/3 font-semibold text-sm">{{ __('Caseref') }}</label>
+    <div class="flex-1">
       @if ( $operation == 'descendant' )
-      <input type="text" class="form-control" name="caseref" value="{{ $parent_matter->caseref ?? '' }}" readonly>
+      <input type="text" class="input input-bordered input-sm w-full" name="caseref" value="{{ $parent_matter->caseref ?? '' }}" readonly>
       @else
-      <input type="text" class="form-control" data-ac="/matter/new-caseref" name="caseref" value="{{ $parent_matter->caseref ?? ( $category['next_caseref'] ?? '') }}" autocomplete="off">
+      <input type="text" class="input input-bordered input-sm w-full" data-ac="/matter/new-caseref" name="caseref" value="{{ $parent_matter->caseref ?? ( $category['next_caseref'] ?? '') }}" autocomplete="off">
       @endif
     </div>
   </div>
@@ -113,29 +109,31 @@
     option-label="display"
     :selected-value="$selectedResponsibleLogin"
     :selected-label="$selectedResponsibleDisplay"
-    :required="true"
-    row-class="row"
-    label-class="col-4 col-form-label fw-bold" />
+    :required="true" />
 
   @if ( $operation == 'descendant' )
-  <fieldset>
-    <legend>{{ __('Use original matter as') }}</legend>
-    <div class="form-check my-1">
-      <input class="form-check-input mt-0" type="radio" name="priority" value="1" checked>
-      <label class="form-check-label">{{ __('Priority application') }}</label>
+  <fieldset class="border border-base-300 rounded-lg p-3 mt-3">
+    <legend class="font-semibold text-sm px-2">{{ __('Use original matter as') }}</legend>
+    <div class="form-control">
+      <label class="label cursor-pointer justify-start gap-3">
+        <input type="radio" name="priority" value="1" class="radio radio-primary radio-sm" checked>
+        <span class="label-text">{{ __('Priority application') }}</span>
+      </label>
     </div>
-    <div class="form-check my-1">
-      <input class="form-check-input mt-0" type="radio" name="priority" value="0">
-      <label class="form-check-label">{{ __('Parent application') }}</label>
+    <div class="form-control">
+      <label class="label cursor-pointer justify-start gap-3">
+        <input type="radio" name="priority" value="0" class="radio radio-primary radio-sm">
+        <span class="label-text">{{ __('Parent application') }}</span>
+      </label>
     </div>
   </fieldset>
   @endif
 
-  <div class="d-grid">
+  <div class="mt-4">
     @if ( $operation == 'ops' )
-    <button type="button" id="createFamilySubmit" class="btn btn-primary">{{ __('Create') }}</button>
+    <button type="button" id="createFamilySubmit" class="btn btn-primary w-full">{{ __('Create') }}</button>
     @else
-    <button type="button" id="createMatterSubmit" class="btn btn-primary">{{ __('Create') }}</button>
+    <button type="button" id="createMatterSubmit" class="btn btn-primary w-full">{{ __('Create') }}</button>
     @endif
   </div>
 </form>

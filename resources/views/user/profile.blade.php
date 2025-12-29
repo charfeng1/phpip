@@ -1,14 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
-<legend class="alert alert-dark d-flex justify-content-between py-2 mb-1">
-  {{ __('My Profile') }}
-</legend>
+<div class="bg-base-200 px-4 py-2 mb-2 rounded-lg">
+  <h2 class="text-lg font-semibold">{{ __('My Profile') }}</h2>
+</div>
 
 @if (session('success'))
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-  {{ session('success') }}
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
+<div x-data="{ show: true }" x-show="show" x-transition class="alert alert-success" role="alert">
+  <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+  <span>{{ session('success') }}</span>
+  <button type="button" class="btn btn-sm btn-circle btn-ghost" @click="show = false" aria-label="{{ __('Close') }}">✕</button>
 </div>
 @endif
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="phpip">
 
 <head>
   <meta charset="utf-8">
@@ -36,8 +36,9 @@
   @yield('style')
 </head>
 
-<body class="modern-body @yield('body-class') @cannot('readwrite') role-readonly @endcannot">
-  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+<body class="bg-base-200/30 min-h-screen @yield('body-class') @cannot('readwrite') role-readonly @endcannot">
+  {{-- SVG Symbol Definitions --}}
+  <svg xmlns="http://www.w3.org/2000/svg" class="hidden">
     <symbol id="check-circle-fill" viewBox="0 0 16 16">
       <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
     </symbol>
@@ -111,241 +112,255 @@
     </symbol>
   </svg>
 
-  <div id="app">
-    <nav class="navbar navbar-expand-lg navbar-light bg-glass shadow-sm mb-4">
-      <div class="container">
-        <a class="navbar-brand d-flex align-items-center" href="{{ url('/') }}">
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" class="me-2">
-            <rect width="32" height="32" rx="8" fill="var(--color-primary)"/>
+  <div id="app" class="min-h-screen flex flex-col">
+    {{-- Navbar --}}
+    <div class="navbar bg-base-100 shadow-sm border-b border-base-300 px-4 sticky top-0 z-50">
+      <div class="navbar-start">
+        <a href="{{ url('/') }}" class="flex items-center gap-2 font-bold text-lg">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" class="text-primary">
+            <rect width="32" height="32" rx="8" fill="currentColor"/>
             <path d="M8 12L16 8L24 12L16 16L8 12Z" fill="white" opacity="0.9"/>
             <path d="M8 20L16 16L24 20L16 24L8 20Z" fill="white" opacity="0.7"/>
           </svg>
-          <span class="fw-bold">{{ config('app.name', 'phpIP') }}</span>
+          <span>{{ config('app.name', 'phpIP') }}</span>
         </a>
+      </div>
 
-        @auth
-        <form method="POST" action="/matter/search" class="ms-auto me-3 d-none d-lg-block">
+      @auth
+      {{-- Search - Center --}}
+      <div class="navbar-center hidden lg:flex">
+        <form method="POST" action="/matter/search" class="join">
           @csrf
-          <div class="input-group">
-            <span class="input-group-text bg-white border-end-0">
-              <svg width="16" height="16" fill="var(--text-tertiary)" class="search-icon">
-                <path d="M6.5 2a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9zM1 6.5a5.5 5.5 0 1 1 8.5 4.65L15 16l-1-1-5.5-5.5A5.5 5.5 0 0 1 1 6.5z"/>
+          <div class="join-item bg-base-200 flex items-center px-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input type="search" class="input input-bordered join-item w-48 focus:w-64 transition-all" name="matter_search" placeholder="{{ __('Search matters...') }}" autocomplete="off">
+          <select class="select select-bordered join-item" name="search_field">
+            <option value="Ref" selected>{{ __('Case Ref') }}</option>
+            <option value="Responsible">{{ __('Responsible') }}</option>
+            <option value="Title">{{ __('Title') }}</option>
+            <option value="Client">{{ __('Client') }}</option>
+            <option value="Applicant">{{ __('Applicant') }}</option>
+          </select>
+          <button class="btn btn-primary join-item" type="submit">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+        </form>
+      </div>
+      @endauth
+
+      <div class="navbar-end gap-1">
+        @guest
+          @if (Route::has('login'))
+            <a href="{{ route('login') }}" class="btn btn-ghost btn-sm">{{ __('Login') }}</a>
+          @endif
+          @if (Route::has('register'))
+            <a href="{{ route('register') }}" class="btn btn-primary btn-sm">{{ __('Register') }}</a>
+          @endif
+        @else
+          {{-- Dashboard --}}
+          <a href="{{ route('home') }}" class="btn btn-ghost btn-sm gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+            </svg>
+            <span class="hidden md:inline">{{ __('Dashboard') }}</span>
+          </a>
+
+          {{-- Matters Dropdown --}}
+          <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-sm gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-            </span>
-            <input type="search" class="form-control border-start-0 border-end-0" id="matter-search" name="matter_search" placeholder="{{ __('Search matters...') }}" autocomplete="off">
-            <select class="form-select" id="matter-option" name="search_field">
-              <option value="Ref" selected>{{ __('Case Ref') }}</option>
-              <option value="Responsible">{{ __('Responsible') }}</option>
-              <option value="Title">{{ __('Title') }}</option>
-              <option value="Client">{{ __('Client') }}</option>
-              <option value="Applicant">{{ __('Applicant') }}</option>
-            </select>
-            <button class="btn btn-primary" type="submit">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M6.5 2a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9zM1 6.5a5.5 5.5 0 1 1 8.5 4.65L15 16l-1-1-5.5-5.5A5.5 5.5 0 0 1 1 6.5z"/>
+              <span class="hidden md:inline">{{ __('Matters') }}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[100] w-56 p-2 shadow-lg border border-base-300">
+              <li class="menu-title text-xs font-semibold text-base-content/60 px-2 py-1">{{ __('Case Management') }}</li>
+              <li><a href="{{ url('/matter') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                {{ __('All Matters') }}
+              </a></li>
+              <li><a href="{{ url('/matter?display_with=PAT') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                {{ __('Patents') }}
+              </a></li>
+              <li><a href="{{ url('/matter?display_with=TM') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                {{ __('Trademarks') }}
+              </a></li>
+              @can('readwrite')
+              <li class="border-t border-base-200 mt-2 pt-2">
+                <a href="/matter/create?operation=new" data-modal-target="#ajaxModal" data-size="modal-sm" class="text-primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                  {{ __('Create New Matter') }}
+                </a>
+              </li>
+              <li>
+                <a href="/matter/create?operation=ops" data-modal-target="#ajaxModal" data-size="modal-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                  </svg>
+                  {{ __('Create from OPS') }}
+                </a>
+              </li>
+              @endcan
+            </ul>
+          </div>
+
+          @can('readonly')
+          @can('readwrite')
+          {{-- Tools Dropdown --}}
+          <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-sm gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span class="hidden md:inline">{{ __('Tools') }}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[100] w-52 p-2 shadow-lg border border-base-300">
+              <li><a href="{{ url('/renewal') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {{ __('Manage renewals') }}
+              </a></li>
+              <li><a href="{{ url('/fee') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {{ __('Renewal fees') }}
+              </a></li>
+              @can('admin')
+              <li class="border-t border-base-200 mt-2 pt-2"><a href="{{ url('/rule') }}">{{ __('Rules') }}</a></li>
+              <li><a href="{{ url('/document') }}">{{ __('Email Templates') }}</a></li>
+              <li><a href="{{ url('/countries') }}">{{ __('Country Management') }}</a></li>
+              <li><a href="{{ url('/template-member') }}">{{ __('Template Members') }}</a></li>
+              @endcan
+            </ul>
+          </div>
+          @endcan
+          @endcan
+
+          {{-- Tables Dropdown --}}
+          <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-sm gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              <span class="hidden md:inline">{{ __('Tables') }}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[100] w-52 p-2 shadow-lg border border-base-300">
+              <li><a href="{{ url('/actor') }}">{{ __('Actors') }}</a></li>
+              @can('admin')
+              <li><a href="{{ url('/user') }}">{{ __('Users') }}</a></li>
+              <li><a href="{{ url('/eventname') }}">{{ __('Event Names') }}</a></li>
+              <li><a href="{{ url('/category') }}">{{ __('Categories') }}</a></li>
+              <li><a href="{{ url('/role') }}">{{ __('Actor Roles') }}</a></li>
+              <li><a href="{{ url('/default_actor') }}">{{ __('Default Actors') }}</a></li>
+              <li><a href="{{ url('/type') }}">{{ __('Matter Types') }}</a></li>
+              <li><a href="{{ url('/classifier_type') }}">{{ __('Classifier Types') }}</a></li>
+              @endcan
+            </ul>
+          </div>
+
+          {{-- User Menu --}}
+          <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-sm gap-2">
+              <div class="avatar placeholder">
+                <div class="bg-primary text-primary-content rounded-full w-8">
+                  <span class="text-xs font-bold">{{ strtoupper(substr(Auth::user()->login, 0, 2)) }}</span>
+                </div>
+              </div>
+              <span class="hidden md:inline">{{ Auth::user()->login }}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[100] w-52 p-2 shadow-lg border border-base-300">
+              <li class="menu-title">
+                <span class="text-xs text-base-content/60">{{ __('Signed in as') }}</span>
+                <span class="font-semibold text-base-content">{{ Auth::user()->login }}</span>
+              </li>
+              <li class="border-t border-base-200 mt-2 pt-2">
+                <a href="{{ route('user.profile') }}">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  {{ __('My Profile') }}
+                </a>
+              </li>
+              <li class="border-t border-base-200 mt-2 pt-2">
+                <a href="{{ route('logout') }}" class="text-error" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  {{ __('Logout') }}
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+            @csrf
+          </form>
+        @endguest
+      </div>
+    </div>
+
+    {{-- Main Content --}}
+    <main class="flex-1 px-4 py-4">
+      @yield('content')
+    </main>
+
+    {{-- Modal for AJAX content (DaisyUI) --}}
+    <dialog id="ajaxModal" class="modal modal-bottom sm:modal-middle">
+      <div class="modal-box max-w-2xl">
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-base-300">
+          <h3 class="modal-title font-bold text-lg text-primary">Ajax title placeholder</h3>
+          <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-          </div>
-        </form>
-        @endauth
-
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
-          <svg width="24" height="24" fill="var(--text-primary)" viewBox="0 0 24 24">
-            <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <!-- Left Side Of Navbar -->
-          <ul class="navbar-nav me-auto">
-          </ul>
-
-          <!-- Right Side Of Navbar -->
-          <ul class="navbar-nav align-items-center">
-            @guest
-              @if (Route::has('login'))
-                <li class="nav-item">
-                  <a class="nav-link btn btn-outline-primary btn-sm" href="{{ route('login') }}">{{ __('Login') }}</a>
-                </li>
-              @endif
-
-              @if (Route::has('register'))
-                <li class="nav-item ms-2">
-                  <a class="nav-link btn btn-primary btn-sm" href="{{ route('register') }}">{{ __('Register') }}</a>
-                </li>
-              @endif
-            @else
-              <li class="nav-item">
-                <a class="nav-link d-flex align-items-center" href="{{ route('home') }}">
-                  <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" class="me-2">
-                    <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
-                  </svg>
-                  {{ __('Dashboard') }}
-                </a>
-              </li>
-
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" class="me-2">
-                    <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
-                  </svg>
-                  {{ __('Matters') }}
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                  <div class="dropdown-header d-flex align-items-center px-3 py-2">
-                    <svg width="16" height="16" fill="var(--color-primary)" viewBox="0 0 24 24" class="me-2">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
-                    </svg>
-                  <span class="fw-semibold">{{ __('Case Management') }}</span>
-                  </div>
-                  <li><a class="dropdown-item" href="{{ url('/matter') }}">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="me-2">
-                      <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
-                    </svg>
-                    {{ __('All Matters') }}
-                  </a></li>
-                  <li><a class="dropdown-item" href="{{ url('/matter?display_with=PAT') }}">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="me-2">
-                      <path d="M9 2v20l-7-5V7l7-5zm2 0h10v15h-10V2z"/>
-                    </svg>
-                    {{ __('Patents') }}
-                  </a></li>
-                  <li><a class="dropdown-item" href="{{ url('/matter?display_with=TM') }}">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="me-2">
-                      <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
-                    </svg>
-                    {{ __('Trademarks') }}
-                  </a></li>
-                  @can('readwrite')
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item text-primary" href="/matter/create?operation=new" data-bs-target="#ajaxModal" data-bs-toggle="modal" data-size="modal-sm">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="me-2">
-                      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                    </svg>
-                    {{ __('Create New Matter') }}
-                  </a></li>
-                  <li><a class="dropdown-item" href="/matter/create?operation=ops" data-bs-target="#ajaxModal" data-bs-toggle="modal" data-size="modal-sm">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="me-2">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                    </svg>
-                    {{ __('Create from OPS') }}
-                  </a></li>
-                  @endcan
-                </ul>
-              </li>
-
-              @can('readonly')
-              @can('readwrite')
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" class="me-2">
-                    <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
-                  </svg>
-                  {{ __('Tools') }}
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                  <li><a class="dropdown-item" href="{{ url('/renewal') }}">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="me-2">
-                      <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.2 14.2L11 13V7h1.5v5.2l4.5 2.7-.8 1.3z"/>
-                    </svg>
-                    {{ __('Manage renewals') }}
-                  </a></li>
-                  <li><a class="dropdown-item" href="{{ url('/fee') }}">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="me-2">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1.81.45 1.61 1.67 1.61 1.16 0 1.6-.64 1.6-1.46 0-.84-.68-1.22-2.05-1.68-1.65-.54-3.43-1.31-3.43-3.43 0-1.61 1.13-2.85 2.93-3.21V5h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.63-1.63-1.63-1.01 0-1.46.54-1.46 1.34 0 .74.49 1.12 1.84 1.58 1.68.54 3.64 1.24 3.64 3.53.01 1.68-1.12 3.03-3.08 3.43z"/>
-                    </svg>
-                    {{ __('Renewal fees') }}
-                  </a></li>
-                  @can('admin')
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="{{ url('/rule') }}">{{ __('Rules') }}</a></li>
-                  <li><a class="dropdown-item" href="{{ url('/document') }}">{{ __('Email Templates') }}</a></li>
-                  <li><a class="dropdown-item" href="{{ url('/countries') }}">{{ __('Country Management') }}</a></li>
-                  <li><a class="dropdown-item" href="{{ url('/template-member') }}">{{ __('Template Members') }}</a></li>
-                  @endcan
-                </ul>
-              </li>
-              @endcan
-              @endcan
-
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" class="me-2">
-                    <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
-                  </svg>
-                  {{ __('Tables') }}
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                  <li><a class="dropdown-item" href="{{ url('/actor') }}">{{ __('Actors') }}</a></li>
-                  @can('admin')
-                  <li><a class="dropdown-item" href="{{ url('/user') }}">{{ __('Users') }}</a></li>
-                  <li><a class="dropdown-item" href="{{ url('/eventname') }}">{{ __('Event Names') }}</a></li>
-                  <li><a class="dropdown-item" href="{{ url('/category') }}">{{ __('Categories') }}</a></li>
-                  <li><a class="dropdown-item" href="{{ url('/role') }}">{{ __('Actor Roles') }}</a></li>
-                  <li><a class="dropdown-item" href="{{ url('/default_actor') }}">{{ __('Default Actors') }}</a></li>
-                  <li><a class="dropdown-item" href="{{ url('/type') }}">{{ __('Matter Types') }}</a></li>
-                  <li><a class="dropdown-item" href="{{ url('/classifier_type') }}">{{ __('Classifier Types') }}</a></li>
-                  @endcan
-                </ul>
-              </li>
-
-              <li class="nav-item dropdown ms-3">
-                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <div class="user-avatar d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; background: var(--color-primary); color: white; border-radius: 50%; font-weight: 600; font-size: 14px;">
-                    {{ strtoupper(substr(Auth::user()->login, 0, 2)) }}
-                  </div>
-                  <span class="d-none d-md-inline">{{ Auth::user()->login }}</span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                  <li class="px-3 py-2">
-                    <div class="small text-tertiary">{{ __('Signed in as') }}</div>
-                    <div class="fw-semibold">{{ Auth::user()->login }}</div>
-                  </li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="{{ route('user.profile') }}">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="me-2">
-                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                    </svg>
-                    {{ __('My Profile') }}
-                  </a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item text-danger" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" class="me-2">
-                      <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
-                    </svg>
-                    {{ __('Logout') }}
-                  </a></li>
-                </ul>
-              </li>
-            @endguest
-          </ul>
+          </form>
+        </div>
+        <div class="modal-body">
+          <span class="loading loading-spinner loading-lg text-primary"></span>
+        </div>
+        <div class="modal-action mt-4 pt-3 border-t border-base-300">
+          <span id="footerAlert" class="flex-1 text-sm"></span>
+          <form method="dialog">
+            <button class="btn btn-ghost">{{ __('Close') }}</button>
+          </form>
         </div>
       </div>
-    </nav>
-
-    <main class="container-fluid px-4">
-      @yield('content')
-      <div id="ajaxModal" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-          <!-- Modal content-->
-          <div class="modal-content">
-            <div class="modal-header bg-info text-light">
-              <h1 class="modal-title fs-2">Ajax title placeholder</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-              <div class="spinner-border" role="status">
-                <span class="sr-only">Loading...</span>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <span id="footerAlert" class="alert float-start"></span>
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
   </div>
   @yield('script')
 </body>
