@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\EventCode;
 use App\Enums\UserRole;
+use App\Http\Requests\ClearTasksRequest;
 use App\Models\Matter;
 use App\Models\Task;
 use Illuminate\Http\Request;
@@ -56,9 +57,9 @@ class HomeController extends Controller
                 $query->whereHas('matter.client', fn ($q) => $q->where('actor_id', $user->id));
             }
 
-            // Handle user_dashboard parameter
+            // Handle user_dashboard parameter (trim to handle CHAR column padding)
             if ($request->filled('user_dashboard')) {
-                $userDashboard = $request->user_dashboard;
+                $userDashboard = trim($request->user_dashboard);
                 $query->where(fn ($q) => $q
                     ->where('assigned_to', $userDashboard)
                     ->orWhereHas('matter', fn ($mq) => $mq->where('responsible', $userDashboard)));
@@ -80,14 +81,11 @@ class HomeController extends Controller
     /**
      * Clear selected tasks by setting their done dates.
      *
-     * @param Request $request Contains task_ids array and done_date
+     * @param ClearTasksRequest $request Contains task_ids array and done_date
      * @return \Illuminate\Http\JsonResponse
      */
-    public function clearTasks(Request $request)
+    public function clearTasks(ClearTasksRequest $request)
     {
-        $this->validate($request, [
-            'done_date' => 'bail|required',
-        ]);
         $tids = $request->task_ids;
         $done_date = Carbon::createFromLocaleIsoFormat('L', app()->getLocale(), $request->done_date);
         $updated = 0;

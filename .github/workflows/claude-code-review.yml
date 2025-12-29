@@ -11,21 +11,7 @@ on:
     #   - "src/**/*.jsx"
 
 jobs:
-  # Wait for tests to pass first
-  wait-for-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Wait for tests workflow
-        uses: fountainhead/action-wait-for-check@v1.2.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          checkName: tests
-          ref: ${{ github.event.pull_request.head.sha }}
-          timeoutSeconds: 600
-          intervalSeconds: 30
-
   claude-review:
-    needs: wait-for-tests
     runs-on: ubuntu-latest
     permissions:
       contents: read
