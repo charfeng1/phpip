@@ -96,6 +96,7 @@ class SchemaMigrationTest extends TestCase
             // Tier 5: Laravel Standard Tables (framework-managed, existence-only check)
             'migrations' => ['migrations', []],
             'password_resets' => ['password_resets', []],
+            'jobs' => ['jobs', ['id', 'queue', 'payload', 'attempts']],
             'failed_jobs' => ['failed_jobs', []],
 
             // Tier 6: Audit Table (managed by Auditable package, partial key columns)
@@ -232,7 +233,7 @@ class SchemaMigrationTest extends TestCase
             // Tier 4
             'matter_actor_lnk', 'classifier', 'event_class_lnk', 'renewals_logs',
             // Tier 5
-            'migrations', 'password_resets', 'failed_jobs',
+            'migrations', 'password_resets', 'jobs', 'failed_jobs',
             // Tier 6
             'audit_logs',
         ];
@@ -241,7 +242,7 @@ class SchemaMigrationTest extends TestCase
             $this->assertTrue(Schema::hasTable($table), "Table '{$table}' should exist");
         }
 
-        $this->assertCount(24, $expectedTables);
+        $this->assertCount(25, $expectedTables);
     }
 
     public function test_all_expected_views_exist(): void
