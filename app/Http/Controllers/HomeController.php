@@ -56,9 +56,9 @@ class HomeController extends Controller
                 $query->whereHas('matter.client', fn ($q) => $q->where('actor_id', $user->id));
             }
 
-            // Handle user_dashboard parameter
+            // Handle user_dashboard parameter (trim to handle CHAR column padding)
             if ($request->filled('user_dashboard')) {
-                $userDashboard = $request->user_dashboard;
+                $userDashboard = trim($request->user_dashboard);
                 $query->where(fn ($q) => $q
                     ->where('assigned_to', $userDashboard)
                     ->orWhereHas('matter', fn ($mq) => $mq->where('responsible', $userDashboard)));

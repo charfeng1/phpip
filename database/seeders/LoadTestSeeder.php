@@ -188,19 +188,18 @@ class LoadTestSeeder extends Seeder
 
                 // Create renewal tasks for granted patents and utility models
                 if (in_array($category, ['PAT', 'UM'])) {
-                    $this->createRenewalTasks($matter, $filingEvent, $grantDate, $userLogins);
+                    $this->createRenewalTasks($filingEvent, $grantDate, $userLogins);
                 }
             }
         }
 
         // Create some general tasks
-        $this->createGeneralTasks($matter, $filingEvent, $userLogins, $this->faker->numberBetween(0, 3));
+        $this->createGeneralTasks($filingEvent, $userLogins, $this->faker->numberBetween(0, 3));
 
         return $matter;
     }
 
     private function createRenewalTasks(
-        Matter $matter,
         Event $filingEvent,
         \DateTime $grantDate,
         array $userLogins
@@ -229,7 +228,6 @@ class LoadTestSeeder extends Seeder
     }
 
     private function createGeneralTasks(
-        Matter $matter,
         Event $triggerEvent,
         array $userLogins,
         int $count
