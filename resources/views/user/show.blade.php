@@ -45,12 +45,17 @@
           <tr>
             <th>{{ __('Language') }}</th>
             <td>
-              <select class="form-select noformat" name="language">
-                <option value="en_GB" {{ $userInfo->language == 'en_GB' ? 'selected' : '' }}>English (British)</option>
-                <option value="en_US" {{ $userInfo->language == 'en_US' ? 'selected' : '' }}>English (American)</option>
-                <option value="fr" {{ $userInfo->language == 'fr' ? 'selected' : '' }}>Français</option>
-                <option value="de" {{ $userInfo->language == 'de' ? 'selected' : '' }}>Deutsch</option>
-                <option value="es" {{ $userInfo->language == 'es' ? 'selected' : '' }}>Español</option>
+              @php
+                $currentLang = $userInfo->language ?? config('locales.default', 'en');
+                // Normalize legacy locale codes
+                if (in_array($currentLang, ['en_GB', 'en_US'])) {
+                    $currentLang = 'en';
+                }
+              @endphp
+              <select class="select select-bordered select-sm w-full noformat" name="language">
+                @foreach(config('locales.supported', ['en' => 'English']) as $code => $name)
+                  <option value="{{ $code }}" {{ $currentLang === $code ? 'selected' : '' }}>{{ $name }}</option>
+                @endforeach
               </select>
             </td>
           </tr>

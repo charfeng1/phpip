@@ -3,33 +3,34 @@ $mdeps = $matter_dependencies->groupBy('role');
 $adeps = $other_dependencies->groupBy('Dependency');
 @endphp
 
-<p class="fw-bolder my-2">{{ __('Matter Dependencies (only the first few are shown)') }}</p>
+<p class="font-semibold my-2">{{ __('Matter Dependencies (only the first few are shown)') }}</p>
 @forelse($mdeps as $role => $rmdeps)
-  <div class="card m-1">
-    <div class="card-header p-0">
-      <b>{{ $role }}</b>
+  <div class="card bg-base-100 border border-base-300 m-1">
+    <div class="px-3 py-1.5 bg-base-200/50 border-b border-base-300">
+      <span class="font-semibold text-sm">{{ $role }}</span>
     </div>
-    <div class="card-body p-1 align-middle">
+    <div class="p-2 flex flex-wrap gap-1">
       @foreach($rmdeps as $mal)
-        <a class="badge text-bg-primary" href="/matter/{{$mal->matter_id}}" target="_blank">{{ $mal->matter->uid }}</a>
+        <a class="badge badge-primary badge-sm" href="/matter/{{$mal->matter_id}}">{{ $mal->matter->uid }}</a>
       @endforeach
     </div>
   </div>
 @empty
-  {{ __('No dependencies') }}
+  <span class="text-base-content/60">{{ __('No dependencies') }}</span>
 @endforelse
-<p class="fw-bolder my-2">{{ __('Inter-Actor Dependencies') }}</p>
+
+<p class="font-semibold my-2">{{ __('Inter-Actor Dependencies') }}</p>
 @forelse($adeps as $dep => $aadeps)
-  <div class="card m-1">
-    <div class="card-header p-0">
-      <b>{{ $dep }}</b>
+  <div class="card bg-base-100 border border-base-300 m-1">
+    <div class="px-3 py-1.5 bg-base-200/50 border-b border-base-300">
+      <span class="font-semibold text-sm">{{ $dep }}</span>
     </div>
-    <div class="card-body p-1">
+    <div class="p-2 flex flex-wrap gap-1">
       @foreach($aadeps as $other)
-        <a href="/actor/{{$other->id}}" target="_blank">{{ $other->Actor }}</a>
+        <a class="link link-primary link-hover text-sm" href="/actor/{{$other->id}}">{{ $other->Actor }}</a>
       @endforeach
     </div>
   </div>
 @empty
-  {{ __('No dependencies') }}
+  <span class="text-base-content/60">{{ __('No dependencies') }}</span>
 @endforelse

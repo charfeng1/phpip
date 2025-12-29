@@ -121,6 +121,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('user', App\Http\Controllers\UserController::class);
     Route::get('/profile', [App\Http\Controllers\UserController::class, 'profile'])->name('user.profile');
     Route::put('/profile/update', [App\Http\Controllers\UserController::class, 'updateProfile'])->name('user.updateProfile');
+    Route::post('/locale/{locale}', [App\Http\Controllers\UserController::class, 'setLocale'])
+        ->middleware('throttle:10,1')
+        ->name('user.setLocale');
     Route::apiResource('task', App\Http\Controllers\TaskController::class);
 
     // Audit trail routes (admin only)

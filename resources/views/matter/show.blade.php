@@ -16,11 +16,10 @@ $actors = $matter->actors->groupBy('role_name');
           <a class="text-primary-content font-semibold {{ $matter->dead ? 'line-through' : '' }}"
              href="/matter?Ref={{ $matter->caseref }}"
              title="{{ __('See family') }}"
-             target="_blank"
              id="uid">
              {{ $matter->uid }}
           </a>
-          <span class="badge badge-ghost badge-sm text-primary-content/80">({{ $matter->category->category }})</span>
+          <span class="badge badge-sm bg-white/20 text-white">{{ $matter->category->category }}</span>
         </div>
         <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           @php
@@ -319,7 +318,7 @@ $actors = $matter->actors->groupBy('role_name');
               @if ( $event->alt_matter_id )
               <span class="col-span-3 text-base-content/70">{{ \Carbon\Carbon::parse($event->link->event_date ?? $event->event_date)->isoFormat('L') }}</span>
               <span class="col-span-4">
-                <a href="/matter/{{ $event->alt_matter_id }}" title="{{ $event->altMatter->uid }}" target="_blank" class="link link-primary">{{ $event->altMatter->country }} {{ $event->link->detail ?? $event->detail }}</a>
+                <a href="/matter/{{ $event->alt_matter_id }}" title="{{ $event->altMatter->uid }}" class="link link-primary">{{ $event->altMatter->country }} {{ $event->link->detail ?? $event->detail }}</a>
               </span>
               @else
               <span class="col-span-3 text-base-content/70">{{ \Carbon\Carbon::parse($event->event_date)->isoFormat('L') }}</span>

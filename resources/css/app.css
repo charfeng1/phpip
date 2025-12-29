@@ -5,6 +5,9 @@
  * Aesthetic: Professional minimalism with purposeful depth and clarity.
  */
 
+/* Typography - IBM Plex for enterprise clarity, Noto Sans SC for Chinese */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+
 @import "tailwindcss";
 @plugin "daisyui";
 @plugin "@tailwindcss/forms";
@@ -130,11 +133,11 @@
 }
 
 /* ============================================
-   TYPOGRAPHY - Inter with fallbacks
+   TYPOGRAPHY - IBM Plex for enterprise clarity
    ============================================ */
 @theme {
-  --font-sans: 'Inter', 'Noto Sans SC', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', ui-monospace, monospace;
+  --font-sans: 'IBM Plex Sans', 'Noto Sans SC', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SF Mono', 'Fira Code', ui-monospace, monospace;
 }
 
 /* ============================================
@@ -346,6 +349,12 @@
   color: oklch(25% 0.02 85) !important;
 }
 
+/* Ghost and outline badges should use base content color, not content colors */
+.badge-ghost,
+.badge-outline {
+  color: oklch(var(--bc)) !important;
+}
+
 /* Tabs - Linear-style underline variant */
 .tabs-bordered .tab {
   border-bottom-width: 2px;
@@ -417,4 +426,65 @@ body {
 
 [data-theme="phpip-dark"] ::selection {
   background-color: oklch(65% 0.12 285 / 0.35);
+}
+
+/* ============================================
+   LINK COLOR FIXES
+   Ensure links on colored backgrounds have proper contrast
+   ============================================ */
+
+/* Links with explicit content color classes should override default link styling */
+a.text-primary-content,
+.bg-primary a.text-primary-content,
+.bg-primary .text-primary-content {
+  color: white !important;
+}
+
+a.text-secondary-content,
+.bg-secondary a.text-secondary-content,
+.bg-secondary .text-secondary-content {
+  color: white !important;
+}
+
+a.text-info-content,
+.bg-info a.text-info-content,
+.bg-info .text-info-content {
+  color: white !important;
+}
+
+a.text-success-content,
+.bg-success a.text-success-content,
+.bg-success .text-success-content {
+  color: white !important;
+}
+
+a.text-error-content,
+.bg-error a.text-error-content,
+.bg-error .text-error-content {
+  color: white !important;
+}
+
+/* Warning content uses dark text */
+a.text-warning-content,
+.bg-warning a.text-warning-content,
+.bg-warning .text-warning-content {
+  color: oklch(25% 0.02 85) !important;
+}
+
+/* Disabled button styling - ensure readable text */
+.btn-disabled,
+.btn:disabled,
+.btn[disabled] {
+  color: oklch(45% 0.01 250) !important;
+  background-color: oklch(85% 0.005 250) !important;
+  border-color: oklch(80% 0.005 250) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="phpip-dark"] .btn-disabled,
+[data-theme="phpip-dark"] .btn:disabled,
+[data-theme="phpip-dark"] .btn[disabled] {
+  color: oklch(55% 0.01 250) !important;
+  background-color: oklch(30% 0.005 250) !important;
+  border-color: oklch(35% 0.005 250) !important;
 }

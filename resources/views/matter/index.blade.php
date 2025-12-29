@@ -234,7 +234,7 @@
           <tr class="hover:bg-base-200/50 cursor-pointer transition-colors {{ $matter->dead ? 'opacity-50' : '' }} {{ !$matter->container_id ? 'bg-info/5' : '' }}">
             <td>
               <div class="flex items-center gap-2">
-                <a href="/matter/{{ $matter->id }}" target="_blank" class="link link-primary link-hover font-medium">
+                <a href="/matter/{{ $matter->id }}" class="link link-primary link-hover font-medium">
                   {{ $matter->Ref }}
                 </a>
                 @if ($matter->container_id)
