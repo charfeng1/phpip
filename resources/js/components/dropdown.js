@@ -288,7 +288,8 @@ export function selectDropdown(config = {}) {
     placeholder: config.placeholder || 'Select...',
     searchable: config.searchable || false,
     multiple: config.multiple || false,
-    selectedValues: config.multiple ? (config.value || []) : [],
+    // Validate config.value is array when multiple mode is enabled
+    selectedValues: config.multiple ? (Array.isArray(config.value) ? config.value : []) : [],
     filterQuery: '',
 
     /**

@@ -302,6 +302,9 @@ export function confirm(options = {}) {
       </div>
     `;
 
+    // Use AbortController to clean up event listener on close
+    const abortController = new AbortController();
+
     window.dispatchEvent(new CustomEvent('open-modal', {
       detail: {
         title,
@@ -313,16 +316,21 @@ export function confirm(options = {}) {
             dialog.addEventListener('click', (e) => {
               const action = e.target.dataset.action;
               if (action === 'confirm') {
+                abortController.abort();
                 resolve(true);
                 window.dispatchEvent(new CustomEvent('close-all'));
               } else if (action === 'cancel') {
+                abortController.abort();
                 resolve(false);
                 window.dispatchEvent(new CustomEvent('close-all'));
               }
-            });
+            }, { signal: abortController.signal });
           }
         },
-        onClose: () => resolve(false)
+        onClose: () => {
+          abortController.abort();
+          resolve(false);
+        }
       }
     }));
   });

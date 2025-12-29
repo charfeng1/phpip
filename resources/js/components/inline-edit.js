@@ -295,9 +295,13 @@ export function inlineDate(config = {}) {
  * Batch inline edit - update multiple fields at once
  */
 export function batchInlineEdit(config = {}) {
+  // Store original values for cancel restore (deep clone)
+  const originalFields = JSON.parse(JSON.stringify(config.fields || {}));
+
   return {
     resource: config.resource || '',
-    fields: config.fields || {},
+    // Deep clone fields to avoid mutating config
+    fields: JSON.parse(JSON.stringify(config.fields || {})),
     editing: false,
     saving: false,
     errors: {},
@@ -314,8 +318,8 @@ export function batchInlineEdit(config = {}) {
      * Cancel editing
      */
     cancel() {
-      // Reset all fields to original values
-      for (const [field, value] of Object.entries(config.fields)) {
+      // Reset all fields to original values from stored copy
+      for (const [field, value] of Object.entries(originalFields)) {
         this.fields[field] = value;
       }
       this.editing = false;

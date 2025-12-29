@@ -305,7 +305,11 @@ export default function autocomplete(config = {}) {
      */
     updateTarget(value) {
       if (this.target) {
-        const targetInput = document.querySelector(`[name="${this.target}"], #${this.target}`);
+        const selector = `[name="${this.target}"], #${this.target}`;
+        // First try within component, then closest form, then document
+        const targetInput = this.$el.querySelector(selector)
+          || this.$el.closest('form')?.querySelector(selector)
+          || document.querySelector(selector);
         if (targetInput) {
           targetInput.value = value || '';
 

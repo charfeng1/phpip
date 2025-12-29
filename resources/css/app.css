@@ -7,6 +7,7 @@
 
 @import "tailwindcss";
 @plugin "daisyui";
+@plugin "@tailwindcss/forms";
 
 /* ============================================
    LIGHT THEME - "phpip"

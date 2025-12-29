@@ -324,44 +324,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
-
-  // Enhanced filter button interactions
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      // Add ripple effect
-      const ripple = document.createElement('span');
-      ripple.style.position = 'absolute';
-      ripple.style.width = '20px';
-      ripple.style.height = '20px';
-      ripple.style.background = 'rgba(255, 255, 255, 0.3)';
-      ripple.style.borderRadius = '50%';
-      ripple.style.transform = 'translate(-50%, -50%)';
-      ripple.style.pointerEvents = 'none';
-      ripple.style.animation = 'ripple 0.6s ease-out';
-
-      const rect = this.getBoundingClientRect();
-      ripple.style.left = `${e.clientX - rect.left}px`;
-      ripple.style.top = `${e.clientY - rect.top}px`;
-
-      this.style.position = 'relative';
-      this.style.overflow = 'hidden';
-      this.appendChild(ripple);
-
-      setTimeout(() => ripple.remove(), 600);
-    });
-  });
-
-  // Enhanced sorting buttons
-  document.querySelectorAll('.sort-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      // Add visual feedback
-      this.style.transform = 'scale(0.95)';
-      setTimeout(() => {
-        this.style.transform = 'scale(1)';
-      }, 150);
-    });
-  });
 });
 </script>
 @endpush
