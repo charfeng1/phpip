@@ -127,7 +127,7 @@ export function debounce(func, wait, immediate) {
 export const submitModalForm = (target, Form, after, submitbutton) => {
   submitbutton.insertAdjacentHTML(
     "afterbegin",
-    '<i class="spinner-border spinner-border-sm" role="status" />',
+    '<span class="loading loading-spinner loading-sm"></span>',
   );
   const formData = new FormData(Form);
   const params = new URLSearchParams(formData);
@@ -137,7 +137,7 @@ export const submitModalForm = (target, Form, after, submitbutton) => {
     .then((data) => {
       if (data.errors) {
         // Remove spinner if present
-        const spinner = submitbutton.getElementsByTagName("i")[0];
+        const spinner = submitbutton.querySelector(".loading");
         if (spinner) {
           spinner.remove();
         }
@@ -145,7 +145,7 @@ export const submitModalForm = (target, Form, after, submitbutton) => {
         footerAlert.classList.add("alert-danger");
         processSubmitErrors(data.errors, Form);
       } else if (data.exception) {
-        const spinner = submitbutton.getElementsByTagName("i")[0];
+        const spinner = submitbutton.querySelector(".loading");
         if (spinner) {
           spinner.remove();
         }
@@ -531,7 +531,7 @@ export function initMain() {
         // Show loading state
         e.target.insertAdjacentHTML(
           "afterbegin",
-          '<i class="spinner-border spinner-border-sm me-2" role="status" />',
+          '<span class="loading loading-spinner loading-sm mr-2"></span>',
         );
         e.target.disabled = true;
 
@@ -546,7 +546,7 @@ export function initMain() {
 
         fetchREST(form.dataset.resource, "PUT", params).then((data) => {
           // Remove loading spinner
-          const spinner = e.target.querySelector(".spinner-border");
+          const spinner = e.target.querySelector(".loading");
           if (spinner) spinner.remove();
           e.target.disabled = false;
 

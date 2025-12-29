@@ -55,12 +55,22 @@ export default function autocomplete(config = {}) {
         this.query = config.initialLabel;
       }
 
-      // Close on click outside
-      document.addEventListener('click', (e) => {
+      // Store bound handler for cleanup
+      this._clickOutsideHandler = (e) => {
         if (this.open && !this.$el.contains(e.target)) {
           this.close();
         }
-      });
+      };
+
+      // Close on click outside
+      document.addEventListener('click', this._clickOutsideHandler);
+    },
+
+    /**
+     * Cleanup event listeners
+     */
+    destroy() {
+      document.removeEventListener('click', this._clickOutsideHandler);
     },
 
     /**
@@ -402,6 +412,15 @@ export function multiAutocomplete(config = {}) {
     selectedItems: config.initialItems || [],
 
     /**
+     * Initialize - call base init for click-outside handler
+     */
+    init() {
+      if (base.init) {
+        base.init.call(this);
+      }
+    },
+
+    /**
      * Select adds to list instead of replacing
      */
     select(item) {
@@ -457,8 +476,8 @@ export function multiAutocomplete(config = {}) {
      */
     updateTargets() {
       if (this.target) {
-        // Remove existing inputs
-        document.querySelectorAll(`input[name="${this.target}[]"]`).forEach(el => el.remove());
+        // Remove existing inputs (scoped to this component)
+        this.$el.querySelectorAll(`input[name="${this.target}[]"]`).forEach(el => el.remove());
 
         // Create new inputs
         this.selectedItems.forEach(item => {

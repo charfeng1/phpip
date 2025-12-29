@@ -109,10 +109,10 @@ $actors = $matter->actors->groupBy('role_name');
     $imageClassifier = $matter->classifiers->firstWhere('type_code', 'IMG');
   @endphp
   <div class="col-span-9 relative" x-data="imageUpload({
-    hasImage: {{ $imageClassifier ? 'true' : 'false' }},
-    imageUrl: '{{ $imageClassifier ? "/classifier/{$imageClassifier->id}/img" : "" }}',
-    classifierId: {{ $imageClassifier?->id ?? 'null' }},
-    matterId: {{ $matter->container_id ?? $matter->id }}
+    hasImage: @json((bool) $imageClassifier),
+    imageUrl: @json($imageClassifier ? '/classifier/' . $imageClassifier->id . '/img' : ''),
+    classifierId: @json($imageClassifier?->id),
+    matterId: @json((int) ($matter->container_id ?? $matter->id))
   })">
     <div class="grid gap-1 h-full" :class="expanded ? 'grid-cols-12' : 'grid-cols-1'">
       <div :class="expanded ? 'col-span-9' : 'col-span-12'">

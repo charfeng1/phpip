@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Enhanced filter button interactions
   document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function(e) {
       // Add ripple effect
       const ripple = document.createElement('span');
       ripple.style.position = 'absolute';

@@ -33,15 +33,27 @@ export default function modal() {
      * Initialize
      */
     init() {
-      // Listen for close-all events
-      window.addEventListener('close-all', () => this.close());
-
-      // Handle escape key
-      document.addEventListener('keydown', (e) => {
+      // Store bound handlers for cleanup
+      this._closeAllHandler = () => this.close();
+      this._escapeHandler = (e) => {
         if (e.key === 'Escape' && this.isOpen && this.closeable) {
           this.close();
         }
-      });
+      };
+
+      // Listen for close-all events
+      window.addEventListener('close-all', this._closeAllHandler);
+
+      // Handle escape key
+      document.addEventListener('keydown', this._escapeHandler);
+    },
+
+    /**
+     * Cleanup event listeners
+     */
+    destroy() {
+      window.removeEventListener('close-all', this._closeAllHandler);
+      document.removeEventListener('keydown', this._escapeHandler);
     },
 
     /**

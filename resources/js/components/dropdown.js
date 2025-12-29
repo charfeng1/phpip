@@ -341,18 +341,6 @@ export function selectDropdown(config = {}) {
     },
 
     /**
-     * Filter options by search query
-     */
-    filteredOptions() {
-      if (!this.filterQuery) return this.options;
-
-      const query = this.filterQuery.toLowerCase();
-      return this.options.filter(option =>
-        option.label.toLowerCase().includes(query)
-      );
-    },
-
-    /**
      * Clear selection
      */
     clear() {

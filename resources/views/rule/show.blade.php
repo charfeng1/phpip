@@ -3,6 +3,7 @@
     <button type="button" class="tab flex-1" :class="activeTab === 'main' && 'tab-active'" @click="activeTab = 'main'">{{ __('Main') }}</button>
     <button type="button" class="tab flex-1" :class="activeTab === 'conditions' && 'tab-active'" @click="activeTab = 'conditions'">{{ __('Conditions') }}</button>
     <button type="button" class="tab flex-1" :class="activeTab === 'cost' && 'tab-active'" @click="activeTab = 'cost'">{{ __('Cost') }}</button>
+    <button type="button" class="tab flex-1" :class="activeTab === 'template' && 'tab-active'" @click="activeTab = 'template'">{{ __('Template') }}</button>
   </div>
   <div class="p-2 overflow-y-auto flex-1" data-resource="/rule/{{ $ruleInfo->id }}">
     <fieldset x-show="activeTab === 'main'" x-cloak>

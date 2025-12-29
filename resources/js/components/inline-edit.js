@@ -96,7 +96,14 @@ export default function inlineEdit(config = {}) {
           })
         });
 
-        const data = await response.json();
+        // Handle non-JSON responses (e.g., HTML error pages)
+        let data;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          data = await response.json();
+        } else {
+          throw new Error(response.ok ? 'Unexpected response format' : `Server error: ${response.status}`);
+        }
 
         if (!response.ok) {
           throw new Error(data.message || data.errors?.[this.field]?.[0] || 'Save failed');
@@ -336,7 +343,14 @@ export function batchInlineEdit(config = {}) {
           body: JSON.stringify(this.fields)
         });
 
-        const data = await response.json();
+        // Handle non-JSON responses (e.g., HTML error pages)
+        let data;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          data = await response.json();
+        } else {
+          throw new Error(response.ok ? 'Unexpected response format' : `Server error: ${response.status}`);
+        }
 
         if (!response.ok) {
           if (response.status === 422 && data.errors) {
