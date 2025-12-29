@@ -41,28 +41,38 @@ class HomeController extends Controller
         $taskscount = Task::getUsersOpenTaskCount();
 
         // Pre-load initial task list (non-renewals) for faster page load
-        $taskQuery = (new Task)->openTasks()->where('code', '!=', EventCode::RENEWAL->value);
-        $renewalQuery = (new Task)->openTasks()->where('code', EventCode::RENEWAL->value);
+        $taskQuery = Task::openTasks()->where('code', '!=', EventCode::RENEWAL->value);
+        $renewalQuery = Task::openTasks()->where('code', EventCode::RENEWAL->value);
 
-        // Apply client filter if user is a client
-        if (Auth::user()->default_role == UserRole::CLIENT->value || empty(Auth::user()->default_role)) {
-            $taskQuery->whereHas('matter.client', fn ($q) => $q->where('actor_id', Auth::user()->id));
-            $renewalQuery->whereHas('matter.client', fn ($q) => $q->where('actor_id', Auth::user()->id));
-        }
+        // Common filter logic for both queries
+        $applyFilters = function ($query) use ($request) {
+            $user = Auth::user();
 
-        // Handle user_dashboard parameter
-        if ($request->user_dashboard) {
-            $userDashboard = $request->user_dashboard;
-            $taskQuery->where(fn ($query) => $query
-                ->where('assigned_to', $userDashboard)
-                ->orWhereHas('matter', fn ($q) => $q->where('responsible', $userDashboard)));
-            $renewalQuery->where(fn ($query) => $query
-                ->where('assigned_to', $userDashboard)
-                ->orWhereHas('matter', fn ($q) => $q->where('responsible', $userDashboard)));
-        }
+            // Apply client filter if user is a client (strict check)
+            $isClient = $user->default_role === UserRole::CLIENT->value
+                || $user->default_role === null;
 
-        $tasks = $taskQuery->simplePaginate(config('pagination.tasks'))->appends($request->input());
-        $renewals = $renewalQuery->simplePaginate(config('pagination.tasks'))->appends($request->input());
+            if ($isClient) {
+                $query->whereHas('matter.client', fn ($q) => $q->where('actor_id', $user->id));
+            }
+
+            // Handle user_dashboard parameter
+            if ($request->filled('user_dashboard')) {
+                $userDashboard = $request->user_dashboard;
+                $query->where(fn ($q) => $q
+                    ->where('assigned_to', $userDashboard)
+                    ->orWhereHas('matter', fn ($mq) => $mq->where('responsible', $userDashboard)));
+            }
+
+            return $query;
+        };
+
+        $applyFilters($taskQuery);
+        $applyFilters($renewalQuery);
+
+        $perPage = config('pagination.tasks', 15);
+        $tasks = $taskQuery->simplePaginate($perPage)->appends($request->input());
+        $renewals = $renewalQuery->simplePaginate($perPage)->appends($request->input());
 
         return view('home', compact('categories', 'taskscount', 'tasks', 'renewals'));
     }

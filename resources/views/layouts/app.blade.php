@@ -10,9 +10,9 @@
 
   <title>{{ config('app.name', 'phpIP') }}</title>
 
+  {{-- Fonts are loaded via CSS (@import in app.css) for IBM Plex Sans + Noto Sans SC --}}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
 
   <!-- Scripts -->
   <script>
@@ -286,19 +286,27 @@
           </div>
 
           {{-- Language Switcher --}}
+          @php
+            $currentLocale = Auth::user()->language ?? config('locales.default', 'en');
+            $supportedLocales = config('locales.supported', ['en' => 'English']);
+          @endphp
           <div class="dropdown dropdown-end">
             <div tabindex="0" role="button" class="btn btn-ghost btn-sm gap-1" title="{{ __('Language') }}">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
               </svg>
-              <span class="text-xs font-medium uppercase">{{ Auth::user()->language ?? 'en' }}</span>
+              <span class="text-xs font-medium uppercase">{{ $currentLocale }}</span>
             </div>
             <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[100] w-40 p-2 shadow-lg border border-base-300">
               <li class="menu-title text-xs font-semibold text-base-content/60 px-2 py-1">{{ __('Language') }}</li>
-              <li><a href="{{ route('user.setLocale', 'en') }}" class="{{ (Auth::user()->language ?? 'en') == 'en' ? 'active' : '' }}">English</a></li>
-              <li><a href="{{ route('user.setLocale', 'fr') }}" class="{{ Auth::user()->language == 'fr' ? 'active' : '' }}">Français</a></li>
-              <li><a href="{{ route('user.setLocale', 'de') }}" class="{{ Auth::user()->language == 'de' ? 'active' : '' }}">Deutsch</a></li>
-              <li><a href="{{ route('user.setLocale', 'zh') }}" class="{{ Auth::user()->language == 'zh' ? 'active' : '' }}">中文</a></li>
+              @foreach($supportedLocales as $code => $name)
+              <li>
+                <form action="{{ route('user.setLocale', $code) }}" method="POST" class="p-0 m-0">
+                  @csrf
+                  <button type="submit" class="w-full text-left {{ $currentLocale === $code ? 'active' : '' }}">{{ $name }}</button>
+                </form>
+              </li>
+              @endforeach
             </ul>
           </div>
 

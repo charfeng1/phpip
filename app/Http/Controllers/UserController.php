@@ -257,18 +257,23 @@ class UserController extends Controller
     /**
      * Quick switch the user's language preference.
      *
-     * @param string $locale The locale to set (en, fr, de, zh)
+     * @param string $locale The locale to set
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function setLocale(string $locale)
+    public function setLocale(Request $request, string $locale)
     {
-        $allowedLocales = ['en', 'fr', 'de', 'zh'];
+        $allowedLocales = array_keys(config('locales.supported', ['en' => 'English']));
+        $defaultLocale = config('locales.default', 'en');
 
-        if (! in_array($locale, $allowedLocales)) {
-            $locale = 'en';
+        if (! in_array($locale, $allowedLocales, true)) {
+            $locale = $defaultLocale;
         }
 
         $user = Auth::user();
+        if ($user === null) {
+            return redirect()->back();
+        }
+
         $user->update([
             'language' => $locale,
             'updater' => $user->login,
