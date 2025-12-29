@@ -39,7 +39,7 @@ phpIP provides a complete solution for intellectual property portfolio managemen
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/jjdejong/phpip.git
+git clone https://github.com/charfeng1/phpip.git
 cd phpip
 ```
 
@@ -203,13 +203,6 @@ phpip/
     └── Unit/          # Unit tests
 ```
 
-## Documentation
-
-- [Wiki](https://github.com/jjdejong/phpip/wiki) - Comprehensive user documentation
-- [Localization Guide](LOCALIZATION.md) - Multi-language setup
-- [Renewal Management](https://github.com/jjdejong/phpip/wiki/Renewal-Management) - Renewal workflow documentation
-- [Document Templates](https://github.com/jjdejong/phpip/wiki/Templates-(email-and-documents)) - Template creation guide
-
 ## Contributing
 
 Contributions are welcome! Please:
@@ -226,4 +219,4 @@ This project is licensed under the GPL License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-phpIP was originally created by patent attorneys who needed a flexible, user-centric IP management tool. It has evolved through community contributions into a comprehensive open-source solution for IP portfolio management.
+This project is a fork of [jjdejong/phpip](https://github.com/jjdejong/phpip), originally created by patent attorneys who needed a flexible, user-centric IP management tool.
