@@ -64,7 +64,12 @@ class LoginController extends Controller
      *
      * Overrides default behavior to handle PostgreSQL CHAR column padding.
      * The login column is CHAR(16) which gets padded with spaces, so we use
-     * TRIM() in the query to compare correctly.
+     * TRIM() in the query to find the user, then pass the raw (padded) login
+     * value to Auth::attempt.
+     *
+     * Note: We use getAttributes()['login'] instead of $user->login because
+     * the User model uses TrimsCharColumns trait which would return a trimmed
+     * value, causing Auth::attempt to fail.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return bool
@@ -77,10 +82,13 @@ class LoginController extends Controller
         // Find user using TRIM() to handle CHAR column padding
         $user = User::whereRaw('TRIM(login) = ?', [$login])->first();
 
-        if ($user && Auth::attempt(['login' => $user->login, 'password' => $password], $request->boolean('remember'))) {
-            return true;
-        }
+        // Use raw 'login' attribute if user found, otherwise use original input.
+        // This ensures Auth::attempt is always called for correct event/throttling.
+        $loginCredential = $user ? $user->getAttributes()['login'] : $login;
 
-        return false;
+        return Auth::attempt(
+            ['login' => $loginCredential, 'password' => $password],
+            $request->boolean('remember')
+        );
     }
 }
