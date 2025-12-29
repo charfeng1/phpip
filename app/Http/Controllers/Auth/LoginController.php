@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Handles user authentication and login.
@@ -54,5 +57,30 @@ class LoginController extends Controller
     public function username()
     {
         return 'login';
+    }
+
+    /**
+     * Attempt to log the user into the application.
+     *
+     * Overrides default behavior to handle PostgreSQL CHAR column padding.
+     * The login column is CHAR(16) which gets padded with spaces, so we use
+     * TRIM() in the query to compare correctly.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return bool
+     */
+    protected function attemptLogin(Request $request)
+    {
+        $login = $request->input($this->username());
+        $password = $request->input('password');
+
+        // Find user using TRIM() to handle CHAR column padding
+        $user = User::whereRaw('TRIM(login) = ?', [$login])->first();
+
+        if ($user && Auth::attempt(['login' => $user->login, 'password' => $password], $request->boolean('remember'))) {
+            return true;
+        }
+
+        return false;
     }
 }
