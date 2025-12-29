@@ -41,8 +41,8 @@ class HomeController extends Controller
         $taskscount = Task::getUsersOpenTaskCount();
 
         // Pre-load initial task list (non-renewals) for faster page load
-        $taskQuery = Task::openTasks()->where('code', '!=', EventCode::RENEWAL->value);
-        $renewalQuery = Task::openTasks()->where('code', EventCode::RENEWAL->value);
+        $taskQuery = (new Task)->openTasks()->where('code', '!=', EventCode::RENEWAL->value);
+        $renewalQuery = (new Task)->openTasks()->where('code', EventCode::RENEWAL->value);
 
         // Common filter logic for both queries
         $applyFilters = function ($query) use ($request) {
