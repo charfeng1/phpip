@@ -45,12 +45,11 @@
           <tr>
             <th>{{ __('Language') }}</th>
             <td>
-              <select class="form-select noformat" name="language">
-                <option value="en_GB" {{ $userInfo->language == 'en_GB' ? 'selected' : '' }}>English (British)</option>
-                <option value="en_US" {{ $userInfo->language == 'en_US' ? 'selected' : '' }}>English (American)</option>
+              <select class="select select-bordered select-sm w-full noformat" name="language">
+                <option value="en" {{ $userInfo->language == 'en' || $userInfo->language == 'en_GB' || $userInfo->language == 'en_US' ? 'selected' : '' }}>English</option>
                 <option value="fr" {{ $userInfo->language == 'fr' ? 'selected' : '' }}>Français</option>
                 <option value="de" {{ $userInfo->language == 'de' ? 'selected' : '' }}>Deutsch</option>
-                <option value="es" {{ $userInfo->language == 'es' ? 'selected' : '' }}>Español</option>
+                <option value="zh" {{ $userInfo->language == 'zh' ? 'selected' : '' }}>中文</option>
               </select>
             </td>
           </tr>

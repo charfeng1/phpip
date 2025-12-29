@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\EventCode;
+use App\Enums\UserRole;
 use App\Models\Matter;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Handles the application dashboard and quick task operations.
@@ -37,7 +40,31 @@ class HomeController extends Controller
         $categories = Matter::getCategoryMatterCount();
         $taskscount = Task::getUsersOpenTaskCount();
 
-        return view('home', compact('categories', 'taskscount'));
+        // Pre-load initial task list (non-renewals) for faster page load
+        $taskQuery = (new Task)->openTasks()->where('code', '!=', EventCode::RENEWAL->value);
+        $renewalQuery = (new Task)->openTasks()->where('code', EventCode::RENEWAL->value);
+
+        // Apply client filter if user is a client
+        if (Auth::user()->default_role == UserRole::CLIENT->value || empty(Auth::user()->default_role)) {
+            $taskQuery->whereHas('matter.client', fn ($q) => $q->where('actor_id', Auth::user()->id));
+            $renewalQuery->whereHas('matter.client', fn ($q) => $q->where('actor_id', Auth::user()->id));
+        }
+
+        // Handle user_dashboard parameter
+        if ($request->user_dashboard) {
+            $userDashboard = $request->user_dashboard;
+            $taskQuery->where(fn ($query) => $query
+                ->where('assigned_to', $userDashboard)
+                ->orWhereHas('matter', fn ($q) => $q->where('responsible', $userDashboard)));
+            $renewalQuery->where(fn ($query) => $query
+                ->where('assigned_to', $userDashboard)
+                ->orWhereHas('matter', fn ($q) => $q->where('responsible', $userDashboard)));
+        }
+
+        $tasks = $taskQuery->simplePaginate(config('pagination.tasks'))->appends($request->input());
+        $renewals = $renewalQuery->simplePaginate(config('pagination.tasks'))->appends($request->input());
+
+        return view('home', compact('categories', 'taskscount', 'tasks', 'renewals'));
     }
 
     /**

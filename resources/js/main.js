@@ -214,13 +214,13 @@ export function initMain() {
    * Opens the dialog and fetches content via AJAX.
    * @param {Event} event - Click event on modal trigger
    */
-  app.addEventListener("click", (e) => {
+  app.addEventListener("click", async (e) => {
     const modalTrigger = e.target.closest('[data-modal-target="#ajaxModal"]');
     if (modalTrigger) {
       e.preventDefault();
       contentSrc = modalTrigger.href;
       window.contentSrc = contentSrc;
-      ajaxModal.querySelector(".modal-title").innerHTML = modalTrigger.title || "Loading...";
+      ajaxModal.querySelector(".modal-title").innerHTML = modalTrigger.title || "";
       // Handle modal size
       const modalBox = ajaxModal.querySelector(".modal-box");
       modalBox.classList.remove("max-w-sm", "max-w-md", "max-w-lg", "max-w-xl", "max-w-2xl", "max-w-4xl");
@@ -235,7 +235,8 @@ export function initMain() {
       } else {
         modalBox.classList.add("max-w-2xl");
       }
-      fetchInto(contentSrc, ajaxModal.querySelector(".modal-body"));
+      // Fetch content first, then show modal once loaded
+      await fetchInto(contentSrc, ajaxModal.querySelector(".modal-body"));
       ajaxModal.showModal();
     }
   });

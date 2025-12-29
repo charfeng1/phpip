@@ -255,6 +255,33 @@ class UserController extends Controller
     }
 
     /**
+     * Quick switch the user's language preference.
+     *
+     * @param string $locale The locale to set (en, fr, de, zh)
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function setLocale(string $locale)
+    {
+        $allowedLocales = ['en', 'fr', 'de', 'zh'];
+
+        if (! in_array($locale, $allowedLocales)) {
+            $locale = 'en';
+        }
+
+        $user = Auth::user();
+        $user->update([
+            'language' => $locale,
+            'updater' => $user->login,
+        ]);
+
+        // Update locale for the current session
+        app()->setLocale($locale);
+        session(['locale' => $locale]);
+
+        return redirect()->back();
+    }
+
+    /**
      * Remove the specified user from storage.
      *
      * @param User $user The user to delete

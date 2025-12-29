@@ -52,7 +52,8 @@ function refreshTasks(flag) {
 export function initHome() {
   // Set default checked state for "Everyone" radio button
   document.getElementById("alltasks").checked = true;
-  refreshTasks(0);
+  // Note: Initial task/renewal lists are pre-rendered server-side
+  // Only refresh when user changes the filter
 
   /**
    * Event handler for client autocomplete selection.

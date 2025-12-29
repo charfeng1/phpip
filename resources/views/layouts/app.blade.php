@@ -285,6 +285,23 @@
             </ul>
           </div>
 
+          {{-- Language Switcher --}}
+          <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-sm gap-1" title="{{ __('Language') }}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+              </svg>
+              <span class="text-xs font-medium uppercase">{{ Auth::user()->language ?? 'en' }}</span>
+            </div>
+            <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[100] w-40 p-2 shadow-lg border border-base-300">
+              <li class="menu-title text-xs font-semibold text-base-content/60 px-2 py-1">{{ __('Language') }}</li>
+              <li><a href="{{ route('user.setLocale', 'en') }}" class="{{ (Auth::user()->language ?? 'en') == 'en' ? 'active' : '' }}">English</a></li>
+              <li><a href="{{ route('user.setLocale', 'fr') }}" class="{{ Auth::user()->language == 'fr' ? 'active' : '' }}">Français</a></li>
+              <li><a href="{{ route('user.setLocale', 'de') }}" class="{{ Auth::user()->language == 'de' ? 'active' : '' }}">Deutsch</a></li>
+              <li><a href="{{ route('user.setLocale', 'zh') }}" class="{{ Auth::user()->language == 'zh' ? 'active' : '' }}">中文</a></li>
+            </ul>
+          </div>
+
           {{-- User Menu --}}
           <div class="dropdown dropdown-end">
             <div tabindex="0" role="button" class="btn btn-ghost btn-sm gap-2">

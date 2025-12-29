@@ -148,10 +148,9 @@
               <div class="grid grid-cols-6 gap-1 items-center text-center">
                 <input class="input input-bordered input-sm" name="Country" value="{{ Request::get('Country') }}" placeholder="{{ __('Ctry') }}">
                 <input class="input input-bordered input-sm" name="Qt" value="{{ Request::get('Qt') }}" placeholder="{{ __('Qt') }}">
-                <label class="btn btn-sm btn-outline btn-primary swap">
-                  <input id="grace" name="grace_period" type="checkbox">
-                  <span class="swap-on">{{ __('Grace') }}</span>
-                  <span class="swap-off">{{ __('Grace') }}</span>
+                <label class="flex items-center gap-1 cursor-pointer">
+                  <input id="grace" name="grace_period" type="checkbox" class="checkbox checkbox-primary checkbox-xs">
+                  <span class="text-xs font-medium">{{ __('Grace') }}</span>
                 </label>
                 <span class="text-xs font-medium">{{ __('Cost') }}</span>
                 <span class="text-xs font-medium">{{ __('Fee') }}</span>
@@ -165,11 +164,7 @@
               </div>
             </th>
             <th class="w-12 text-center">
-              <label class="btn btn-sm btn-outline btn-primary swap">
-                <input id="selectAll" type="checkbox">
-                <span class="swap-on">&check;</span>
-                <span class="swap-off">&check;</span>
-              </label>
+              <input id="selectAll" type="checkbox" class="checkbox checkbox-primary checkbox-sm" title="{{ __('Select all') }}">
             </th>
           </tr>
         </thead>
