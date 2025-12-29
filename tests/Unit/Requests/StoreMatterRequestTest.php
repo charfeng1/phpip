@@ -111,8 +111,9 @@ class StoreMatterRequestTest extends TestCase
             'responsible' => $this->adminUser->login,
         ]);
 
-        // Integer will be cast to string, so this should pass
-        $this->assertFalse($validator->fails());
+        // Laravel's string rule rejects non-string values
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('caseref', $validator->errors()->toArray());
     }
 
     /** @test */
