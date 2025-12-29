@@ -35,10 +35,11 @@ class LoadTestSeeder extends Seeder
 
         $this->command->info('Created ' . count($clients) . ' clients, ' . count($agents) . ' agents, ' . count($inventors) . ' inventors');
 
-        // Get existing user logins for assignment
+        // Get existing user logins for assignment (trim CHAR column padding)
         $userLogins = DB::table('actor')
             ->whereNotNull('login')
             ->pluck('login')
+            ->map(fn ($login) => trim($login))
             ->toArray();
 
         if (empty($userLogins)) {

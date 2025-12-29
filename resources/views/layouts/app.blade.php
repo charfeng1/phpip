@@ -116,7 +116,7 @@
     {{-- Navbar --}}
     <div class="navbar bg-base-100 shadow-sm border-b border-base-300 px-4 sticky top-0 z-50">
       <div class="navbar-start">
-        <a href="{{ url('/') }}" class="flex items-center gap-2 font-bold text-lg">
+        <a href="{{ route('home') }}" class="flex items-center gap-2 font-bold text-lg">
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none" class="text-primary">
             <rect width="32" height="32" rx="8" fill="currentColor"/>
             <path d="M8 12L16 8L24 12L16 16L8 12Z" fill="white" opacity="0.9"/>
