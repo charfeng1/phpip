@@ -10,7 +10,7 @@
 
   <title>{{ config('app.name', 'phpIP') }}</title>
 
-  {{-- Fonts are loaded via CSS (@import in app.css) for IBM Plex Sans + Noto Sans SC --}}
+  {{-- Fonts: Preconnect for faster loading (fonts loaded via CSS @import) --}}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 

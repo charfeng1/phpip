@@ -379,21 +379,20 @@ export function initMatterShow() {
 
   ajaxModal.onclick = (e) => {
     switch (e.target.id) {
-      case "sumButton":
+      case "sumButton": {
         /* write to the clipboard now */
-        //var text = document.getElementById("tocopy").textContent;
-        var node = document.getElementById("tocopy");
-
-        var selection = getSelection();
+        const node = document.getElementById("tocopy");
+        const selection = getSelection();
         selection.removeAllRanges();
 
-        var range = document.createRange();
+        const range = document.createRange();
         range.selectNodeContents(node);
         selection.addRange(range);
 
-        var success = document.execCommand("copy");
+        const success = document.execCommand("copy");
         selection.removeAllRanges();
         return success;
+      }
 
       case "addTaskReset":
         e.target.closest("tr").innerHTML = "";

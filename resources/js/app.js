@@ -5,10 +5,11 @@
  * It handles:
  * - Bootstrap and styling imports
  * - Alpine.js initialization and component registration
- * - Page-specific module initialization based on DOM elements
+ * - Page-specific module initialization based on DOM elements (lazy-loaded)
  * - Global function exposure for use in Alpine.js and inline handlers
  *
- * Automatically detects which page is loaded and initializes appropriate modules.
+ * Page-specific modules are dynamically imported for code splitting,
+ * ensuring users only download code needed for the current page.
  */
 
 // Styles: Tailwind CSS + DaisyUI + SCSS compatibility layer
@@ -23,7 +24,7 @@ window.Alpine = Alpine;
 import { registerAllComponents } from "./components/index.js";
 registerAllComponents(Alpine);
 
-// Import main functionality (legacy - will be removed after migration)
+// Import main functionality (always needed)
 import {
   initMain,
   fetchInto,
@@ -33,20 +34,9 @@ import {
   submitModalForm,
   processSubmitErrors,
 } from "./main.js";
-import { initHome } from "./home.js";
-import { initMatterShow, registerImageUpload } from "./matter-show.js";
-import { initTables } from "./tables.js";
-import { initMatterIndex } from "./matter-index.js";
-import { initRenewalIndex } from "./renewal-index.js";
-import { initActorIndex } from "./actor-index.js";
-import { initUserIndex } from "./user-index.js";
-
-// Register Alpine components before starting Alpine
-registerImageUpload();
-
-Alpine.start();
 
 // Expose utility functions globally for Alpine.js and inline handlers
+// These must be available before Alpine starts for inline handlers
 window.fetchInto = fetchInto;
 window.fetchREST = fetchREST;
 window.reloadPart = reloadPart;
@@ -55,47 +45,86 @@ window.submitModalForm = submitModalForm;
 window.processSubmitErrors = processSubmitErrors;
 window.contentSrc = "";
 
+// Cache DOM check for matter-show page
+const actorPanel = document.getElementById("actorPanel");
+
+// Promise-based module loading to ensure proper timing between Alpine.start() and DOMContentLoaded
+// This prevents race conditions where DOMContentLoaded fires before the async import completes
+const matterShowReady = actorPanel
+  ? import("./matter-show.js")
+      .then((module) => {
+        module.registerImageUpload();
+        return module;
+      })
+      .catch((err) => {
+        console.error("Failed to load matter-show module:", err);
+        return null;
+      })
+  : Promise.resolve(null);
+
+// Start Alpine after registering any required components
+matterShowReady.then(() => Alpine.start());
+
 /**
  * Initializes the application when DOM is ready.
- * Detects current page based on element IDs and initializes appropriate modules.
+ * Detects current page based on element IDs and dynamically imports modules.
+ * Code splitting ensures only necessary code is loaded per page.
  *
  * @listens DOMContentLoaded
  */
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   initMain();
 
-  // Only initialize home if we're on the home page
+  // Dynamically load page-specific modules (code splitting)
+  // Each import() creates a separate chunk loaded on demand
+
+  // Home page - dashboard with tasks
   if (document.getElementById("alltasks")) {
-    initHome();
+    import("./home.js")
+      .then(({ initHome }) => initHome())
+      .catch((err) => console.error("Failed to load home module:", err));
   }
 
-  // Only initialize matter-show if we're on the matter show page
-  if (document.getElementById("actorPanel")) {
-    initMatterShow();
+  // Matter detail page - await the cached module promise
+  if (actorPanel) {
+    const module = await matterShowReady;
+    if (module) {
+      module.initMatterShow();
+    }
   }
 
-  // Initialize tables.js for various index pages
+  // Generic tables page
   if (document.getElementById("tableList")) {
-    initTables();
+    import("./tables.js")
+      .then(({ initTables }) => initTables())
+      .catch((err) => console.error("Failed to load tables module:", err));
   }
 
-  // Initialize matter-index if we're on the matter index page
+  // Matter listing page
   if (document.getElementById("matterList")) {
-    initMatterIndex();
+    import("./matter-index.js")
+      .then(({ initMatterIndex }) => initMatterIndex())
+      .catch((err) => console.error("Failed to load matter-index module:", err));
   }
 
-  // Initialize renewal-index if we're on the renewals page
+  // Renewals management page
   if (document.getElementById("renewalList")) {
-    initRenewalIndex();
+    import("./renewal-index.js")
+      .then(({ initRenewalIndex }) => initRenewalIndex())
+      .catch((err) => console.error("Failed to load renewal-index module:", err));
   }
 
-  // Initialize actor-index if we're on the actor index page
+  // Actor listing page
   if (document.getElementById("actorList")) {
-    initActorIndex();
+    import("./actor-index.js")
+      .then(({ initActorIndex }) => initActorIndex())
+      .catch((err) => console.error("Failed to load actor-index module:", err));
   }
 
-  // Initialize user-index if we're on the user index page
+  // User management page
   if (document.getElementById("userList")) {
-    initUserIndex();
+    import("./user-index.js")
+      .then(({ initUserIndex }) => initUserIndex())
+      .catch((err) => console.error("Failed to load user-index module:", err));
   }
 });

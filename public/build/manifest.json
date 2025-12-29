@@ -1,11 +1,97 @@
 {
+  "_alpine-BkKOMYu4.js": {
+    "file": "assets/alpine-BkKOMYu4.js",
+    "name": "alpine"
+  },
+  "resources/js/actor-index.js": {
+    "file": "assets/actor-index-RyhXb9tw.js",
+    "name": "actor-index",
+    "src": "resources/js/actor-index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js",
+      "_alpine-BkKOMYu4.js"
+    ]
+  },
   "resources/js/app.js": {
-    "file": "assets/app-PmDyLgx0.js",
+    "file": "assets/app-D6oW_nBt.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
+    "imports": [
+      "_alpine-BkKOMYu4.js"
+    ],
+    "dynamicImports": [
+      "resources/js/matter-show.js",
+      "resources/js/home.js",
+      "resources/js/tables.js",
+      "resources/js/matter-index.js",
+      "resources/js/renewal-index.js",
+      "resources/js/actor-index.js",
+      "resources/js/user-index.js"
+    ],
     "css": [
-      "assets/app-D7C9Jj-B.css"
+      "assets/app-CgK-p8AS.css"
+    ]
+  },
+  "resources/js/home.js": {
+    "file": "assets/home-05DRpKmb.js",
+    "name": "home",
+    "src": "resources/js/home.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js",
+      "_alpine-BkKOMYu4.js"
+    ]
+  },
+  "resources/js/matter-index.js": {
+    "file": "assets/matter-index-BtXVapTi.js",
+    "name": "matter-index",
+    "src": "resources/js/matter-index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js",
+      "_alpine-BkKOMYu4.js"
+    ]
+  },
+  "resources/js/matter-show.js": {
+    "file": "assets/matter-show-BRbB1Bag.js",
+    "name": "matter-show",
+    "src": "resources/js/matter-show.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js",
+      "_alpine-BkKOMYu4.js"
+    ]
+  },
+  "resources/js/renewal-index.js": {
+    "file": "assets/renewal-index-CK0LubdX.js",
+    "name": "renewal-index",
+    "src": "resources/js/renewal-index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js",
+      "_alpine-BkKOMYu4.js"
+    ]
+  },
+  "resources/js/tables.js": {
+    "file": "assets/tables-omsi1-4w.js",
+    "name": "tables",
+    "src": "resources/js/tables.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js",
+      "_alpine-BkKOMYu4.js"
+    ]
+  },
+  "resources/js/user-index.js": {
+    "file": "assets/user-index-66B0tiPP.js",
+    "name": "user-index",
+    "src": "resources/js/user-index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js",
+      "_alpine-BkKOMYu4.js"
     ]
   }
 }
