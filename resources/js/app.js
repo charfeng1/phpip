@@ -45,15 +45,20 @@ window.submitModalForm = submitModalForm;
 window.processSubmitErrors = processSubmitErrors;
 window.contentSrc = "";
 
-// Register image upload component before Alpine starts (needed on matter-show)
-// Dynamic import for matter-show specific functionality
-if (document.getElementById("actorPanel")) {
-  import("./matter-show.js").then(({ registerImageUpload }) => {
-    registerImageUpload();
-  });
-}
+// Cache DOM check and module promise for matter-show page
+const actorPanel = document.getElementById("actorPanel");
+let matterShowModule = null;
 
-Alpine.start();
+// Start Alpine after registering any required components
+// For matter-show page, we must register imageUpload before Alpine starts
+(async () => {
+  if (actorPanel) {
+    // Load and cache the matter-show module, register component before Alpine
+    matterShowModule = await import("./matter-show.js");
+    matterShowModule.registerImageUpload();
+  }
+  Alpine.start();
+})();
 
 /**
  * Initializes the application when DOM is ready.
@@ -73,9 +78,13 @@ document.addEventListener("DOMContentLoaded", () => {
     import("./home.js").then(({ initHome }) => initHome());
   }
 
-  // Matter detail page
-  if (document.getElementById("actorPanel")) {
-    import("./matter-show.js").then(({ initMatterShow }) => initMatterShow());
+  // Matter detail page - reuse cached module if available
+  if (actorPanel) {
+    if (matterShowModule) {
+      matterShowModule.initMatterShow();
+    } else {
+      import("./matter-show.js").then(({ initMatterShow }) => initMatterShow());
+    }
   }
 
   // Generic tables page

@@ -10,13 +10,9 @@
 
   <title>{{ config('app.name', 'phpIP') }}</title>
 
-  {{-- Fonts: Preconnect for faster loading --}}
+  {{-- Fonts: Preconnect for faster loading (fonts loaded via CSS @import) --}}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  {{-- Preload critical font CSS for faster rendering --}}
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap"></noscript>
 
   <!-- Scripts -->
   <script>
