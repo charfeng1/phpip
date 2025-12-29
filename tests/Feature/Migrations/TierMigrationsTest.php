@@ -161,6 +161,17 @@ class TierMigrationsTest extends TestCase
         $this->assertTrue(Schema::hasColumn('failed_jobs', 'payload'));
     }
 
+    public function test_tier5_jobs_table_exists(): void
+    {
+        $this->assertTrue(Schema::hasTable('jobs'));
+        $this->assertTrue(Schema::hasColumn('jobs', 'queue'));
+        $this->assertTrue(Schema::hasColumn('jobs', 'payload'));
+        $this->assertTrue(Schema::hasColumn('jobs', 'attempts'));
+        $this->assertTrue(Schema::hasColumn('jobs', 'reserved_at'));
+        $this->assertTrue(Schema::hasColumn('jobs', 'available_at'));
+        $this->assertTrue(Schema::hasColumn('jobs', 'created_at'));
+    }
+
     public function test_tier6_audit_logs_table_exists(): void
     {
         $this->assertTrue(Schema::hasTable('audit_logs'));
