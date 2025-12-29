@@ -84,13 +84,19 @@ export function initTables() {
     }
   });
 
-  // Reload the list when closing the creation modal
-  ajaxModal.addEventListener("hidden.bs.modal", function (event) {
-    refreshList();
-  });
+  // Reload the list when closing the creation modal (if modal exists)
+  const ajaxModal = document.getElementById("ajaxModal");
+  if (ajaxModal) {
+    ajaxModal.addEventListener("hidden.bs.modal", function (event) {
+      refreshList();
+    });
+  }
 
-  // Refresh the list when an input field of ajaxPanel is changed
-  ajaxPanel.addEventListener("xhrsent", function (event) {
-    refreshList();
-  });
+  // Refresh the list when an input field of ajaxPanel is changed (if panel exists)
+  const ajaxPanel = document.getElementById("ajaxPanel");
+  if (ajaxPanel) {
+    ajaxPanel.addEventListener("xhrsent", function (event) {
+      refreshList();
+    });
+  }
 }

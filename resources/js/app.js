@@ -45,20 +45,25 @@ window.submitModalForm = submitModalForm;
 window.processSubmitErrors = processSubmitErrors;
 window.contentSrc = "";
 
-// Cache DOM check and module promise for matter-show page
+// Cache DOM check for matter-show page
 const actorPanel = document.getElementById("actorPanel");
-let matterShowModule = null;
+
+// Promise-based module loading to ensure proper timing between Alpine.start() and DOMContentLoaded
+// This prevents race conditions where DOMContentLoaded fires before the async import completes
+const matterShowReady = actorPanel
+  ? import("./matter-show.js")
+      .then((module) => {
+        module.registerImageUpload();
+        return module;
+      })
+      .catch((err) => {
+        console.error("Failed to load matter-show module:", err);
+        return null;
+      })
+  : Promise.resolve(null);
 
 // Start Alpine after registering any required components
-// For matter-show page, we must register imageUpload before Alpine starts
-(async () => {
-  if (actorPanel) {
-    // Load and cache the matter-show module, register component before Alpine
-    matterShowModule = await import("./matter-show.js");
-    matterShowModule.registerImageUpload();
-  }
-  Alpine.start();
-})();
+matterShowReady.then(() => Alpine.start());
 
 /**
  * Initializes the application when DOM is ready.
@@ -67,7 +72,7 @@ let matterShowModule = null;
  *
  * @listens DOMContentLoaded
  */
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   initMain();
 
   // Dynamically load page-specific modules (code splitting)
@@ -75,40 +80,51 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Home page - dashboard with tasks
   if (document.getElementById("alltasks")) {
-    import("./home.js").then(({ initHome }) => initHome());
+    import("./home.js")
+      .then(({ initHome }) => initHome())
+      .catch((err) => console.error("Failed to load home module:", err));
   }
 
-  // Matter detail page - reuse cached module if available
+  // Matter detail page - await the cached module promise
   if (actorPanel) {
-    if (matterShowModule) {
-      matterShowModule.initMatterShow();
-    } else {
-      import("./matter-show.js").then(({ initMatterShow }) => initMatterShow());
+    const module = await matterShowReady;
+    if (module) {
+      module.initMatterShow();
     }
   }
 
   // Generic tables page
   if (document.getElementById("tableList")) {
-    import("./tables.js").then(({ initTables }) => initTables());
+    import("./tables.js")
+      .then(({ initTables }) => initTables())
+      .catch((err) => console.error("Failed to load tables module:", err));
   }
 
   // Matter listing page
   if (document.getElementById("matterList")) {
-    import("./matter-index.js").then(({ initMatterIndex }) => initMatterIndex());
+    import("./matter-index.js")
+      .then(({ initMatterIndex }) => initMatterIndex())
+      .catch((err) => console.error("Failed to load matter-index module:", err));
   }
 
   // Renewals management page
   if (document.getElementById("renewalList")) {
-    import("./renewal-index.js").then(({ initRenewalIndex }) => initRenewalIndex());
+    import("./renewal-index.js")
+      .then(({ initRenewalIndex }) => initRenewalIndex())
+      .catch((err) => console.error("Failed to load renewal-index module:", err));
   }
 
   // Actor listing page
   if (document.getElementById("actorList")) {
-    import("./actor-index.js").then(({ initActorIndex }) => initActorIndex());
+    import("./actor-index.js")
+      .then(({ initActorIndex }) => initActorIndex())
+      .catch((err) => console.error("Failed to load actor-index module:", err));
   }
 
   // User management page
   if (document.getElementById("userList")) {
-    import("./user-index.js").then(({ initUserIndex }) => initUserIndex());
+    import("./user-index.js")
+      .then(({ initUserIndex }) => initUserIndex())
+      .catch((err) => console.error("Failed to load user-index module:", err));
   }
 });
