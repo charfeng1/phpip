@@ -5,7 +5,8 @@
  * Aesthetic: Professional minimalism with purposeful depth and clarity.
  */
 
-/* Typography - IBM Plex for enterprise clarity, Noto Sans SC for Chinese */
+/* Typography - IBM Plex for enterprise clarity, Noto Sans SC for Chinese
+   Using display=swap for non-blocking font loading */
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
 
 @import "tailwindcss";
