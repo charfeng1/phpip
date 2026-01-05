@@ -162,7 +162,8 @@ class RenewalLogFilterServiceTest extends TestCase
      */
     protected function createMockRenewalsLog()
     {
-        return new class {
+        return new class
+        {
             public function whereHas($relation, $callback)
             {
                 return $this;
@@ -185,7 +186,8 @@ class RenewalLogFilterServiceTest extends TestCase
 
             public function simplePaginate($perPage)
             {
-                return new class {
+                return new class
+                {
                     public function items()
                     {
                         return [];

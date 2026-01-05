@@ -10,7 +10,7 @@ class MatterActorsTest extends TestCase
     /** @test */
     public function it_has_timestamps_disabled()
     {
-        $model = new MatterActors();
+        $model = new MatterActors;
 
         $this->assertFalse($model->timestamps);
     }
@@ -18,7 +18,7 @@ class MatterActorsTest extends TestCase
     /** @test */
     public function it_has_translatable_role_name()
     {
-        $model = new MatterActors();
+        $model = new MatterActors;
 
         $this->assertIsArray($model->translatable);
         $this->assertContains('role_name', $model->translatable);
@@ -27,7 +27,7 @@ class MatterActorsTest extends TestCase
     /** @test */
     public function it_uses_has_translations_extended_trait()
     {
-        $model = new MatterActors();
+        $model = new MatterActors;
         $traits = class_uses_recursive($model);
 
         $this->assertContains('App\Traits\HasTranslationsExtended', $traits);
@@ -36,7 +36,7 @@ class MatterActorsTest extends TestCase
     /** @test */
     public function it_can_belong_to_a_matter()
     {
-        $model = new MatterActors();
+        $model = new MatterActors;
 
         $this->assertInstanceOf(
             \Illuminate\Database\Eloquent\Relations\BelongsTo::class,
@@ -47,7 +47,7 @@ class MatterActorsTest extends TestCase
     /** @test */
     public function it_can_belong_to_an_actor()
     {
-        $model = new MatterActors();
+        $model = new MatterActors;
 
         $this->assertInstanceOf(
             \Illuminate\Database\Eloquent\Relations\BelongsTo::class,
@@ -58,7 +58,7 @@ class MatterActorsTest extends TestCase
     /** @test */
     public function it_can_belong_to_a_role()
     {
-        $model = new MatterActors();
+        $model = new MatterActors;
 
         $relation = $model->role();
 
@@ -71,7 +71,7 @@ class MatterActorsTest extends TestCase
     /** @test */
     public function it_can_belong_to_a_company()
     {
-        $model = new MatterActors();
+        $model = new MatterActors;
 
         $relation = $model->company();
 
@@ -84,7 +84,7 @@ class MatterActorsTest extends TestCase
     /** @test */
     public function role_relationship_uses_role_code_as_foreign_key()
     {
-        $model = new MatterActors();
+        $model = new MatterActors;
         $relation = $model->role();
 
         $this->assertEquals('role_code', $relation->getForeignKeyName());
@@ -93,7 +93,7 @@ class MatterActorsTest extends TestCase
     /** @test */
     public function company_relationship_uses_company_id_as_foreign_key()
     {
-        $model = new MatterActors();
+        $model = new MatterActors;
         $relation = $model->company();
 
         $this->assertEquals('company_id', $relation->getForeignKeyName());
@@ -104,7 +104,7 @@ class MatterActorsTest extends TestCase
     {
         // MatterActors represents a database VIEW
         // This confirms the model is configured correctly for read-only operations
-        $model = new MatterActors();
+        $model = new MatterActors;
 
         $this->assertEquals('matter_actors', $model->getTable());
     }
@@ -112,7 +112,7 @@ class MatterActorsTest extends TestCase
     /** @test */
     public function it_extends_eloquent_model()
     {
-        $model = new MatterActors();
+        $model = new MatterActors;
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Model::class, $model);
     }

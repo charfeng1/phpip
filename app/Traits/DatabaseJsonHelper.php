@@ -14,8 +14,6 @@ trait DatabaseJsonHelper
 {
     /**
      * Get the current database driver name.
-     *
-     * @return string
      */
     protected function getDbDriver(): string
     {
@@ -24,8 +22,6 @@ trait DatabaseJsonHelper
 
     /**
      * Check if using PostgreSQL.
-     *
-     * @return bool
      */
     protected function isPostgres(): bool
     {
@@ -35,10 +31,9 @@ trait DatabaseJsonHelper
     /**
      * Get a raw SQL expression for extracting a JSON text value.
      *
-     * @param string $column The JSON column name
-     * @param string $key The JSON key to extract
-     * @param string|null $alias Optional alias for the result
-     * @return \Illuminate\Database\Query\Expression
+     * @param  string  $column  The JSON column name
+     * @param  string  $key  The JSON key to extract
+     * @param  string|null  $alias  Optional alias for the result
      */
     protected static function jsonExtract(string $column, string $key, ?string $alias = null): \Illuminate\Database\Query\Expression
     {
@@ -61,9 +56,8 @@ trait DatabaseJsonHelper
     /**
      * Get a raw SQL expression for extracting a JSON numeric value as integer.
      *
-     * @param string $column The JSON column name
-     * @param string $key The JSON key to extract
-     * @return \Illuminate\Database\Query\Expression
+     * @param  string  $column  The JSON column name
+     * @param  string  $key  The JSON key to extract
      */
     protected static function jsonExtractInt(string $column, string $key): \Illuminate\Database\Query\Expression
     {
@@ -80,11 +74,10 @@ trait DatabaseJsonHelper
     /**
      * Get a raw SQL expression for GROUP_CONCAT equivalent.
      *
-     * @param string $expression The expression to concatenate
-     * @param string $separator The separator between values
-     * @param bool $distinct Whether to use DISTINCT
-     * @param string|null $alias Optional alias for the result
-     * @return \Illuminate\Database\Query\Expression
+     * @param  string  $expression  The expression to concatenate
+     * @param  string  $separator  The separator between values
+     * @param  bool  $distinct  Whether to use DISTINCT
+     * @param  string|null  $alias  Optional alias for the result
      */
     protected static function groupConcat(string $expression, string $separator = ',', bool $distinct = false, ?string $alias = null): \Illuminate\Database\Query\Expression
     {
@@ -109,9 +102,8 @@ trait DatabaseJsonHelper
     /**
      * Get raw SQL for JSON-based ordering.
      *
-     * @param string $column The JSON column name
-     * @param string $key The JSON key to order by
-     * @return string
+     * @param  string  $column  The JSON column name
+     * @param  string  $key  The JSON key to order by
      */
     protected static function jsonOrderBy(string $column, string $key): string
     {
@@ -128,9 +120,9 @@ trait DatabaseJsonHelper
     /**
      * Get raw SQL for JSON column WHERE clause with LIKE/ILIKE.
      *
-     * @param string $column The JSON column name
-     * @param string $key The JSON key to match
-     * @param string $value The value pattern to match
+     * @param  string  $column  The JSON column name
+     * @param  string  $key  The JSON key to match
+     * @param  string  $value  The value pattern to match
      * @return array [sql, bindings]
      */
     protected static function jsonWhereLike(string $column, string $key, string $value): array

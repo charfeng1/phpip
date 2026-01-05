@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Workflows;
 
-use App\Enums\ActorRole;
 use App\Models\Actor;
 use App\Models\ActorPivot;
 use App\Models\Category;

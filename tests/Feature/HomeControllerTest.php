@@ -84,7 +84,7 @@ class HomeControllerTest extends TestCase
 
         // Test filtering by user_dashboard parameter
         // The filter should match even though actor.login has padding
-        $response = $this->actingAs($user)->get('/home?user_dashboard=' . trim($user->login));
+        $response = $this->actingAs($user)->get('/home?user_dashboard='.trim($user->login));
 
         $response->assertStatus(200);
 

@@ -14,7 +14,7 @@ class MatterTypePolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new MatterTypePolicy();
+        $this->policy = new MatterTypePolicy;
     }
 
     /** @test */

@@ -15,7 +15,8 @@ class JsonResponsesTest extends TestCase
         parent::setUp();
 
         // Create an anonymous class that uses the trait
-        $this->controller = new class {
+        $this->controller = new class
+        {
             use JsonResponses;
         };
     }

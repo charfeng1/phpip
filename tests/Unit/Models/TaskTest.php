@@ -3,7 +3,6 @@
 namespace Tests\Unit\Models;
 
 use App\Models\Event;
-use App\Models\EventName;
 use App\Models\Matter;
 use App\Models\Rule;
 use App\Models\Task;
@@ -12,7 +11,6 @@ use Tests\TestCase;
 
 class TaskTest extends TestCase
 {
-
     protected function setUp(): void
     {
         parent::setUp();

@@ -49,8 +49,6 @@ class TaskPolicy
      * - Assigned to them
      * - Assigned to their direct/indirect reports
      * - On matters they or their reports are responsible for
-     *
-     * @return bool
      */
     public function viewAsTeamMember(User $user, Task $task): bool
     {

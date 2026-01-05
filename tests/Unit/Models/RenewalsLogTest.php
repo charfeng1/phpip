@@ -76,7 +76,7 @@ class RenewalsLogTest extends TestCase
     /** @test */
     public function it_has_no_guarded_fields()
     {
-        $log = new RenewalsLog();
+        $log = new RenewalsLog;
 
         $this->assertEmpty($log->getGuarded());
     }
@@ -140,7 +140,7 @@ class RenewalsLogTest extends TestCase
     /** @test */
     public function task_relationship_is_belongs_to()
     {
-        $log = new RenewalsLog();
+        $log = new RenewalsLog;
 
         $this->assertInstanceOf(
             \Illuminate\Database\Eloquent\Relations\BelongsTo::class,
@@ -151,7 +151,7 @@ class RenewalsLogTest extends TestCase
     /** @test */
     public function creator_info_relationship_is_belongs_to()
     {
-        $log = new RenewalsLog();
+        $log = new RenewalsLog;
 
         $this->assertInstanceOf(
             \Illuminate\Database\Eloquent\Relations\BelongsTo::class,

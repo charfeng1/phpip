@@ -16,7 +16,7 @@ class ClassifierPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new ClassifierPolicy();
+        $this->policy = new ClassifierPolicy;
     }
 
     /** @test */

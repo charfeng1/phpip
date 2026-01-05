@@ -32,7 +32,6 @@ class HomeController extends Controller
     /**
      * Show the application dashboard with matter and task statistics.
      *
-     * @param Request $request
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
@@ -81,7 +80,7 @@ class HomeController extends Controller
     /**
      * Clear selected tasks by setting their done dates.
      *
-     * @param ClearTasksRequest $request Contains task_ids array and done_date
+     * @param  ClearTasksRequest  $request  Contains task_ids array and done_date
      * @return \Illuminate\Http\JsonResponse
      */
     public function clearTasks(ClearTasksRequest $request)

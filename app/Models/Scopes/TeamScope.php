@@ -22,8 +22,6 @@ class TeamScope implements Scope
 {
     /**
      * The field name that contains the responsible user's login.
-     *
-     * @var string
      */
     protected string $responsibleField;
 
@@ -39,10 +37,6 @@ class TeamScope implements Scope
 
     /**
      * Apply the scope to a given Eloquent query builder.
-     *
-     * @param  Builder  $builder
-     * @param  Model  $model
-     * @return void
      */
     public function apply(Builder $builder, Model $model): void
     {

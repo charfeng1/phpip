@@ -9,7 +9,6 @@ use Tests\TestCase;
 
 class EventControllerTest extends TestCase
 {
-
     protected function setUp(): void
     {
         parent::setUp();

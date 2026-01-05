@@ -36,7 +36,8 @@ class TrimsCharColumnsTest extends TestCase
     public function it_trims_whitespace_only_strings()
     {
         // Create a test model class that uses the trait
-        $testModel = new class extends Model {
+        $testModel = new class extends Model
+        {
             use TrimsCharColumns;
 
             protected array $charColumns = ['test_column'];
@@ -54,7 +55,8 @@ class TrimsCharColumnsTest extends TestCase
     /** @test */
     public function it_only_trims_defined_char_columns()
     {
-        $testModel = new class extends Model {
+        $testModel = new class extends Model
+        {
             use TrimsCharColumns;
 
             protected array $charColumns = ['trimmed_column'];
@@ -72,7 +74,8 @@ class TrimsCharColumnsTest extends TestCase
     /** @test */
     public function it_handles_non_string_values()
     {
-        $testModel = new class extends Model {
+        $testModel = new class extends Model
+        {
             use TrimsCharColumns;
 
             protected array $charColumns = ['test_column'];
@@ -89,7 +92,8 @@ class TrimsCharColumnsTest extends TestCase
     /** @test */
     public function is_char_column_returns_false_without_property()
     {
-        $testModel = new class extends Model {
+        $testModel = new class extends Model
+        {
             use TrimsCharColumns;
         };
 
@@ -105,7 +109,8 @@ class TrimsCharColumnsTest extends TestCase
     /** @test */
     public function is_char_column_returns_true_for_defined_columns()
     {
-        $testModel = new class extends Model {
+        $testModel = new class extends Model
+        {
             use TrimsCharColumns;
 
             protected array $charColumns = ['test_column'];
@@ -150,7 +155,8 @@ class TrimsCharColumnsTest extends TestCase
     /** @test */
     public function it_preserves_empty_strings()
     {
-        $testModel = new class extends Model {
+        $testModel = new class extends Model
+        {
             use TrimsCharColumns;
 
             protected array $charColumns = ['test_column'];
@@ -168,7 +174,8 @@ class TrimsCharColumnsTest extends TestCase
     /** @test */
     public function it_handles_mixed_whitespace()
     {
-        $testModel = new class extends Model {
+        $testModel = new class extends Model
+        {
             use TrimsCharColumns;
 
             protected array $charColumns = ['test_column'];

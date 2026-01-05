@@ -145,8 +145,6 @@ class User extends Authenticatable
 
     /**
      * Check if this user is a supervisor (has any direct reports).
-     *
-     * @return bool
      */
     public function isSupervisor(): bool
     {
@@ -155,8 +153,6 @@ class User extends Authenticatable
 
     /**
      * Check if this user is an admin (DBA role).
-     *
-     * @return bool
      */
     public function isAdmin(): bool
     {

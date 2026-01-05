@@ -14,7 +14,7 @@ class FeePolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new FeePolicy();
+        $this->policy = new FeePolicy;
     }
 
     /** @test */

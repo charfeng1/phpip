@@ -14,7 +14,7 @@ class TeamServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->teamService = new TeamService();
+        $this->teamService = new TeamService;
         Cache::flush();
     }
 

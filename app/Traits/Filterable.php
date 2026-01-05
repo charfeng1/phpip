@@ -92,9 +92,6 @@ trait Filterable
 
     /**
      * Get old filter values for view (useful for repopulating filter forms).
-     *
-     * @param  Request  $request
-     * @return array
      */
     protected function getOldFilters(Request $request): array
     {

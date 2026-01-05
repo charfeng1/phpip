@@ -191,7 +191,7 @@ class TierMigrationsTest extends TestCase
      */
     public function test_stored_functions_exist(string $functionName): void
     {
-        $result = DB::select("SELECT proname FROM pg_proc WHERE proname = ?", [$functionName]);
+        $result = DB::select('SELECT proname FROM pg_proc WHERE proname = ?', [$functionName]);
         $this->assertNotEmpty($result, "Function '{$functionName}' should exist");
     }
 
@@ -282,7 +282,7 @@ class TierMigrationsTest extends TestCase
      */
     public function test_trigger_functions_exist(string $functionName): void
     {
-        $result = DB::select("SELECT proname FROM pg_proc WHERE proname = ?", [$functionName]);
+        $result = DB::select('SELECT proname FROM pg_proc WHERE proname = ?', [$functionName]);
         $this->assertNotEmpty($result, "Trigger function '{$functionName}' should exist");
     }
 

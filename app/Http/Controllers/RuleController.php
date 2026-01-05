@@ -19,8 +19,8 @@ use Illuminate\Support\Facades\DB;
  */
 class RuleController extends Controller
 {
-    use HandlesAuditFields;
     use Filterable;
+    use HandlesAuditFields;
 
     /**
      * Filter rules for index method.
@@ -74,10 +74,11 @@ class RuleController extends Controller
             },
         ];
     }
+
     /**
      * Display a paginated list of rules with filtering.
      *
-     * @param Request $request Filter parameters for rules
+     * @param  Request  $request  Filter parameters for rules
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -132,7 +133,7 @@ class RuleController extends Controller
     /**
      * Display the specified rule.
      *
-     * @param Rule $rule The rule to display
+     * @param  Rule  $rule  The rule to display
      * @return \Illuminate\Http\Response
      */
     public function show(Rule $rule)
@@ -174,8 +175,8 @@ class RuleController extends Controller
     /**
      * Update the specified rule.
      *
-     * @param UpdateRuleRequest $request Validated rule data
-     * @param Rule $rule The rule to update
+     * @param  UpdateRuleRequest  $request  Validated rule data
+     * @param  Rule  $rule  The rule to update
      * @return Rule The updated rule
      */
     public function update(UpdateRuleRequest $request, Rule $rule)
@@ -189,7 +190,7 @@ class RuleController extends Controller
     /**
      * Store a newly created rule.
      *
-     * @param StoreRuleRequest $request Validated rule data
+     * @param  StoreRuleRequest  $request  Validated rule data
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(StoreRuleRequest $request)
@@ -203,7 +204,7 @@ class RuleController extends Controller
     /**
      * Remove the specified rule from storage.
      *
-     * @param Rule $rule The rule to delete
+     * @param  Rule  $rule  The rule to delete
      * @return Rule The deleted rule
      */
     public function destroy(Rule $rule)

@@ -36,7 +36,7 @@ class EventNameController extends Controller
     /**
      * Display a paginated list of event names with filtering.
      *
-     * @param Request $request Filter parameters
+     * @param  Request  $request  Filter parameters
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -70,7 +70,7 @@ class EventNameController extends Controller
     /**
      * Store a newly created event name.
      *
-     * @param StoreEventNameRequest $request Validated event name data
+     * @param  StoreEventNameRequest  $request  Validated event name data
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(StoreEventNameRequest $request)
@@ -84,7 +84,7 @@ class EventNameController extends Controller
     /**
      * Display the specified event name with template class links.
      *
-     * @param EventName $eventname The event name to display
+     * @param  EventName  $eventname  The event name to display
      * @return \Illuminate\Http\Response
      */
     public function show(EventName $eventname)
@@ -100,8 +100,8 @@ class EventNameController extends Controller
     /**
      * Update the specified event name.
      *
-     * @param UpdateEventNameRequest $request Validated event name data
-     * @param EventName $eventname The event name to update
+     * @param  UpdateEventNameRequest  $request  Validated event name data
+     * @param  EventName  $eventname  The event name to update
      * @return EventName The updated event name
      */
     public function update(UpdateEventNameRequest $request, EventName $eventname)
@@ -115,7 +115,7 @@ class EventNameController extends Controller
     /**
      * Remove the specified event name from storage.
      *
-     * @param EventName $eventname The event name to delete
+     * @param  EventName  $eventname  The event name to delete
      * @return EventName The deleted event name
      */
     public function destroy(EventName $eventname)

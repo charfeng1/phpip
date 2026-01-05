@@ -14,7 +14,7 @@ class FilterableTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->controller = new TestableFilterableController();
+        $this->controller = new TestableFilterableController;
     }
 
     /** @test */

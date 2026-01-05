@@ -16,8 +16,6 @@ trait HasFamily
      *
      * Family members are matters that share the same caseref (family identifier).
      * Results are ordered by origin, country, type, and index.
-     *
-     * @return HasMany
      */
     public function family(): HasMany
     {
@@ -33,8 +31,6 @@ trait HasFamily
      *
      * A container is a matter that groups related cases together.
      * Returns a default empty model if no container exists.
-     *
-     * @return BelongsTo
      */
     public function container(): BelongsTo
     {
@@ -46,8 +42,6 @@ trait HasFamily
      *
      * Used for tracking priority relationships (e.g., PCT -> National phase).
      * Returns a default empty model if no parent exists.
-     *
-     * @return BelongsTo
      */
     public function parent(): BelongsTo
     {
@@ -59,8 +53,6 @@ trait HasFamily
      *
      * Descendants are matters that were derived from this matter (e.g., national phases from PCT).
      * Results are ordered by origin, country, type, and index.
-     *
-     * @return HasMany
      */
     public function descendants(): HasMany
     {

@@ -14,7 +14,7 @@ class TemplateMemberPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new TemplateMemberPolicy();
+        $this->policy = new TemplateMemberPolicy;
     }
 
     /** @test */
@@ -53,7 +53,7 @@ class TemplateMemberPolicyTest extends TestCase
     public function admin_can_view_template_member()
     {
         $admin = User::factory()->admin()->create();
-        $templateMember = new TemplateMember();
+        $templateMember = new TemplateMember;
 
         $this->assertTrue($this->policy->view($admin, $templateMember));
     }
@@ -62,7 +62,7 @@ class TemplateMemberPolicyTest extends TestCase
     public function read_only_user_can_view_template_member()
     {
         $user = User::factory()->readOnly()->create();
-        $templateMember = new TemplateMember();
+        $templateMember = new TemplateMember;
 
         $this->assertTrue($this->policy->view($user, $templateMember));
     }
@@ -71,7 +71,7 @@ class TemplateMemberPolicyTest extends TestCase
     public function client_cannot_view_template_member()
     {
         $client = User::factory()->client()->create();
-        $templateMember = new TemplateMember();
+        $templateMember = new TemplateMember;
 
         $this->assertFalse($this->policy->view($client, $templateMember));
     }
@@ -95,7 +95,7 @@ class TemplateMemberPolicyTest extends TestCase
     {
         $admin = User::factory()->admin()->create();
         $readWrite = User::factory()->readWrite()->create();
-        $templateMember = new TemplateMember();
+        $templateMember = new TemplateMember;
 
         $this->assertTrue($this->policy->update($admin, $templateMember));
         $this->assertFalse($this->policy->update($readWrite, $templateMember));
@@ -105,7 +105,7 @@ class TemplateMemberPolicyTest extends TestCase
     public function read_only_user_cannot_update_template_member()
     {
         $user = User::factory()->readOnly()->create();
-        $templateMember = new TemplateMember();
+        $templateMember = new TemplateMember;
 
         $this->assertFalse($this->policy->update($user, $templateMember));
     }
@@ -114,7 +114,7 @@ class TemplateMemberPolicyTest extends TestCase
     public function client_cannot_update_template_member()
     {
         $client = User::factory()->client()->create();
-        $templateMember = new TemplateMember();
+        $templateMember = new TemplateMember;
 
         $this->assertFalse($this->policy->update($client, $templateMember));
     }
@@ -124,7 +124,7 @@ class TemplateMemberPolicyTest extends TestCase
     {
         $admin = User::factory()->admin()->create();
         $readWrite = User::factory()->readWrite()->create();
-        $templateMember = new TemplateMember();
+        $templateMember = new TemplateMember;
 
         $this->assertTrue($this->policy->delete($admin, $templateMember));
         $this->assertFalse($this->policy->delete($readWrite, $templateMember));
@@ -134,7 +134,7 @@ class TemplateMemberPolicyTest extends TestCase
     public function read_only_user_cannot_delete_template_member()
     {
         $user = User::factory()->readOnly()->create();
-        $templateMember = new TemplateMember();
+        $templateMember = new TemplateMember;
 
         $this->assertFalse($this->policy->delete($user, $templateMember));
     }
@@ -143,7 +143,7 @@ class TemplateMemberPolicyTest extends TestCase
     public function client_cannot_delete_template_member()
     {
         $client = User::factory()->client()->create();
-        $templateMember = new TemplateMember();
+        $templateMember = new TemplateMember;
 
         $this->assertFalse($this->policy->delete($client, $templateMember));
     }

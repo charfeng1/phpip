@@ -27,7 +27,7 @@ return new class extends Migration
             AND column_name = 'vat_number'
         ");
 
-        if (!empty($hasLowercase)) {
+        if (! empty($hasLowercase)) {
             DB::statement('ALTER TABLE actor RENAME COLUMN vat_number TO "VAT_number"');
         }
     }
@@ -48,7 +48,7 @@ return new class extends Migration
             AND column_name = 'VAT_number'
         ");
 
-        if (!empty($hasMixedCase)) {
+        if (! empty($hasMixedCase)) {
             DB::statement('ALTER TABLE actor RENAME COLUMN "VAT_number" TO vat_number');
         }
     }

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         // Only update the view if the actor table exists
-        if (!Schema::hasTable('actor')) {
+        if (! Schema::hasTable('actor')) {
             return;
         }
 
@@ -50,7 +50,7 @@ return new class extends Migration
     public function down(): void
     {
         // Only revert the view if the actor table exists
-        if (!Schema::hasTable('actor')) {
+        if (! Schema::hasTable('actor')) {
             return;
         }
 

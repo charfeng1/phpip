@@ -33,7 +33,7 @@ class TaskRepository
      * - Filing, grant, and publication dates
      * - Multi-language country names and titles
      *
-     * @param array $filters Optional filters to apply (Title, Case, Qt, Fromdate, etc.)
+     * @param  array  $filters  Optional filters to apply (Title, Case, Qt, Fromdate, etc.)
      * @return Builder Query builder for renewal tasks
      */
     public function renewals(array $filters = []): Builder
@@ -50,8 +50,7 @@ class TaskRepository
     /**
      * Get renewals for specific task IDs.
      *
-     * @param array $taskIds Array of task IDs to retrieve
-     * @return Builder
+     * @param  array  $taskIds  Array of task IDs to retrieve
      */
     public function renewalsByIds(array $taskIds): Builder
     {
@@ -61,8 +60,6 @@ class TaskRepository
 
     /**
      * Get renewals ready for export (invoice_step = 1).
-     *
-     * @return Builder
      */
     public function renewalsForExport(): Builder
     {
@@ -75,8 +72,6 @@ class TaskRepository
      * Build the base renewal query without filters.
      *
      * Extracted from Task::renewals() for reusability.
-     *
-     * @return Builder
      */
     protected function buildBaseRenewalQuery(): Builder
     {
@@ -252,7 +247,7 @@ class TaskRepository
     /**
      * Build the applicant name aggregation expression.
      *
-     * @param bool $isPostgres Whether using PostgreSQL
+     * @param  bool  $isPostgres  Whether using PostgreSQL
      * @return string SQL expression for applicant name aggregation
      */
     protected function buildApplicantNameExpression(bool $isPostgres): string
@@ -285,8 +280,8 @@ class TaskRepository
      *
      * Extracted from RenewalController::index() for reusability and testability.
      *
-     * @param Builder $query The base query to filter
-     * @param array $filters Associative array of filter key => value pairs
+     * @param  Builder  $query  The base query to filter
+     * @param  array  $filters  Associative array of filter key => value pairs
      * @return Builder The filtered query
      */
     public function applyRenewalFilters(Builder $query, array $filters): Builder
@@ -331,7 +326,7 @@ class TaskRepository
      * Based on step and invoice_step filters, determines if we're at the
      * beginning of the pipeline (show only pending) or viewing a specific step.
      *
-     * @param array $filters The applied filters
+     * @param  array  $filters  The applied filters
      * @return bool True if should show only pending (done = 0)
      */
     public function shouldShowOnlyPending(array $filters): bool
@@ -351,8 +346,8 @@ class TaskRepository
      * For closed renewals (step 10) or paid invoices (invoice_step 3),
      * sort by most recent first.
      *
-     * @param int|null $step Current step filter
-     * @param int|null $invoiceStep Current invoice step filter
+     * @param  int|null  $step  Current step filter
+     * @param  int|null  $invoiceStep  Current invoice step filter
      * @return string|null 'desc' for descending, null for default order
      */
     public function getSortDirection(?int $step, ?int $invoiceStep): ?string

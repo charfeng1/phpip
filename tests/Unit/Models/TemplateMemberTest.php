@@ -10,7 +10,7 @@ class TemplateMemberTest extends TestCase
     /** @test */
     public function it_guards_timestamp_fields()
     {
-        $model = new TemplateMember();
+        $model = new TemplateMember;
         $guarded = $model->getGuarded();
 
         $this->assertContains('created_at', $guarded);
@@ -20,7 +20,7 @@ class TemplateMemberTest extends TestCase
     /** @test */
     public function it_uses_has_table_comments_trait()
     {
-        $model = new TemplateMember();
+        $model = new TemplateMember;
         $traits = class_uses_recursive($model);
 
         $this->assertContains('App\Traits\HasTableComments', $traits);
@@ -29,7 +29,7 @@ class TemplateMemberTest extends TestCase
     /** @test */
     public function it_can_belong_to_a_template_class()
     {
-        $model = new TemplateMember();
+        $model = new TemplateMember;
 
         $relation = $model->class();
 
@@ -42,7 +42,7 @@ class TemplateMemberTest extends TestCase
     /** @test */
     public function class_relationship_uses_correct_foreign_key()
     {
-        $model = new TemplateMember();
+        $model = new TemplateMember;
         $relation = $model->class();
 
         $this->assertEquals('class_id', $relation->getForeignKeyName());
@@ -51,7 +51,7 @@ class TemplateMemberTest extends TestCase
     /** @test */
     public function it_extends_eloquent_model()
     {
-        $model = new TemplateMember();
+        $model = new TemplateMember;
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Model::class, $model);
     }
@@ -59,7 +59,7 @@ class TemplateMemberTest extends TestCase
     /** @test */
     public function it_uses_standard_table_name()
     {
-        $model = new TemplateMember();
+        $model = new TemplateMember;
 
         $this->assertEquals('template_members', $model->getTable());
     }
@@ -67,7 +67,7 @@ class TemplateMemberTest extends TestCase
     /** @test */
     public function it_allows_mass_assignment_of_most_fields()
     {
-        $model = new TemplateMember();
+        $model = new TemplateMember;
 
         // Only timestamps are guarded, so other fields should be fillable
         $this->assertTrue($model->isFillable('summary'));
@@ -82,7 +82,7 @@ class TemplateMemberTest extends TestCase
     /** @test */
     public function it_has_timestamps_enabled()
     {
-        $model = new TemplateMember();
+        $model = new TemplateMember;
 
         // By default, Eloquent models have timestamps enabled
         // TemplateMember doesn't explicitly disable them

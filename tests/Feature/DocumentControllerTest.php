@@ -8,7 +8,6 @@ use Tests\TestCase;
 
 class DocumentControllerTest extends TestCase
 {
-
     /** @test */
     public function template_classes_can_be_filtered_by_name()
     {

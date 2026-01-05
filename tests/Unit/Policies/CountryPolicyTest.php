@@ -14,7 +14,7 @@ class CountryPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new CountryPolicy();
+        $this->policy = new CountryPolicy;
     }
 
     /** @test */

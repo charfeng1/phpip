@@ -60,7 +60,7 @@ class RenewalWorkflowService
     /**
      * Transition renewals to "to pay" status.
      *
-     * @param array $taskIds Array of task IDs to transition
+     * @param  array  $taskIds  Array of task IDs to transition
      * @return int Number of updated tasks
      */
     public function markToPay(array $taskIds): int
@@ -95,7 +95,7 @@ class RenewalWorkflowService
     /**
      * Mark renewals as invoiced.
      *
-     * @param array $taskIds Array of task IDs
+     * @param  array  $taskIds  Array of task IDs
      * @return int Number of updated tasks
      */
     public function markInvoiced(array $taskIds): int
@@ -112,7 +112,7 @@ class RenewalWorkflowService
     /**
      * Mark invoices as paid.
      *
-     * @param array $taskIds Array of task IDs
+     * @param  array  $taskIds  Array of task IDs
      * @return int Number of updated tasks
      */
     public function markPaid(array $taskIds): int
@@ -127,7 +127,7 @@ class RenewalWorkflowService
     /**
      * Mark renewals as done/cleared.
      *
-     * @param array $taskIds Array of task IDs
+     * @param  array  $taskIds  Array of task IDs
      * @return int Number of updated tasks
      */
     public function markDone(array $taskIds): int
@@ -175,7 +175,7 @@ class RenewalWorkflowService
     /**
      * Mark renewals as receipt received.
      *
-     * @param array $taskIds Array of task IDs
+     * @param  array  $taskIds  Array of task IDs
      * @return int Number of updated tasks
      */
     public function markReceipt(array $taskIds): int
@@ -221,7 +221,7 @@ class RenewalWorkflowService
     /**
      * Close renewals.
      *
-     * @param array $taskIds Array of task IDs
+     * @param  array  $taskIds  Array of task IDs
      * @return int Number of updated tasks
      */
     public function markClosed(array $taskIds): int
@@ -273,7 +273,7 @@ class RenewalWorkflowService
      *
      * Also creates an ABA (Abandoned) event on the matter.
      *
-     * @param array $taskIds Array of task IDs
+     * @param  array  $taskIds  Array of task IDs
      * @return int Number of updated tasks
      */
     public function markAbandoned(array $taskIds): int
@@ -328,7 +328,7 @@ class RenewalWorkflowService
      *
      * Also creates a LAP (Lapsed) event on the matter.
      *
-     * @param array $taskIds Array of task IDs
+     * @param  array  $taskIds  Array of task IDs
      * @return int Number of updated tasks
      */
     public function markLapsed(array $taskIds): int
@@ -379,7 +379,7 @@ class RenewalWorkflowService
     /**
      * Transition renewals to first call step.
      *
-     * @param array $taskIds Array of task IDs
+     * @param  array  $taskIds  Array of task IDs
      * @return int Number of updated tasks
      */
     public function markFirstCall(array $taskIds): int
@@ -396,7 +396,7 @@ class RenewalWorkflowService
     /**
      * Transition renewals to grace period.
      *
-     * @param array $taskIds Array of task IDs
+     * @param  array  $taskIds  Array of task IDs
      * @return int Number of updated tasks
      */
     public function markGracePeriod(array $taskIds): int
@@ -413,8 +413,7 @@ class RenewalWorkflowService
     /**
      * Get renewals by IDs.
      *
-     * @param array $taskIds Array of task IDs
-     * @return Collection
+     * @param  array  $taskIds  Array of task IDs
      */
     protected function getRenewals(array $taskIds): Collection
     {
@@ -424,10 +423,10 @@ class RenewalWorkflowService
     /**
      * Build transition log entries.
      *
-     * @param Collection $renewals The renewals being transitioned
-     * @param int $jobId The job ID for grouping
-     * @param int $toStep The target step
-     * @param array $extra Additional log fields
+     * @param  Collection  $renewals  The renewals being transitioned
+     * @param  int  $jobId  The job ID for grouping
+     * @param  int  $toStep  The target step
+     * @param  array  $extra  Additional log fields
      * @return array Log entries ready for batch insert
      */
     protected function buildTransitionLogs(

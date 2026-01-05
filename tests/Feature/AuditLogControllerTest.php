@@ -9,7 +9,6 @@ use Tests\TestCase;
 
 class AuditLogControllerTest extends TestCase
 {
-
     /** @test */
     public function audit_logs_can_be_filtered_by_record_id()
     {

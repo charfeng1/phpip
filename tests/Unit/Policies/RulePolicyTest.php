@@ -14,7 +14,7 @@ class RulePolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new RulePolicy();
+        $this->policy = new RulePolicy;
     }
 
     /** @test */
@@ -53,7 +53,7 @@ class RulePolicyTest extends TestCase
     public function admin_can_view_rule()
     {
         $admin = User::factory()->admin()->create();
-        $rule = new Rule();
+        $rule = new Rule;
 
         $this->assertTrue($this->policy->view($admin, $rule));
     }
@@ -62,7 +62,7 @@ class RulePolicyTest extends TestCase
     public function read_only_user_can_view_rule()
     {
         $user = User::factory()->readOnly()->create();
-        $rule = new Rule();
+        $rule = new Rule;
 
         $this->assertTrue($this->policy->view($user, $rule));
     }
@@ -71,7 +71,7 @@ class RulePolicyTest extends TestCase
     public function client_cannot_view_rule()
     {
         $client = User::factory()->client()->create();
-        $rule = new Rule();
+        $rule = new Rule;
 
         $this->assertFalse($this->policy->view($client, $rule));
     }
@@ -95,7 +95,7 @@ class RulePolicyTest extends TestCase
     {
         $admin = User::factory()->admin()->create();
         $readWrite = User::factory()->readWrite()->create();
-        $rule = new Rule();
+        $rule = new Rule;
 
         $this->assertTrue($this->policy->update($admin, $rule));
         $this->assertFalse($this->policy->update($readWrite, $rule));
@@ -105,7 +105,7 @@ class RulePolicyTest extends TestCase
     public function read_only_user_cannot_update_rule()
     {
         $user = User::factory()->readOnly()->create();
-        $rule = new Rule();
+        $rule = new Rule;
 
         $this->assertFalse($this->policy->update($user, $rule));
     }
@@ -114,7 +114,7 @@ class RulePolicyTest extends TestCase
     public function client_cannot_update_rule()
     {
         $client = User::factory()->client()->create();
-        $rule = new Rule();
+        $rule = new Rule;
 
         $this->assertFalse($this->policy->update($client, $rule));
     }
@@ -124,7 +124,7 @@ class RulePolicyTest extends TestCase
     {
         $admin = User::factory()->admin()->create();
         $readWrite = User::factory()->readWrite()->create();
-        $rule = new Rule();
+        $rule = new Rule;
 
         $this->assertTrue($this->policy->delete($admin, $rule));
         $this->assertFalse($this->policy->delete($readWrite, $rule));
@@ -134,7 +134,7 @@ class RulePolicyTest extends TestCase
     public function read_only_user_cannot_delete_rule()
     {
         $user = User::factory()->readOnly()->create();
-        $rule = new Rule();
+        $rule = new Rule;
 
         $this->assertFalse($this->policy->delete($user, $rule));
     }
@@ -143,7 +143,7 @@ class RulePolicyTest extends TestCase
     public function client_cannot_delete_rule()
     {
         $client = User::factory()->client()->create();
-        $rule = new Rule();
+        $rule = new Rule;
 
         $this->assertFalse($this->policy->delete($client, $rule));
     }

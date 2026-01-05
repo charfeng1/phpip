@@ -8,13 +8,12 @@ use Tests\TestCase;
 
 class UserPolicyTest extends TestCase
 {
-
     protected UserPolicy $policy;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new UserPolicy();
+        $this->policy = new UserPolicy;
     }
 
     // viewAny tests

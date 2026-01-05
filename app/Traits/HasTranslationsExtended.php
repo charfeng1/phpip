@@ -23,9 +23,9 @@ trait HasTranslationsExtended
      * (first 2 characters) before storing, ensuring consistency when locales like
      * 'en_US', 'en_GB', etc. are used.
      *
-     * @param string $key The attribute name to translate.
-     * @param string $locale The locale code (will be normalized to base language).
-     * @param mixed $value The translated value.
+     * @param  string  $key  The attribute name to translate.
+     * @param  string  $locale  The locale code (will be normalized to base language).
+     * @param  mixed  $value  The translated value.
      * @return $this Returns the model instance for method chaining.
      */
     public function setTranslation(string $key, string $locale, $value): self

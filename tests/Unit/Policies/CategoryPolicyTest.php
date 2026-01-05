@@ -14,7 +14,7 @@ class CategoryPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new CategoryPolicy();
+        $this->policy = new CategoryPolicy;
     }
 
     /** @test */

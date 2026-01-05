@@ -71,7 +71,6 @@ class LoginController extends Controller
      * the User model uses TrimsCharColumns trait which would return a trimmed
      * value, causing Auth::attempt to fail.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return bool
      */
     protected function attemptLogin(Request $request)

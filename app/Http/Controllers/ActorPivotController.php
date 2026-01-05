@@ -19,13 +19,14 @@ use Illuminate\Support\Facades\Gate;
 class ActorPivotController extends Controller
 {
     use HandlesAuditFields;
+
     /**
      * Assign an actor to a matter in a specific role.
      *
      * Automatically maintains display_order sequence within role groups
      * and inherits company_id from the actor.
      *
-     * @param StoreActorPivotRequest $request Validated actor-matter relationship data
+     * @param  StoreActorPivotRequest  $request  Validated actor-matter relationship data
      * @return ActorPivot The created actor-matter relationship
      */
     public function store(StoreActorPivotRequest $request)
@@ -60,8 +61,8 @@ class ActorPivotController extends Controller
     /**
      * Update the specified actor-matter relationship.
      *
-     * @param UpdateActorPivotRequest $request Validated relationship data
-     * @param ActorPivot $actorPivot The actor-matter relationship to update
+     * @param  UpdateActorPivotRequest  $request  Validated relationship data
+     * @param  ActorPivot  $actorPivot  The actor-matter relationship to update
      * @return ActorPivot The updated relationship
      */
     public function update(UpdateActorPivotRequest $request, ActorPivot $actorPivot)
@@ -77,7 +78,7 @@ class ActorPivotController extends Controller
      *
      * Automatically renumbers display_order for remaining actors in the same role.
      *
-     * @param ActorPivot $actorPivot The actor-matter relationship to delete
+     * @param  ActorPivot  $actorPivot  The actor-matter relationship to delete
      * @return ActorPivot The deleted relationship
      */
     public function destroy(ActorPivot $actorPivot)
@@ -107,7 +108,7 @@ class ActorPivotController extends Controller
      * Lists up to 50 matters where the actor is assigned, plus up to 30 other
      * actors that reference this actor as parent, company, or site.
      *
-     * @param int $actor The actor ID to check dependencies for
+     * @param  int  $actor  The actor ID to check dependencies for
      * @return \Illuminate\Http\Response
      */
     public function usedIn(int $actor)

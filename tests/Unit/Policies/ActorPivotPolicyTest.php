@@ -14,7 +14,7 @@ class ActorPivotPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new ActorPivotPolicy();
+        $this->policy = new ActorPivotPolicy;
     }
 
     /** @test */
@@ -53,7 +53,7 @@ class ActorPivotPolicyTest extends TestCase
     public function admin_can_view_actor_pivot()
     {
         $admin = User::factory()->admin()->create();
-        $actorPivot = new ActorPivot();
+        $actorPivot = new ActorPivot;
 
         $this->assertTrue($this->policy->view($admin, $actorPivot));
     }
@@ -62,7 +62,7 @@ class ActorPivotPolicyTest extends TestCase
     public function read_only_user_can_view_actor_pivot()
     {
         $user = User::factory()->readOnly()->create();
-        $actorPivot = new ActorPivot();
+        $actorPivot = new ActorPivot;
 
         $this->assertTrue($this->policy->view($user, $actorPivot));
     }
@@ -71,7 +71,7 @@ class ActorPivotPolicyTest extends TestCase
     public function client_cannot_view_actor_pivot()
     {
         $client = User::factory()->client()->create();
-        $actorPivot = new ActorPivot();
+        $actorPivot = new ActorPivot;
 
         $this->assertFalse($this->policy->view($client, $actorPivot));
     }
@@ -112,7 +112,7 @@ class ActorPivotPolicyTest extends TestCase
     public function admin_can_update_actor_pivot()
     {
         $admin = User::factory()->admin()->create();
-        $actorPivot = new ActorPivot();
+        $actorPivot = new ActorPivot;
 
         $this->assertTrue($this->policy->update($admin, $actorPivot));
     }
@@ -121,7 +121,7 @@ class ActorPivotPolicyTest extends TestCase
     public function read_write_user_can_update_actor_pivot()
     {
         $user = User::factory()->readWrite()->create();
-        $actorPivot = new ActorPivot();
+        $actorPivot = new ActorPivot;
 
         $this->assertTrue($this->policy->update($user, $actorPivot));
     }
@@ -130,7 +130,7 @@ class ActorPivotPolicyTest extends TestCase
     public function read_only_user_cannot_update_actor_pivot()
     {
         $user = User::factory()->readOnly()->create();
-        $actorPivot = new ActorPivot();
+        $actorPivot = new ActorPivot;
 
         $this->assertFalse($this->policy->update($user, $actorPivot));
     }
@@ -139,7 +139,7 @@ class ActorPivotPolicyTest extends TestCase
     public function client_cannot_update_actor_pivot()
     {
         $client = User::factory()->client()->create();
-        $actorPivot = new ActorPivot();
+        $actorPivot = new ActorPivot;
 
         $this->assertFalse($this->policy->update($client, $actorPivot));
     }
@@ -148,7 +148,7 @@ class ActorPivotPolicyTest extends TestCase
     public function admin_can_delete_actor_pivot()
     {
         $admin = User::factory()->admin()->create();
-        $actorPivot = new ActorPivot();
+        $actorPivot = new ActorPivot;
 
         $this->assertTrue($this->policy->delete($admin, $actorPivot));
     }
@@ -157,7 +157,7 @@ class ActorPivotPolicyTest extends TestCase
     public function read_write_user_can_delete_actor_pivot()
     {
         $user = User::factory()->readWrite()->create();
-        $actorPivot = new ActorPivot();
+        $actorPivot = new ActorPivot;
 
         $this->assertTrue($this->policy->delete($user, $actorPivot));
     }
@@ -166,7 +166,7 @@ class ActorPivotPolicyTest extends TestCase
     public function read_only_user_cannot_delete_actor_pivot()
     {
         $user = User::factory()->readOnly()->create();
-        $actorPivot = new ActorPivot();
+        $actorPivot = new ActorPivot;
 
         $this->assertFalse($this->policy->delete($user, $actorPivot));
     }
@@ -175,7 +175,7 @@ class ActorPivotPolicyTest extends TestCase
     public function client_cannot_delete_actor_pivot()
     {
         $client = User::factory()->client()->create();
-        $actorPivot = new ActorPivot();
+        $actorPivot = new ActorPivot;
 
         $this->assertFalse($this->policy->delete($client, $actorPivot));
     }

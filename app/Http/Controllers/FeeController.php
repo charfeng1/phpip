@@ -18,10 +18,11 @@ use Illuminate\Http\Request;
 class FeeController extends Controller
 {
     use HandlesAuditFields;
+
     /**
      * Display a paginated list of fees with filtering.
      *
-     * @param Request $request Filter parameters
+     * @param  Request  $request  Filter parameters
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -75,7 +76,7 @@ class FeeController extends Controller
      *
      * Can create multiple entries at once when a range is specified (from_qt to to_qt).
      *
-     * @param StoreFeeRequest $request Validated fee data
+     * @param  StoreFeeRequest  $request  Validated fee data
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(StoreFeeRequest $request)
@@ -99,7 +100,7 @@ class FeeController extends Controller
     /**
      * Display the specified fee entry.
      *
-     * @param Fee $fee The fee to display
+     * @param  Fee  $fee  The fee to display
      * @return Fee
      */
     public function show(Fee $fee)
@@ -112,8 +113,8 @@ class FeeController extends Controller
     /**
      * Update the specified fee entry.
      *
-     * @param UpdateFeeRequest $request Validated fee data
-     * @param Fee $fee The fee to update
+     * @param  UpdateFeeRequest  $request  Validated fee data
+     * @param  Fee  $fee  The fee to update
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(UpdateFeeRequest $request, Fee $fee)
@@ -127,7 +128,7 @@ class FeeController extends Controller
     /**
      * Remove the specified fee entry from storage.
      *
-     * @param Fee $fee The fee to delete
+     * @param  Fee  $fee  The fee to delete
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Fee $fee)

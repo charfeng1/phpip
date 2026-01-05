@@ -13,7 +13,7 @@ class MatterExportServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->exportService = new MatterExportService();
+        $this->exportService = new MatterExportService;
     }
 
     /** @test */
@@ -126,7 +126,7 @@ class MatterExportServiceTest extends TestCase
     public function export_uses_semicolon_delimiter()
     {
         // The service uses ';' as the CSV delimiter for European compatibility
-        $service = new MatterExportService();
+        $service = new MatterExportService;
 
         // Capture the output by reading the exported content
         $matters = [['test', 'data', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]];

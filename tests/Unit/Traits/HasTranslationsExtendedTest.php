@@ -4,8 +4,6 @@ namespace Tests\Unit\Traits;
 
 use App\Models\Category;
 use App\Models\EventName;
-use App\Traits\HasTranslationsExtended;
-use Illuminate\Database\Eloquent\Model;
 use Tests\TestCase;
 
 class HasTranslationsExtendedTest extends TestCase
@@ -55,7 +53,7 @@ class HasTranslationsExtendedTest extends TestCase
     /** @test */
     public function category_uses_has_translations_extended()
     {
-        $category = new Category();
+        $category = new Category;
         $traits = class_uses_recursive($category);
 
         $this->assertContains('App\Traits\HasTranslationsExtended', $traits);
@@ -64,7 +62,7 @@ class HasTranslationsExtendedTest extends TestCase
     /** @test */
     public function event_name_uses_has_translations_extended()
     {
-        $eventName = new EventName();
+        $eventName = new EventName;
         $traits = class_uses_recursive($eventName);
 
         $this->assertContains('App\Traits\HasTranslationsExtended', $traits);
@@ -108,7 +106,7 @@ class HasTranslationsExtendedTest extends TestCase
 
         // Both should have written to 'en', so only GB Term should remain
         $this->assertEquals('GB Term', $translations['en']);
-        $this->assertCount(1, array_filter(array_keys($translations), fn($k) => str_starts_with($k, 'en')));
+        $this->assertCount(1, array_filter(array_keys($translations), fn ($k) => str_starts_with($k, 'en')));
     }
 
     /** @test */

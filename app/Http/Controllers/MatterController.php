@@ -51,7 +51,7 @@ class MatterController extends Controller
     /**
      * Display a paginated list of matters with optional filtering and sorting.
      *
-     * @param Request $request The HTTP request containing filter, sort, and pagination parameters.
+     * @param  Request  $request  The HTTP request containing filter, sort, and pagination parameters.
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse The view or JSON response with filtered matters.
      */
     public function index(Request $request)
@@ -94,7 +94,7 @@ class MatterController extends Controller
      * Loads related data including tasks, renewals, events, family members,
      * and external priority relationships.
      *
-     * @param Matter $matter The matter to display.
+     * @param  Matter  $matter  The matter to display.
      * @return \Illuminate\Http\Response The view with matter details.
      */
     public function show(Matter $matter)
@@ -138,7 +138,7 @@ class MatterController extends Controller
      * Supports multiple creation modes: new, clone, descendant, and OPS import.
      * Prepares the parent matter data when cloning or creating descendants.
      *
-     * @param Request $request The HTTP request containing operation type and parent matter ID.
+     * @param  Request  $request  The HTTP request containing operation type and parent matter ID.
      * @return \Illuminate\Http\Response The view for creating a new matter.
      */
     public function create(Request $request)
@@ -212,7 +212,7 @@ class MatterController extends Controller
      * Handles matter creation based on operation type (new, clone, descendant).
      * Manages unique identifier generation, priority claims copying, and actor relationships.
      *
-     * @param StoreMatterRequest $request The HTTP request containing matter data.
+     * @param  StoreMatterRequest  $request  The HTTP request containing matter data.
      * @return \Illuminate\Http\JsonResponse JSON response with redirect URL to the new matter.
      */
     public function store(StoreMatterRequest $request)
@@ -254,7 +254,7 @@ class MatterController extends Controller
      * Generates multiple matter entries for different countries, copying priority
      * claims, filing/publication/grant events from the parent matter.
      *
-     * @param Request $request The HTTP request containing parent matter and country list.
+     * @param  Request  $request  The HTTP request containing parent matter and country list.
      * @return \Illuminate\Http\JsonResponse JSON response with redirect URL to the created matters.
      */
     public function storeN(Request $request)
@@ -310,7 +310,7 @@ class MatterController extends Controller
      * with all associated events, actors, and relationships. Handles priorities,
      * divisionals, continuations, and PCT national phases.
      *
-     * @param Request $request Request containing docnum, caseref, category_code, and client_id.
+     * @param  Request  $request  Request containing docnum, caseref, category_code, and client_id.
      * @return \Illuminate\Http\JsonResponse JSON response with redirect URL or errors.
      */
     public function storeFamily(Request $request)
@@ -345,7 +345,7 @@ class MatterController extends Controller
      * Determines whether country and category fields can be edited based on
      * whether the matter has country/category-specific tasks.
      *
-     * @param Matter $matter The matter to edit.
+     * @param  Matter  $matter  The matter to edit.
      * @return \Illuminate\Http\Response The view for editing the matter.
      */
     public function edit(Matter $matter)
@@ -379,8 +379,8 @@ class MatterController extends Controller
     /**
      * Update a matter in the database.
      *
-     * @param UpdateMatterRequest $request The HTTP request containing updated matter data.
-     * @param Matter $matter The matter to update.
+     * @param  UpdateMatterRequest  $request  The HTTP request containing updated matter data.
+     * @param  Matter  $matter  The matter to update.
      * @return Matter The updated matter model.
      */
     public function update(UpdateMatterRequest $request, Matter $matter)
@@ -394,7 +394,7 @@ class MatterController extends Controller
     /**
      * Remove a matter from the database.
      *
-     * @param Matter $matter The matter to delete.
+     * @param  Matter  $matter  The matter to delete.
      * @return Matter The deleted matter model.
      */
     public function destroy(Matter $matter)
@@ -476,7 +476,7 @@ class MatterController extends Controller
     /**
      * Display all events for a matter.
      *
-     * @param Matter $matter The matter whose events to display.
+     * @param  Matter  $matter  The matter whose events to display.
      * @return \Illuminate\Http\Response The view with events list.
      */
     public function events(Matter $matter)
@@ -491,7 +491,7 @@ class MatterController extends Controller
     /**
      * Display all tasks (excluding renewals) for a matter.
      *
-     * @param Matter $matter The matter whose tasks to display.
+     * @param  Matter  $matter  The matter whose tasks to display.
      * @return \Illuminate\Http\Response The view with tasks list.
      */
     public function tasks(Matter $matter)
@@ -508,7 +508,7 @@ class MatterController extends Controller
     /**
      * Display renewal tasks for a matter.
      *
-     * @param Matter $matter The matter whose renewals to display.
+     * @param  Matter  $matter  The matter whose renewals to display.
      * @return \Illuminate\Http\Response The view with renewals list.
      */
     public function renewals(Matter $matter)
@@ -527,8 +527,8 @@ class MatterController extends Controller
     /**
      * Display actors of a specific role for a matter.
      *
-     * @param Matter $matter The matter whose actors to display.
-     * @param string $role The role code to filter actors.
+     * @param  Matter  $matter  The matter whose actors to display.
+     * @param  string  $role  The role code to filter actors.
      * @return \Illuminate\Http\Response The view with actors list.
      */
     public function actors(Matter $matter, $role)
@@ -541,7 +541,7 @@ class MatterController extends Controller
     /**
      * Display classifiers (titles, classes, etc.) for a matter.
      *
-     * @param Matter $matter The matter whose classifiers to display.
+     * @param  Matter  $matter  The matter whose classifiers to display.
      * @return \Illuminate\Http\Response The view with classifiers list.
      */
     public function classifiers(Matter $matter)
@@ -554,8 +554,8 @@ class MatterController extends Controller
     /**
      * Display the description/summary for a matter in a specific language.
      *
-     * @param Matter $matter The matter whose description to display.
-     * @param string $lang The language code for the description.
+     * @param  Matter  $matter  The matter whose description to display.
+     * @param  string  $lang  The language code for the description.
      * @return \Illuminate\Http\Response The view with the description.
      */
     public function description(Matter $matter, $lang)

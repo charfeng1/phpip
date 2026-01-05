@@ -3,14 +3,11 @@
 namespace Tests\Unit\Traits;
 
 use App\Models\Actor;
-use App\Models\Event;
 use App\Models\Matter;
-use App\Models\User;
 use Tests\TestCase;
 
 class HasActorsFromRoleTest extends TestCase
 {
-
     protected function setUp(): void
     {
         parent::setUp();

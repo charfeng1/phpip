@@ -4,7 +4,6 @@ namespace Tests\Unit\Models;
 
 use App\Models\Actor;
 use App\Models\Category;
-use App\Models\Country;
 use App\Models\Event;
 use App\Models\Matter;
 use App\Models\Task;
@@ -13,7 +12,6 @@ use Tests\TestCase;
 
 class MatterTest extends TestCase
 {
-
     protected function setUp(): void
     {
         parent::setUp();

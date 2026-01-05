@@ -5,14 +5,12 @@ namespace Tests\Unit\Models;
 use App\Models\Actor;
 use App\Models\Event;
 use App\Models\Matter;
-use App\Models\Role;
 use App\Models\Task;
 use App\Models\User;
 use Tests\TestCase;
 
 class UserTest extends TestCase
 {
-
     protected function setUp(): void
     {
         parent::setUp();

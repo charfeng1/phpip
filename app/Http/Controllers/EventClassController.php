@@ -17,7 +17,7 @@ class EventClassController extends Controller
     /**
      * Create a link between an event name and template class.
      *
-     * @param Request $request Link data excluding className (display only)
+     * @param  Request  $request  Link data excluding className (display only)
      * @return EventClassLnk The created link
      */
     public function store(Request $request)
@@ -30,7 +30,7 @@ class EventClassController extends Controller
     /**
      * Remove the specified event-class link.
      *
-     * @param int $lnk The link ID to delete
+     * @param  int  $lnk  The link ID to delete
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(int $lnk)

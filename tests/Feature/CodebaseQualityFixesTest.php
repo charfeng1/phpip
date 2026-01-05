@@ -70,7 +70,7 @@ class CodebaseQualityFixesTest extends TestCase
     /** @test */
     public function matter_model_has_expire_date_cast_configured()
     {
-        $matter = new Matter();
+        $matter = new Matter;
         $casts = $matter->getCasts();
 
         // Verify expire_date is cast to date with Y-m-d format
@@ -83,7 +83,7 @@ class CodebaseQualityFixesTest extends TestCase
     {
         // Create a matter with expire_date using raw SQL to avoid factory issues
         $matterId = DB::table('matter')->insertGetId([
-            'caseref' => 'TEST' . rand(1000, 9999),
+            'caseref' => 'TEST'.rand(1000, 9999),
             'country' => 'US',
             'category_code' => 'PAT',
             'expire_date' => '2045-06-15',
@@ -103,7 +103,7 @@ class CodebaseQualityFixesTest extends TestCase
     {
         // Create a matter with expire_date
         $matterId = DB::table('matter')->insertGetId([
-            'caseref' => 'TEST' . rand(1000, 9999),
+            'caseref' => 'TEST'.rand(1000, 9999),
             'country' => 'US',
             'category_code' => 'PAT',
             'expire_date' => '2045-06-15',
@@ -127,7 +127,7 @@ class CodebaseQualityFixesTest extends TestCase
     {
         // Create an event for testing
         $matterId = DB::table('matter')->insertGetId([
-            'caseref' => 'TEST' . rand(1000, 9999),
+            'caseref' => 'TEST'.rand(1000, 9999),
             'country' => 'US',
             'category_code' => 'PAT',
             'created_at' => now(),
@@ -152,7 +152,7 @@ class CodebaseQualityFixesTest extends TestCase
     {
         // Create an event for testing
         $matterId = DB::table('matter')->insertGetId([
-            'caseref' => 'TEST' . rand(1000, 9999),
+            'caseref' => 'TEST'.rand(1000, 9999),
             'country' => 'US',
             'category_code' => 'PAT',
             'created_at' => now(),
@@ -249,7 +249,7 @@ class CodebaseQualityFixesTest extends TestCase
         // Get the next available ID to avoid sequence conflicts
         $maxId = DB::table('actor')->max('id') ?? 0;
         $nextId = $maxId + 1;
-        $login = 'test_' . strtolower($role) . '_' . $nextId;
+        $login = 'test_'.strtolower($role).'_'.$nextId;
 
         DB::table('actor')->insert([
             'id' => $nextId,

@@ -14,7 +14,7 @@ class BladeHelpers
      * HTML attribute string. Boolean true values render as standalone attributes,
      * while all other values are escaped and rendered as key="value" pairs.
      *
-     * @param array $attributes Associative array of attribute name => value pairs
+     * @param  array  $attributes  Associative array of attribute name => value pairs
      * @return string Formatted HTML attribute string
      *
      * @example

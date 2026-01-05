@@ -30,7 +30,7 @@ class ClassifierTypeTest extends TestCase
     /** @test */
     public function it_has_translatable_type_name()
     {
-        $type = new ClassifierType();
+        $type = new ClassifierType;
 
         $this->assertIsArray($type->translatable);
         $this->assertContains('type', $type->translatable);
@@ -40,7 +40,7 @@ class ClassifierTypeTest extends TestCase
     public function it_can_belong_to_a_category()
     {
         $category = Category::find('PAT');
-        if (!$category) {
+        if (! $category) {
             $category = Category::factory()->create(['code' => 'PAT']);
         }
 
@@ -85,7 +85,7 @@ class ClassifierTypeTest extends TestCase
     /** @test */
     public function it_guards_timestamp_fields()
     {
-        $type = new ClassifierType();
+        $type = new ClassifierType;
         $guarded = $type->getGuarded();
 
         $this->assertContains('created_at', $guarded);
@@ -95,7 +95,7 @@ class ClassifierTypeTest extends TestCase
     /** @test */
     public function it_uses_has_table_comments_trait()
     {
-        $type = new ClassifierType();
+        $type = new ClassifierType;
         $traits = class_uses_recursive($type);
 
         $this->assertContains('App\Traits\HasTableComments', $traits);
@@ -104,7 +104,7 @@ class ClassifierTypeTest extends TestCase
     /** @test */
     public function it_uses_has_translations_extended_trait()
     {
-        $type = new ClassifierType();
+        $type = new ClassifierType;
         $traits = class_uses_recursive($type);
 
         $this->assertContains('App\Traits\HasTranslationsExtended', $traits);

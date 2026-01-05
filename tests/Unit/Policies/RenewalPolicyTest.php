@@ -14,7 +14,7 @@ class RenewalPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new RenewalPolicy();
+        $this->policy = new RenewalPolicy;
     }
 
     /** @test */
@@ -53,7 +53,7 @@ class RenewalPolicyTest extends TestCase
     public function admin_can_view_renewals_log()
     {
         $admin = User::factory()->admin()->create();
-        $renewalsLog = new RenewalsLog();
+        $renewalsLog = new RenewalsLog;
 
         $this->assertTrue($this->policy->view($admin, $renewalsLog));
     }
@@ -62,7 +62,7 @@ class RenewalPolicyTest extends TestCase
     public function read_only_user_can_view_renewals_log()
     {
         $user = User::factory()->readOnly()->create();
-        $renewalsLog = new RenewalsLog();
+        $renewalsLog = new RenewalsLog;
 
         $this->assertTrue($this->policy->view($user, $renewalsLog));
     }
@@ -103,7 +103,7 @@ class RenewalPolicyTest extends TestCase
     public function admin_can_update_renewals_log()
     {
         $admin = User::factory()->admin()->create();
-        $renewalsLog = new RenewalsLog();
+        $renewalsLog = new RenewalsLog;
 
         $this->assertTrue($this->policy->update($admin, $renewalsLog));
     }
@@ -112,7 +112,7 @@ class RenewalPolicyTest extends TestCase
     public function read_write_user_can_update_renewals_log()
     {
         $user = User::factory()->readWrite()->create();
-        $renewalsLog = new RenewalsLog();
+        $renewalsLog = new RenewalsLog;
 
         $this->assertTrue($this->policy->update($user, $renewalsLog));
     }
@@ -121,7 +121,7 @@ class RenewalPolicyTest extends TestCase
     public function read_only_user_cannot_update_renewals_log()
     {
         $user = User::factory()->readOnly()->create();
-        $renewalsLog = new RenewalsLog();
+        $renewalsLog = new RenewalsLog;
 
         $this->assertFalse($this->policy->update($user, $renewalsLog));
     }
@@ -130,7 +130,7 @@ class RenewalPolicyTest extends TestCase
     public function client_cannot_update_renewals_log()
     {
         $client = User::factory()->client()->create();
-        $renewalsLog = new RenewalsLog();
+        $renewalsLog = new RenewalsLog;
 
         $this->assertFalse($this->policy->update($client, $renewalsLog));
     }
@@ -139,7 +139,7 @@ class RenewalPolicyTest extends TestCase
     public function admin_can_delete_renewals_log()
     {
         $admin = User::factory()->admin()->create();
-        $renewalsLog = new RenewalsLog();
+        $renewalsLog = new RenewalsLog;
 
         $this->assertTrue($this->policy->delete($admin, $renewalsLog));
     }
@@ -148,7 +148,7 @@ class RenewalPolicyTest extends TestCase
     public function read_write_user_can_delete_renewals_log()
     {
         $user = User::factory()->readWrite()->create();
-        $renewalsLog = new RenewalsLog();
+        $renewalsLog = new RenewalsLog;
 
         $this->assertTrue($this->policy->delete($user, $renewalsLog));
     }
@@ -157,7 +157,7 @@ class RenewalPolicyTest extends TestCase
     public function read_only_user_cannot_delete_renewals_log()
     {
         $user = User::factory()->readOnly()->create();
-        $renewalsLog = new RenewalsLog();
+        $renewalsLog = new RenewalsLog;
 
         $this->assertFalse($this->policy->delete($user, $renewalsLog));
     }
@@ -166,7 +166,7 @@ class RenewalPolicyTest extends TestCase
     public function client_cannot_delete_renewals_log()
     {
         $client = User::factory()->client()->create();
-        $renewalsLog = new RenewalsLog();
+        $renewalsLog = new RenewalsLog;
 
         $this->assertFalse($this->policy->delete($client, $renewalsLog));
     }

@@ -2,9 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\ActorRole;
-use App\Enums\ClassifierType;
-use App\Enums\EventCode;
 use App\Enums\UserRole;
 use App\Traits\Auditable;
 use App\Traits\DatabaseJsonHelper;
@@ -50,8 +47,6 @@ class Task extends Model
      * Get the column name used for user assignment.
      *
      * Tasks use 'assigned_to' instead of 'responsible'.
-     *
-     * @return string
      */
     protected function getTeamScopeColumn(): string
     {
@@ -63,8 +58,6 @@ class Task extends Model
      *
      * Tasks should also check if the related matter's responsible
      * is within the team hierarchy.
-     *
-     * @return bool
      */
     protected function shouldIncludeMatterInTeamScope(): bool
     {
@@ -163,8 +156,6 @@ class Task extends Model
      * Get the rule that was used to generate this task.
      *
      * Rules define the logic for automatic task creation from events.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function rule(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -262,6 +253,7 @@ class Task extends Model
      * Kept for backwards compatibility with existing code.
      *
      * @deprecated Use TaskRepository::renewals() instead for new code
+     *
      * @return \Illuminate\Database\Eloquent\Builder Query builder for renewal tasks
      */
     public static function renewals()

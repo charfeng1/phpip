@@ -34,7 +34,7 @@ class ClassifierController extends Controller
      * Handles both regular classifiers (text, URLs, links) and image uploads.
      * Image classifiers are unique per matter and will be updated if they exist.
      *
-     * @param Request $request Classifier data including matter_id, type_code, and value/image
+     * @param  Request  $request  Classifier data including matter_id, type_code, and value/image
      * @return \Illuminate\Http\Response Plain text ID response
      */
     public function store(Request $request)
@@ -110,7 +110,7 @@ class ClassifierController extends Controller
     /**
      * Display the specified classifier.
      *
-     * @param Classifier $classifier The classifier to display
+     * @param  Classifier  $classifier  The classifier to display
      * @return void
      */
     public function show(Classifier $classifier)
@@ -123,8 +123,8 @@ class ClassifierController extends Controller
      *
      * Deletes the classifier if value is empty and it's a main display field.
      *
-     * @param Request $request Updated classifier data
-     * @param Classifier $classifier The classifier to update
+     * @param  Request  $request  Updated classifier data
+     * @param  Classifier  $classifier  The classifier to update
      * @return Classifier The updated classifier
      */
     public function update(Request $request, Classifier $classifier)
@@ -144,7 +144,7 @@ class ClassifierController extends Controller
     /**
      * Remove the specified classifier from storage.
      *
-     * @param Classifier $classifier The classifier to delete
+     * @param  Classifier  $classifier  The classifier to delete
      * @return \Illuminate\Http\Response Plain text ID response
      */
     public function destroy(Classifier $classifier)
@@ -160,7 +160,7 @@ class ClassifierController extends Controller
     /**
      * Display the image stored in a classifier.
      *
-     * @param Classifier $classifier The classifier containing the image
+     * @param  Classifier  $classifier  The classifier containing the image
      * @return \Illuminate\Http\Response Binary image data with appropriate MIME type
      */
     public function showImage(Classifier $classifier)

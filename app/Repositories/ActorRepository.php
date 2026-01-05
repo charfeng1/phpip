@@ -18,9 +18,6 @@ class ActorRepository
 {
     /**
      * Find an actor by ID.
-     *
-     * @param int $id
-     * @return Actor|null
      */
     public function find(int $id): ?Actor
     {
@@ -29,9 +26,6 @@ class ActorRepository
 
     /**
      * Find an actor by ID with company relationship.
-     *
-     * @param int $id
-     * @return Actor|null
      */
     public function findWithCompany(int $id): ?Actor
     {
@@ -40,9 +34,6 @@ class ActorRepository
 
     /**
      * Find actors by their IDs.
-     *
-     * @param array $ids
-     * @return Collection
      */
     public function findMany(array $ids): Collection
     {
@@ -57,8 +48,7 @@ class ActorRepository
      * - PostgreSQL: soundex() function
      * - Other: Case-insensitive exact match fallback
      *
-     * @param string $name The name to match phonetically
-     * @return Actor|null
+     * @param  string  $name  The name to match phonetically
      */
     public function findByPhoneticMatch(string $name): ?Actor
     {
@@ -68,8 +58,7 @@ class ActorRepository
     /**
      * Get actors matching a phonetic name pattern.
      *
-     * @param string $name The name to match phonetically
-     * @return Collection
+     * @param  string  $name  The name to match phonetically
      */
     public function getByPhoneticMatch(string $name): Collection
     {
@@ -78,9 +67,6 @@ class ActorRepository
 
     /**
      * Find an actor by exact name.
-     *
-     * @param string $name
-     * @return Actor|null
      */
     public function findByName(string $name): ?Actor
     {
@@ -90,8 +76,7 @@ class ActorRepository
     /**
      * Find an actor by name pattern.
      *
-     * @param string $pattern Name pattern with wildcards
-     * @return Actor|null
+     * @param  string  $pattern  Name pattern with wildcards
      */
     public function findByNameLike(string $pattern): ?Actor
     {
@@ -101,9 +86,8 @@ class ActorRepository
     /**
      * Get actors by name prefix.
      *
-     * @param string $prefix Name prefix to search
-     * @param int $limit Maximum results to return
-     * @return Collection
+     * @param  string  $prefix  Name prefix to search
+     * @param  int  $limit  Maximum results to return
      */
     public function getByNamePrefix(string $prefix, int $limit = 10): Collection
     {
@@ -115,7 +99,7 @@ class ActorRepository
     /**
      * Get email addresses for actors by their IDs.
      *
-     * @param array $ids Actor IDs
+     * @param  array  $ids  Actor IDs
      * @return array Array of email addresses
      */
     public function getEmailsByIds(array $ids): array
@@ -129,8 +113,7 @@ class ActorRepository
     /**
      * Query builder for actors with name filter.
      *
-     * @param string|null $name Name filter (prefix match)
-     * @return Builder
+     * @param  string|null  $name  Name filter (prefix match)
      */
     public function query(?string $name = null): Builder
     {
@@ -146,9 +129,8 @@ class ActorRepository
     /**
      * Get actors with their company relationship, optionally filtered.
      *
-     * @param string|null $name Name filter
-     * @param string|null $selector Filter selector (phy, com, cli)
-     * @return Builder
+     * @param  string|null  $name  Name filter
+     * @param  string|null  $selector  Filter selector (phy, com, cli)
      */
     public function queryWithCompany(?string $name = null, ?string $selector = null): Builder
     {
@@ -167,10 +149,6 @@ class ActorRepository
 
     /**
      * Apply selector filter to query.
-     *
-     * @param Builder $query
-     * @param string $selector
-     * @return Builder
      */
     protected function applySelectorFilter(Builder $query, string $selector): Builder
     {
@@ -184,9 +162,6 @@ class ActorRepository
 
     /**
      * Create a new actor.
-     *
-     * @param array $data
-     * @return Actor
      */
     public function create(array $data): Actor
     {
@@ -195,10 +170,6 @@ class ActorRepository
 
     /**
      * Update an actor.
-     *
-     * @param int $id
-     * @param array $data
-     * @return bool
      */
     public function update(int $id, array $data): bool
     {
