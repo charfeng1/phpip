@@ -12,7 +12,7 @@ class ValidatesPasswordTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->request = new TestableValidatesPasswordRequest();
+        $this->request = new TestableValidatesPasswordRequest;
     }
 
     /** @test */

@@ -9,13 +9,12 @@ use Tests\TestCase;
 
 class ActorPolicyTest extends TestCase
 {
-
     protected ActorPolicy $policy;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new ActorPolicy();
+        $this->policy = new ActorPolicy;
     }
 
     // viewAny tests

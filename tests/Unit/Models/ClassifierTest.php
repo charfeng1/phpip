@@ -90,7 +90,7 @@ class ClassifierTest extends TestCase
     /** @test */
     public function it_touches_parent_matter_on_update()
     {
-        $touches = (new Classifier())->getTouchedRelations();
+        $touches = (new Classifier)->getTouchedRelations();
 
         $this->assertContains('matter', $touches);
     }
@@ -98,7 +98,7 @@ class ClassifierTest extends TestCase
     /** @test */
     public function it_uses_auditable_trait()
     {
-        $classifier = new Classifier();
+        $classifier = new Classifier;
         $traits = class_uses_recursive($classifier);
 
         $this->assertContains('App\Traits\Auditable', $traits);
@@ -107,7 +107,7 @@ class ClassifierTest extends TestCase
     /** @test */
     public function it_excludes_timestamps_from_audit()
     {
-        $classifier = new Classifier();
+        $classifier = new Classifier;
         $reflection = new \ReflectionClass($classifier);
 
         // The model should have auditExclude property
@@ -150,7 +150,7 @@ class ClassifierTest extends TestCase
     /** @test */
     public function it_guards_id_and_timestamps()
     {
-        $classifier = new Classifier();
+        $classifier = new Classifier;
         $guarded = $classifier->getGuarded();
 
         $this->assertContains('id', $guarded);

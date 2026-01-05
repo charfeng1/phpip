@@ -64,9 +64,9 @@ class RenewalNotificationService
     /**
      * Send notifications for selected renewals.
      *
-     * @param array $taskIds Array of renewal task IDs
-     * @param array $notifyTypes Types of notifications to send ('first', 'warn', 'last')
-     * @param bool $isReminder Whether this is a reminder notification
+     * @param  array  $taskIds  Array of renewal task IDs
+     * @param  array  $notifyTypes  Types of notifications to send ('first', 'warn', 'last')
+     * @param  bool  $isReminder  Whether this is a reminder notification
      * @return int|string Number of processed renewals or error message
      */
     public function sendNotifications(array $taskIds, array $notifyTypes, bool $isReminder): int|string
@@ -112,9 +112,9 @@ class RenewalNotificationService
     /**
      * Process renewals for a specific grace period.
      *
-     * @param array $taskIds Array of renewal task IDs
-     * @param int $gracePeriod Grace period indicator (0 or 1)
-     * @param string $notifyType Type of notification
+     * @param  array  $taskIds  Array of renewal task IDs
+     * @param  int  $gracePeriod  Grace period indicator (0 or 1)
+     * @param  string  $notifyType  Type of notification
      * @return array{renewals: array, clientGroups: array, totals: array}
      */
     public function processRenewals(array $taskIds, int $gracePeriod, string $notifyType): array
@@ -157,8 +157,8 @@ class RenewalNotificationService
     /**
      * Prepare renewal data for email notification.
      *
-     * @param object $renewal The renewal task object
-     * @param int $gracePeriod Grace period indicator
+     * @param  object  $renewal  The renewal task object
+     * @param  int  $gracePeriod  Grace period indicator
      * @return array Formatted renewal data for email template
      */
     public function prepareRenewalData(object $renewal, int $gracePeriod): array
@@ -202,8 +202,8 @@ class RenewalNotificationService
     /**
      * Get localized country name based on language.
      *
-     * @param object $renewal The renewal object
-     * @param string $language The target language
+     * @param  object  $renewal  The renewal object
+     * @param  string  $language  The target language
      * @return string The country name
      */
     protected function getCountryName(object $renewal, string $language): string
@@ -218,9 +218,9 @@ class RenewalNotificationService
     /**
      * Build the description text for a renewal notification.
      *
-     * @param object $renewal The renewal object
-     * @param string $language The language code
-     * @param string $configPrefix The config prefix for localized strings
+     * @param  object  $renewal  The renewal object
+     * @param  string  $language  The language code
+     * @param  string  $configPrefix  The config prefix for localized strings
      * @return string The formatted description
      */
     protected function buildDescription(object $renewal, string $language, string $configPrefix): string
@@ -257,7 +257,7 @@ class RenewalNotificationService
      * This method can be overridden in tests or subclasses to provide
      * custom strings without requiring Laravel's config() helper.
      *
-     * @param string $configPrefix The config prefix for the language
+     * @param  string  $configPrefix  The config prefix for the language
      * @return array{line1: string, filed: string, granted: string, line2: string, line3: string}
      */
     protected function getDescriptionStrings(string $configPrefix): array
@@ -285,9 +285,9 @@ class RenewalNotificationService
     /**
      * Send renewal notification emails to clients.
      *
-     * @param array $renewalsData Processed renewal data with client groups and totals
-     * @param string $notifyType Type of notification ('first', 'warn', 'last')
-     * @param bool $isReminder Whether this is a reminder email
+     * @param  array  $renewalsData  Processed renewal data with client groups and totals
+     * @param  string  $notifyType  Type of notification ('first', 'warn', 'last')
+     * @param  bool  $isReminder  Whether this is a reminder email
      * @return bool|string True on success, error message on failure
      */
     public function sendEmails(array $renewalsData, string $notifyType, bool $isReminder): bool|string
@@ -328,8 +328,8 @@ class RenewalNotificationService
     /**
      * Calculate the validity date for a notification.
      *
-     * @param Carbon $dueDate The renewal due date
-     * @param string $notifyType The notification type
+     * @param  Carbon  $dueDate  The renewal due date
+     * @param  string  $notifyType  The notification type
      * @return string Formatted validity date
      */
     protected function calculateValidityDate(Carbon $dueDate, string $notifyType): string
@@ -344,8 +344,8 @@ class RenewalNotificationService
     /**
      * Calculate the instruction date for a notification.
      *
-     * @param Carbon $dueDate The renewal due date
-     * @param string $notifyType The notification type
+     * @param  Carbon  $dueDate  The renewal due date
+     * @param  string  $notifyType  The notification type
      * @return string|null Formatted instruction date or null for last calls
      */
     protected function calculateInstructionDate(Carbon $dueDate, string $notifyType): ?string
@@ -360,8 +360,8 @@ class RenewalNotificationService
     /**
      * Get contacts for a matter/client.
      *
-     * @param int $matterId The matter ID
-     * @param int $clientId The client actor ID
+     * @param  int  $matterId  The matter ID
+     * @param  int  $clientId  The client actor ID
      * @return Collection|string Collection of contacts or error message
      */
     protected function getContacts(int $matterId, int $clientId): Collection|string
@@ -391,9 +391,9 @@ class RenewalNotificationService
     /**
      * Prepare email data including recipient and greeting.
      *
-     * @param array $renewals The renewals for this client
-     * @param Collection $contacts The contact collection
-     * @param bool $isReminder Whether this is a reminder
+     * @param  array  $renewals  The renewals for this client
+     * @param  Collection  $contacts  The contact collection
+     * @param  bool  $isReminder  Whether this is a reminder
      * @return array{recipient: mixed, dest: string, reminderPrefix: string}
      */
     protected function prepareEmailData(array $renewals, Collection $contacts, bool $isReminder): array

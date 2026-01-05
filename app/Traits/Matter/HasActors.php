@@ -20,8 +20,6 @@ trait HasActors
      *
      * Uses the MatterActors view which includes actors inherited from the container.
      * This relationship is read-only and should only be used for displaying data.
-     *
-     * @return HasMany
      */
     public function actors(): HasMany
     {
@@ -45,8 +43,6 @@ trait HasActors
      * Returns the client actor using the MatterActors view.
      * IMPORTANT: Used in MatterPolicy - do not modify without checking authorization logic.
      * Returns a default empty model if no client exists.
-     *
-     * @return HasOne
      */
     public function client(): HasOne
     {
@@ -57,8 +53,6 @@ trait HasActors
     /**
      * We check for the client using our pivot table.
      * We use the HasActorsFromRole trait to avoid repeating the same code
-     *
-     * @return MatterActors|null
      */
     public function clientFromLnk(): ?MatterActors
     {
@@ -68,8 +62,6 @@ trait HasActors
     /**
      * We check for the payor using our pivot table.
      * We use the HasActorsFromRole trait to avoid repeating the same code
-     *
-     * @return MatterActors|null
      */
     public function payor(): ?MatterActors
     {
@@ -80,8 +72,6 @@ trait HasActors
      * Get the delegate actor(s) for this matter.
      *
      * Delegates are actors authorized to represent the client.
-     *
-     * @return HasMany
      */
     public function delegate(): HasMany
     {
@@ -92,8 +82,6 @@ trait HasActors
      * Get the contact actor(s) for this matter.
      *
      * Contacts are designated communication points for the matter.
-     *
-     * @return HasMany
      */
     public function contact(): HasMany
     {
@@ -104,8 +92,6 @@ trait HasActors
      * Get the applicant actor(s) for this matter.
      *
      * Applicants are the entities applying for the IP right.
-     *
-     * @return HasMany
      */
     public function applicants(): HasMany
     {
@@ -162,8 +148,6 @@ trait HasActors
      * Get the inventor actor(s) for this matter.
      *
      * Inventors are the individuals who created the invention.
-     *
-     * @return HasMany
      */
     public function inventors(): HasMany
     {
@@ -174,8 +158,6 @@ trait HasActors
     /**
      * We check for the agent using our pivot table. Also known as Primary Agent
      * We use the HasActorsFromRole trait to avoid repeating the same code
-     *
-     * @return MatterActors|null
      */
     public function agent(): ?MatterActors
     {
@@ -185,8 +167,6 @@ trait HasActors
     /**
      * We check for the secondary agent using our pivot table.
      * We use the HasActorsFromRole trait to avoid repeating the same code
-     *
-     * @return MatterActors|null
      */
     public function secondaryAgent(): ?MatterActors
     {
@@ -196,8 +176,6 @@ trait HasActors
     /**
      * We check for the writer using our pivot table.
      * We use the HasActorsFromRole trait to avoid repeating the same code
-     *
-     * @return MatterActors|null
      */
     public function writer(): ?MatterActors
     {
@@ -207,8 +185,6 @@ trait HasActors
     /**
      * Here, we check for the annuityAgent using our pivot table
      * We use the HasActorsFromRole trait to avoid repeating the same code
-     *
-     * @return MatterActors|null
      */
     public function annuityAgent(): ?MatterActors
     {

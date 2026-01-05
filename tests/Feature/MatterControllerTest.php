@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Actor;
 use App\Models\Event;
 use App\Models\Matter;
 use App\Models\Task;
@@ -11,7 +10,6 @@ use Tests\TestCase;
 
 class MatterControllerTest extends TestCase
 {
-
     protected function setUp(): void
     {
         parent::setUp();

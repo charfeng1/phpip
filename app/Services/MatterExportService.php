@@ -61,7 +61,7 @@ class MatterExportService
             foreach ($row as $cell) {
                 if (is_string($cell) && in_array(substr($cell, 0, 1), ['=', '+', '-', '@'])) {
                     // Prepend single quote to prevent formula execution
-                    $sanitizedRow[] = "'" . $cell;
+                    $sanitizedRow[] = "'".$cell;
                 } else {
                     $sanitizedRow[] = $cell;
                 }

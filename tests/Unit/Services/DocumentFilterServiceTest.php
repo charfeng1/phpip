@@ -156,7 +156,8 @@ class DocumentFilterServiceTest extends TestCase
      */
     protected function createMockTemplateMember()
     {
-        return new class {
+        return new class
+        {
             public function whereLike($column, $value)
             {
                 return $this;

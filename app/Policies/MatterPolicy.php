@@ -54,8 +54,6 @@ class MatterPolicy
      * This is used for team-based filtering where users can see:
      * - Their own assigned matters
      * - Matters assigned to their direct and indirect reports
-     *
-     * @return bool
      */
     public function viewAsTeamMember(User $user, Matter $matter): bool
     {
@@ -72,8 +70,6 @@ class MatterPolicy
 
     /**
      * Check if user is the responsible party or a supervisor of the responsible party.
-     *
-     * @return bool
      */
     public function isResponsibleOrSupervisor(User $user, Matter $matter): bool
     {

@@ -2,8 +2,6 @@
 
 namespace Tests\Unit\Policies;
 
-use App\Models\Actor;
-use App\Models\ActorPivot;
 use App\Models\Event;
 use App\Models\Matter;
 use App\Models\User;
@@ -17,7 +15,7 @@ class EventPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new EventPolicy();
+        $this->policy = new EventPolicy;
     }
 
     /** @test */

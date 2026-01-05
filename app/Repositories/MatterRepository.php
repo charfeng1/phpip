@@ -33,11 +33,11 @@ class MatterRepository
      * - Status events
      * - Role-based access control
      *
-     * @param string $sortkey Column to sort by (default: 'id')
-     * @param string $sortdir Sort direction 'asc' or 'desc' (default: 'desc')
-     * @param array $filters Filter key-value pairs
-     * @param string|bool $displayWith Filter by category display_with value
-     * @param bool $includeDead Whether to include dead families
+     * @param  string  $sortkey  Column to sort by (default: 'id')
+     * @param  string  $sortdir  Sort direction 'asc' or 'desc' (default: 'desc')
+     * @param  array  $filters  Filter key-value pairs
+     * @param  string|bool  $displayWith  Filter by category display_with value
+     * @param  bool  $includeDead  Whether to include dead families
      * @return Builder Query builder for filtered matters
      */
     public function filter(
@@ -79,8 +79,7 @@ class MatterRepository
     /**
      * Get category matter counts for dashboard.
      *
-     * @param int|null $whatTasks Filter type (1 = my tasks, >1 = client tasks)
-     * @return \Illuminate\Support\Collection
+     * @param  int|null  $whatTasks  Filter type (1 = my tasks, >1 = client tasks)
      */
     public function getCategoryMatterCount(?int $whatTasks = null): \Illuminate\Support\Collection
     {
@@ -121,8 +120,7 @@ class MatterRepository
     /**
      * Find a matter by ID with common eager loads.
      *
-     * @param int $id Matter ID
-     * @return Matter|null
+     * @param  int  $id  Matter ID
      */
     public function findWithRelations(int $id): ?Matter
     {
@@ -141,9 +139,6 @@ class MatterRepository
 
     /**
      * Get external matters claiming priority to any of the given family IDs.
-     *
-     * @param \Illuminate\Support\Collection $familyIds
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getExternalPriorityMatters(\Illuminate\Support\Collection $familyIds): \Illuminate\Database\Eloquent\Collection
     {
@@ -156,8 +151,7 @@ class MatterRepository
     /**
      * Find a matter by ID.
      *
-     * @param int $id Matter ID
-     * @return Matter|null
+     * @param  int  $id  Matter ID
      */
     public function find(int $id): ?Matter
     {
@@ -166,8 +160,6 @@ class MatterRepository
 
     /**
      * Build the base filter query with all joins.
-     *
-     * @return Builder
      */
     protected function buildBaseFilterQuery(): Builder
     {
@@ -287,10 +279,6 @@ class MatterRepository
 
     /**
      * Build aggregation expressions for MySQL/PostgreSQL.
-     *
-     * @param bool $isPostgres
-     * @param string $baseLocale
-     * @return array
      */
     protected function buildAggregationExpressions(bool $isPostgres, string $baseLocale): array
     {
@@ -317,10 +305,6 @@ class MatterRepository
 
     /**
      * Add inventor join conditionally based on filters.
-     *
-     * @param Builder $query
-     * @param array $filters
-     * @return Builder
      */
     protected function addInventorJoin(Builder $query, array $filters): Builder
     {
@@ -341,9 +325,6 @@ class MatterRepository
 
     /**
      * Apply role-based access control.
-     *
-     * @param Builder $query
-     * @return Builder
      */
     protected function applyAccessControl(Builder $query): Builder
     {
@@ -392,11 +373,8 @@ class MatterRepository
     /**
      * Apply filters to the query.
      *
-     * @param Builder $query
-     * @param array $filters
-     * @param string &$sortkey Reference to sortkey (may be modified)
-     * @param string &$sortdir Reference to sortdir (may be modified)
-     * @return Builder
+     * @param  string  &$sortkey  Reference to sortkey (may be modified)
+     * @param  string  &$sortdir  Reference to sortdir (may be modified)
      */
     protected function applyFilters(Builder $query, array $filters, string &$sortkey, string &$sortdir): Builder
     {
@@ -450,10 +428,6 @@ class MatterRepository
 
     /**
      * Apply team filter.
-     *
-     * @param Builder $query
-     * @param mixed $value
-     * @return Builder
      */
     protected function applyTeamFilter(Builder $query, mixed $value): Builder
     {
@@ -469,11 +443,6 @@ class MatterRepository
 
     /**
      * Apply sorting and grouping.
-     *
-     * @param Builder $query
-     * @param string $sortkey
-     * @param string $sortdir
-     * @return Builder
      */
     protected function applySortingAndGrouping(Builder $query, string $sortkey, string $sortdir): Builder
     {

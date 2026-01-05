@@ -3,15 +3,11 @@
 namespace Tests\Unit\Models;
 
 use App\Models\Actor;
-use App\Models\Category;
-use App\Models\Country;
-use App\Models\EventName;
 use App\Models\Rule;
 use Tests\TestCase;
 
 class RuleTest extends TestCase
 {
-
     protected function setUp(): void
     {
         parent::setUp();

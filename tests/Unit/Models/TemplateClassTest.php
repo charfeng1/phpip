@@ -10,7 +10,7 @@ class TemplateClassTest extends TestCase
     /** @test */
     public function it_guards_timestamp_fields()
     {
-        $model = new TemplateClass();
+        $model = new TemplateClass;
         $guarded = $model->getGuarded();
 
         $this->assertContains('created_at', $guarded);
@@ -20,7 +20,7 @@ class TemplateClassTest extends TestCase
     /** @test */
     public function it_uses_has_table_comments_trait()
     {
-        $model = new TemplateClass();
+        $model = new TemplateClass;
         $traits = class_uses_recursive($model);
 
         $this->assertContains('App\Traits\HasTableComments', $traits);
@@ -29,7 +29,7 @@ class TemplateClassTest extends TestCase
     /** @test */
     public function it_can_belong_to_a_role()
     {
-        $model = new TemplateClass();
+        $model = new TemplateClass;
 
         $relation = $model->role();
 
@@ -42,7 +42,7 @@ class TemplateClassTest extends TestCase
     /** @test */
     public function role_relationship_uses_correct_keys()
     {
-        $model = new TemplateClass();
+        $model = new TemplateClass;
         $relation = $model->role();
 
         $this->assertEquals('default_role', $relation->getForeignKeyName());
@@ -52,7 +52,7 @@ class TemplateClassTest extends TestCase
     /** @test */
     public function it_has_many_to_many_relationship_with_rules()
     {
-        $model = new TemplateClass();
+        $model = new TemplateClass;
 
         $relation = $model->rules();
 
@@ -65,7 +65,7 @@ class TemplateClassTest extends TestCase
     /** @test */
     public function rules_relationship_uses_correct_pivot_table()
     {
-        $model = new TemplateClass();
+        $model = new TemplateClass;
         $relation = $model->rules();
 
         $this->assertEquals('rule_class_lnk', $relation->getTable());
@@ -74,7 +74,7 @@ class TemplateClassTest extends TestCase
     /** @test */
     public function it_has_many_to_many_relationship_with_event_names()
     {
-        $model = new TemplateClass();
+        $model = new TemplateClass;
 
         $relation = $model->eventNames();
 
@@ -87,7 +87,7 @@ class TemplateClassTest extends TestCase
     /** @test */
     public function event_names_relationship_uses_correct_pivot_table()
     {
-        $model = new TemplateClass();
+        $model = new TemplateClass;
         $relation = $model->eventNames();
 
         $this->assertEquals('event_class_lnk', $relation->getTable());
@@ -96,7 +96,7 @@ class TemplateClassTest extends TestCase
     /** @test */
     public function it_extends_eloquent_model()
     {
-        $model = new TemplateClass();
+        $model = new TemplateClass;
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Model::class, $model);
     }
@@ -104,7 +104,7 @@ class TemplateClassTest extends TestCase
     /** @test */
     public function it_uses_standard_table_name()
     {
-        $model = new TemplateClass();
+        $model = new TemplateClass;
 
         $this->assertEquals('template_classes', $model->getTable());
     }
@@ -112,7 +112,7 @@ class TemplateClassTest extends TestCase
     /** @test */
     public function it_allows_mass_assignment_of_most_fields()
     {
-        $model = new TemplateClass();
+        $model = new TemplateClass;
 
         // Only timestamps are guarded, so other fields should be fillable
         $this->assertTrue($model->isFillable('name'));

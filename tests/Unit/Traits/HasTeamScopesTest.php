@@ -11,7 +11,7 @@ class HasTeamScopesTest extends TestCase
     /** @test */
     public function default_team_scope_column_is_responsible()
     {
-        $model = new DefaultTeamScopesModel();
+        $model = new DefaultTeamScopesModel;
 
         $this->assertEquals('responsible', $model->getTeamScopeColumnPublic());
     }
@@ -19,7 +19,7 @@ class HasTeamScopesTest extends TestCase
     /** @test */
     public function default_should_include_matter_is_false()
     {
-        $model = new DefaultTeamScopesModel();
+        $model = new DefaultTeamScopesModel;
 
         $this->assertFalse($model->shouldIncludeMatterInTeamScopePublic());
     }
@@ -27,7 +27,7 @@ class HasTeamScopesTest extends TestCase
     /** @test */
     public function can_override_team_scope_column()
     {
-        $model = new CustomTeamScopesModel();
+        $model = new CustomTeamScopesModel;
 
         $this->assertEquals('assigned_to', $model->getTeamScopeColumnPublic());
     }
@@ -35,7 +35,7 @@ class HasTeamScopesTest extends TestCase
     /** @test */
     public function can_override_should_include_matter()
     {
-        $model = new CustomTeamScopesModel();
+        $model = new CustomTeamScopesModel;
 
         $this->assertTrue($model->shouldIncludeMatterInTeamScopePublic());
     }

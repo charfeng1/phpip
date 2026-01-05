@@ -6,12 +6,10 @@ use App\Enums\ActorRole;
 use App\Enums\CategoryCode;
 use App\Enums\EventCode;
 use App\Models\Actor;
-use App\Models\ActorPivot;
 use App\Models\Category;
 use App\Models\Classifier;
 use App\Models\ClassifierType;
 use App\Models\Country;
-use App\Models\Event;
 use App\Models\EventName;
 use App\Models\Matter;
 use App\Models\Role;
@@ -61,7 +59,7 @@ class MatterLifecycleTest extends TestCase
         ]);
 
         $eventName = EventName::where('code', EventCode::FILING->value)->first();
-        if (!$eventName) {
+        if (! $eventName) {
             $eventName = EventName::create([
                 'code' => EventCode::FILING->value,
                 'name' => ['en' => 'Filing'],

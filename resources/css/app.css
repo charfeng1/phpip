@@ -489,3 +489,126 @@ a.text-warning-content,
   background-color: oklch(30% 0.005 250) !important;
   border-color: oklch(35% 0.005 250) !important;
 }
+
+/* ============================================
+   INPUT AND FORM ALIGNMENT FIXES
+   Ensure text is properly centered in form fields
+   ============================================ */
+
+/* Ensure input text is vertically centered */
+.input,
+.select,
+.textarea {
+  display: flex;
+  align-items: center;
+}
+
+/* Fix text alignment in input groups (join) */
+.join .input,
+.join .select {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Ensure join button text is centered */
+.join .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fix avatar text centering */
+.avatar-placeholder span,
+.avatar.placeholder span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Ensure checkbox and radio labels are aligned */
+.form-control label,
+.label {
+  display: flex;
+  align-items: center;
+}
+
+/* Fix label-text vertical alignment */
+.label-text {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ============================================
+   CARD TITLE AND HEADER ALIGNMENT
+   ============================================ */
+
+/* Ensure card-title content is vertically centered */
+.card-title {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+}
+
+/* Fix card actions alignment */
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ============================================
+   NAVBAR ALIGNMENT FIXES
+   ============================================ */
+
+/* Ensure navbar items are vertically centered */
+.navbar-start,
+.navbar-center,
+.navbar-end {
+  display: flex;
+  align-items: center;
+}
+
+/* Fix dropdown button text alignment in navbar */
+.navbar .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+/* ============================================
+   TABLE CELL ALIGNMENT
+   ============================================ */
+
+/* Ensure table cell content is vertically centered */
+.table td,
+.table th {
+  vertical-align: middle;
+}
+
+/* Fix inline elements in table cells */
+.table td > span,
+.table td > a,
+.table th > span,
+.table th > a {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ============================================
+   GRID DEFINITION LIST FIXES
+   ============================================ */
+
+/* Align grid-based definition lists */
+dl.grid dt,
+dl.grid dd {
+  display: flex;
+  align-items: center;
+  min-height: 1.5rem;
+}
+
+dl.grid dt {
+  justify-content: flex-end;
+}

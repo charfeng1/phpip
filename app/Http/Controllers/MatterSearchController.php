@@ -19,7 +19,7 @@ class MatterSearchController extends Controller
      * If search by Ref finds exactly one matter, redirects directly to that matter.
      * Otherwise redirects to matter list with search parameters.
      *
-     * @param Request $request Contains search_field and matter_search parameters
+     * @param  Request  $request  Contains search_field and matter_search parameters
      * @return \Illuminate\Http\RedirectResponse
      */
     public function search(Request $request)

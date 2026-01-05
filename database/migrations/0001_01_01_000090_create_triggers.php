@@ -90,11 +90,11 @@ return new class extends Migration
         ");
 
         // Create trigger
-        DB::statement("
+        DB::statement('
             CREATE TRIGGER classifier_before_insert
                 BEFORE INSERT ON classifier
                 FOR EACH ROW EXECUTE FUNCTION classifier_before_insert_func()
-        ");
+        ');
     }
 
     /**
@@ -129,11 +129,11 @@ return new class extends Migration
                 \$\$ LANGUAGE plpgsql
             ");
 
-            DB::statement("
+            DB::statement('
                 CREATE TRIGGER event_before_insert
                     BEFORE INSERT ON event
                     FOR EACH ROW EXECUTE FUNCTION event_before_insert_func()
-            ");
+            ');
         }
 
         // Event before update
@@ -161,11 +161,11 @@ return new class extends Migration
                 \$\$ LANGUAGE plpgsql
             ");
 
-            DB::statement("
+            DB::statement('
                 CREATE TRIGGER event_before_update
                     BEFORE UPDATE ON event
                     FOR EACH ROW EXECUTE FUNCTION event_before_update_func()
-            ");
+            ');
         }
     }
 
@@ -180,22 +180,22 @@ return new class extends Migration
             WHERE trigger_schema = 'public' AND trigger_name = 'matter_before_insert'
         ");
         if (empty($exists)) {
-            DB::statement("
-                CREATE OR REPLACE FUNCTION matter_before_insert_func() RETURNS TRIGGER AS \$\$
+            DB::statement('
+                CREATE OR REPLACE FUNCTION matter_before_insert_func() RETURNS TRIGGER AS $$
                 BEGIN
                     NEW.uid := compute_matter_uid(NEW.caseref, NEW.country, NEW.origin, NEW.type_code, NEW.idx);
                     NEW.created_at := CURRENT_TIMESTAMP;
                     NEW.updated_at := CURRENT_TIMESTAMP;
                     RETURN NEW;
                 END;
-                \$\$ LANGUAGE plpgsql
-            ");
+                $$ LANGUAGE plpgsql
+            ');
 
-            DB::statement("
+            DB::statement('
                 CREATE TRIGGER matter_before_insert
                     BEFORE INSERT ON matter
                     FOR EACH ROW EXECUTE FUNCTION matter_before_insert_func()
-            ");
+            ');
         }
 
         // Matter before update
@@ -204,21 +204,21 @@ return new class extends Migration
             WHERE trigger_schema = 'public' AND trigger_name = 'matter_before_update'
         ");
         if (empty($exists)) {
-            DB::statement("
-                CREATE OR REPLACE FUNCTION matter_before_update_func() RETURNS TRIGGER AS \$\$
+            DB::statement('
+                CREATE OR REPLACE FUNCTION matter_before_update_func() RETURNS TRIGGER AS $$
                 BEGIN
                     NEW.uid := compute_matter_uid(NEW.caseref, NEW.country, NEW.origin, NEW.type_code, NEW.idx);
                     NEW.updated_at := CURRENT_TIMESTAMP;
                     RETURN NEW;
                 END;
-                \$\$ LANGUAGE plpgsql
-            ");
+                $$ LANGUAGE plpgsql
+            ');
 
-            DB::statement("
+            DB::statement('
                 CREATE TRIGGER matter_before_update
                     BEFORE UPDATE ON matter
                     FOR EACH ROW EXECUTE FUNCTION matter_before_update_func()
-            ");
+            ');
         }
     }
 
@@ -233,8 +233,8 @@ return new class extends Migration
             WHERE trigger_schema = 'public' AND trigger_name = 'task_before_insert'
         ");
         if (empty($exists)) {
-            DB::statement("
-                CREATE OR REPLACE FUNCTION task_before_insert_func() RETURNS TRIGGER AS \$\$
+            DB::statement('
+                CREATE OR REPLACE FUNCTION task_before_insert_func() RETURNS TRIGGER AS $$
                 BEGIN
                     IF NEW.due_date IS NOT NULL AND NEW.done IS NULL THEN
                         IF NEW.due_date <= CURRENT_DATE THEN
@@ -248,14 +248,14 @@ return new class extends Migration
                     NEW.updated_at := CURRENT_TIMESTAMP;
                     RETURN NEW;
                 END;
-                \$\$ LANGUAGE plpgsql
-            ");
+                $$ LANGUAGE plpgsql
+            ');
 
-            DB::statement("
+            DB::statement('
                 CREATE TRIGGER task_before_insert
                     BEFORE INSERT ON task
                     FOR EACH ROW EXECUTE FUNCTION task_before_insert_func()
-            ");
+            ');
         }
 
         // Task before update
@@ -264,8 +264,8 @@ return new class extends Migration
             WHERE trigger_schema = 'public' AND trigger_name = 'task_before_update'
         ");
         if (empty($exists)) {
-            DB::statement("
-                CREATE OR REPLACE FUNCTION task_before_update_func() RETURNS TRIGGER AS \$\$
+            DB::statement('
+                CREATE OR REPLACE FUNCTION task_before_update_func() RETURNS TRIGGER AS $$
                 BEGIN
                     IF NEW.done = TRUE AND OLD.done = FALSE THEN
                         IF NEW.done_date IS NULL THEN
@@ -278,14 +278,14 @@ return new class extends Migration
                     NEW.updated_at := CURRENT_TIMESTAMP;
                     RETURN NEW;
                 END;
-                \$\$ LANGUAGE plpgsql
-            ");
+                $$ LANGUAGE plpgsql
+            ');
 
-            DB::statement("
+            DB::statement('
                 CREATE TRIGGER task_before_update
                     BEFORE UPDATE ON task
                     FOR EACH ROW EXECUTE FUNCTION task_before_update_func()
-            ");
+            ');
         }
     }
 };

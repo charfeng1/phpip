@@ -11,7 +11,6 @@ use Tests\TestCase;
 
 class DefaultActorControllerTest extends TestCase
 {
-
     /** @test */
     public function default_actors_can_be_filtered_by_actor_name()
     {

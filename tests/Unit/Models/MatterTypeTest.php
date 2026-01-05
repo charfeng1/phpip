@@ -25,7 +25,7 @@ class MatterTypeTest extends TestCase
     /** @test */
     public function it_has_translatable_type_name()
     {
-        $type = new MatterType();
+        $type = new MatterType;
 
         $this->assertIsArray($type->translatable);
         $this->assertContains('type', $type->translatable);
@@ -64,7 +64,7 @@ class MatterTypeTest extends TestCase
     /** @test */
     public function it_guards_timestamp_fields()
     {
-        $type = new MatterType();
+        $type = new MatterType;
         $guarded = $type->getGuarded();
 
         $this->assertContains('created_at', $guarded);
@@ -74,7 +74,7 @@ class MatterTypeTest extends TestCase
     /** @test */
     public function it_uses_has_table_comments_trait()
     {
-        $type = new MatterType();
+        $type = new MatterType;
         $traits = class_uses_recursive($type);
 
         $this->assertContains('App\Traits\HasTableComments', $traits);
@@ -83,7 +83,7 @@ class MatterTypeTest extends TestCase
     /** @test */
     public function it_uses_has_translations_extended_trait()
     {
-        $type = new MatterType();
+        $type = new MatterType;
         $traits = class_uses_recursive($type);
 
         $this->assertContains('App\Traits\HasTranslationsExtended', $traits);

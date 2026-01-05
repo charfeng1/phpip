@@ -9,7 +9,6 @@ use Tests\TestCase;
 
 class RuleControllerFilterTest extends TestCase
 {
-
     /** @test */
     public function rules_can_be_filtered_by_task_name()
     {

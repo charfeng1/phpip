@@ -287,7 +287,7 @@ return new class extends Migration
             return;
         }
 
-        DB::statement("
+        DB::statement('
             CREATE OR REPLACE VIEW users AS
             SELECT
                 id,
@@ -302,6 +302,6 @@ return new class extends Migration
                 updated_at
             FROM actor
             WHERE login IS NOT NULL
-        ");
+        ');
     }
 };

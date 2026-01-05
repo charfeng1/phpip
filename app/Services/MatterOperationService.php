@@ -5,8 +5,8 @@ namespace App\Services;
 use App\Enums\EventCode;
 use App\Models\ActorPivot;
 use App\Models\Matter;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Service for handling special matter creation operations.
@@ -26,10 +26,9 @@ class MatterOperationService
     /**
      * Handle the post-creation operations for a new matter.
      *
-     * @param Matter $newMatter The newly created matter
-     * @param string $operation The operation type ('descendant', 'clone', 'new')
-     * @param array $data Additional data including parent_id, priority flag
-     * @return void
+     * @param  Matter  $newMatter  The newly created matter
+     * @param  string  $operation  The operation type ('descendant', 'clone', 'new')
+     * @param  array  $data  Additional data including parent_id, priority flag
      */
     public function handleOperation(Matter $newMatter, string $operation, array $data = []): void
     {
@@ -53,9 +52,8 @@ class MatterOperationService
      * - Container_id set from parent
      * - Either a priority claim event OR filing event + entry event
      *
-     * @param Matter $newMatter The new descendant matter
-     * @param array $data Data containing parent_id and priority flag
-     * @return void
+     * @param  Matter  $newMatter  The new descendant matter
+     * @param  array  $data  Data containing parent_id and priority flag
      */
     protected function handleDescendant(Matter $newMatter, array $data): void
     {
@@ -114,9 +112,8 @@ class MatterOperationService
      * Note: Uses insertOrIgnore for actors to handle unique key constraints
      * from default_actors trigger.
      *
-     * @param Matter $newMatter The new cloned matter
-     * @param array $data Data containing parent_id
-     * @return void
+     * @param  Matter  $newMatter  The new cloned matter
+     * @param  array  $data  Data containing parent_id
      */
     protected function handleClone(Matter $newMatter, array $data): void
     {
@@ -166,8 +163,7 @@ class MatterOperationService
      *
      * Creates a simple new matter with a received event.
      *
-     * @param Matter $newMatter The new matter
-     * @return void
+     * @param  Matter  $newMatter  The new matter
      */
     protected function handleNew(Matter $newMatter): void
     {
@@ -180,7 +176,7 @@ class MatterOperationService
     /**
      * Validate if an operation type is allowed.
      *
-     * @param string $operation The operation type to validate
+     * @param  string  $operation  The operation type to validate
      * @return bool True if operation is allowed, false otherwise
      */
     public function isValidOperation(string $operation): bool

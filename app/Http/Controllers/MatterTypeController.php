@@ -35,7 +35,7 @@ class MatterTypeController extends Controller
     /**
      * Display a list of matter types with filtering.
      *
-     * @param Request $request Filter parameters
+     * @param  Request  $request  Filter parameters
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -64,7 +64,7 @@ class MatterTypeController extends Controller
     /**
      * Store a newly created matter type.
      *
-     * @param StoreMatterTypeRequest $request Validated matter type data
+     * @param  StoreMatterTypeRequest  $request  Validated matter type data
      * @return MatterType The created matter type
      */
     public function store(StoreMatterTypeRequest $request)
@@ -77,7 +77,7 @@ class MatterTypeController extends Controller
     /**
      * Display the specified matter type.
      *
-     * @param MatterType $type The matter type to display
+     * @param  MatterType  $type  The matter type to display
      * @return \Illuminate\Http\Response
      */
     public function show(MatterType $type)
@@ -88,8 +88,8 @@ class MatterTypeController extends Controller
     /**
      * Update the specified matter type.
      *
-     * @param UpdateMatterTypeRequest $request Validated matter type data
-     * @param MatterType $type The matter type to update
+     * @param  UpdateMatterTypeRequest  $request  Validated matter type data
+     * @param  MatterType  $type  The matter type to update
      * @return MatterType The updated matter type
      */
     public function update(UpdateMatterTypeRequest $request, MatterType $type)
@@ -103,7 +103,7 @@ class MatterTypeController extends Controller
     /**
      * Remove the specified matter type from storage.
      *
-     * @param MatterType $type The matter type to delete
+     * @param  MatterType  $type  The matter type to delete
      * @return MatterType The deleted matter type
      */
     public function destroy(MatterType $type)

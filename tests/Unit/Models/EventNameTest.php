@@ -7,7 +7,6 @@ use App\Models\Country;
 use App\Models\Event;
 use App\Models\EventName;
 use App\Models\Matter;
-use App\Models\Task;
 use App\Models\User;
 use Tests\TestCase;
 
@@ -31,7 +30,7 @@ class EventNameTest extends TestCase
     /** @test */
     public function it_has_translatable_name()
     {
-        $eventName = new EventName();
+        $eventName = new EventName;
 
         $this->assertIsArray($eventName->translatable);
         $this->assertContains('name', $eventName->translatable);
@@ -133,7 +132,7 @@ class EventNameTest extends TestCase
     /** @test */
     public function it_guards_timestamp_fields()
     {
-        $eventName = new EventName();
+        $eventName = new EventName;
         $guarded = $eventName->getGuarded();
 
         $this->assertContains('created_at', $guarded);

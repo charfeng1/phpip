@@ -13,7 +13,7 @@ class ActorPivotTest extends TestCase
     /** @test */
     public function it_uses_matter_actor_lnk_table()
     {
-        $pivot = new ActorPivot();
+        $pivot = new ActorPivot;
 
         $this->assertEquals('matter_actor_lnk', $pivot->getTable());
     }
@@ -58,7 +58,7 @@ class ActorPivotTest extends TestCase
         $actor = Actor::factory()->create();
 
         $role = Role::find('CLI');
-        if (!$role) {
+        if (! $role) {
             $role = Role::create([
                 'code' => 'CLI',
                 'name' => ['en' => 'Client'],
@@ -98,7 +98,7 @@ class ActorPivotTest extends TestCase
     /** @test */
     public function it_touches_parent_matter()
     {
-        $pivot = new ActorPivot();
+        $pivot = new ActorPivot;
         $touches = $pivot->getTouchedRelations();
 
         $this->assertContains('matter', $touches);
@@ -127,7 +127,7 @@ class ActorPivotTest extends TestCase
     /** @test */
     public function it_guards_id_and_timestamps()
     {
-        $pivot = new ActorPivot();
+        $pivot = new ActorPivot;
         $guarded = $pivot->getGuarded();
 
         $this->assertContains('id', $guarded);

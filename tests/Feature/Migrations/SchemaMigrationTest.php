@@ -41,7 +41,7 @@ class SchemaMigrationTest extends TestCase
     {
         $this->assertTrue(Schema::hasTable($table), "Table '{$table}' should exist");
 
-        if (!empty($columns)) {
+        if (! empty($columns)) {
             $actualColumns = Schema::getColumnListing($table);
             foreach ($columns as $column) {
                 $this->assertContains(
@@ -118,7 +118,7 @@ class SchemaMigrationTest extends TestCase
         $this->assertCount(1, $views, "The '{$view}' view should exist");
 
         // Verify key columns if provided (e.g., for critical views like 'users')
-        if (!empty($expectedColumns)) {
+        if (! empty($expectedColumns)) {
             $columns = DB::select("
                 SELECT column_name FROM information_schema.columns
                 WHERE table_schema = 'public' AND table_name = ?
@@ -163,7 +163,7 @@ class SchemaMigrationTest extends TestCase
     #[DataProvider('functionProvider')]
     public function test_functions_exist(string $functionName): void
     {
-        $result = DB::select("SELECT proname FROM pg_proc WHERE proname = ?", [$functionName]);
+        $result = DB::select('SELECT proname FROM pg_proc WHERE proname = ?', [$functionName]);
         $this->assertCount(1, $result, "The '{$functionName}' function should exist");
     }
 

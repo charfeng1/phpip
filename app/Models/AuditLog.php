@@ -91,8 +91,6 @@ class AuditLog extends Model
 
     /**
      * Get a human-readable model name from the auditable_type.
-     *
-     * @return string
      */
     public function getModelNameAttribute(): string
     {
@@ -101,8 +99,6 @@ class AuditLog extends Model
 
     /**
      * Get the changed fields between old and new values.
-     *
-     * @return array
      */
     public function getChangedFieldsAttribute(): array
     {
@@ -131,8 +127,6 @@ class AuditLog extends Model
 
     /**
      * Get a summary of changes for display.
-     *
-     * @return string
      */
     public function getChangeSummaryAttribute(): string
     {
@@ -147,14 +141,13 @@ class AuditLog extends Model
             return implode(', ', $changedFields);
         }
 
-        return implode(', ', array_slice($changedFields, 0, 3))." (+".($count - 3)." more)";
+        return implode(', ', array_slice($changedFields, 0, 3)).' (+'.($count - 3).' more)';
     }
 
     /**
      * Scope a query to filter by auditable type.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $type
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeForModel($query, string $type)
@@ -165,8 +158,7 @@ class AuditLog extends Model
     /**
      * Scope a query to filter by user.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $userLogin
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeByUser($query, string $userLogin)
@@ -177,8 +169,7 @@ class AuditLog extends Model
     /**
      * Scope a query to filter by action type.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $action
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeByAction($query, string $action)
@@ -189,9 +180,7 @@ class AuditLog extends Model
     /**
      * Scope a query to filter by date range.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $startDate
-     * @param string|null $endDate
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeDateRange($query, string $startDate, ?string $endDate = null)
@@ -208,7 +197,6 @@ class AuditLog extends Model
     /**
      * Get audit logs for a specific auditable model instance.
      *
-     * @param \Illuminate\Database\Eloquent\Model $model
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public static function forAuditable(Model $model)

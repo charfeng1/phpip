@@ -13,7 +13,7 @@ class HandlesAuditFieldsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->controller = new TestableAuditController();
+        $this->controller = new TestableAuditController;
     }
 
     /** @test */

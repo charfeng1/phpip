@@ -33,8 +33,8 @@ class DocumentFilterService
     /**
      * Filter template members based on provided criteria.
      *
-     * @param mixed $query The query builder to filter (TemplateMember or Builder)
-     * @param array $filters Filter key-value pairs
+     * @param  mixed  $query  The query builder to filter (TemplateMember or Builder)
+     * @param  array  $filters  Filter key-value pairs
      * @return array{query: Builder, oldfilters: array<string, string>, view: string, event: ?Event, task: ?Task}
      */
     public function filterTemplateMembers(mixed $query, array $filters): array
@@ -93,9 +93,9 @@ class DocumentFilterService
     /**
      * Apply a single filter to the query.
      *
-     * @param mixed $query The query builder
-     * @param string $key The filter key
-     * @param mixed $value The filter value
+     * @param  mixed  $query  The query builder
+     * @param  string  $key  The filter key
+     * @param  mixed  $value  The filter value
      * @return array{query: Builder, oldfilters: array<string, string>, event: ?Event, task: ?Task}
      */
     protected function applyFilter(mixed $query, string $key, mixed $value): array

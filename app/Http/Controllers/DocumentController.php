@@ -16,7 +16,6 @@ use App\Traits\Filterable;
 use App\Traits\HandlesAuditFields;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Manages document templates and email generation.
@@ -27,8 +26,8 @@ use Illuminate\Support\Facades\DB;
  */
 class DocumentController extends Controller
 {
-    use HandlesAuditFields;
     use Filterable;
+    use HandlesAuditFields;
 
     /**
      * Filter rules for index method.
@@ -53,10 +52,11 @@ class DocumentController extends Controller
             },
         ];
     }
+
     /**
      * Display a paginated list of template classes with filtering.
      *
-     * @param Request $request Filter parameters
+     * @param  Request  $request  Filter parameters
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -97,7 +97,7 @@ class DocumentController extends Controller
     /**
      * Store a newly created template class.
      *
-     * @param StoreDocumentRequest $request Validated template class data
+     * @param  StoreDocumentRequest  $request  Validated template class data
      * @return TemplateClass The created template class
      */
     public function store(StoreDocumentRequest $request)
@@ -110,7 +110,7 @@ class DocumentController extends Controller
     /**
      * Display the specified template class.
      *
-     * @param TemplateClass $class The template class to display
+     * @param  TemplateClass  $class  The template class to display
      * @return \Illuminate\Http\Response
      */
     public function show(TemplateClass $class)
@@ -124,8 +124,8 @@ class DocumentController extends Controller
     /**
      * Update the specified template class.
      *
-     * @param UpdateDocumentRequest $request Validated template class data
-     * @param TemplateClass $class The template class to update
+     * @param  UpdateDocumentRequest  $request  Validated template class data
+     * @param  TemplateClass  $class  The template class to update
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(UpdateDocumentRequest $request, TemplateClass $class)
@@ -139,7 +139,7 @@ class DocumentController extends Controller
     /**
      * Remove the specified template class from storage.
      *
-     * @param TemplateClass $class The template class to delete
+     * @param  TemplateClass  $class  The template class to delete
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(TemplateClass $class)
@@ -152,8 +152,8 @@ class DocumentController extends Controller
     /**
      * Select template members for a matter with filtering.
      *
-     * @param Matter $matter The matter to generate correspondence for
-     * @param Request $request Filter and context parameters
+     * @param  Matter  $matter  The matter to generate correspondence for
+     * @param  Request  $request  Filter and context parameters
      * @return \Illuminate\Http\Response
      */
     public function select(Matter $matter, Request $request)
@@ -194,8 +194,8 @@ class DocumentController extends Controller
      * Generates email content from Blade templates using matter, event, and task data.
      * Creates mailto URL with populated subject, body, recipients, and CC.
      *
-     * @param TemplateMember $member The template member to use
-     * @param Request $request Contains matter_id, event_id, task_id, and recipient selections
+     * @param  TemplateMember  $member  The template member to use
+     * @param  Request  $request  Contains matter_id, event_id, task_id, and recipient selections
      * @return \Illuminate\Http\JsonResponse
      */
     public function mailto(TemplateMember $member, Request $request)
@@ -260,8 +260,8 @@ class DocumentController extends Controller
     /**
      * Render a Blade template with provided data.
      *
-     * @param string $template Compiled Blade template string
-     * @param array $data Data to pass to the template
+     * @param  string  $template  Compiled Blade template string
+     * @param  array  $data  Data to pass to the template
      * @return string|array Rendered content or error array
      */
     private function renderTemplate(string $template, array $data)

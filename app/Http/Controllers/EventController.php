@@ -34,7 +34,7 @@ class EventController extends Controller
     /**
      * Display the specified event.
      *
-     * @param Event $event The event to display.
+     * @param  Event  $event  The event to display.
      * @return \Illuminate\Http\JsonResponse
      */
     public function show(Event $event)
@@ -47,7 +47,7 @@ class EventController extends Controller
     /**
      * Store a new event in the database.
      *
-     * @param Request $request The HTTP request containing event data.
+     * @param  Request  $request  The HTTP request containing event data.
      * @return Event The newly created event model.
      */
     public function store(Request $request)
@@ -77,8 +77,8 @@ class EventController extends Controller
     /**
      * Update an event in the database.
      *
-     * @param Request $request The HTTP request containing updated event data.
-     * @param Event $event The event to update.
+     * @param  Request  $request  The HTTP request containing updated event data.
+     * @param  Event  $event  The event to update.
      * @return Event The updated event model.
      */
     public function update(Request $request, Event $event)
@@ -105,7 +105,7 @@ class EventController extends Controller
     /**
      * Remove an event from the database.
      *
-     * @param Event $event The event to delete.
+     * @param  Event  $event  The event to delete.
      * @return Event The deleted event model.
      */
     public function destroy(Event $event)

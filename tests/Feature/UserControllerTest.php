@@ -7,7 +7,6 @@ use Tests\TestCase;
 
 class UserControllerTest extends TestCase
 {
-
     /** @test */
     public function users_can_be_filtered_by_name_prefix()
     {

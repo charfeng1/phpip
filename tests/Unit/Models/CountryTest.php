@@ -25,7 +25,7 @@ class CountryTest extends TestCase
     /** @test */
     public function it_has_no_timestamps()
     {
-        $country = new Country();
+        $country = new Country;
 
         $this->assertFalse($country->usesTimestamps());
     }
@@ -33,7 +33,7 @@ class CountryTest extends TestCase
     /** @test */
     public function it_has_translatable_name()
     {
-        $country = new Country();
+        $country = new Country;
 
         $this->assertIsArray($country->translatable);
         $this->assertContains('name', $country->translatable);
@@ -106,7 +106,7 @@ class CountryTest extends TestCase
     /** @test */
     public function it_has_no_guarded_fields()
     {
-        $country = new Country();
+        $country = new Country;
 
         $this->assertEmpty($country->getGuarded());
     }

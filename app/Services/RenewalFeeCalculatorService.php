@@ -29,7 +29,7 @@ class RenewalFeeCalculatorService
     /**
      * Calculate the cost and fee for a renewal.
      *
-     * @param object $renewal The renewal task object with fee-related properties
+     * @param  object  $renewal  The renewal task object with fee-related properties
      * @return array{cost: float, fee: float} Calculated cost and fee
      */
     public function calculate(object $renewal): array
@@ -51,7 +51,7 @@ class RenewalFeeCalculatorService
     /**
      * Calculate fees from the fee table based on grace period and SME status.
      *
-     * @param object $renewal The renewal task object
+     * @param  object  $renewal  The renewal task object
      * @return array{cost: float, fee: float} Calculated cost and fee
      */
     public function calculateFromTable(object $renewal): array
@@ -75,7 +75,7 @@ class RenewalFeeCalculatorService
     /**
      * Calculate fees from task data when no fee table entry exists.
      *
-     * @param object $renewal The renewal task object
+     * @param  object  $renewal  The renewal task object
      * @return array{cost: float, fee: float} Calculated cost and fee
      */
     public function calculateFromTask(object $renewal): array
@@ -103,8 +103,8 @@ class RenewalFeeCalculatorService
      * Discount > 1 is treated as an absolute override amount.
      * Discount <= 1 is treated as a percentage discount (e.g., 0.1 = 10% off).
      *
-     * @param float $fee The base fee amount
-     * @param float $discount The discount value
+     * @param  float  $fee  The base fee amount
+     * @param  float  $discount  The discount value
      * @return float The fee after discount
      */
     public function applyDiscount(float $fee, float $discount): float
@@ -124,7 +124,7 @@ class RenewalFeeCalculatorService
      * Returns the configured grace period factor if the renewal is in grace period
      * and was completed after the due date.
      *
-     * @param object $renewal The renewal task object
+     * @param  object  $renewal  The renewal task object
      * @return float The fee multiplier (1.0 for normal, higher for late)
      */
     public function getGracePeriodFactor(object $renewal): float

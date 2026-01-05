@@ -302,7 +302,7 @@ class AuditLogTest extends TestCase
     /** @test */
     public function it_does_not_use_timestamps()
     {
-        $auditLog = new AuditLog();
+        $auditLog = new AuditLog;
 
         $this->assertFalse($auditLog->usesTimestamps());
     }

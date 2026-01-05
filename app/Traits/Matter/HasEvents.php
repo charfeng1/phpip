@@ -22,8 +22,6 @@ trait HasEvents
      *
      * Events represent important dates and milestones in the matter's lifecycle.
      * Results are ordered chronologically by event date.
-     *
-     * @return HasMany
      */
     public function events(): HasMany
     {
@@ -36,8 +34,6 @@ trait HasEvents
      *
      * The filing event represents when the application was filed.
      * Returns a default empty model if no filing event exists.
-     *
-     * @return HasOne
      */
     public function filing(): HasOne
     {
@@ -49,8 +45,6 @@ trait HasEvents
      * Get the parent filing event(s) for this matter.
      *
      * Parent filing events represent the filing dates of priority applications.
-     *
-     * @return HasMany
      */
     public function parentFiling(): HasMany
     {
@@ -63,8 +57,6 @@ trait HasEvents
      *
      * The publication event represents when the application was published.
      * Returns a default empty model if no publication event exists.
-     *
-     * @return HasOne
      */
     public function publication(): HasOne
     {
@@ -77,8 +69,6 @@ trait HasEvents
      *
      * Returns either a grant (for patents) or registration (for trademarks/designs) event.
      * Returns a default empty model if neither event exists.
-     *
-     * @return HasOne
      */
     public function grant(): HasOne
     {
@@ -91,8 +81,6 @@ trait HasEvents
      *
      * The registration event represents when a trademark or design was registered.
      * Returns a default empty model if no registration event exists.
-     *
-     * @return HasOne
      */
     public function registration(): HasOne
     {
@@ -105,8 +93,6 @@ trait HasEvents
      *
      * The entry event represents when a PCT application entered the national phase.
      * Returns a default empty model if no entry event exists.
-     *
-     * @return HasOne
      */
     public function entered(): HasOne
     {
@@ -118,8 +104,6 @@ trait HasEvents
      * Get all priority events for this matter.
      *
      * Priority events link this matter to its priority applications.
-     *
-     * @return HasMany
      */
     public function priority(): HasMany
     {
@@ -132,8 +116,6 @@ trait HasEvents
      *
      * Returns matters outside this family that have priority events linking to this matter.
      * Note: The where clause is ignored during eager loading.
-     *
-     * @return BelongsToMany
      */
     public function priorityTo(): BelongsToMany
     {
@@ -151,8 +133,6 @@ trait HasEvents
      * Get priority events using the event link view.
      *
      * Uses the EventLnkList view which provides a flattened representation of event links.
-     *
-     * @return HasMany
      */
     public function prioritiesFromView(): HasMany
     {
@@ -165,8 +145,6 @@ trait HasEvents
      *
      * Tasks are reminders and deadlines generated from events.
      * Uses a has-many-through relationship via the event table.
-     *
-     * @return HasManyThrough
      */
     public function tasks(): HasManyThrough
     {
@@ -177,8 +155,6 @@ trait HasEvents
      * Get pending tasks excluding renewals.
      *
      * Returns uncompleted tasks ordered by due date, excluding renewal tasks.
-     *
-     * @return HasManyThrough
      */
     public function tasksPending(): HasManyThrough
     {
@@ -192,8 +168,6 @@ trait HasEvents
      * Get pending renewal tasks.
      *
      * Returns uncompleted renewal tasks ordered by due date.
-     *
-     * @return HasManyThrough
      */
     public function renewalsPending(): HasManyThrough
     {

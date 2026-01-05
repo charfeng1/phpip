@@ -68,7 +68,7 @@ class DolibarrInvoiceService
     /**
      * Search for a client in Dolibarr by name.
      *
-     * @param string $clientName The client name to search for
+     * @param  string  $clientName  The client name to search for
      * @return array|null Client data or null if not found
      */
     public function findClient(string $clientName): ?array
@@ -113,7 +113,7 @@ class DolibarrInvoiceService
      *
      * Removes characters that could break out of the filter or enable injection.
      *
-     * @param string $value The value to sanitize
+     * @param  string  $value  The value to sanitize
      * @return string The sanitized value
      */
     protected function sanitizeForDolibarrFilter(string $value): string
@@ -126,7 +126,7 @@ class DolibarrInvoiceService
     /**
      * Create an invoice in Dolibarr.
      *
-     * @param array $invoiceData Invoice properties
+     * @param  array  $invoiceData  Invoice properties
      * @return array{success: bool, data: mixed, error: ?string}
      */
     public function createInvoice(array $invoiceData): array
@@ -193,7 +193,7 @@ class DolibarrInvoiceService
     /**
      * Determine VAT rate based on client's TVA intra code.
      *
-     * @param string|null $tvaIntra The client's TVA intra code
+     * @param  string|null  $tvaIntra  The client's TVA intra code
      * @return float VAT rate (0.2 for French, 0.0 for EU)
      */
     public function determineVatRate(?string $tvaIntra): float
@@ -208,7 +208,7 @@ class DolibarrInvoiceService
     /**
      * Build invoice line description for a renewal.
      *
-     * @param object $renewal The renewal data
+     * @param  object  $renewal  The renewal data
      * @return string The formatted description
      */
     public function buildLineDescription(object $renewal): string
@@ -242,8 +242,8 @@ class DolibarrInvoiceService
     /**
      * Build invoice lines for a set of renewals.
      *
-     * @param Collection $renewals The renewals to invoice
-     * @param float $vatRate The VAT rate to apply
+     * @param  Collection  $renewals  The renewals to invoice
+     * @param  float  $vatRate  The VAT rate to apply
      * @return array The invoice lines
      */
     public function buildInvoiceLines(Collection $renewals, float $vatRate): array
@@ -296,8 +296,8 @@ class DolibarrInvoiceService
     /**
      * Build complete invoice data structure.
      *
-     * @param int $socId The Dolibarr client/society ID
-     * @param array $lines The invoice lines
+     * @param  int  $socId  The Dolibarr client/society ID
+     * @param  array  $lines  The invoice lines
      * @return array The complete invoice data
      */
     public function buildInvoiceData(int $socId, array $lines): array
@@ -315,7 +315,7 @@ class DolibarrInvoiceService
     /**
      * Create invoices for a collection of renewals grouped by client.
      *
-     * @param Collection $renewals Renewals ordered by client_name
+     * @param  Collection  $renewals  Renewals ordered by client_name
      * @return array{success: bool, count: int, error: ?string}
      */
     public function createInvoicesForRenewals(Collection $renewals): array

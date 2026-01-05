@@ -30,8 +30,6 @@ trait Auditable
 {
     /**
      * Flag to temporarily disable auditing for this model instance.
-     *
-     * @var bool
      */
     protected bool $auditingDisabled = false;
 
@@ -85,9 +83,9 @@ trait Auditable
     /**
      * Log an audit entry for this model.
      *
-     * @param string $action The action type (created, updated, deleted)
-     * @param array $oldValues The old attribute values
-     * @param array $newValues The new attribute values
+     * @param  string  $action  The action type (created, updated, deleted)
+     * @param  array  $oldValues  The old attribute values
+     * @param  array  $newValues  The new attribute values
      */
     protected function logAudit(string $action, array $oldValues, array $newValues): void
     {
@@ -120,8 +118,6 @@ trait Auditable
     /**
      * Determine if the model should be audited.
      * Override this method in your model to conditionally enable/disable auditing.
-     *
-     * @return bool
      */
     protected function shouldAudit(): bool
     {
@@ -136,8 +132,6 @@ trait Auditable
     /**
      * Get the attributes that should be audited.
      * Applies include/exclude filters.
-     *
-     * @return array
      */
     protected function getAuditableAttributes(): array
     {
@@ -149,8 +143,6 @@ trait Auditable
     /**
      * Get the original attributes that should be audited.
      * Applies include/exclude filters.
-     *
-     * @return array
      */
     protected function getAuditableOriginal(): array
     {
@@ -161,9 +153,6 @@ trait Auditable
 
     /**
      * Filter attributes based on include/exclude lists.
-     *
-     * @param array $attributes
-     * @return array
      */
     protected function filterAuditableAttributes(array $attributes): array
     {
@@ -195,8 +184,6 @@ trait Auditable
     /**
      * Get the list of attributes to exclude from auditing.
      * Override this property in your model to customize.
-     *
-     * @return array
      */
     protected function getAuditExclude(): array
     {
@@ -207,8 +194,6 @@ trait Auditable
      * Get the list of attributes to include in auditing.
      * If defined, only these attributes will be audited.
      * Override this property in your model to customize.
-     *
-     * @return array
      */
     protected function getAuditInclude(): array
     {
@@ -217,8 +202,6 @@ trait Auditable
 
     /**
      * Get the latest audit log entry for this model.
-     *
-     * @return \App\Models\AuditLog|null
      */
     public function getLatestAuditLog(): ?AuditLog
     {
@@ -228,7 +211,6 @@ trait Auditable
     /**
      * Get the audit history for this model, ordered by most recent first.
      *
-     * @param int|null $limit
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getAuditHistory(?int $limit = null)

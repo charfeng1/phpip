@@ -32,10 +32,11 @@ class RoleController extends Controller
             'Name' => fn ($q, $v) => $q->whereJsonLike('name', $v),
         ];
     }
+
     /**
      * Display a list of roles with filtering.
      *
-     * @param Request $request Filter parameters
+     * @param  Request  $request  Filter parameters
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -64,7 +65,7 @@ class RoleController extends Controller
     /**
      * Store a newly created role.
      *
-     * @param StoreRoleRequest $request Validated role data
+     * @param  StoreRoleRequest  $request  Validated role data
      * @return Role The created role
      */
     public function store(StoreRoleRequest $request)
@@ -77,7 +78,7 @@ class RoleController extends Controller
     /**
      * Display the specified role.
      *
-     * @param Role $role The role to display
+     * @param  Role  $role  The role to display
      * @return \Illuminate\Http\Response
      */
     public function show(Role $role)
@@ -88,8 +89,8 @@ class RoleController extends Controller
     /**
      * Update the specified role.
      *
-     * @param UpdateRoleRequest $request Validated role data
-     * @param Role $role The role to update
+     * @param  UpdateRoleRequest  $request  Validated role data
+     * @param  Role  $role  The role to update
      * @return Role The updated role
      */
     public function update(UpdateRoleRequest $request, Role $role)
@@ -103,7 +104,7 @@ class RoleController extends Controller
     /**
      * Remove the specified role from storage.
      *
-     * @param Role $role The role to delete
+     * @param  Role  $role  The role to delete
      * @return Role The deleted role
      */
     public function destroy(Role $role)

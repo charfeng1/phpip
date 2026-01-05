@@ -148,7 +148,7 @@ class AuditableTest extends TestCase
     /** @test */
     public function it_excludes_password_from_audit()
     {
-        $classifier = new Classifier();
+        $classifier = new Classifier;
         $reflection = new \ReflectionClass($classifier);
         $method = $reflection->getMethod('filterAuditableAttributes');
         $method->setAccessible(true);
@@ -162,7 +162,7 @@ class AuditableTest extends TestCase
     /** @test */
     public function it_excludes_remember_token_from_audit()
     {
-        $classifier = new Classifier();
+        $classifier = new Classifier;
         $reflection = new \ReflectionClass($classifier);
         $method = $reflection->getMethod('filterAuditableAttributes');
         $method->setAccessible(true);
@@ -197,7 +197,7 @@ class AuditableTest extends TestCase
     /** @test */
     public function it_can_re_enable_auditing()
     {
-        $classifier = new Classifier();
+        $classifier = new Classifier;
 
         $result = $classifier->withoutAuditing()->withAuditing();
 

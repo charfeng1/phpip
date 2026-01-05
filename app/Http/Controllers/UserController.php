@@ -23,8 +23,8 @@ use Illuminate\Support\Facades\Hash;
  */
 class UserController extends Controller
 {
-    use HandlesAuditFields;
     use Filterable;
+    use HandlesAuditFields;
 
     /**
      * Filter rules for index method.
@@ -42,10 +42,11 @@ class UserController extends Controller
             },
         ];
     }
+
     /**
      * Display a paginated list of users.
      *
-     * @param Request $request Filter parameters
+     * @param  Request  $request  Filter parameters
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -88,7 +89,7 @@ class UserController extends Controller
     /**
      * Store a newly created user.
      *
-     * @param StoreUserRequest $request Validated user data including login, password, email, and default_role
+     * @param  StoreUserRequest  $request  Validated user data including login, password, email, and default_role
      * @return User The created user
      */
     public function store(StoreUserRequest $request)
@@ -101,7 +102,7 @@ class UserController extends Controller
     /**
      * Display the specified user.
      *
-     * @param User $user The user to display
+     * @param  User  $user  The user to display
      * @return \Illuminate\Http\Response
      */
     public function show(User $user)
@@ -117,7 +118,7 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified user.
      *
-     * @param User $user The user to edit
+     * @param  User  $user  The user to edit
      * @return \Illuminate\Http\Response
      */
     public function edit(User $user)
@@ -153,8 +154,8 @@ class UserController extends Controller
      * if current user is editing their own profile. Clears team hierarchy cache when
      * parent_id (supervisor) changes.
      *
-     * @param UpdateUserRequest $request Validated updated user data
-     * @param User $user The user to update
+     * @param  UpdateUserRequest  $request  Validated updated user data
+     * @param  User  $user  The user to update
      * @return User The updated user
      */
     public function update(UpdateUserRequest $request, User $user)
@@ -173,7 +174,7 @@ class UserController extends Controller
             $parentSupervisors = $teamService->getSupervisorIds($proposedParentId);
             if (in_array($user->id, $parentSupervisors, true)) {
                 return back()->withErrors([
-                    'parent_id' => 'This would create a circular hierarchy. The selected supervisor is already below this user in the hierarchy.'
+                    'parent_id' => 'This would create a circular hierarchy. The selected supervisor is already below this user in the hierarchy.',
                 ])->withInput();
             }
         }
@@ -221,7 +222,7 @@ class UserController extends Controller
      *
      * Allows users to update their own email, password, and language preferences.
      *
-     * @param UpdateProfileRequest $request Validated profile data
+     * @param  UpdateProfileRequest  $request  Validated profile data
      * @return \Illuminate\Http\RedirectResponse
      */
     public function updateProfile(UpdateProfileRequest $request)
@@ -257,7 +258,7 @@ class UserController extends Controller
     /**
      * Quick switch the user's language preference.
      *
-     * @param string $locale The locale to set
+     * @param  string  $locale  The locale to set
      * @return \Illuminate\Http\RedirectResponse
      */
     public function setLocale(Request $request, string $locale)
@@ -289,7 +290,7 @@ class UserController extends Controller
     /**
      * Remove the specified user from storage.
      *
-     * @param User $user The user to delete
+     * @param  User  $user  The user to delete
      * @return User The deleted user
      */
     public function destroy(User $user)

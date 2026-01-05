@@ -15,7 +15,7 @@ class OPSServiceTest extends TestCase
         parent::setUp();
         // Prevent any real HTTP requests - empty fake returns 200 with empty body
         Http::preventStrayRequests();
-        $this->opsService = new OPSService();
+        $this->opsService = new OPSService;
     }
 
     /** @test */

@@ -93,10 +93,11 @@ class DefaultActorController extends Controller
             },
         ];
     }
+
     /**
      * Display a list of default actors with filtering.
      *
-     * @param Request $request Filter parameters including Actor, Role, Country, Category, Client
+     * @param  Request  $request  Filter parameters including Actor, Role, Country, Category, Client
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -137,7 +138,7 @@ class DefaultActorController extends Controller
     /**
      * Store a newly created default actor.
      *
-     * @param StoreDefaultActorRequest $request Default actor data including actor_id and role
+     * @param  StoreDefaultActorRequest  $request  Default actor data including actor_id and role
      * @return DefaultActor The created default actor
      */
     public function store(StoreDefaultActorRequest $request)
@@ -148,7 +149,7 @@ class DefaultActorController extends Controller
     /**
      * Display the specified default actor.
      *
-     * @param DefaultActor $default_actor The default actor to display
+     * @param  DefaultActor  $default_actor  The default actor to display
      * @return \Illuminate\Http\Response
      */
     public function show(DefaultActor $default_actor)
@@ -162,8 +163,8 @@ class DefaultActorController extends Controller
     /**
      * Update the specified default actor.
      *
-     * @param UpdateDefaultActorRequest $request Updated default actor data
-     * @param DefaultActor $default_actor The default actor to update
+     * @param  UpdateDefaultActorRequest  $request  Updated default actor data
+     * @param  DefaultActor  $default_actor  The default actor to update
      * @return DefaultActor The updated default actor
      */
     public function update(UpdateDefaultActorRequest $request, DefaultActor $default_actor)
@@ -176,7 +177,7 @@ class DefaultActorController extends Controller
     /**
      * Remove the specified default actor from storage.
      *
-     * @param DefaultActor $default_actor The default actor to delete
+     * @param  DefaultActor  $default_actor  The default actor to delete
      * @return DefaultActor The deleted default actor
      */
     public function destroy(DefaultActor $default_actor)

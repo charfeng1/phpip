@@ -14,7 +14,7 @@ class UpdateActorRequest extends FormRequest
     {
         $actor = $this->route('actor');
 
-        return $this->user()->can('update', $actor instanceof Actor ? $actor : new Actor());
+        return $this->user()->can('update', $actor instanceof Actor ? $actor : new Actor);
     }
 
     /**

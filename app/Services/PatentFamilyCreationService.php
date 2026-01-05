@@ -95,12 +95,12 @@ class PatentFamilyCreationService
                 'docnum' => $docnum,
                 'caseref' => $caseref,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return [
                 'exception' => 'Database error occurred while creating patent family',
-                'message' => 'Failed to create patent family: ' . $e->getMessage(),
+                'message' => 'Failed to create patent family: '.$e->getMessage(),
             ];
         }
     }
@@ -178,9 +178,9 @@ class PatentFamilyCreationService
      * @param  string  $caseref  The case reference
      * @param  string  $categoryCode  The category code
      * @param  int|null  $existingCount  Pre-calculated count of existing matters with same UID components.
-     *                                    When provided, bypasses database query and uses this value directly.
-     *                                    When null, executes database query to calculate the count.
-     *                                    Used primarily for testing to avoid database dependencies.
+     *                                   When provided, bypasses database query and uses this value directly.
+     *                                   When null, executes database query to calculate the count.
+     *                                   Used primarily for testing to avoid database dependencies.
      */
     protected function buildMatterData(
         array $app,
@@ -383,7 +383,7 @@ class PatentFamilyCreationService
      */
     protected function processNonContainerMember(Matter $matter, array $app, array $matterIdMap): void
     {
-        if (!array_key_exists('pri', $app)) {
+        if (! array_key_exists('pri', $app)) {
             return;
         }
 

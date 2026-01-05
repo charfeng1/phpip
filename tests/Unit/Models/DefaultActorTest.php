@@ -137,7 +137,7 @@ class DefaultActorTest extends TestCase
     /** @test */
     public function it_guards_timestamp_fields()
     {
-        $defaultActor = new DefaultActor();
+        $defaultActor = new DefaultActor;
         $guarded = $defaultActor->getGuarded();
 
         $this->assertContains('created_at', $guarded);
@@ -147,7 +147,7 @@ class DefaultActorTest extends TestCase
     /** @test */
     public function it_uses_has_table_comments_trait()
     {
-        $defaultActor = new DefaultActor();
+        $defaultActor = new DefaultActor;
         $traits = class_uses_recursive($defaultActor);
 
         $this->assertContains('App\Traits\HasTableComments', $traits);

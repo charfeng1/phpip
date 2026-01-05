@@ -157,11 +157,12 @@ class Matter extends Model
      * Kept for backwards compatibility with existing code.
      *
      * @deprecated Use MatterRepository::filter() instead for new code
-     * @param string $sortkey The column to sort by (default: 'id')
-     * @param string $sortdir The sort direction 'asc' or 'desc' (default: 'desc')
-     * @param array $multi_filter Associative array of filter criteria keyed by column name
-     * @param string|bool $display_with Filter by category display_with value (optional)
-     * @param bool $include_dead Whether to include dead families (default: false)
+     *
+     * @param  string  $sortkey  The column to sort by (default: 'id')
+     * @param  string  $sortdir  The sort direction 'asc' or 'desc' (default: 'desc')
+     * @param  array  $multi_filter  Associative array of filter criteria keyed by column name
+     * @param  string|bool  $display_with  Filter by category display_with value (optional)
+     * @param  bool  $include_dead  Whether to include dead families (default: false)
      * @return \Illuminate\Database\Eloquent\Builder The filtered query builder instance
      */
     public static function filter($sortkey = 'id', $sortdir = 'desc', $multi_filter = [], $display_with = false, $include_dead = false)
@@ -182,6 +183,7 @@ class Matter extends Model
      * Kept for backwards compatibility with existing code.
      *
      * @deprecated Use MatterRepository::getCategoryMatterCount() instead for new code
+     *
      * @return \Illuminate\Support\Collection Collection of Category models with 'total' count
      */
     public static function getCategoryMatterCount()
@@ -203,7 +205,7 @@ class Matter extends Model
      * publication details, titles, and applicant names. Supports French and English languages
      * with appropriate formatting for patents and trademarks.
      *
-     * @param string $lang Language code ('en' or 'fr', default: 'en')
+     * @param  string  $lang  Language code ('en' or 'fr', default: 'en')
      * @return array Array of description lines
      */
     public function getDescription($lang = 'en')
@@ -331,5 +333,4 @@ class Matter extends Model
 
         return $this->applicantsFromLnk()->pluck('name')->unique()->implode("\n");
     }
-
 }

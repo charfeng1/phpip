@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Enums\ActorRole;
 use App\Models\Actor;
 use App\Models\Category;
 use App\Models\ClassifierType;
@@ -17,10 +16,15 @@ use Tests\TestCase;
 class AutocompleteControllerTest extends TestCase
 {
     protected User $adminUser;
+
     protected User $readWriteUser;
+
     protected User $readOnlyUser;
+
     protected User $clientUser;
+
     protected Country $country;
+
     protected Category $category;
 
     protected function setUp(): void
@@ -215,7 +219,7 @@ class AutocompleteControllerTest extends TestCase
     public function read_write_user_can_access_country_autocomplete()
     {
         $response = $this->actingAs($this->readWriteUser)
-            ->getJson('/country/autocomplete?term=' . substr($this->country->name, 0, 3));
+            ->getJson('/country/autocomplete?term='.substr($this->country->name, 0, 3));
 
         $response->assertStatus(200)
             ->assertJsonIsArray();
@@ -225,7 +229,7 @@ class AutocompleteControllerTest extends TestCase
     public function read_write_user_can_access_category_autocomplete()
     {
         $response = $this->actingAs($this->readWriteUser)
-            ->getJson('/category/autocomplete?term=' . substr($this->category->category ?? 'Pat', 0, 3));
+            ->getJson('/category/autocomplete?term='.substr($this->category->category ?? 'Pat', 0, 3));
 
         $response->assertStatus(200)
             ->assertJsonIsArray();
@@ -338,7 +342,7 @@ class AutocompleteControllerTest extends TestCase
         $longTerm = str_repeat('a', 300);
 
         $response = $this->actingAs($this->readWriteUser)
-            ->getJson('/user/autocomplete-by-id?term=' . $longTerm);
+            ->getJson('/user/autocomplete-by-id?term='.$longTerm);
 
         $response->assertStatus(422);
     }

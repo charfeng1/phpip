@@ -24,8 +24,6 @@ trait HasTeamScopes
      *
      * Override this method in models to specify a different column.
      * Default is 'responsible' for matters, but tasks use 'assigned_to'.
-     *
-     * @return string
      */
     protected function getTeamScopeColumn(): string
     {
@@ -37,8 +35,6 @@ trait HasTeamScopes
      *
      * Override to return true for models like Task that should also
      * check the responsible user of related matters.
-     *
-     * @return bool
      */
     protected function shouldIncludeMatterInTeamScope(): bool
     {
@@ -51,9 +47,7 @@ trait HasTeamScopes
      * Filters records to show only those where the assigned user is
      * the authenticated user or one of their direct/indirect reports.
      *
-     * @param  Builder  $query
      * @param  int|null  $userId  Optional user ID (defaults to authenticated user)
-     * @return Builder
      */
     public function scopeForTeam(Builder $query, ?int $userId = null): Builder
     {
@@ -82,9 +76,7 @@ trait HasTeamScopes
     /**
      * Scope to filter records by a specific user.
      *
-     * @param  Builder  $query
      * @param  string  $login  The user login to filter by
-     * @return Builder
      */
     public function scopeForUser(Builder $query, string $login): Builder
     {

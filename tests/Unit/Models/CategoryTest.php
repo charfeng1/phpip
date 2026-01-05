@@ -49,7 +49,7 @@ class CategoryTest extends TestCase
     public function it_can_have_many_matters()
     {
         $category = Category::find('PAT');
-        if (!$category) {
+        if (! $category) {
             $category = Category::factory()->create(['code' => 'PAT']);
         }
 
@@ -87,7 +87,7 @@ class CategoryTest extends TestCase
     /** @test */
     public function it_guards_timestamp_fields()
     {
-        $category = new Category();
+        $category = new Category;
         $guarded = $category->getGuarded();
 
         $this->assertContains('created_at', $guarded);

@@ -3,7 +3,6 @@
 namespace Tests\Unit\Providers;
 
 use App\Models\Category;
-use App\Models\Role;
 use App\Providers\ViewServiceProvider;
 use Illuminate\Support\Facades\View;
 use Tests\TestCase;
@@ -35,7 +34,7 @@ class ViewServiceProviderTest extends TestCase
     public function test_table_comments_injected_into_show_views(): void
     {
         // Create a mock category
-        $category = new Category();
+        $category = new Category;
 
         // Render a show view with the category (provider is automatically booted)
         $view = View::make('category.show', ['category' => $category]);

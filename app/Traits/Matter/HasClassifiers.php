@@ -18,8 +18,6 @@ trait HasClassifiers
      *
      * Uses the MatterClassifiers view which includes classifiers inherited from the container.
      * Excludes main display classifiers (titles).
-     *
-     * @return HasMany
      */
     public function classifiers(): HasMany
     {
@@ -32,8 +30,6 @@ trait HasClassifiers
      *
      * Returns only native classifiers, not inherited ones.
      * Typically used for container matters.
-     *
-     * @return HasMany
      */
     public function classifiersNative(): HasMany
     {
@@ -45,8 +41,6 @@ trait HasClassifiers
      *
      * Uses the MatterClassifiers view which includes titles inherited from the container.
      * Includes only main display classifiers.
-     *
-     * @return HasMany
      */
     public function titles(): HasMany
     {
@@ -59,8 +53,6 @@ trait HasClassifiers
      *
      * Returns matters that reference this matter through the classifier table.
      * Uses hasManyThrough to traverse: this matter → classifiers with lnk_matter_id → their owning matters.
-     *
-     * @return HasManyThrough
      */
     public function linkedBy(): HasManyThrough
     {

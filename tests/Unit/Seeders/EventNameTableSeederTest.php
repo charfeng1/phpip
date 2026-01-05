@@ -152,13 +152,13 @@ class EventNameTableSeederTest extends TestCase
             ->whereNotNull('trigger_event')
             ->distinct()
             ->pluck('trigger_event')
-            ->map(fn($code) => trim($code))
+            ->map(fn ($code) => trim($code))
             ->toArray();
 
         // Get all event codes from event_name
         $existingCodes = DB::table('event_name')
             ->pluck('code')
-            ->map(fn($code) => trim($code))
+            ->map(fn ($code) => trim($code))
             ->toArray();
 
         // Find any missing codes
@@ -166,7 +166,7 @@ class EventNameTableSeederTest extends TestCase
 
         $this->assertEmpty(
             $missingCodes,
-            'All trigger_event codes in task_rules should exist in event_name table. Missing: ' . implode(', ', $missingCodes)
+            'All trigger_event codes in task_rules should exist in event_name table. Missing: '.implode(', ', $missingCodes)
         );
     }
 }

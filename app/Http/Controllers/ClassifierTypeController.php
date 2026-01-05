@@ -36,7 +36,7 @@ class ClassifierTypeController extends Controller
     /**
      * Display a list of classifier types with filtering.
      *
-     * @param Request $request Filter parameters
+     * @param  Request  $request  Filter parameters
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -65,7 +65,7 @@ class ClassifierTypeController extends Controller
     /**
      * Store a newly created classifier type.
      *
-     * @param StoreClassifierTypeRequest $request Validated classifier type data
+     * @param  StoreClassifierTypeRequest  $request  Validated classifier type data
      * @return ClassifierType The created classifier type
      */
     public function store(StoreClassifierTypeRequest $request)
@@ -78,7 +78,7 @@ class ClassifierTypeController extends Controller
     /**
      * Display the specified classifier type.
      *
-     * @param ClassifierType $classifier_type The classifier type to display
+     * @param  ClassifierType  $classifier_type  The classifier type to display
      * @return \Illuminate\Http\Response
      */
     public function show(ClassifierType $classifier_type)
@@ -91,8 +91,8 @@ class ClassifierTypeController extends Controller
     /**
      * Update the specified classifier type.
      *
-     * @param UpdateClassifierTypeRequest $request Validated classifier type data
-     * @param ClassifierType $classifierType The classifier type to update
+     * @param  UpdateClassifierTypeRequest  $request  Validated classifier type data
+     * @param  ClassifierType  $classifierType  The classifier type to update
      * @return ClassifierType The updated classifier type
      */
     public function update(UpdateClassifierTypeRequest $request, ClassifierType $classifierType)
@@ -106,7 +106,7 @@ class ClassifierTypeController extends Controller
     /**
      * Remove the specified classifier type from storage.
      *
-     * @param ClassifierType $classifierType The classifier type to delete
+     * @param  ClassifierType  $classifierType  The classifier type to delete
      * @return ClassifierType The deleted classifier type
      */
     public function destroy(ClassifierType $classifierType)

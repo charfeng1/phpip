@@ -215,7 +215,6 @@ class TeamService
      * Should be called when user hierarchy changes (parent_id updates).
      *
      * @param  int  $userId  The user whose caches should be cleared
-     * @return void
      */
     public function clearCache(int $userId): void
     {
@@ -295,7 +294,6 @@ class TeamService
      * Clear caches for all users in a hierarchy chain.
      *
      * @param  int  $userId  Starting user ID
-     * @return void
      */
     protected function clearHierarchyCaches(int $userId): void
     {

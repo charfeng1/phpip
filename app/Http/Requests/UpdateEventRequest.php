@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Event;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateEventRequest extends FormRequest

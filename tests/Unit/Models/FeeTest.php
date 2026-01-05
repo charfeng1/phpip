@@ -125,7 +125,7 @@ class FeeTest extends TestCase
     /** @test */
     public function it_guards_id_and_timestamps()
     {
-        $fee = new Fee();
+        $fee = new Fee;
         $guarded = $fee->getGuarded();
 
         $this->assertContains('id', $guarded);
@@ -136,7 +136,7 @@ class FeeTest extends TestCase
     /** @test */
     public function it_uses_has_table_comments_trait()
     {
-        $fee = new Fee();
+        $fee = new Fee;
         $traits = class_uses_recursive($fee);
 
         $this->assertContains('App\Traits\HasTableComments', $traits);

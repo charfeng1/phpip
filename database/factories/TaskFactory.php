@@ -37,7 +37,7 @@ class TaskFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'code' => 'REN',
-            'detail' => json_encode(['en' => 'Year ' . $this->faker->numberBetween(2, 20), 'fr' => 'Année ' . $this->faker->numberBetween(2, 20)]),
+            'detail' => json_encode(['en' => 'Year '.$this->faker->numberBetween(2, 20), 'fr' => 'Année '.$this->faker->numberBetween(2, 20)]),
         ]);
     }
 

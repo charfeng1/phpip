@@ -73,8 +73,8 @@ class SharePointService
      * Searches for a folder matching the case reference in the configured SharePoint
      * folder path. Results are cached for one year, with optional cache refresh.
      *
-     * @param string $caseref The case reference to search for.
-     * @param bool $forceRefresh Whether to bypass and refresh the cache. Defaults to false.
+     * @param  string  $caseref  The case reference to search for.
+     * @param  bool  $forceRefresh  Whether to bypass and refresh the cache. Defaults to false.
      * @return string|null The web URL of the folder, or null if not found.
      */
     protected function findBaseFolderUrl($caseref, $forceRefresh = false)
@@ -110,9 +110,9 @@ class SharePointService
      * Constructs a full SharePoint URL by combining the base folder URL with
      * a suffix and event code. Returns null if SharePoint is disabled or folder not found.
      *
-     * @param string $caseref The case reference to search for.
-     * @param string $suffix The folder suffix to append to the base URL.
-     * @param string $eventCode The event code to append as the final path segment.
+     * @param  string  $caseref  The case reference to search for.
+     * @param  string  $suffix  The folder suffix to append to the base URL.
+     * @param  string  $eventCode  The event code to append as the final path segment.
      * @return string|null The complete SharePoint folder URL, or null if disabled or not found.
      */
     public function findFolderLink($caseref, $suffix, $eventCode)

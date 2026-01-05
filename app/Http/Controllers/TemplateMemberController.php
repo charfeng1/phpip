@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 class TemplateMemberController extends Controller
 {
     use HandlesAuditFields;
+
     /**
      * Supported template languages.
      *
@@ -30,7 +31,7 @@ class TemplateMemberController extends Controller
     /**
      * Display a paginated list of template members with filtering.
      *
-     * @param Request $request Filter parameters
+     * @param  Request  $request  Filter parameters
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -96,7 +97,7 @@ class TemplateMemberController extends Controller
     /**
      * Store a newly created template member.
      *
-     * @param StoreTemplateMemberRequest $request Validated template member data
+     * @param  StoreTemplateMemberRequest  $request  Validated template member data
      * @return TemplateMember The created template member
      */
     public function store(StoreTemplateMemberRequest $request)
@@ -109,7 +110,7 @@ class TemplateMemberController extends Controller
     /**
      * Display the specified template member.
      *
-     * @param TemplateMember $templateMember The template member to display
+     * @param  TemplateMember  $templateMember  The template member to display
      * @return \Illuminate\Http\Response
      */
     public function show(TemplateMember $templateMember)
@@ -126,8 +127,8 @@ class TemplateMemberController extends Controller
     /**
      * Update the specified template member.
      *
-     * @param UpdateTemplateMemberRequest $request Validated template member data
-     * @param TemplateMember $templateMember The template member to update
+     * @param  UpdateTemplateMemberRequest  $request  Validated template member data
+     * @param  TemplateMember  $templateMember  The template member to update
      * @return TemplateMember The updated template member
      */
     public function update(UpdateTemplateMemberRequest $request, TemplateMember $templateMember)
@@ -141,7 +142,7 @@ class TemplateMemberController extends Controller
     /**
      * Remove the specified template member from storage.
      *
-     * @param TemplateMember $templateMember The template member to delete
+     * @param  TemplateMember  $templateMember  The template member to delete
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(TemplateMember $templateMember)

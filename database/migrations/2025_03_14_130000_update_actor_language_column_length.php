@@ -10,7 +10,7 @@ return new class extends Migration
     /**
      * The SQL statement to create/recreate the users view for PostgreSQL.
      */
-    private string $usersViewSql = "
+    private string $usersViewSql = '
         CREATE OR REPLACE VIEW users AS
         SELECT
             actor.id,
@@ -30,7 +30,7 @@ return new class extends Migration
             actor.remember_token
         FROM actor
         WHERE actor.login IS NOT NULL
-    ";
+    ';
 
     /**
      * Run the migrations.
@@ -40,7 +40,7 @@ return new class extends Migration
         // Only run if the actor table exists
         // This allows migrations to run on fresh databases where the core schema
         // (database/schema/postgres-schema.sql) hasn't been loaded yet
-        if (!Schema::hasTable('actor')) {
+        if (! Schema::hasTable('actor')) {
             return;
         }
 
@@ -66,7 +66,7 @@ return new class extends Migration
     public function down(): void
     {
         // Only run if the actor table exists
-        if (!Schema::hasTable('actor')) {
+        if (! Schema::hasTable('actor')) {
             return;
         }
 

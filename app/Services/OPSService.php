@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Enums\EventCode;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
-use SimpleXMLElement;
 
 /**
  * Service for interacting with the European Patent Office (EPO) Open Patent Services (OPS) API.
@@ -24,8 +23,6 @@ class OPSService
      *
      * Retrieves and stores an access token using the OPS_APP_KEY and OPS_SECRET
      * environment variables. The token is stored in the instance for subsequent requests.
-     *
-     * @return void
      */
     public function authenticate(): void
     {
@@ -62,7 +59,7 @@ class OPSService
      * a document number. Returns structured data including application details,
      * priorities, publications, grants, and procedural information.
      *
-     * @param string $docnum The document number to search for in the OPS database.
+     * @param  string  $docnum  The document number to search for in the OPS database.
      * @return array An array of family members with their details, or error information if the request fails.
      *               Returns ['errors' => [...], 'message' => '...'] on authentication or client errors.
      */
@@ -270,7 +267,7 @@ class OPSService
      * Fetches procedural information from the EPO register including request dates,
      * dispatch dates, reply dates, payment dates, and renewal year information.
      *
-     * @param string $appNumber The EP application number (without country code).
+     * @param  string  $appNumber  The EP application number (without country code).
      * @return array An array of procedural steps with dates and codes, or empty array if request fails.
      */
     private function getProceduralSteps(string $appNumber): array
@@ -339,8 +336,8 @@ class OPSService
      * Fetches renewal fee payment information from the OPS legal status endpoint.
      * Supports FR (PLFP code) and US (MAFP code) applications.
      *
-     * @param string $country The country code (FR or US).
-     * @param string $appNumber The application number (without country code).
+     * @param  string  $country  The country code (FR or US).
+     * @param  string  $appNumber  The application number (without country code).
      * @return array An array of renewal payment information compatible with EP procedural steps format, or empty array if request fails.
      */
     private function getLegalStatus(string $country, string $appNumber): array

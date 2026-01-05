@@ -22,7 +22,7 @@ class RoleTest extends TestCase
     /** @test */
     public function it_uses_actor_role_table()
     {
-        $role = new Role();
+        $role = new Role;
 
         $this->assertEquals('actor_role', $role->getTable());
     }
@@ -30,7 +30,7 @@ class RoleTest extends TestCase
     /** @test */
     public function it_has_translatable_name()
     {
-        $role = new Role();
+        $role = new Role;
 
         $this->assertIsArray($role->translatable);
         $this->assertContains('name', $role->translatable);
@@ -66,7 +66,7 @@ class RoleTest extends TestCase
     /** @test */
     public function it_guards_timestamp_fields()
     {
-        $role = new Role();
+        $role = new Role;
         $guarded = $role->getGuarded();
 
         $this->assertContains('created_at', $guarded);
@@ -76,7 +76,7 @@ class RoleTest extends TestCase
     /** @test */
     public function it_uses_has_factory_trait()
     {
-        $role = new Role();
+        $role = new Role;
         $traits = class_uses_recursive($role);
 
         $this->assertContains('Illuminate\Database\Eloquent\Factories\HasFactory', $traits);
@@ -107,7 +107,7 @@ class RoleTest extends TestCase
     /** @test */
     public function it_uses_has_table_comments_trait()
     {
-        $role = new Role();
+        $role = new Role;
         $traits = class_uses_recursive($role);
 
         $this->assertContains('App\Traits\HasTableComments', $traits);
@@ -116,7 +116,7 @@ class RoleTest extends TestCase
     /** @test */
     public function it_uses_has_translations_extended_trait()
     {
-        $role = new Role();
+        $role = new Role;
         $traits = class_uses_recursive($role);
 
         $this->assertContains('App\Traits\HasTranslationsExtended', $traits);

@@ -8,7 +8,6 @@ use Tests\TestCase;
 
 class CountryControllerTest extends TestCase
 {
-
     /** @test */
     public function countries_can_be_filtered_by_iso_prefix()
     {

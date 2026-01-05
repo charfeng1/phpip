@@ -49,10 +49,11 @@ class AuditLogController extends Controller
             'record_id' => fn ($q, $v) => $q->where('auditable_id', $v),
         ];
     }
+
     /**
      * Display a paginated list of audit logs with filtering.
      *
-     * @param Request $request Filter parameters
+     * @param  Request  $request  Filter parameters
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -94,9 +95,8 @@ class AuditLogController extends Controller
     /**
      * Display the audit history for a specific record.
      *
-     * @param Request $request
-     * @param string $type Model type (e.g., 'matter', 'event')
-     * @param int $id Record ID
+     * @param  string  $type  Model type (e.g., 'matter', 'event')
+     * @param  int  $id  Record ID
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function show(Request $request, string $type, int $id)
@@ -137,8 +137,6 @@ class AuditLogController extends Controller
     /**
      * Display detailed view of a single audit log entry.
      *
-     * @param Request $request
-     * @param AuditLog $auditLog
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function detail(Request $request, AuditLog $auditLog)
@@ -156,7 +154,6 @@ class AuditLogController extends Controller
     /**
      * Export audit logs as CSV.
      *
-     * @param Request $request
      * @return \Symfony\Component\HttpFoundation\StreamedResponse
      */
     public function export(Request $request)
@@ -221,9 +218,6 @@ class AuditLogController extends Controller
 
     /**
      * Resolve a short model name to its full class name.
-     *
-     * @param string $type
-     * @return string|null
      */
     protected function resolveModelClass(string $type): ?string
     {
@@ -258,8 +252,6 @@ class AuditLogController extends Controller
 
     /**
      * Get a list of auditable models for the filter dropdown.
-     *
-     * @return array
      */
     protected function getAuditableModels(): array
     {

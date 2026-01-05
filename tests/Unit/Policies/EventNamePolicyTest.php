@@ -14,7 +14,7 @@ class EventNamePolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new EventNamePolicy();
+        $this->policy = new EventNamePolicy;
     }
 
     /** @test */

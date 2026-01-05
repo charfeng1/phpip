@@ -11,7 +11,7 @@ class MatterFactory extends Factory
 
     public function definition(): array
     {
-        $caseref = strtoupper($this->faker->lexify('????')) . $this->faker->numberBetween(1000, 9999);
+        $caseref = strtoupper($this->faker->lexify('????')).$this->faker->numberBetween(1000, 9999);
 
         return [
             'category_code' => 'PAT',

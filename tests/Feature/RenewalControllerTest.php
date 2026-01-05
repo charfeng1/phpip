@@ -13,10 +13,15 @@ use Tests\TestCase;
 class RenewalControllerTest extends TestCase
 {
     protected User $adminUser;
+
     protected User $readWriteUser;
+
     protected User $readOnlyUser;
+
     protected User $clientUser;
+
     protected Country $country;
+
     protected Category $category;
 
     protected function setUp(): void

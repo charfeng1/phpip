@@ -32,8 +32,8 @@ class RenewalLogFilterService
     /**
      * Filter renewal logs based on provided criteria.
      *
-     * @param mixed $query The query builder to filter (RenewalsLog or Builder)
-     * @param array $filters Filter key-value pairs
+     * @param  mixed  $query  The query builder to filter (RenewalsLog or Builder)
+     * @param  array  $filters  Filter key-value pairs
      * @return mixed The filtered query builder
      */
     public function filterLogs(mixed $query, array $filters): mixed
@@ -58,9 +58,9 @@ class RenewalLogFilterService
     /**
      * Apply a single filter to the query.
      *
-     * @param mixed $query The query builder
-     * @param string $key The filter key
-     * @param mixed $value The filter value
+     * @param  mixed  $query  The query builder
+     * @param  string  $key  The filter key
+     * @param  mixed  $value  The filter value
      * @return mixed The filtered query builder
      */
     protected function applyFilter(mixed $query, string $key, mixed $value): mixed
@@ -79,7 +79,7 @@ class RenewalLogFilterService
     /**
      * Validate if a filter key is allowed.
      *
-     * @param string $key The filter key to validate
+     * @param  string  $key  The filter key to validate
      * @return bool True if filter is allowed, false otherwise
      */
     public function isValidFilterKey(string $key): bool

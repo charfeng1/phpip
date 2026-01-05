@@ -75,9 +75,6 @@ trait TrimsCharColumns
 
     /**
      * Check if a column is defined as a CHAR column that should be trimmed.
-     *
-     * @param  string  $key
-     * @return bool
      */
     protected function isCharColumn(string $key): bool
     {

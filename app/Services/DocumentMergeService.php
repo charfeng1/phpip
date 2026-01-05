@@ -23,7 +23,7 @@ class DocumentMergeService
     /**
      * Set the matter to be used for document merge operations.
      *
-     * @param Matter $matter The matter model instance to merge.
+     * @param  Matter  $matter  The matter model instance to merge.
      * @return $this Returns itself for method chaining.
      */
     public function setMatter(Matter $matter)
@@ -39,7 +39,7 @@ class DocumentMergeService
      * Processes a Word document template by replacing placeholders with matter data.
      * Handles both simple string replacements and complex multi-line values.
      *
-     * @param string $filePath The path to the Word document template file.
+     * @param  string  $filePath  The path to the Word document template file.
      * @return TemplateProcessor The processed template ready for saving or download.
      */
     public function merge($filePath)
@@ -234,8 +234,8 @@ class DocumentMergeService
      * Collects name, reference, address, country, registration number, and VAT number
      * for any matter actor, prefixing field names with the provided prefix.
      *
-     * @param MatterActors|null $matterActor The matter actor to extract details from.
-     * @param string $prefix The prefix to use for field names (e.g., 'Client', 'Agent').
+     * @param  MatterActors|null  $matterActor  The matter actor to extract details from.
+     * @param  string  $prefix  The prefix to use for field names (e.g., 'Client', 'Agent').
      * @return \Illuminate\Support\Collection Collection of actor details with prefixed field names.
      */
     private function getActorDetails(?MatterActors $matterActor, string $prefix): \Illuminate\Support\Collection
@@ -329,8 +329,8 @@ class DocumentMergeService
      * Processes multi-line values by converting newlines to Word XML line breaks,
      * allowing proper formatting of addresses and other multi-line fields.
      *
-     * @param TemplateProcessor $template The template processor instance.
-     * @param array $complexData Array of complex field values containing newlines.
+     * @param  TemplateProcessor  $template  The template processor instance.
+     * @param  array  $complexData  Array of complex field values containing newlines.
      * @return void
      */
     private function setComplexValues(TemplateProcessor $template, $complexData)
