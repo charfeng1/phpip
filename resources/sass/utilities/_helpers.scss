@@ -11,10 +11,22 @@
   border-radius: 0;
   background: transparent;
   color: inherit;
-  padding: 0;
+  padding: 0.125rem 0.25rem;
   height: auto;
-  display: inline;
+  min-height: auto;
   box-shadow: none;
+  line-height: 1.5;
+
+  // When used in flex contexts, maintain proper alignment
+  &:not(select) {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  // For select elements, keep inline-block for dropdown behavior
+  &select {
+    display: inline-block;
+  }
 }
 
 .text-muted-soft {
@@ -23,4 +35,118 @@
 
 .shadow-floating {
   box-shadow: var(--shadow-lg) !important;
+}
+
+// ========================================
+// Form alignment utilities
+// ========================================
+
+// Ensure vertical centering for form labels next to inputs
+.form-label-inline {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 0;
+  min-height: 2.25rem; // Match DaisyUI input height
+}
+
+// Fix vertical alignment for inline form groups
+.form-group-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+// Ensure text is vertically centered in table cells with inputs
+.table-cell-input {
+  vertical-align: middle;
+
+  input, select, .form-control {
+    margin: 0;
+    vertical-align: middle;
+  }
+}
+
+// ========================================
+// Badge and button text alignment fixes
+// ========================================
+
+// Ensure badge text is vertically centered
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+// Fix button text vertical alignment
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  line-height: 1;
+}
+
+// ========================================
+// DaisyUI component alignment fixes
+// ========================================
+
+// Fix join items alignment
+.join {
+  display: inline-flex;
+  align-items: stretch;
+
+  > * {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+// Fix input alignment in join groups
+.join .input,
+.join .select,
+.join .btn {
+  min-height: 2.5rem;
+}
+
+.join .input-sm,
+.join .select-sm,
+.join .btn-sm {
+  min-height: 2rem;
+}
+
+// Ensure proper alignment for card-title with actions
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+// Fix alert text alignment
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+// ========================================
+// Grid definition list alignment
+// ========================================
+
+// Align definition terms and values properly
+dl.grid {
+  dt {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  dd {
+    display: flex;
+    align-items: center;
+  }
 }

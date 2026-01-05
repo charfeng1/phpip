@@ -1,20 +1,27 @@
 // Bootstrap CSS compatibility layer
 // Provides essential Bootstrap classes using CSS variables for DaisyUI compatibility
+// Uses CSS custom properties from _variables.scss for consistent theming
 
 // Form Controls
 .form-control {
   width: 100%;
   padding: 0.5rem 0.75rem;
   font-size: var(--font-size-sm);
-  border: 1px solid oklch(var(--bc) / 0.2);
+  line-height: 1.5;
+  color: var(--text-primary);
+  border: 1px solid var(--border-medium);
   border-radius: var(--radius-md);
-  background-color: oklch(var(--b1));
+  background-color: var(--bg-primary);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 
   &:focus {
     outline: none;
-    border-color: oklch(var(--p));
-    box-shadow: 0 0 0 3px oklch(var(--p) / 0.2);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(124, 106, 239, 0.2);
+  }
+
+  &::placeholder {
+    color: var(--text-tertiary);
   }
 
   &.noformat {
@@ -23,8 +30,8 @@
     padding: 0.125rem 0.25rem;
 
     &:hover, &:focus {
-      border-color: oklch(var(--bc) / 0.2);
-      background-color: oklch(var(--b1));
+      border-color: var(--border-medium);
+      background-color: var(--bg-primary);
     }
   }
 }
@@ -37,7 +44,7 @@
 // Input Groups
 .input-group {
   display: flex;
-  align-items: stretch;
+  align-items: center;
 
   > .form-control {
     flex: 1;
@@ -57,26 +64,56 @@
 
   > .btn {
     border-radius: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
     &:first-child {
-      border-top-left-radius: var(--rounded-btn, 0.5rem);
-      border-bottom-left-radius: var(--rounded-btn, 0.5rem);
+      border-top-left-radius: var(--radius-md);
+      border-bottom-left-radius: var(--radius-md);
     }
 
     &:last-child {
-      border-top-right-radius: var(--rounded-btn, 0.5rem);
-      border-bottom-right-radius: var(--rounded-btn, 0.5rem);
+      border-top-right-radius: var(--radius-md);
+      border-bottom-right-radius: var(--radius-md);
+    }
+  }
+
+  .input-group-text {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    font-size: var(--font-size-sm);
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    text-align: center;
+    white-space: nowrap;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-md);
+
+    &:first-child {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      border-right: 0;
+    }
+
+    &:last-child {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      border-left: 0;
     }
   }
 }
 
 // Table styles
 .table-light {
-  background-color: oklch(var(--b2));
+  background-color: var(--bg-tertiary);
 }
 
 .table-hover tbody tr:hover {
-  background-color: oklch(var(--b2) / 0.5);
+  background-color: rgba(124, 106, 239, 0.04);
 }
 
 // Navigation styles
@@ -85,18 +122,19 @@
 }
 
 .nav-link {
-  display: block;
+  display: flex;
+  align-items: center;
   padding: 0.5rem 0.75rem;
-  color: oklch(var(--bc) / 0.7);
+  color: var(--text-secondary);
   text-decoration: none;
   transition: color var(--transition-fast);
 
   &:hover {
-    color: oklch(var(--bc));
+    color: var(--text-primary);
   }
 
   &.active {
-    color: oklch(var(--p));
+    color: var(--color-primary);
     font-weight: 500;
   }
 }
@@ -109,8 +147,8 @@
     border-radius: var(--radius-md);
 
     &.active {
-      background-color: oklch(var(--p));
-      color: oklch(var(--pc));
+      background-color: var(--color-primary);
+      color: white;
     }
   }
 }
@@ -119,6 +157,7 @@
   .nav-item, .nav-link {
     flex: 1;
     text-align: center;
+    justify-content: center;
   }
 }
 
@@ -135,32 +174,32 @@
 
 // Alert styles
 .alert-danger {
-  background-color: oklch(var(--er) / 0.1);
-  color: oklch(var(--er));
-  border: 1px solid oklch(var(--er) / 0.2);
+  background-color: rgba(220, 107, 107, 0.1);
+  color: var(--color-danger);
+  border: 1px solid rgba(220, 107, 107, 0.2);
 }
 
 .alert-success {
-  background-color: oklch(var(--su) / 0.1);
-  color: oklch(var(--su));
-  border: 1px solid oklch(var(--su) / 0.2);
+  background-color: rgba(74, 186, 122, 0.1);
+  color: var(--color-success);
+  border: 1px solid rgba(74, 186, 122, 0.2);
 }
 
 .alert-info {
-  background-color: oklch(var(--in) / 0.1);
-  color: oklch(var(--in));
-  border: 1px solid oklch(var(--in) / 0.2);
+  background-color: rgba(107, 138, 174, 0.1);
+  color: var(--color-info);
+  border: 1px solid rgba(107, 138, 174, 0.2);
 }
 
 .alert-warning {
-  background-color: oklch(var(--wa) / 0.1);
-  color: oklch(var(--wa));
-  border: 1px solid oklch(var(--wa) / 0.2);
+  background-color: rgba(212, 167, 44, 0.1);
+  color: var(--color-warning);
+  border: 1px solid rgba(212, 167, 44, 0.2);
 }
 
 .alert-dark {
-  background-color: oklch(var(--b3));
-  color: oklch(var(--bc));
+  background-color: var(--color-gray-800);
+  color: var(--text-inverse);
 }
 
 // Grid helpers
@@ -191,13 +230,13 @@
     border-radius: 0;
 
     &:first-child {
-      border-top-left-radius: var(--rounded-btn, 0.5rem);
-      border-bottom-left-radius: var(--rounded-btn, 0.5rem);
+      border-top-left-radius: var(--radius-md);
+      border-bottom-left-radius: var(--radius-md);
     }
 
     &:last-child {
-      border-top-right-radius: var(--rounded-btn, 0.5rem);
-      border-bottom-right-radius: var(--rounded-btn, 0.5rem);
+      border-top-right-radius: var(--radius-md);
+      border-bottom-right-radius: var(--radius-md);
     }
   }
 }
@@ -212,16 +251,16 @@
 
 // Text utilities
 .text-bg-primary {
-  background-color: oklch(var(--p));
-  color: oklch(var(--pc));
+  background-color: var(--color-primary);
+  color: white;
 }
 
 .text-info {
-  color: oklch(var(--in));
+  color: var(--color-info);
 }
 
 .text-danger {
-  color: oklch(var(--er));
+  color: var(--color-danger);
 }
 
 // Spacing utilities (Bootstrap to Tailwind mapping)
@@ -257,6 +296,10 @@
   justify-content: space-between;
 }
 
+.align-items-center {
+  align-items: center;
+}
+
 // Border utilities
 .border-top-0 {
   border-top: 0;
@@ -280,7 +323,7 @@
 
 // Card overrides for Bootstrap-style usage
 .card.reload-part {
-  background-color: oklch(var(--b1));
+  background-color: var(--bg-primary);
 }
 
 // Reveal hidden action
@@ -305,13 +348,13 @@
 // Sortable placeholder
 .sortable-ghost {
   opacity: 0.4;
-  background-color: oklch(var(--p) / 0.1);
+  background-color: rgba(124, 106, 239, 0.1);
 }
 
 // Required field indicator
 .required-field::after {
   content: " *";
-  color: oklch(var(--er));
+  color: var(--color-danger);
 }
 
 // ========================================
@@ -332,78 +375,78 @@
 // Note: These classes work alongside DaisyUI's .btn class
 .btn-outline-primary {
   background-color: transparent;
-  border: 1px solid oklch(var(--p));
-  color: oklch(var(--p));
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
 
   &:hover {
-    background-color: oklch(var(--p));
-    color: oklch(var(--pc));
+    background-color: var(--color-primary);
+    color: white;
   }
 }
 
 .btn-outline-secondary {
   background-color: transparent;
-  border: 1px solid oklch(var(--s));
-  color: oklch(var(--s));
+  border: 1px solid var(--color-secondary);
+  color: var(--color-secondary);
 
   &:hover {
-    background-color: oklch(var(--s));
-    color: oklch(var(--sc));
+    background-color: var(--color-secondary);
+    color: white;
   }
 }
 
 .btn-outline-success {
   background-color: transparent;
-  border: 1px solid oklch(var(--su));
-  color: oklch(var(--su));
+  border: 1px solid var(--color-success);
+  color: var(--color-success);
 
   &:hover {
-    background-color: oklch(var(--su));
-    color: oklch(var(--suc));
+    background-color: var(--color-success);
+    color: white;
   }
 }
 
 .btn-outline-danger {
   background-color: transparent;
-  border: 1px solid oklch(var(--er));
-  color: oklch(var(--er));
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
 
   &:hover {
-    background-color: oklch(var(--er));
-    color: oklch(var(--erc));
+    background-color: var(--color-danger);
+    color: white;
   }
 }
 
 .btn-outline-warning {
   background-color: transparent;
-  border: 1px solid oklch(var(--wa));
-  color: oklch(var(--wa));
+  border: 1px solid var(--color-warning);
+  color: var(--color-warning);
 
   &:hover {
-    background-color: oklch(var(--wa));
-    color: oklch(var(--wac));
+    background-color: var(--color-warning);
+    color: var(--color-gray-900);
   }
 }
 
 .btn-outline-info {
   background-color: transparent;
-  border: 1px solid oklch(var(--in));
-  color: oklch(var(--in));
+  border: 1px solid var(--color-info);
+  color: var(--color-info);
 
   &:hover {
-    background-color: oklch(var(--in));
-    color: oklch(var(--inc));
+    background-color: var(--color-info);
+    color: white;
   }
 }
 
 // Bootstrap btn-danger -> style like DaisyUI btn-error
 .btn-danger {
-  background-color: oklch(var(--er));
-  color: oklch(var(--erc));
-  border-color: oklch(var(--er));
+  background-color: var(--color-danger);
+  color: white;
+  border-color: var(--color-danger);
 
   &:hover {
-    background-color: oklch(var(--er) / 0.9);
+    background-color: rgba(220, 107, 107, 0.9);
   }
 }
 
@@ -423,15 +466,16 @@
   width: 1rem;
   height: 1rem;
   margin: 0;
-  border: 1px solid oklch(var(--bc) / 0.3);
+  border: 1px solid var(--border-strong);
   border-radius: 0.25rem;
-  background-color: oklch(var(--b1));
+  background-color: var(--bg-primary);
   cursor: pointer;
   appearance: none;
+  flex-shrink: 0;
 
   &:checked {
-    background-color: oklch(var(--p));
-    border-color: oklch(var(--p));
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
     background-size: 0.75rem;
     background-position: center;
@@ -448,14 +492,14 @@
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px oklch(var(--p) / 0.2);
+    box-shadow: 0 0 0 3px rgba(124, 106, 239, 0.2);
   }
 }
 
 .form-check-label {
   cursor: pointer;
   font-size: var(--font-size-sm);
-  color: oklch(var(--bc));
+  color: var(--text-primary);
 }
 
 .form-check-inline {
@@ -469,12 +513,12 @@
 
 .card-header {
   padding: 0.75rem 1rem;
-  background-color: oklch(var(--b2));
-  border-bottom: 1px solid oklch(var(--bc) / 0.1);
+  background-color: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-light);
   font-weight: 600;
 
   &:first-child {
-    border-radius: var(--rounded-box, 1rem) var(--rounded-box, 1rem) 0 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   }
 }
 
@@ -484,11 +528,11 @@
 
 .card-footer {
   padding: 0.75rem 1rem;
-  background-color: oklch(var(--b2));
-  border-top: 1px solid oklch(var(--bc) / 0.1);
+  background-color: var(--bg-tertiary);
+  border-top: 1px solid var(--border-light);
 
   &:last-child {
-    border-radius: 0 0 var(--rounded-box, 1rem) var(--rounded-box, 1rem);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   }
 }
 
@@ -510,32 +554,32 @@
 
 .table-striped {
   tbody tr:nth-child(odd) {
-    background-color: oklch(var(--b2) / 0.5);
+    background-color: var(--bg-secondary);
   }
 }
 
 .table-primary {
-  background-color: oklch(var(--p) / 0.1);
+  background-color: rgba(124, 106, 239, 0.1);
 
   > th, > td {
-    background-color: oklch(var(--p) / 0.1);
+    background-color: rgba(124, 106, 239, 0.1);
   }
 }
 
 .table-success {
-  background-color: oklch(var(--su) / 0.1);
+  background-color: rgba(74, 186, 122, 0.1);
 }
 
 .table-danger {
-  background-color: oklch(var(--er) / 0.1);
+  background-color: rgba(220, 107, 107, 0.1);
 }
 
 .table-warning {
-  background-color: oklch(var(--wa) / 0.1);
+  background-color: rgba(212, 167, 44, 0.1);
 }
 
 .table-info {
-  background-color: oklch(var(--in) / 0.1);
+  background-color: rgba(107, 138, 174, 0.1);
 }
 
 // ========================================
@@ -551,9 +595,9 @@
 
 .page-item {
   &.active .page-link {
-    background-color: oklch(var(--p));
-    color: oklch(var(--pc));
-    border-color: oklch(var(--p));
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
   }
 
   &.disabled .page-link {
@@ -568,15 +612,15 @@
   justify-content: center;
   padding: 0.375rem 0.75rem;
   font-size: var(--font-size-sm);
-  color: oklch(var(--bc));
-  background-color: oklch(var(--b1));
-  border: 1px solid oklch(var(--bc) / 0.2);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-medium);
   text-decoration: none;
   transition: all var(--transition-fast);
 
   &:hover {
-    background-color: oklch(var(--b2));
-    color: oklch(var(--p));
+    background-color: var(--bg-tertiary);
+    color: var(--color-primary);
   }
 
   &:first-child {
@@ -597,7 +641,7 @@
   margin-bottom: 0.25rem;
   font-size: var(--font-size-sm);
   font-weight: 500;
-  color: oklch(var(--bc));
+  color: var(--text-primary);
 }
 
 .form-select {
@@ -605,9 +649,11 @@
   width: 100%;
   padding: 0.5rem 2rem 0.5rem 0.75rem;
   font-size: var(--font-size-sm);
-  border: 1px solid oklch(var(--bc) / 0.2);
+  line-height: 1.5;
+  color: var(--text-primary);
+  border: 1px solid var(--border-medium);
   border-radius: var(--radius-md);
-  background-color: oklch(var(--b1));
+  background-color: var(--bg-primary);
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 0.5rem center;
@@ -616,8 +662,8 @@
 
   &:focus {
     outline: none;
-    border-color: oklch(var(--p));
-    box-shadow: 0 0 0 3px oklch(var(--p) / 0.2);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(124, 106, 239, 0.2);
   }
 }
 
@@ -637,8 +683,8 @@
 }
 
 .modal-content {
-  background-color: oklch(var(--b1));
-  border-radius: var(--rounded-box, 1rem);
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
 }
 
@@ -647,7 +693,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem;
-  border-bottom: 1px solid oklch(var(--bc) / 0.1);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .modal-title {
@@ -664,7 +710,7 @@
   justify-content: flex-end;
   gap: 0.5rem;
   padding: 1rem;
-  border-top: 1px solid oklch(var(--bc) / 0.1);
+  border-top: 1px solid var(--border-light);
 }
 
 // ========================================
@@ -677,8 +723,8 @@
   display: none;
   min-width: 10rem;
   padding: 0.5rem 0;
-  background-color: oklch(var(--b1));
-  border: 1px solid oklch(var(--bc) / 0.1);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
 
@@ -692,19 +738,19 @@
   width: 100%;
   padding: 0.5rem 1rem;
   font-size: var(--font-size-sm);
-  color: oklch(var(--bc));
+  color: var(--text-primary);
   text-decoration: none;
   background-color: transparent;
   border: 0;
   cursor: pointer;
 
   &:hover {
-    background-color: oklch(var(--b2));
+    background-color: var(--bg-tertiary);
   }
 
   &.active, &:active {
-    background-color: oklch(var(--p));
-    color: oklch(var(--pc));
+    background-color: var(--color-primary);
+    color: white;
   }
 }
 
@@ -712,7 +758,7 @@
   height: 0;
   margin: 0.5rem 0;
   overflow: hidden;
-  border-top: 1px solid oklch(var(--bc) / 0.1);
+  border-top: 1px solid var(--border-light);
 }
 
 // ========================================
@@ -743,23 +789,23 @@
 // ========================================
 
 .text-muted {
-  color: oklch(var(--bc) / 0.6);
+  color: var(--text-tertiary);
 }
 
 .text-success {
-  color: oklch(var(--su));
+  color: var(--color-success);
 }
 
 .text-warning {
-  color: oklch(var(--wa));
+  color: var(--color-warning);
 }
 
 .text-primary {
-  color: oklch(var(--p));
+  color: var(--color-primary);
 }
 
 .text-secondary {
-  color: oklch(var(--s));
+  color: var(--color-secondary);
 }
 
 .fw-bold {
